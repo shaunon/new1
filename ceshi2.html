@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>广告管理系统 - 后台</title>
+    <!-- 引入Chart.js图表库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 侧边栏样式 - 优化版 */
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(135deg, var(--secondary-color), var(--dark-color));
+            color: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .logo {
+            text-align: center;
+            padding: 15px 0 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .logo h2 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-menu li {
+            padding: 14px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-menu li:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .nav-menu li.active {
+            background-color: rgba(255,255,255,0.15);
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .nav-menu li i {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        
+        /* 主内容区样式 - 优化版 */
+        .main-content {
+            flex: 1;
+            padding: 25px 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 8px 15px;
+            border-radius: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .user-info img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            border: 2px solid var(--light-color);
+        }
+        
+        /* 卡片样式 - 优化版 */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            padding: 18px 25px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+        }
+        
+        .card-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        /* 表格样式 - 优化版 */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+        
+        table th {
+            background-color: #f8f9fa;
+            color: #555;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+        
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        table tr:hover td {
+            background-color: #f9f9f9;
+        }
+        
+        /* 按钮样式 - 优化版 */
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-sm {
+            padding: 7px 12px;
+            font-size: 13px;
+        }
+        
+        .btn-rounded {
+            border-radius: 50px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(46, 204, 113, 0.3);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: #555;
+        }
+        
+        .btn-outline:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* 表单样式 - 优化版 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        /* 状态标签 - 优化版 */
+        .status-label {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* 数据卡片 - 优化版 */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h4 {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .stat-card p {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .change {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .change.up {
+            color: var(--success-color);
+        }
+        
+        .change.down {
+            color: var(--danger-color);
+        }
+        
+        /* 图表容器 - 优化版 */
+        .chart-container {
+            position: relative;
+            height: 350px;
+            margin-top: 30px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+        
+        /* 确保图表容器内的canvas元素正确显示 */
+        .chart-container canvas {
+            width: 100% !important;
+            height: 300px !important;
+        }
+        
+        /* 响应式设计 - 优化版 */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+                overflow: hidden;
+            }
+            
+            .logo h2, .nav-menu li span {
+                display: none;
+            }
+            
+            .nav-menu li {
+                justify-content: center;
+                padding: 15px 0;
+            }
+            
+            .nav-menu li i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .user-info {
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2>广告管理系统</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="active"><i>📊</i> <span>广告管理</span></li>
+                <li><i>📈</i> <span>数据统计</span></li>
+                <li><i>🖼️</i> <span>素材管理</span></li>
+                <li><i>👥</i> <span>客户管理</span></li>
+                <li><i>⚙️</i> <span>系统设置</span></li>
+            </ul>
+        </div>
+        
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <div class="header">
+                <h1>广告管理控制台</h1>
+                <div class="user-info">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="用户头像">
+                    <span>管理员</span>
+                </div>
+            </div>
+            
+            <!-- 数据概览卡片 -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <h4>总展示量</h4>
+                    <p>24,568</p>
+                    <div class="change up">
+                        <i>↑</i> 12.5% 较上周
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h4>总点击量</h4>
+                    <p>1,245</p>
+                    <div class="change up">
+                        <i>↑</i> 8.3% 较上周
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h4>平均点击率</h4>
+                    <p>5.06%</p>
+                    <div class="change down">
+                        <i>↓</i> 1.2% 较上周
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <h4>总转化数</h4>
+                    <p>328</p>
+                    <div class="change up">
+                        <i>↑</i> 5.7% 较上周
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 图表展示 -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">广告效果趋势 (最近30天)</div>
+                    <select class="form-control" style="width: auto; display: inline-block;">
+                        <option>全部广告</option>
+                        <option>首页轮播图</option>
+                        <option>侧边栏广告</option>
+                        <option>弹窗广告</option>
+                    </select>
+                </div>
+                <div style="position: relative; height: 300px;">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- 广告列表 -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>广告活动列表</h3>
+                    <button class="btn btn-primary btn-rounded" id="addAdBtn">
+                        <i>+</i> 新增广告
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>广告名称</th>
+                                    <th>广告位</th>
+                                    <th>投放时间</th>
+                                    <th>预算</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1001</td>
+                                    <td>
+                                        <strong>夏季促销活动</strong>
+                                        <div style="font-size: 12px; color: #777;">ID: adv_2023_summer</div>
+                                    </td>
+                                    <td>首页轮播图</td>
+                                    <td>
+                                        <div>06/01 - 08/31</div>
+                                        <div style="font-size: 12px; color: #777;">剩余15天</div>
+                                    </td>
+                                    <td>¥15,000</td>
+                                    <td><span class="status-label status-active">进行中</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline" title="编辑">
+                                            <i>✏️</i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" title="下线">
+                                            <i>⏸️</i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" title="查看数据">
+                                            <i>📈</i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>1002</td>
+                                    <td>
+                                        <strong>新品上市</strong>
+                                        <div style="font-size: 12px; color: #777;">ID: adv_2023_new</div>
+                                    </td>
+                                    <td>侧边栏广告</td>
+                                    <td>
+                                        <div>07/15 - 09/30</div>
+                                        <div style="font-size: 12px; color: #777;">剩余45天</div>
+                                    </td>
+                                    <td>¥8,000</td>
+                                    <td><span class="status-label status-active">进行中</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline" title="编辑">
+                                            <i>✏️</i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" title="下线">
+                                            <i>⏸️</i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" title="查看数据">
+                                            <i>📈</i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>1003</td>
+                                    <td>
+                                        <strong>双十一预热</strong>
+                                        <div style="font-size: 12px; color: #777;">ID: adv_2023_1111</div>
+                                    </td>
+                                    <td>弹窗广告</td>
+                                    <td>
+                                        <div>10/20 - 11/15</div>
+                                        <div style="font-size: 12px; color: #777;">待开始</div>
+                                    </td>
+                                    <td>¥25,000</td>
+                                    <td><span class="status-label status-pending">待上线</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline" title="编辑">
+                                            <i>✏️</i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" title="上线">
+                                            <i>▶️</i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" title="查看数据">
+                                            <i>📈</i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>1004</td>
+                                    <td>
+                                        <strong>春节特惠</strong>
+                                        <div style="font-size: 12px; color: #777;">ID: adv_2023_spring</div>
+                                    </td>
+                                    <td>首页轮播图</td>
+                                    <td>
+                                        <div>01/15 - 02/15</div>
+                                        <div style="font-size: 12px; color: #777;">已结束</div>
+                                    </td>
+                                    <td>¥12,000</td>
+                                    <td><span class="status-label status-inactive">已结束</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline" title="编辑">
+                                            <i>✏️</i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" title="删除">
+                                            <i>🗑️</i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" title="查看数据">
+                                            <i>📈</i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 新增/编辑广告表单 (默认隐藏) -->
+            <div class="card" id="adForm" style="display: none;">
+                <div class="card-header">
+                    <h3>新增广告活动</h3>
+                    <button class="btn btn-outline" id="cancelAdBtn">
+                        <i>×</i> 取消
+                    </button>
+                </div>
+                <div class="card-body">
+                    <form id="adFormContent">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="adName">广告名称 *</label>
+                                <input type="text" id="adName" class="form-control" placeholder="例如：夏季大促销" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="adClient">广告客户 *</label>
+                                <select id="adClient" class="form-control" required>
+                                    <option value="">选择客户</option>
+                                    <option value="client1">客户A</option>
+                                    <option value="client2">客户B</option>
+                                    <option value="client3">客户C</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="adPosition">广告位 *</label>
+                                <select id="adPosition" class="form-control" required>
+                                    <option value="">选择广告位</option>
+                                    <option value="home_banner">首页轮播图</option>
+                                    <option value="sidebar">侧边栏广告</option>
+                                    <option value="popup">弹窗广告</option>
+                                    <option value="footer">页脚广告</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="adBudget">广告预算 (¥)</label>
+                                <input type="number" id="adBudget" class="form-control" placeholder="例如：10000">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="startDate">开始日期 *</label>
+                                <input type="date" id="startDate" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="endDate">结束日期 *</label>
+                                <input type="date" id="endDate" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="adStatus">状态 *</label>
+                                <select id="adStatus" class="form-control" required>
+                                    <option value="active">立即上线</option>
+                                    <option value="pending">暂存待上线</option>
+                                    <option value="inactive">下线</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="adImage">广告素材 *</label>
+                            <div style="border: 1px dashed #ddd; border-radius: 6px; padding: 20px; text-align: center;">
+                                <div style="margin-bottom: 15px;">
+                                    <i style="font-size: 40px; color: #ccc;">🖼️</i>
+                                </div>
+                                <input type="file" id="adImage" style="display: none;">
+                                <button type="button" class="btn btn-outline" onclick="document.getElementById('adImage').click()">
+                                    <i>📤</i> 上传图片
+                                </button>
+                                <div style="font-size: 12px; color: #999; margin-top: 10px;">
+                                    支持JPG/PNG格式，建议尺寸：1200×600px
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="adLink">目标链接</label>
+                            <input type="url" id="adLink" class="form-control" placeholder="https://example.com/promotion">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="adContent">广告说明</label>
+                            <textarea id="adContent" class="form-control" placeholder="广告的详细描述或备注"></textarea>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: flex-end; gap: 15px; margin-top: 25px;">
+                            <button type="button" class="btn btn-outline" id="cancelAdBtn2">
+                                取消
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i>✓</i> 保存广告
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 等待DOM完全加载后再初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化图表
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            const performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 30}, (_, i) => `${i+1}日`),
+                    datasets: [
+                        {
+                            label: '展示量',
+                            data: [1200, 1350, 1420, 1550, 1600, 1750, 1820, 1900, 2050, 2100, 2250, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 3600, 3700, 3800, 3900, 4000, 4100],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: '点击量',
+                            data: [60, 65, 70, 72, 75, 80, 82, 85, 90, 92, 95, 100, 102, 105, 110, 112, 115, 120, 122, 125, 130, 132, 135, 140, 142, 145, 150, 152, 155, 160],
+                            borderColor: '#2ecc71',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: '转化量',
+                            data: [12, 15, 14, 16, 18, 20, 19, 21, 22, 23, 25, 24, 26, 28, 27, 29, 30, 32, 31, 33, 35, 34, 36, 38, 37, 39, 40, 42, 41, 43],
+                            borderColor: '#f39c12',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+            
+            // 交互逻辑
+            document.getElementById('addAdBtn').addEventListener('click', function() {
+                document.getElementById('adForm').style.display = 'block';
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
+            });
+            
+            document.getElementById('cancelAdBtn').addEventListener('click', function() {
+                document.getElementById('adForm').style.display = 'none';
+            });
+            
+            document.getElementById('cancelAdBtn2').addEventListener('click', function() {
+                document.getElementById('adForm').style.display = 'none';
+            });
+            
+            document.getElementById('adFormContent').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('广告保存成功！');
+                document.getElementById('adForm').style.display = 'none';
+                // 这里可以添加实际的表单提交逻辑
+            });
+            
+            // 模拟数据更新
+            setInterval(() => {
+                performanceChart.data.datasets.forEach(dataset => {
+                    dataset.data = dataset.data.map(value => {
+                        // 随机波动+-5%
+                        const fluctuation = value * (Math.random() * 0.1 - 0.05);
+                        return Math.max(0, Math.round(value + fluctuation));
+                    });
+                });
+                performanceChart.update();
+            }, 5000);
+        }, 5000);
+    </script>
+</body>
+</html>
