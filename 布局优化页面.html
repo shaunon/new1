@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>达人管理系统</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#0066ff',secondary:'#f5f5f5'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+.tab-active {
+color: #0066ff;
+border-bottom: 2px solid #0066ff;
+}
+.custom-checkbox {
+appearance: none;
+width: 16px;
+height: 16px;
+border: 1px solid #d1d5db;
+border-radius: 4px;
+position: relative;
+cursor: pointer;
+}
+.custom-checkbox:checked {
+background-color: #0066ff;
+border-color: #0066ff;
+}
+.custom-checkbox:checked::after {
+content: '';
+position: absolute;
+left: 5px;
+top: 2px;
+width: 5px;
+height: 9px;
+border: solid white;
+border-width: 0 2px 2px 0;
+transform: rotate(45deg);
+}
+.pagination-item {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 32px;
+height: 32px;
+border: 1px solid #e5e7eb;
+cursor: pointer;
+}
+.pagination-item.active {
+background-color: #0066ff;
+color: white;
+border-color: #0066ff;
+}
+.status-badge {
+display: inline-block;
+padding: 2px 8px;
+border-radius: 4px;
+font-size: 12px;
+}
+.status-badge.success {
+background-color: rgba(0, 200, 83, 0.1);
+color: #00c853;
+}
+.status-badge.warning {
+background-color: rgba(255, 152, 0, 0.1);
+color: #ff9800;
+}
+.status-badge.danger {
+background-color: rgba(244, 67, 54, 0.1);
+color: #f44336;
+}
+.status-badge.info {
+background-color: rgba(33, 150, 243, 0.1);
+color: #2196f3;
+}
+.status-badge.pending {
+background-color: rgba(156, 39, 176, 0.1);
+color: #9c27b0;
+}
+</style>
+</head>
+<body class="bg-gray-50">
+<div class="flex flex-col min-h-screen">
+<!-- 顶部导航栏 -->
+<header class="bg-white shadow-sm">
+<div class="flex items-center justify-between px-6 py-3">
+<div class="flex items-center">
+<h1 class="text-xl font-['Pacifico'] text-gray-800">logo</h1>
+</div>
+<div class="flex items-center">
+<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+<i class="ri-user-line text-gray-600"></i>
+</div>
+</div>
+</div>
+</header>
+<!-- 主内容区 -->
+<main class="flex-1 flex">
+<!-- 左侧导航 -->
+<div class="w-48 bg-white border-r border-gray-200">
+<div class="p-4">
+<div class="flex items-center py-2 px-4 rounded-button text-gray-700 cursor-pointer hover:bg-gray-100">
+<div class="w-5 h-5 flex items-center justify-center mr-2">
+<i class="ri-dashboard-line"></i>
+</div>
+<span>项目管理</span>
+</div>
+<div class="flex items-center py-2 px-4 rounded-button bg-primary bg-opacity-10 text-primary cursor-pointer">
+<div class="w-5 h-5 flex items-center justify-center mr-2">
+<i class="ri-user-star-line"></i>
+</div>
+<span>达人管理</span>
+</div>
+<div class="flex items-center py-2 px-4 rounded-button text-gray-700 cursor-pointer hover:bg-gray-100">
+<div class="w-5 h-5 flex items-center justify-center mr-2">
+<i class="ri-file-list-line"></i>
+</div>
+<span>报表统计</span>
+</div>
+</div>
+</div>
+<!-- 右侧内容 -->
+<div class="flex-1 overflow-auto">
+<!-- 顶部标签页 -->
+
+<!-- 项目信息 -->
+<div class="p-4 bg-white border-b border-gray-200">
+<div class="flex flex-wrap items-center gap-x-8 gap-y-2">
+<div class="flex items-center">
+<span class="text-gray-500 text-sm whitespace-nowrap">项目名称：</span>
+<span class="text-gray-800 font-medium text-sm ml-1">3月生活达人</span>
+</div>
+<div class="flex items-center">
+<span class="text-gray-500 text-sm whitespace-nowrap">报名人数：</span>
+<span class="text-gray-800 font-medium text-sm ml-1">5</span>
+</div>
+<div class="flex items-center">
+<span class="text-gray-500 text-sm whitespace-nowrap">达人人数：</span>
+<span class="text-gray-800 font-medium text-sm ml-1">10</span>
+</div>
+<div class="flex items-center">
+<span class="text-gray-500 text-sm whitespace-nowrap">创建时间：</span>
+<span class="text-gray-800 font-medium text-sm ml-1">2024-08-08 18:00:00</span>
+</div>
+<div class="flex items-center">
+<span class="text-gray-500 text-sm whitespace-nowrap">填写截止时间：</span>
+<span class="text-gray-800 font-medium text-sm ml-1">2024-08-08 18:00:00</span>
+</div>
+</div>
+</div>
+<!-- 筛选和操作区 -->
+<div class="p-4 bg-white border-b border-gray-200">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<div class="flex items-center bg-gray-100 rounded-full p-1">
+<button class="px-4 py-1.5 bg-primary text-white rounded-full text-sm whitespace-nowrap">抖音</button>
+<button class="px-4 py-1.5 text-gray-600 rounded-full text-sm whitespace-nowrap">小红书</button>
+</div>
+<div class="relative flex-1 max-w-xs">
+<input type="text" placeholder="搜索达人昵称和ID" class="pl-10 pr-4 py-2 border border-gray-300 rounded-button w-full focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm">
+<div class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-search-line"></i>
+</div>
+</div>
+<select class="border border-gray-300 rounded-button px-3 py-2 pr-8 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none bg-white">
+<option>是否在库</option>
+<option>在库</option>
+<option>不在库</option>
+</select>
+<select class="border border-gray-300 rounded-button px-3 py-2 pr-8 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm appearance-none bg-white">
+<option>状态</option>
+<option>已通过</option>
+<option>待媒介确认</option>
+<option>媒介驳回</option>
+<option>待采购确认</option>
+<option>采购驳回</option>
+<option>待填写</option>
+<option>已填写</option>
+</select>
+<button class="px-3 py-2 border border-gray-300 text-gray-600 !rounded-button whitespace-nowrap text-sm hover:bg-gray-50">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-database-2-line"></i>
+</div>
+<span>自定义数据</span>
+</div>
+</button>
+<button class="px-3 py-2 border border-gray-300 text-gray-600 !rounded-button whitespace-nowrap text-sm hover:bg-gray-50">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-download-line"></i>
+</div>
+<span>导出</span>
+</div>
+</button>
+</div>
+<div class="flex items-center space-x-3">
+<button class="px-3 py-2 bg-green-600 text-white !rounded-button whitespace-nowrap text-sm">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-check-line"></i>
+</div>
+<span>媒介批量确认</span>
+</div>
+</button>
+<button class="px-3 py-2 bg-blue-600 text-white !rounded-button whitespace-nowrap text-sm">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-check-line"></i>
+</div>
+<span>采购批量确认</span>
+</div>
+</button>
+<button class="px-3 py-2 bg-red-600 text-white !rounded-button whitespace-nowrap text-sm">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-close-line"></i>
+</div>
+<span>采购批量驳回</span>
+</div>
+</button>
+<button class="px-3 py-2 bg-orange-600 text-white !rounded-button whitespace-nowrap text-sm">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-close-line"></i>
+</div>
+<span>媒介批量驳回</span>
+</div>
+</button>
+</div>
+</div>
+</div>
+<!-- 表格区域 -->
+<div class="p-6">
+<div class="bg-white rounded shadow-sm overflow-hidden">
+<table class="w-full">
+<thead>
+<tr class="bg-gray-50 text-left">
+<th class="py-3 px-4 border-b border-gray-200">
+<input type="checkbox" class="custom-checkbox">
+</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">达人ID号</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">星图ID</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">是否在库</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">库内最优返点</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">达人状态</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">联系时间</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">商业对接人姓名</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">商业对接人手机号</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">商业对接人微信号</th>
+<th class="py-3 px-4 border-b border-gray-200 text-gray-600 font-medium text-sm">操作</th>
+</tr>
+</thead>
+<tbody>
+<tr class="hover:bg-gray-50">
+<td class="py-3 px-4 border-b border-gray-200">
+<input type="checkbox" class="custom-checkbox">
+</td>
+<td class="py-3 px-4 border-b border-gray-200">53224294342342</td>
+<td class="py-3 px-4 border-b border-gray-200">412421412</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge success">是</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">10%</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge success">已通过</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">2024-08-08 15:00:00</td>
+<td class="py-3 px-4 border-b border-gray-200">张三</td>
+<td class="py-3 px-4 border-b border-gray-200">13212312133</td>
+<td class="py-3 px-4 border-b border-gray-200">zxxx1</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<div class="flex space-x-2">
+<button class="text-blue-500 text-sm hover:text-blue-700">编辑</button>
+<button class="text-red-500 text-sm hover:text-red-700">删除</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="py-3 px-4 border-b border-gray-200">
+<input type="checkbox" class="custom-checkbox">
+</td>
+<td class="py-3 px-4 border-b border-gray-200">efhynct</td>
+<td class="py-3 px-4 border-b border-gray-200">3123123</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge success">是</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">10%</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge info">待媒介确认</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">2024-08-08 10:00:00</td>
+<td class="py-3 px-4 border-b border-gray-200">李四</td>
+<td class="py-3 px-4 border-b border-gray-200">13212121212</td>
+<td class="py-3 px-4 border-b border-gray-200">shaozi211</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<div class="flex space-x-2">
+<button class="text-blue-500 text-sm hover:text-blue-700">编辑</button>
+<button class="text-red-500 text-sm hover:text-red-700">删除</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50 bg-blue-50">
+<td class="py-3 px-4 border-b border-gray-200">
+<input type="checkbox" class="custom-checkbox" checked>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">efhzun</td>
+<td class="py-3 px-4 border-b border-gray-200">3123123</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge success">是</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">10%</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge pending">待采购确认</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">2024-08-08 10:00:00</td>
+<td class="py-3 px-4 border-b border-gray-200">王五</td>
+<td class="py-3 px-4 border-b border-gray-200">13223212211</td>
+<td class="py-3 px-4 border-b border-gray-200">muduanr123</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<div class="flex space-x-2">
+<button class="text-blue-500 text-sm hover:text-blue-700">编辑</button>
+<button class="text-red-500 text-sm hover:text-red-700">删除</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="py-3 px-4 border-b border-gray-200">
+<input type="checkbox" class="custom-checkbox">
+</td>
+<td class="py-3 px-4 border-b border-gray-200">3217未入人</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge warning">否</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">10%</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge warning">媒介驳回</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<div class="flex space-x-2">
+<button class="text-blue-500 text-sm hover:text-blue-700">编辑</button>
+<button class="text-red-500 text-sm hover:text-red-700">删除</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="py-3 px-4 border-b border-gray-200">
+<input type="checkbox" class="custom-checkbox">
+</td>
+<td class="py-3 px-4 border-b border-gray-200">xqwqw</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge warning">否</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">10%</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge danger">采购驳回</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<div class="flex space-x-2">
+<button class="text-blue-500 text-sm hover:text-blue-700">编辑</button>
+<button class="text-red-500 text-sm hover:text-red-700">删除</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="py-3 px-4 border-b border-gray-200">
+<input type="checkbox" class="custom-checkbox">
+</td>
+<td class="py-3 px-4 border-b border-gray-200">xqwqw123</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge warning">否</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">10%</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge info">待填写</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<div class="flex space-x-2">
+<button class="text-blue-500 text-sm hover:text-blue-700">编辑</button>
+<button class="text-red-500 text-sm hover:text-red-700">删除</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="py-3 px-4 border-b border-gray-200">
+<input type="checkbox" class="custom-checkbox">
+</td>
+<td class="py-3 px-4 border-b border-gray-200">xqwqw456</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge warning">否</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">10%</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<span class="status-badge pending">已填写</span>
+</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">-</td>
+<td class="py-3 px-4 border-b border-gray-200">
+<div class="flex space-x-2">
+<button class="text-blue-500 text-sm hover:text-blue-700">编辑</button>
+<button class="text-red-500 text-sm hover:text-red-700">删除</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- 提示框 -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded-lg shadow-lg border border-gray-200 hidden">
+<div class="text-center">
+<div class="text-red-500 mb-2">警告提示：</div>
+<div class="text-gray-600 mb-3">该达人没有填写个人信息，不能审核</div>
+<button class="px-4 py-2 bg-primary text-white !rounded-button whitespace-nowrap">确定</button>
+</div>
+</div>
+<!-- 分页 -->
+<div class="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+<div class="text-sm text-gray-500">
+共 2 页
+</div>
+<div class="flex items-center space-x-1">
+<div class="pagination-item !rounded-l-button">
+<i class="ri-arrow-left-s-line"></i>
+</div>
+<div class="pagination-item">1</div>
+<div class="pagination-item active">2</div>
+<div class="pagination-item">3</div>
+<div class="pagination-item !rounded-r-button">
+<i class="ri-arrow-right-s-line"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div
+</div>
+</main>
+</div>
+</body>
+</html>
