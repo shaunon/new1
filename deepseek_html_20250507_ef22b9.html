@@ -171,30 +171,17 @@
         let selectedMetrics = [];
         
         // 初始化图表
-        function initializeChart() {
-    const option = {
-        title: {
-            text: '请点击上方指标查看数据对比',
-            left: 'center',  // 确保标题居中
-            top: 20,        // 与顶部的距离
-            textStyle: {
-                fontSize: 12,
-                color: '#666',
-                fontWeight: 'normal'
-            },
-            padding: [5, 10] // 增加内边距确保文字不被截断
-        },
-        grid: {
-            top: 60,        // 为标题留出足够空间
-            left: '3%',
-            right: '4%',
-            bottom: '3%',
-            containLabel: true
-        }
-        // 其他图表配置...
-    };
-    // 图表初始化代码...
-}
+       function initializeChart() {
+            const option = {
+                title: {
+                    text: '请点击上方指标查看数据对比',
+                    textAlign: 'center',
+                    textStyle: {
+                        fontSize: 12,
+                        color: '#666'
+                    }
+                }
+            };
             myChart.setOption(option);
         }
         
