@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目管理系统</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#4f46e5',secondary:'#f43f5e'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+display: none;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+.custom-select {
+appearance: none;
+background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+background-repeat: no-repeat;
+background-position: right 0.5rem center;
+background-size: 1.25em 1.25em;
+}
+</style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+<!-- 顶部导航栏 -->
+<header class="bg-white shadow-sm">
+<div class="container mx-auto px-4 py-3 flex justify-between items-center">
+<div class="font-bold text-xl tracking-tight">TARGET<span class="text-primary">SOCIAL</span></div>
+<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer">
+<i class="ri-user-3-line text-gray-600 ri-lg"></i>
+</div>
+</div>
+</header>
+<!-- 主内容区 -->
+<main class="container mx-auto px-4 py-6">
+<!-- 搜索筛选区域 -->
+<div class="mb-6">
+<div class="flex flex-col md:flex-row gap-4">
+<!-- 标签切换 -->
+<div class="inline-flex p-1 bg-gray-100 rounded-md">
+<button class="px-4 py-2 text-sm font-medium text-gray-900 bg-white rounded-md shadow-sm cursor-pointer whitespace-nowrap">项目管理</button>
+<button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 cursor-pointer whitespace-nowrap">数据报表</button>
+</div>
+<div class="flex-1 grid grid-cols-1 md:grid-cols-5 gap-3">
+<!-- 搜索框 -->
+<div class="relative col-span-1">
+<div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+<i class="ri-search-line text-gray-400"></i>
+</div>
+<input type="search" placeholder="项目名/项目ID/联系人" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+</div>
+<!-- 开始时间筛选 -->
+<div class="relative col-span-1">
+<div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+<i class="ri-calendar-line text-gray-400"></i>
+</div>
+<input type="text" placeholder="选择开始时间" class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+<div class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+<i class="ri-close-circle-line text-gray-400"></i>
+</div>
+</div>
+<!-- 结束时间筛选 -->
+<div class="relative col-span-1">
+<div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+<i class="ri-calendar-line text-gray-400"></i>
+</div>
+<input type="text" placeholder="选择结束时间" class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+<div class="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+<i class="ri-close-circle-line text-gray-400"></i>
+</div>
+</div>
+<!-- 项目状态筛选 -->
+<div class="relative col-span-1">
+<select class="custom-select block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+<option selected>项目状态</option>
+<option>进行中</option>
+<option>已结束</option>
+<option>全部</option>
+</select>
+</div>
+<!-- 创建人筛选 -->
+<div class="relative col-span-1">
+<select class="custom-select block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary text-sm">
+<option selected>创建人</option>
+<option>xui dai</option>
+<option>shuai zhang</option>
+<option>全部</option>
+</select>
+</div>
+</div>
+</div>
+<!-- 操作按钮区 -->
+<div class="flex justify-end gap-3 mt-4">
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90 whitespace-nowrap cursor-pointer">
+<i class="ri-download-2-line mr-1"></i>导出平台人员
+</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90 whitespace-nowrap cursor-pointer">
+<i class="ri-file-download-line mr-1"></i>批量导出KOL
+</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90 whitespace-nowrap cursor-pointer">
+<i class="ri-filter-3-line mr-1"></i>筛选项目
+</button>
+</div>
+</div>
+<!-- 项目列表 -->
+<div class="bg-white rounded-lg shadow-sm overflow-hidden">
+<!-- 表头 -->
+<div class="grid grid-cols-12 bg-blue-50 text-gray-700 text-sm font-medium border-b border-gray-200">
+<div class="col-span-4 px-6 py-4">项目信息</div>
+<div class="col-span-2 px-6 py-4">项目数据</div>
+<div class="col-span-2 px-6 py-4 flex items-center gap-1 cursor-pointer">
+创建时间
+<i class="ri-arrow-down-s-line"></i>
+</div>
+<div class="col-span-2 px-6 py-4 flex items-center gap-1 cursor-pointer">
+项目截止时间
+<i class="ri-arrow-down-s-line"></i>
+</div>
+<div class="col-span-1 px-6 py-4">创建人</div>
+<div class="col-span-1 px-6 py-4">参与人</div>
+</div>
+<!-- 项目条目1 -->
+<div class="grid grid-cols-12 border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
+<div class="col-span-4 px-6 py-5">
+<div class="mb-2.5 font-medium text-gray-800 leading-6 flex items-center gap-3">
+这是专题的项目名称会称过长折行显示
+<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full whitespace-nowrap">进行中</span>
+<span class="px-2.5 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full whitespace-nowrap">合作</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-sm text-gray-500">ID: 308</span>
+</div>
+</div>
+<div class="col-span-2 px-6 py-5 flex items-center justify-center">
+<div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">待媒介确认</span>
+<span class="font-medium text-lg">15</span>
+</div>
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">填写人数</span>
+<span class="font-medium text-lg">28</span>
+</div>
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">建联人数</span>
+<span class="font-medium text-lg">22</span>
+</div>
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">驳回人数</span>
+<span class="font-medium text-lg">6</span>
+</div>
+</div>
+</div>
+<div class="col-span-2 px-6 py-5 flex items-center text-sm text-gray-600">
+<i class="ri-time-line mr-2 text-gray-400"></i>
+2025-05-20 18:00:00
+</div>
+<div class="col-span-2 px-6 py-5 flex items-center text-sm text-gray-600">
+<i class="ri-calendar-check-line mr-2 text-gray-400"></i>
+2025-10-10 18:00:00
+</div>
+<div class="col-span-1 px-6 py-5">
+<div class="flex flex-col items-center">
+<div class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center mb-1.5">
+<i class="ri-user-3-line text-gray-600"></i>
+</div>
+<span class="text-xs text-gray-600">xui dai</span>
+</div>
+</div>
+<div class="col-span-1 px-6 py-5">
+<div class="flex flex-col gap-2.5">
+<div class="flex items-center">
+<div class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center">
+<i class="ri-user-3-line text-gray-600 ri-sm"></i>
+</div>
+<span class="text-xs text-gray-600 ml-2">shuai zhang</span>
+</div>
+<div class="flex items-center">
+<div class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center">
+<i class="ri-user-3-line text-gray-600 ri-sm"></i>
+</div>
+<span class="text-xs text-gray-600 ml-2">zhigang zhang</span>
+</div>
+<div class="flex items-center">
+<div class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center">
+<i class="ri-user-3-line text-gray-600 ri-sm"></i>
+</div>
+<span class="text-xs text-gray-600 ml-2">gongpan zhang</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 项目条目2 -->
+<div class="grid grid-cols-12 border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
+<div class="col-span-4 px-6 py-5">
+<div class="mb-2.5 font-medium text-gray-800 leading-6">这是专题的项目名称会称过长折行显示</div>
+<div class="flex items-center gap-3">
+<span class="text-sm text-gray-500">ID: 306</span>
+<span class="px-2.5 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">已结束</span>
+<span class="px-2.5 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">储备</span>
+</div>
+</div>
+<div class="col-span-2 px-6 py-5 flex items-center justify-center">
+<div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">待媒介确认</span>
+<span class="font-medium text-lg">12</span>
+</div>
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">填写人数</span>
+<span class="font-medium text-lg">25</span>
+</div>
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">建联人数</span>
+<span class="font-medium text-lg">18</span>
+</div>
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">驳回人数</span>
+<span class="font-medium text-lg">4</span>
+</div>
+</div>
+</div>
+<div class="col-span-2 px-6 py-5 flex items-center text-sm text-gray-600">
+<i class="ri-time-line mr-2 text-gray-400"></i>
+2025-05-15 10:30:00
+</div>
+<div class="col-span-2 px-6 py-5 flex items-center text-sm text-gray-600">
+<i class="ri-calendar-check-line mr-2 text-gray-400"></i>
+2025-09-30 18:00:00
+</div>
+<div class="col-span-1 px-6 py-5">
+<div class="flex flex-col items-center">
+<div class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center mb-1.5">
+<i class="ri-user-3-line text-gray-600"></i>
+</div>
+<span class="text-xs text-gray-600">xui dai</span>
+</div>
+</div>
+<div class="col-span-1 px-6 py-5">
+<div class="flex flex-col gap-2.5">
+<div class="flex items-center">
+<div class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center">
+<i class="ri-user-3-line text-gray-600 ri-sm"></i>
+</div>
+<span class="text-xs text-gray-600 ml-2">shuai zhang</span>
+</div>
+<div class="flex items-center">
+<div class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center">
+<i class="ri-user-3-line text-gray-600 ri-sm"></i>
+</div>
+<span class="text-xs text-gray-600 ml-2">zhigang zhang</span>
+</div>
+<div class="flex items-center">
+<div class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center">
+<i class="ri-user-3-line text-gray-600 ri-sm"></i>
+</div>
+<span class="text-xs text-gray-600 ml-2">gongpan zhang</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 项目条目3 -->
+<div class="grid grid-cols-12 border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
+<div class="col-span-4 px-6 py-5">
+<div class="mb-2.5 font-medium text-gray-800 leading-6">社交媒体营销活动项目</div>
+<div class="flex items-center gap-3">
+<span class="text-sm text-gray-500">ID: 305</span>
+<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">进行中</span>
+<span class="px-2.5 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">合作</span>
+</div>
+</div>
+<div class="col-span-2 px-6 py-5 flex items-center justify-center">
+<div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">待媒介确认</span>
+<span class="font-medium text-lg">8</span>
+</div>
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">填写人数</span>
+<span class="font-medium text-lg">20</span>
+</div>
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">建联人数</span>
+<span class="font-medium text-lg">15</span>
+</div>
+<div class="flex flex-col items-center whitespace-nowrap">
+<span class="text-gray-500 mb-1">驳回人数</span>
+<span class="font-medium text-lg">3</span>
+</div>
+</div>
+</div>
+<div class="col-span-2 px-6 py-5 flex items-center text-sm text-gray-600">
+<i class="ri-time-line mr-2 text-gray-400"></i>
+2025-05-10 14:20:00
+</div>
+<div class="col-span-2 px-6 py-5 flex items-center text-sm text-gray-600">
+<i class="ri-calendar-check-line mr-2 text-gray-400"></i>
+2025-08-15 18:00:00
+</div>
+<div class="col-span-1 px-6 py-5">
+<div class="flex flex-col items-center">
+<div class="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center mb-1.5">
+<i class="ri-user-3-line text-gray-600"></i>
+</div>
+<span class="text-xs text-gray-600">shuai zhang</span>
+</div>
+</div>
+<div class="col-span-1 px-6 py-5">
+<div class="flex flex-col gap-2.5">
+<div class="flex items-center">
+<div class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center">
+<i class="ri-user-3-line text-gray-600 ri-sm"></i>
+</div>
+<span class="text-xs text-gray-600 ml-2">xui dai</span>
+</div>
+<div class="flex items-center">
+<div class="w-7 h-7 bg-gray-100 rounded-full flex items-center justify-center">
+<i class="ri-user-3-line text-gray-600 ri-sm"></i>
+</div>
+<span class="text-xs text-gray-600 ml-2">zhigang zhang</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 分页器 -->
+<div class="flex justify-center items-center mt-6">
+<div class="flex items-center space-x-1 text-sm">
+<span class="text-gray-500 mr-2">共 5 条</span>
+<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-500 cursor-pointer whitespace-nowrap">上一页</button>
+<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 cursor-pointer whitespace-nowrap">1</button>
+<button class="px-3 py-1 bg-primary text-white rounded-md cursor-pointer whitespace-nowrap">2</button>
+<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 cursor-pointer whitespace-nowrap">3</button>
+<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-500 cursor-pointer whitespace-nowrap">下一页</button>
+</div>
+</div>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// 项目状态筛选交互
+const statusSelect = document.querySelector('select:nth-of-type(1)');
+statusSelect.addEventListener('change', function() {
+console.log('项目状态筛选:', this.value);
+// 这里可以添加筛选逻辑
+});
+// 创建人筛选交互
+const creatorSelect = document.querySelector('select:nth-of-type(2)');
+creatorSelect.addEventListener('change', function() {
+console.log('创建人筛选:', this.value);
+// 这里可以添加筛选逻辑
+});
+// 搜索框交互
+const searchInput = document.querySelector('input[type="search"]');
+searchInput.addEventListener('input', function() {
+console.log('搜索关键词:', this.value);
+// 这里可以添加搜索逻辑
+});
+// 清除日期选择
+const clearDateBtns = document.querySelectorAll('.ri-close-circle-line');
+clearDateBtns.forEach(btn => {
+btn.addEventListener('click', function() {
+const dateInput = this.parentElement.previousElementSibling;
+dateInput.value = '';
+});
+});
+// 标签切换
+const tabBtns = document.querySelectorAll('.inline-flex button');
+tabBtns.forEach(btn => {
+btn.addEventListener('click', function() {
+tabBtns.forEach(b => {
+b.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+b.classList.add('text-gray-500');
+});
+this.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+this.classList.remove('text-gray-500');
+});
+});
+});
+</script>
+</body>
+</html>
