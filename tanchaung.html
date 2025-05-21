@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新建抖音H5</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#1890ff',secondary:'#f5f8fa'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .modal {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        input[type="checkbox"], input[type="radio"] {
+            opacity: 0;
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+        .checkbox-custom, .radio-custom {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 1.5px solid #d9d9d9;
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+            vertical-align: middle;
+            transition: all 0.2s;
+        }
+        .radio-custom {
+            border-radius: 50%;
+        }
+        input[type="checkbox"]:checked + .checkbox-custom {
+            background-color: #1890ff;
+            border-color: #1890ff;
+        }
+        input[type="checkbox"]:checked + .checkbox-custom::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        input[type="radio"]:checked + .radio-custom {
+            border: 5px solid #1890ff;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e0e0e0;
+            transition: .3s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input:checked + .slider {
+            background-color: #1890ff;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        .required:before {
+            content: "*";
+            color: #ff4d4f;
+            margin-right: 4px;
+        }
+        .component-card {
+            transition: all 0.2s;
+        }
+        .component-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .option-input {
+            transition: all 0.2s;
+        }
+        .option-input:focus {
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-screen p-4">
+    <div class="modal bg-white rounded-lg w-[680px] max-h-[90vh] overflow-hidden">
+        <!-- 标题栏 -->
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200 bg-white sticky top-0 z-10">
+            <h2 class="text-lg font-medium text-gray-800">新建抖音 H5</h2>
+            <button class="text-gray-500 hover:text-gray-700 focus:outline-none cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                <i class="ri-close-line ri-lg"></i>
+            </button>
+        </div>
+        
+        <!-- 表单内容 -->
+        <div class="px-6 py-5 overflow-y-auto max-h-[calc(90vh-130px)]">
+            <div class="mb-6 bg-white rounded-lg">
+                <h3 class="text-base font-medium text-gray-800 mb-4">项目内容</h3>
+                
+                <div class="mb-5 flex">
+                    <div class="w-32 flex items-center text-gray-600">项目名称：</div>
+                    <div class="flex-1 text-gray-800 font-medium">3 月生活达人招募计划</div>
+                </div>
+                
+                <div class="mb-5 flex">
+                    <div class="w-32 flex items-center text-gray-600">
+                        <span class="required">填写截止时间：</span>
+                    </div>
+                    <div class="flex-1 relative">
+                        <input type="text" placeholder="请选择时间" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm">
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 flex items-center justify-center">
+                            <i class="ri-calendar-line"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-5 flex">
+                    <div class="w-32 flex items-center text-gray-600">
+                        <span class="required">H5 密码：</span>
+                    </div>
+                    <div class="flex-1 flex items-center">
+                        <div class="relative flex-1">
+                            <input type="password" placeholder="请输入密码" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm">
+                            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 flex items-center justify-center cursor-pointer">
+                                <i class="ri-eye-off-line"></i>
+                            </button>
+                        </div>
+                        <div class="ml-4 flex items-center">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="noPassword" class="mr-1">
+                                <span class="checkbox-custom"></span>
+                                <span class="text-sm text-gray-600 ml-2">无密码</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-5 flex">
+                    <div class="w-32 flex items-center text-gray-600">达人平台：</div>
+                    <div class="flex-1">
+                        <div class="flex gap-2">
+                            <button class="px-4 py-2 bg-primary text-white rounded !rounded-button whitespace-nowrap text-sm cursor-pointer">抖音</button>
+                            <button class="px-4 py-2 bg-white text-gray-600 border border-gray-300 rounded !rounded-button whitespace-nowrap text-sm cursor-pointer">小红书</button>
+                            <button class="px-4 py-2 bg-white text-gray-600 border border-gray-300 rounded !rounded-button whitespace-nowrap text-sm cursor-pointer">微博</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6 bg-white rounded-lg">
+                <h3 class="text-base font-medium text-gray-800 mb-4">H5 内容选择</h3>
+                <div class="border border-gray-200 rounded-md p-4 max-h-56 overflow-y-auto bg-gray-50">
+                    <div class="mb-3 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option1" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">是否有档期</span>
+                        </label>
+                    </div>
+                    <div class="mb-3 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option2" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">是否可以免费带 5 个指定话题，如不可以，最多可以带几个</span>
+                        </label>
+                    </div>
+                    <div class="mb-3 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option3" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">是否可以口播低字数文案</span>
+                        </label>
+                    </div>
+                    <div class="mb-3 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option4" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">是否可以免费小道具/link/猫点/购物车/POI/图片/抽奖/组件等</span>
+                        </label>
+                    </div>
+                    <div class="mb-3 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option5" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">免费站内授权（包括手机、热推、抖+、信息流、直播发布等）6 个月，如不行，最长可以多久</span>
+                        </label>
+                    </div>
+                    <div class="mb-3 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option6" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">免费授权品牌在其【社交】平台上传播 6 个月，如不行，最长可以多久</span>
+                        </label>
+                    </div>
+                    <div class="mb-3 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option7" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">免费授权电商平台上传播 6 个月，如不行，最长可以多久</span>
+                        </label>
+                    </div>
+                    <div class="mb-3 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option8" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">免费授权视频二剪二创 6 个月，如不行，最长可以多久</span>
+                        </label>
+                    </div>
+                    <div class="mb-3 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option9" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">合作视频保留 6 个月不可隐藏和删除</span>
+                        </label>
+                    </div>
+                    <div class="mb-1 flex items-start">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="option10" class="mt-1">
+                            <span class="checkbox-custom mt-0.5"></span>
+                            <span class="text-sm text-gray-700 ml-2">能否授权当前公司旗下其他品牌使用</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6 bg-white rounded-lg">
+                <h3 class="text-base font-medium text-gray-800 mb-4">H5 内容设置</h3>
+                
+                <div class="mb-5">
+                    <div class="mb-2 flex items-center text-gray-600">
+                        <span class="required">是否有档期：</span>
+                    </div>
+                    <div class="relative">
+                        <input type="text" placeholder="请选择时间" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm">
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 flex items-center justify-center">
+                            <i class="ri-calendar-line"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-5">
+                    <div class="mb-2 text-gray-600">能够接受同品类的排期间隔：</div>
+                    <div class="flex items-center flex-wrap gap-2">
+                        <span class="text-gray-600">前</span>
+                        <input type="number" class="w-16 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                        <span class="text-gray-600">天，后</span>
+                        <input type="number" class="w-16 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                        <span class="text-gray-600">天 / 前</span>
+                        <input type="number" class="w-16 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                        <span class="text-gray-600">篇，后</span>
+                        <input type="number" class="w-16 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                        <span class="text-gray-600">篇</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6 bg-white rounded-lg">
+                <h3 class="text-base font-medium text-gray-800 mb-4">新增权益</h3>
+                
+                <!-- 组件1 -->
+                <div class="mb-6 p-5 border border-gray-200 rounded-md relative component-card bg-white">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="text-gray-600">组件类型：</div>
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType1" checked>
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">单选</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType1">
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">多选</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType1">
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">填空</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="text-red-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="mb-2 text-gray-600">标题：</div>
+                        <div class="flex items-center">
+                            <input type="text" placeholder="请输入标题" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <div class="ml-3 flex items-center">
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="text-xs ml-2 text-gray-500">组件必填</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="mb-2 text-gray-600">选项内容：</div>
+                        <div class="mb-3 relative">
+                            <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                                <label class="flex items-center mr-3 cursor-pointer">
+                                    <input type="checkbox" class="mr-1">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="text-xs text-gray-500 ml-2">填空</span>
+                                </label>
+                                <button class="text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3 relative">
+                            <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                                <label class="flex items-center mr-3 cursor-pointer">
+                                    <input type="checkbox" class="mr-1">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="text-xs text-gray-500 ml-2">填空</span>
+                                </label>
+                                <button class="text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="text-primary text-sm mt-2 flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 cursor-pointer">
+                        <i class="ri-add-line mr-1"></i>
+                        <span>新增选项</span>
+                    </button>
+                </div>
+                
+                <!-- 组件2 -->
+                <div class="mb-6 p-5 border border-gray-200 rounded-md relative component-card bg-white">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="text-gray-600">组件类型：</div>
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType2">
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">单选</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType2" checked>
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">多选</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType2">
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">填空</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="text-red-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="mb-2 text-gray-600">标题：</div>
+                        <div class="flex items-center">
+                            <input type="text" placeholder="请输入标题" value="可以免费带几个指定话题" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <div class="ml-3 flex items-center">
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="text-xs ml-2 text-gray-500">组件必填</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="mb-2 text-gray-600">选项内容：</div>
+                        <div class="mb-3 relative">
+                            <input type="text" value="1-3 个" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        </div>
+                        <div class="mb-3 relative">
+                            <input type="text" value="4-5 个" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        </div>
+                        <div class="mb-3 relative">
+                            <input type="text" value="6 个及以上" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button class="text-primary text-sm mt-2 flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 cursor-pointer">
+                        <i class="ri-add-line mr-1"></i>
+                        <span>新增选项</span>
+                    </button>
+                </div>
+                
+                <!-- 组件3 -->
+                <div class="mb-6 p-5 border border-gray-200 rounded-md relative component-card bg-white">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="text-gray-600">组件类型：</div>
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType3">
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">单选</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType3">
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">多选</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType3" checked>
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">填空</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="text-red-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="mb-2 text-gray-600">标题：</div>
+                        <div class="flex items-center">
+                            <input type="text" placeholder="请输入标题" value="其他补充说明" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <div class="ml-3 flex items-center">
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="text-xs ml-2 text-gray-500">组件必填</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <textarea placeholder="请输入补充说明内容" rows="3" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input resize-none"></textarea>
+                    </div>
+                </div>
+                
+                <button class="bg-primary text-white px-4 py-2.5 rounded !rounded-button whitespace-nowrap text-sm flex items-center cursor-pointer hover:bg-blue-600 transition-colors">
+                    <i class="ri-add-line mr-1"></i>
+                    新增组件
+                </button>
+            </div>
+        </div>
+        
+        <!-- 底部按钮 -->
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-4 bg-white sticky bottom-0 z-10">
+            <button class="px-6 py-2.5 bg-gray-100 text-gray-700 rounded !rounded-button whitespace-nowrap text-sm cursor-pointer hover:bg-gray-200 transition-colors">取消</button>
+            <button class="px-6 py-2.5 bg-primary text-white rounded !rounded-button whitespace-nowrap text-sm cursor-pointer hover:bg-blue-600 transition-colors">确定</button>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 关闭按钮功能
+            const closeButton = document.querySelector('.ri-close-line.ri-lg').parentElement;
+            closeButton.addEventListener('click', function() {
+                const modal = document.querySelector('.modal');
+                modal.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            });
+            
+            // 密码显示/隐藏功能
+            const passwordToggle = document.querySelector('.ri-eye-off-line').parentElement;
+            const passwordInput = passwordToggle.parentElement.querySelector('input');
+            
+            passwordToggle.addEventListener('click', function() {
+                const icon = this.querySelector('i');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('ri-eye-off-line');
+                    icon.classList.add('ri-eye-line');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('ri-eye-line');
+                    icon.classList.add('ri-eye-off-line');
+                }
+            });
+            
+            // 无密码选项功能
+            const noPasswordCheckbox = document.getElementById('noPassword');
+            const passwordField = document.querySelector('input[type="password"]');
+            
+            noPasswordCheckbox.addEventListener('change', function() {
+                passwordField.disabled = this.checked;
+                if (this.checked) {
+                    passwordField.value = '';
+                    passwordField.placeholder = '无需密码';
+                    passwordField.classList.add('bg-gray-100');
+                } else {
+                    passwordField.placeholder = '请输入密码';
+                    passwordField.classList.remove('bg-gray-100');
+                }
+            });
+            
+            // 平台选择按钮
+            const platformButtons = document.querySelectorAll('.flex-1 .flex.gap-2 button');
+            platformButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    platformButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary', 'text-white');
+                        btn.classList.add('bg-white', 'text-gray-600', 'border', 'border-gray-300');
+                    });
+                    this.classList.remove('bg-white', 'text-gray-600', 'border', 'border-gray-300');
+                    this.classList.add('bg-primary', 'text-white');
+                });
+            });
+            
+            // 新增选项按钮功能
+            const addOptionButtons = document.querySelectorAll('.text-primary.text-sm.mt-2');
+            addOptionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const optionContainer = this.previousElementSibling;
+                    const newOption = document.createElement('div');
+                    newOption.className = 'mb-3 relative';
+                    
+                    const componentCard = this.closest('.component-card');
+                    const componentType = componentCard.querySelector('input[name^="componentType"]:checked').nextElementSibling.nextElementSibling.textContent.trim();
+                    
+                    if (componentType === '多选') {
+                        newOption.innerHTML = `
+                            <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        `;
+                    } else {
+                        newOption.innerHTML = `
+                            <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                                <label class="flex items-center mr-3 cursor-pointer">
+                                    <input type="checkbox" class="mr-1">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="text-xs text-gray-500 ml-2">填空</span>
+                                </label>
+                                <button class="text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    optionContainer.appendChild(newOption);
+                    
+                    // 为新添加的删除按钮添加事件监听
+                    const deleteButton = newOption.querySelector('.text-red-500');
+                    deleteButton.addEventListener('click', function() {
+                        newOption.remove();
+                    });
+                });
+            });
+            
+            // 删除选项按钮功能
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.text-red-500') && e.target.closest('.mb-3')) {
+                    e.target.closest('.mb-3').remove();
+                }
+            });
+            
+            // 删除组件按钮功能
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.text-red-500') && e.target.closest('.component-card') && !e.target.closest('.mb-3')) {
+                    const confirmDelete = confirm('确定要删除此组件吗？');
+                    if (confirmDelete) {
+                        e.target.closest('.component-card').remove();
+                    }
+                }
+            });
+            
+            // 新增组件按钮功能
+            const addComponentButton = document.querySelector('.bg-primary.text-white.px-4.py-2\\.5');
+            addComponentButton.addEventListener('click', function() {
+                const componentContainer = this.parentElement;
+                const newComponentId = document.querySelectorAll('.component-card').length + 1;
+                const newComponent = document.createElement('div');
+                newComponent.className = 'mb-6 p-5 border border-gray-200 rounded-md relative component-card bg-white';
+                
+                newComponent.innerHTML = `
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="text-gray-600">组件类型：</div>
+                            <div class="flex items-center gap-4">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType${newComponentId}" checked>
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">单选</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType${newComponentId}">
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">多选</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" name="componentType${newComponentId}">
+                                    <span class="radio-custom"></span>
+                                    <span class="text-sm text-gray-700 ml-2">填空</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="text-red-500 w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="mb-2 text-gray-600">标题：</div>
+                        <div class="flex items-center">
+                            <input type="text" placeholder="请输入标题" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <div class="ml-3 flex items-center">
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                                <span class="text-xs ml-2 text-gray-500">组件必填</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="mb-2 text-gray-600">选项内容：</div>
+                        <div class="mb-3 relative">
+                            <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                                <label class="flex items-center mr-3 cursor-pointer">
+                                    <input type="checkbox" class="mr-1">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="text-xs text-gray-500 ml-2">填空</span>
+                                </label>
+                                <button class="text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="text-primary text-sm mt-2 flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 cursor-pointer">
+                        <i class="ri-add-line mr-1"></i>
+                        <span>新增选项</span>
+                    </button>
+                `;
+                
+                componentContainer.insertBefore(newComponent, this);
+                
+                // 为新组件添加事件监听
+                const newAddOptionButton = newComponent.querySelector('.text-primary.text-sm.mt-2');
+                newAddOptionButton.addEventListener('click', function() {
+                    const optionContainer = this.previousElementSibling;
+                    const newOption = document.createElement('div');
+                    newOption.className = 'mb-3 relative';
+                    
+                    const componentType = newComponent.querySelector('input[name^="componentType"]:checked').nextElementSibling.nextElementSibling.textContent.trim();
+                    
+                    if (componentType === '多选') {
+                        newOption.innerHTML = `
+                            <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        `;
+                    } else {
+                        newOption.innerHTML = `
+                            <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                                <label class="flex items-center mr-3 cursor-pointer">
+                                    <input type="checkbox" class="mr-1">
+                                    <span class="checkbox-custom"></span>
+                                    <span class="text-xs text-gray-500 ml-2">填空</span>
+                                </label>
+                                <button class="text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    optionContainer.appendChild(newOption);
+                    
+                    // 为新添加的删除按钮添加事件监听
+                    const deleteButton = newOption.querySelector('.text-red-500');
+                    deleteButton.addEventListener('click', function() {
+                        newOption.remove();
+                    });
+                });
+                
+                // 组件类型切换事件
+                const radioButtons = newComponent.querySelectorAll('input[type="radio"]');
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        if (this.checked && this.nextElementSibling.nextElementSibling.textContent.trim() === '填空') {
+                            const optionsContainer = newComponent.querySelector('.mb-2.text-gray-600').parentElement;
+                            optionsContainer.innerHTML = `
+                                <div class="mb-2 text-gray-600">填空内容：</div>
+                                <textarea placeholder="请输入填空内容" rows="3" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input resize-none"></textarea>
+                            `;
+                        } else {
+                            const optionsContainer = newComponent.querySelector('.mb-2.text-gray-600').parentElement;
+                            const componentType = this.nextElementSibling.nextElementSibling.textContent.trim();
+                            
+                            optionsContainer.innerHTML = `
+                                <div class="mb-2 text-gray-600">选项内容：</div>
+                                <div class="mb-3 relative">
+                                    <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                                    ${componentType === '多选' ? 
+                                        `<button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                            <i class="ri-close-line"></i>
+                                        </button>` : 
+                                        `<div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                                            <label class="flex items-center mr-3 cursor-pointer">
+                                                <input type="checkbox" class="mr-1">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="text-xs text-gray-500 ml-2">填空</span>
+                                            </label>
+                                            <button class="text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                                <i class="ri-close-line"></i>
+                                            </button>
+                                        </div>`
+                                    }
+                                </div>
+                                <button class="text-primary text-sm mt-2 flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 cursor-pointer">
+                                    <i class="ri-add-line mr-1"></i>
+                                    <span>新增选项</span>
+                                </button>
+                            `;
+                            
+                            // 重新绑定新增选项按钮事件
+                            const newAddOptionBtn = optionsContainer.querySelector('.text-primary.text-sm.mt-2');
+                            newAddOptionBtn.addEventListener('click', function() {
+                                const optContainer = this.previousElementSibling.parentElement;
+                                const newOpt = document.createElement('div');
+                                newOpt.className = 'mb-3 relative';
+                                
+                                if (componentType === '多选') {
+                                    newOpt.innerHTML = `
+                                        <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                                        <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                            <i class="ri-close-line"></i>
+                                        </button>
+                                    `;
+                                } else {
+                                    newOpt.innerHTML = `
+                                        <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                                            <label class="flex items-center mr-3 cursor-pointer">
+                                                <input type="checkbox" class="mr-1">
+                                                <span class="checkbox-custom"></span>
+                                                <span class="text-xs text-gray-500 ml-2">填空</span>
+                                            </label>
+                                            <button class="text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                                <i class="ri-close-line"></i>
+                                            </button>
+                                        </div>
+                                    `;
+                                }
+                                
+                                optContainer.insertBefore(newOpt, this);
+                                
+                                // 为新添加的删除按钮添加事件监听
+                                const delBtn = newOpt.querySelector('.text-red-500');
+                                delBtn.addEventListener('click', function() {
+                                    newOpt.remove();
+                                });
+                            });
+                            
+                            // 为删除按钮添加事件
+                            const deleteButtons = optionsContainer.querySelectorAll('.text-red-500');
+                            deleteButtons.forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    this.closest('.mb-3').remove();
+                                });
+                            });
+                        }
+                    });
+                });
+            });
+            
+            // 底部按钮功能
+            const cancelButton = document.querySelector('.px-6.py-4.border-t button:first-child');
+            const confirmButton = document.querySelector('.px-6.py-4.border-t button:last-child');
+            
+            cancelButton.addEventListener('click', function() {
+                const modal = document.querySelector('.modal');
+                modal.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            });
+            
+            confirmButton.addEventListener('click', function() {
+                // 创建自定义弹窗
+                const successModal = document.createElement('div');
+                successModal.className = 'fixed inset-0 flex items-center justify-center z-50';
+                successModal.innerHTML = `
+                    <div class="fixed inset-0 bg-black bg-opacity-30"></div>
+                    <div class="bg-white rounded-lg p-6 shadow-lg relative z-10 max-w-sm w-full">
+                        <div class="flex items-center justify-center mb-4 text-green-500">
+                            <i class="ri-checkbox-circle-fill ri-3x"></i>
+                        </div>
+                        <h3 class="text-center text-lg font-medium text-gray-800 mb-2">创建成功</h3>
+                        <p class="text-center text-gray-600 mb-4">H5 表单已成功创建</p>
+                        <div class="flex justify-center">
+                            <button class="px-6 py-2 bg-primary text-white rounded !rounded-button whitespace-nowrap text-sm cursor-pointer">确定</button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(successModal);
+                
+                // 添加确定按钮事件
+                const okButton = successModal.querySelector('button');
+                okButton.addEventListener('click', function() {
+                    successModal.remove();
+                    const modal = document.querySelector('.modal');
+                    modal.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => {
+                        modal.style.display = 'none';
+                    }, 300);
+                });
+                
+                // 点击背景关闭弹窗
+                const backdrop = successModal.querySelector('.fixed.inset-0.bg-black');
+                backdrop.addEventListener('click', function() {
+                    successModal.remove();
+                });
+            });
+            
+            // 组件类型切换事件
+            const existingRadioButtons = document.querySelectorAll('input[name^="componentType"]');
+            existingRadioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.checked && this.nextElementSibling.nextElementSibling.textContent.trim() === '填空') {
+                        const componentCard = this.closest('.component-card');
+                        const optionsContainer = componentCard.querySelector('.mb-2.text-gray-600').parentElement;
+                        
+                        // 保存标题
+                        const titleInput = componentCard.querySelector('.mb-4 input[type="text"]');
+                        const titleValue = titleInput.value;
+                        const isRequired = componentCard.querySelector('.switch input').checked;
+                        
+                        optionsContainer.innerHTML = `
+                            <div class="mb-2 text-gray-600">填空内容：</div>
+                            <textarea placeholder="请输入填空内容" rows="3" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input resize-none"></textarea>
+                        `;
+                    } else if (this.checked) {
+                        const componentCard = this.closest('.component-card');
+                        const optionsContainer = componentCard.querySelector('.mb-2.text-gray-600').parentElement;
+                        const componentType = this.nextElementSibling.nextElementSibling.textContent.trim();
+                        
+                        // 保存标题
+                        const titleInput = componentCard.querySelector('.mb-4 input[type="text"]');
+                        const titleValue = titleInput.value;
+                        const isRequired = componentCard.querySelector('.switch input').checked;
+                        
+                        optionsContainer.innerHTML = `
+                            <div class="mb-2 text-gray-600">选项内容：</div>
+                            <div class="mb-3 relative">
+                                <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                                ${componentType === '多选' ? 
+                                    `<button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                        <i class="ri-close-line"></i>
+                                    </button>` : 
+                                    `<div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                                        <label class="flex items-center mr-3 cursor-pointer">
+                                            <input type="checkbox" class="mr-1">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="text-xs text-gray-500 ml-2">填空</span>
+                                        </label>
+                                        <button class="text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                            <i class="ri-close-line"></i>
+                                        </button>
+                                    </div>`
+                                }
+                            </div>
+                            <button class="text-primary text-sm mt-2 flex items-center px-3 py-1.5 rounded-md hover:bg-blue-50 cursor-pointer">
+                                <i class="ri-add-line mr-1"></i>
+                                <span>新增选项</span>
+                            </button>
+                        `;
+                        
+                        // 重新绑定新增选项按钮事件
+                        const newAddOptionBtn = optionsContainer.querySelector('.text-primary.text-sm.mt-2');
+                        newAddOptionBtn.addEventListener('click', function() {
+                            const optContainer = this.previousElementSibling.parentElement;
+                            const newOpt = document.createElement('div');
+                            newOpt.className = 'mb-3 relative';
+                            
+                            if (componentType === '多选') {
+                                newOpt.innerHTML = `
+                                    <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                                    <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                        <i class="ri-close-line"></i>
+                                    </button>
+                                `;
+                            } else {
+                                newOpt.innerHTML = `
+                                    <input type="text" placeholder="请输入选项内容" class="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-sm option-input">
+                                    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center">
+                                        <label class="flex items-center mr-3 cursor-pointer">
+                                            <input type="checkbox" class="mr-1">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="text-xs text-gray-500 ml-2">填空</span>
+                                        </label>
+                                        <button class="text-red-500 w-7 h-7 flex items-center justify-center rounded-full hover:bg-red-50 cursor-pointer">
+                                            <i class="ri-close-line"></i>
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                            
+                            optContainer.insertBefore(newOpt, this);
+                            
+                            // 为新添加的删除按钮添加事件监听
+                            const delBtn = newOpt.querySelector('.text-red-500');
+                            delBtn.addEventListener('click', function() {
+                                newOpt.remove();
+                            });
+                        });
+                        
+                        // 为删除按钮添加事件
+                        const deleteButtons = optionsContainer.querySelectorAll('.text-red-500');
+                        deleteButtons.forEach(btn => {
+                            btn.addEventListener('click', function() {
+                                this.closest('.mb-3').remove();
+                            });
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
