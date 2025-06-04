@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>表单</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .sortable-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .form-item {
+            background-color: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .form-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #ddd;
+        }
+        .form-item.dragging {
+            opacity: 0.7;
+            background-color: #f5f7fa;
+        }
+        .form-item.selected {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+        }
+        .drag-handle {
+            width: 30px;
+            height: 30px;
+            margin-right: 15px;
+            cursor: move;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 18px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .form-item.selected .drag-handle {
+            opacity: 1;
+        }
+        .form-content {
+            flex-grow: 1;
+        }
+        .form-item label {
+            display: block;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .radio-group {
+            margin-top: 10px;
+        }
+        .radio-option {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .radio-option label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .radio-option input[type="radio"] {
+            margin-right: 10px;
+        }
+        .checkbox-group {
+            margin-top: 10px;
+            display: none;
+        }
+        .checkbox-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: normal;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        .input-group {
+            margin-top: 10px;
+            display: none;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            background-color: #fafafa;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #4285f4;
+        }
+        .question-number {
+            font-weight: 700;
+            color: #4285f4;
+            margin-right: 8px;
+        }
+        .form-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: transparent;
+            transition: background-color 0.3s;
+        }
+        .form-item:hover::before {
+            background-color: rgba(66, 133, 244, 0.2);
+        }
+        .form-item.selected::before {
+            background-color: rgba(66, 133, 244, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <ul class="sortable-list" id="sortableList">
+            <!-- 固定问题 -->
+            <li class="form-item" id="question1" draggable="true">
+                <div class="drag-handle">☰</div>
+                <div class="form-content">
+                    <label><span class="question-number">1.</span> (多选)是否可以免费带小蓝词/link/锚点/购物车/POI/橱窗/抽奖组件等</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <label>
+                                <input type="radio" name="question1" value="yes" onchange="toggleCheckboxGroup(this)"> 是
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <label>
+                                <input type="radio" name="question1" value="no" onchange="toggleCheckboxGroup(this)"> 否
+                            </label>
+                        </div>
+                    </div>
+                    <div class="checkbox-group" id="checkboxGroup1">
+                        <label><input type="checkbox" name="freeItems" value="小蓝词"> 小蓝词</label>
+                        <label><input type="checkbox" name="freeItems" value="link"> link</label>
+                        <label><input type="checkbox" name="freeItems" value="锚点"> 锚点</label>
+                        <label><input type="checkbox" name="freeItems" value="购物车"> 购物车</label>
+                        <label><input type="checkbox" name="freeItems" value="POI"> POI</label>
+                        <label><input type="checkbox" name="freeItems" value="橱窗"> 橱窗</label>
+                        <label><input type="checkbox" name="freeItems" value="抽奖组件"> 抽奖组件</label>
+                    </div>
+                </div>
+            </li>
+            
+            <li class="form-item" id="question2" draggable="true">
+                <div class="drag-handle">☰</div>
+                <div class="form-content">
+                    <label><span class="question-number">2.</span> 是否接受免费站内授权（巨量千川、热推、抖+、信息流、官抖发布等）6个月，如不行，最长可以多久</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <label>
+                                <input type="radio" name="question2" value="yes" onchange="toggleInputGroup(this)"> 是
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <label>
+                                <input type="radio" name="question2" value="no" onchange="toggleInputGroup(this)"> 否
+                            </label>
+                        </div>
+                    </div>
+                    <div class="input-group" id="inputGroup2">
+                        <input type="text" placeholder="请输入最长授权时间">
+                    </div>
+                </div>
+            </li>
+            
+            <li class="form-item" id="question3" draggable="true">
+                <div class="drag-handle">☰</div>
+                <div class="form-content">
+                    <label><span class="question-number">3.</span> 是否配合签署保密协议</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <label>
+                                <input type="radio" name="question3" value="yes"> 是
+                            </label>
+                        </div>
+                        <div class="radio-option">
+                            <label>
+                                <input type="radio" name="question3" value="no"> 否
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sortableList = document.getElementById('sortableList');
+            const formItems = document.querySelectorAll('.form-item');
+            
+            // 添加拖拽事件
+            formItems.forEach(item => {
+                item.addEventListener('dragstart', dragStart);
+                item.addEventListener('dragover', dragOver);
+                item.addEventListener('drop', drop);
+                item.addEventListener('dragend', dragEnd);
+                
+                // 添加点击选中效果
+                item.addEventListener('click', function(e) {
+                    // 如果点击的是单选框或输入框，不触发选中效果
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL') {
+                        return;
+                    }
+                    
+                    // 移除所有项目的选中状态
+                    formItems.forEach(i => i.classList.remove('selected'));
+                    
+                    // 为当前点击的项目添加选中状态
+                    this.classList.add('selected');
+                });
+            });
+            
+            // 拖拽相关函数
+            let draggedItem = null;
+            
+            function dragStart(e) {
+                draggedItem = this;
+                setTimeout(() => {
+                    this.classList.add('dragging');
+                }, 0);
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/html', this.innerHTML);
+                
+                // 拖动时自动选中项目
+                formItems.forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+            }
+            
+            function dragOver(e) {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(sortableList, e.clientY);
+                if (afterElement == null) {
+                    sortableList.appendChild(draggedItem);
+                } else {
+                    sortableList.insertBefore(draggedItem, afterElement);
+                }
+            }
+            
+            function drop(e) {
+                e.preventDefault();
+                updateQuestionNumbers();
+                return false;
+            }
+            
+            function dragEnd() {
+                this.classList.remove('dragging');
+            }
+            
+            function getDragAfterElement(container, y) {
+                const draggableElements = [...container.querySelectorAll('.form-item:not(.dragging)')];
+                
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            }
+            
+            // 更新问题序号
+            function updateQuestionNumbers() {
+                const formItems = document.querySelectorAll('.form-item');
+                formItems.forEach((item, index) => {
+                    const questionNumber = item.querySelector('.question-number');
+                    if (questionNumber) {
+                        questionNumber.textContent = `${index + 1}.`;
+                    }
+                });
+            }
+        });
+        
+        function toggleCheckboxGroup(radio) {
+            const checkboxGroup = radio.closest('.form-item').querySelector('.checkbox-group');
+            const parentRadio = radio.closest('.radio-group').querySelectorAll('input[type="radio"]');
+            
+            if (radio.value === 'yes') {
+                checkboxGroup.style.display = 'block';
+            } else {
+                checkboxGroup.style.display = 'none';
+                // 清除所有复选框的选择
+                const checkboxes = checkboxGroup.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            }
+            
+            // 确保其他单选按钮未选中
+            parentRadio.forEach(btn => {
+                if (btn !== radio) {
+                    btn.checked = false;
+                }
+            });
+        }
+        
+        function toggleInputGroup(radio) {
+            const inputGroup = radio.closest('.form-item').querySelector('.input-group');
+            const parentRadio = radio.closest('.radio-group').querySelectorAll('input[type="radio"]');
+            
+            if (radio.value === 'no') {
+                inputGroup.style.display = 'block';
+            } else {
+                inputGroup.style.display = 'none';
+                // 清除输入框内容
+                inputGroup.querySelector('input').value = '';
+            }
+            
+            // 确保其他单选按钮未选中
+            parentRadio.forEach(btn => {
+                if (btn !== radio) {
+                    btn.checked = false;
+                }
+            });
+        }
+    </script>
+</body>
+</html>
