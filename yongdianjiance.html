@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="小区用电监测系统 - 实时监控电箱状态和电力线路">
+    <meta name="theme-color" content="#4361ee">
+    <title>小区用电监测系统 - 智能监控平台</title>
+    <!-- 预连接关键资源 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- 引入Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <!-- 引入Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" integrity="sha384-dGVhD+0vL45OyGsLPNBGAWc8+V5ub57ftX0/6QxCjPGsN+bXCGrMBWUEHZjR9eUHe" crossorigin="anonymous">
+    <!-- 引入Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS变量定义 */
+        :root {
+            /* 主色调 */
+            --primary-color: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --primary-100: #e6ecff;
+            --primary-200: #c3d3ff;
+            --primary-300: #96b5ff;
+            --primary-400: #6d95ff;
+            --primary-500: #4361ee;
+            --primary-600: #3a4fd1;
+            --primary-700: #2f3eb5;
+            --primary-800: #252e99;
+            --primary-900: #1a1f7d;
+            --primary-rgb: 67, 97, 238;
+            
+            --secondary-color: #3f37c9;
+            --secondary-light: #5e60ce;
+            --secondary-dark: #2b2a77;
+            --secondary-100: #e6e5f9;
+            --secondary-200: #c3c1f0;
+            --secondary-300: #9e9ce7;
+            --secondary-400: #7a77de;
+            --secondary-500: #3f37c9;
+            --secondary-600: #352eac;
+            --secondary-700: #2b258f;
+            --secondary-800: #211c72;
+            --secondary-900: #171355;
+            --secondary-rgb: 63, 55, 201;
+            
+            /* 功能色 */
+            --success-color: #4cc9f0;
+            --success-light: #90e0ef;
+            --success-dark: #0077b6;
+            --success-100: #e6f9fd;
+            --success-200: #c3f0fa;
+            --success-300: #9ee7f7;
+            --success-400: #7addf4;
+            --success-500: #4cc9f0;
+            --success-600: #38b6dd;
+            --success-700: #2594ba;
+            --success-800: #127297;
+            --success-900: #005073;
+            --success-rgb: 76, 201, 240;
+            
+            --info-color: #4895ef;
+            --info-light: #a8dadc;
+            --info-dark: #457b9d;
+            --info-100: #e6f1fc;
+            --info-200: #c3dff9;
+            --info-300: #9ecdf5;
+            --info-400: #7abaef;
+            --info-500: #4895ef;
+            --info-600: #3882d1;
+            --info-700: #2970b3;
+            --info-800: #1a5d95;
+            --info-900: #0c4a77;
+            --info-rgb: 72, 149, 239;
+            
+            --warning-color: #f72585;
+            --warning-light: #ff9e00;
+            --warning-dark: #f3722c;
+            --warning-100: #fee6f0;
+            --warning-200: #fcc3da;
+            --warning-300: #fa9ec4;
+            --warning-400: #f87aae;
+            --warning-500: #f72585;
+            --warning-600: #e01e77;
+            --warning-700: #c91869;
+            --warning-800: #b2125b;
+            --warning-900: #9b0c4d;
+            --warning-rgb: 247, 37, 133;
+            
+            --danger-color: #e63946;
+            --danger-light: #ff758f;
+            --danger-dark: #d00000;
+            --danger-100: #fce6e8;
+            --danger-200: #f9c3c7;
+            --danger-300: #f59ea5;
+            --danger-400: #f07a84;
+            --danger-500: #e63946;
+            --danger-600: #d0333f;
+            --danger-700: #ba2d38;
+            --danger-800: #a32731;
+            --danger-900: #8d212a;
+            --danger-rgb: 230, 57, 70;
+            
+            /* 中性色 */
+            --neutral-50: #f8f9fa;
+            --neutral-100: #f0f2f5;
+            --neutral-200: #e9ecef;
+            --neutral-300: #dee2e6;
+            --neutral-400: #ced4da;
+            --neutral-500: #adb5bd;
+            --neutral-600: #6c757d;
+            --neutral-700: #495057;
+            --neutral-800: #343a40;
+            --neutral-900: #212529;
+            --neutral-rgb: 108, 117, 125;
+            
+            --light-color: #f8f9fa;
+            --light-gray: #f0f2f5;
+            --gray-color: #6c757d;
+            --dark-gray: #495057;
+            --dark-color: #212529;
+            
+            /* 界面元素 */
+            --border-radius-sm: 6px;
+            --border-radius: 10px;
+            --border-radius-lg: 15px;
+            --box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            --box-shadow-hover: 0 12px 20px rgba(0, 0, 0, 0.15);
+            --box-shadow-card: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+            --transition-fast: all 0.2s ease;
+            
+            /* 字体 */
+            --font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        body {
+            padding: 20px;
+            background-color: var(--light-gray);
+            font-family: var(--font-family);
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            flex: 1;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            pointer-events: none;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -50%;
+            left: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            transform: rotate(-30deg);
+            pointer-events: none;
+        }
+        
+        .header h1 {
+            font-weight: 700;
+            margin-bottom: 15px;
+            font-size: 2.4rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            max-width: 600px;
+        }
+        
+        .refresh-time {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .refresh-time::before {
+            content: '\F4E7';
+            font-family: 'bootstrap-icons';
+            margin-right: 5px;
+            font-size: 1rem;
+        }
+        
+        .card {
+            margin-bottom: 25px;
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-card);
+            transition: var(--transition);
+            overflow: hidden;
+            background-color: white;
+            height: 100%;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow-hover);
+        }
+        
+        .card-header {
+            font-weight: 600;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .card-header .bi {
+            margin-right: 8px;
+        }
+        
+        .card-header h5 {
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            scrollbar-width: thin;
+            scrollbar-color: var(--gray-color) transparent;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background-color: var(--gray-color);
+            border-radius: 20px;
+        }
+        
+        .table {
+            margin-bottom: 0;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .table thead th {
+            border-top: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            padding: 15px 12px;
+            background-color: rgba(67, 97, 238, 0.03);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table tbody tr {
+            transition: var(--transition-fast);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .table td {
+            padding: 12px;
+            vertical-align: middle;
+        }
+        
+        .btn {
+            border-radius: 50px;
+            padding: 10px 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            20% {
+                transform: scale(25, 25);
+                opacity: 0.3;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(40, 40);
+            }
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn .bi {
+            margin-right: 6px;
+            font-size: 1.1em;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        
+        .btn-success:hover, .btn-success:focus {
+            background-color: var(--success-dark);
+            border-color: var(--success-dark);
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+        }
+        
+        .btn-warning:hover, .btn-warning:focus {
+            background-color: var(--warning-dark);
+            border-color: var(--warning-dark);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover, .btn-danger:focus {
+            background-color: var(--danger-dark);
+            border-color: var(--danger-dark);
+        }
+        
+        .btn-sm {
+            padding: 6px 16px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-group-sm > .btn {
+            padding: 6px 16px;
+            font-size: 0.85rem;
+        }
+        
+        .progress {
+            height: 12px;
+            border-radius: 50px;
+            background-color: var(--neutral-100);
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .progress-bar {
+            border-radius: 50px;
+            position: relative;
+            overflow: hidden;
+            animation: progressAnimation 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+            background-size: 30px 30px;
+            background-image: linear-gradient(45deg, 
+                            rgba(255, 255, 255, 0.15) 25%, 
+                            transparent 25%, 
+                            transparent 50%, 
+                            rgba(255, 255, 255, 0.15) 50%, 
+                            rgba(255, 255, 255, 0.15) 75%, 
+                            transparent 75%, 
+                            transparent);
+        }
+        
+        @keyframes progressAnimation {
+            0% { width: 0%; }
+            50% { width: calc(100% + 5%); }
+            100% { width: 100%; }
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: shimmer 2s infinite;
+            animation-timing-function: ease-in-out;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, var(--dark-color), #000);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            margin-top: 40px;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color), var(--warning-color), var(--danger-color));
+        }
+        
+        .footer p {
+            margin-bottom: 0;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .status-badge i {
+            margin-right: 6px;
+            font-size: 1em;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .status-badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            z-index: 1;
+            transform: translateX(-100%);
+            transition: transform 0.5s ease;
+        }
+        
+        .status-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .status-badge:hover i {
+            transform: scale(1.2);
+        }
+        
+        .status-badge:hover::after {
+            transform: translateX(100%);
+        }
+        
+        .status-normal {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success-600);
+            border: 1px solid rgba(76, 201, 240, 0.3);
+        }
+        
+        .status-normal i {
+            color: var(--success-500);
+            filter: drop-shadow(0 0 2px rgba(76, 201, 240, 0.5));
+            animation: iconPulse 3s infinite;
+        }
+        
+        .status-warning {
+            background-color: rgba(255, 158, 0, 0.1);
+            color: var(--warning-600);
+            border: 1px solid rgba(255, 158, 0, 0.3);
+        }
+        
+        .status-warning i {
+            color: var(--warning-light);
+            filter: drop-shadow(0 0 2px rgba(255, 158, 0, 0.5));
+            animation: iconPulse 2s infinite;
+        }
+        
+        .status-danger {
+            background-color: rgba(230, 57, 70, 0.1);
+            color: var(--danger-600);
+            border: 1px solid rgba(230, 57, 70, 0.3);
+        }
+        
+        .status-danger i {
+            color: var(--danger-500);
+            filter: drop-shadow(0 0 2px rgba(230, 57, 70, 0.5));
+            animation: iconPulse 1.5s infinite;
+        }
+        
+        @keyframes statusPulse {
+            0% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0.7); }
+            50% { opacity: 0.7; transform: scale(1.2); box-shadow: 0 0 0 5px rgba(var(--primary-rgb), 0); }
+            100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(var(--primary-rgb), 0); }
+        }
+        
+        @keyframes iconPulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes badgeGlow {
+            0% { box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.3); }
+            50% { box-shadow: 0 0 15px rgba(var(--primary-rgb), 0.6); }
+            100% { box-shadow: 0 0 5px rgba(var(--primary-rgb), 0.3); }
+        }
+        
+        @keyframes statusChange {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .status-badge-animated {
+            animation: statusChange 0.5s ease-out forwards;
+        }
+        
+        .power-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            background: linear-gradient(135deg, var(--neutral-50), var(--neutral-100));
+            transition: var(--transition);
+            height: 100%;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .power-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow-hover);
+        }
+        
+        .power-card .card-header {
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 15px;
+            margin: -20px -20px 20px -20px;
+            background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+            color: var(--primary-700);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .power-card .display-4 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--primary-600);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            position: relative;
+            display: inline-block;
+        }
+        
+        .power-card .display-4::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            width: 40px;
+            height: 3px;
+            background: var(--primary-300);
+            transform: translateX(-50%);
+            border-radius: 3px;
+        }
+        
+        .power-card .status {
+            font-weight: 600;
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-radius: var(--border-radius-sm);
+            display: inline-block;
+            transition: var(--transition);
+        }
+        
+        .modal-content {
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--box-shadow-hover);
+            border: none;
+            overflow: hidden;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            color: white;
+            border-bottom: none;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .modal-header .btn-close {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            padding: 8px;
+            margin: -8px -8px -8px auto;
+            transition: var(--transition);
+        }
+        
+        .modal-header .btn-close:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            transform: rotate(90deg);
+        }
+        
+        .modal-body {
+            padding: 25px;
+            background-color: var(--neutral-50);
+        }
+        
+        .modal-footer {
+            border-top: none;
+            padding: 15px 25px 25px;
+            background-color: var(--neutral-50);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-700);
+            display: block;
+            position: relative;
+            padding-left: 5px;
+        }
+        
+        .form-label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 14px;
+            background-color: var(--primary-400);
+            border-radius: 3px;
+        }
+        
+        .form-control, .form-select {
+            border-radius: var(--border-radius);
+            padding: 12px 15px;
+            border: 1px solid var(--neutral-200);
+            transition: var(--transition);
+            background-color: var(--neutral-50);
+            color: var(--neutral-800);
+            font-size: 0.95rem;
+        }
+        
+        .form-control:hover, .form-select:hover {
+            border-color: var(--primary-300);
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-400);
+            box-shadow: 0 0 0 3px var(--primary-100);
+            outline: none;
+            background-color: white;
+        }
+        
+        .form-control::placeholder {
+            color: var(--neutral-400);
+            opacity: 0.7;
+        }
+        
+        .dashboard-stats {
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, white, var(--neutral-50));
+            border-radius: var(--border-radius-lg);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--neutral-100);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.5));
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow-hover);
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+        
+        .stat-icon {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-right: 20px;
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+            transition: var(--transition);
+        }
+        
+        .stat-card:hover .stat-icon {
+            transform: scale(1.1);
+        }
+        
+        .stat-info {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            line-height: 1;
+            color: var(--primary-700);
+            display: flex;
+            align-items: baseline;
+        }
+        
+        .stat-value::after {
+            content: attr(data-unit);
+            font-size: 1rem;
+            margin-left: 5px;
+            color: var(--primary-400);
+            font-weight: 500;
+        }
+        
+        .stat-label {
+            color: var(--neutral-600);
+            font-size: 0.95rem;
+            margin-bottom: 0;
+            font-weight: 500;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+        }
+        
+        .bg-gradient-success {
+            background: linear-gradient(135deg, var(--success-400), var(--success-600));
+        }
+        
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, var(--warning-400), var(--warning-600));
+        }
+        
+        .bg-gradient-danger {
+            background: linear-gradient(135deg, var(--danger-400), var(--danger-600));
+        }
+        
+        /* 添加动画效果 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .btn {
+                padding: 6px 15px;
+                font-size: 0.9rem;
+            }
+            
+            .power-card .display-4 {
+                font-size: 2rem;
+            }
+            
+            .stat-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面头部 -->
+        <div class="header">
+            <h1>小区用电监测系统</h1>
+            <p>实时监测3条线路、18个电箱的用电情况</p>
+            <div class="refresh-time">最后更新: <span id="updateTime"></span></div>
+        </div>
+        
+        <!-- 统计卡片区域 -->
+        <div class="row dashboard-stats">
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-gradient-primary">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="totalPower" data-unit="W">0</div>
+                        <div class="stat-label">总功率</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-gradient-success">
+                        <i class="bi bi-box"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="totalBoxes" data-unit="个">0</div>
+                        <div class="stat-label">电箱总数</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-gradient-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="warningBoxes" data-unit="个">0</div>
+                        <div class="stat-label">警告电箱</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-gradient-danger">
+                        <i class="bi bi-x-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value" id="faultBoxes" data-unit="个">0</div>
+                        <div class="stat-label">故障电箱</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮区域 -->
+        <div class="card mb-4">
+            <div class="card-body d-flex justify-content-between">
+                <div>
+                    <button class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#addModal">
+                        <i class="bi bi-plus-circle"></i> 添加电箱数据
+                    </button>
+                    <button class="btn btn-warning me-2" data-bs-toggle="modal" data-bs-target="#editModal">
+                        <i class="bi bi-pencil"></i> 编辑选中数据
+                    </button>
+                    <button class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="bi bi-trash"></i> 删除选中数据
+                    </button>
+                    <button class="btn btn-success" onclick="refreshData()">
+                        <i class="bi bi-arrow-repeat"></i> 刷新数据
+                    </button>
+                </div>
+                <div>
+                    <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#filterModal">
+                        <i class="bi bi-funnel"></i> 筛选数据
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 电箱数据表格 -->
+        <div class="card mb-4">
+            <div class="card-header bg-gradient-primary text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-table me-2"></i>电箱实时监测数据</h5>
+                    <div class="d-flex align-items-center">
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control-sm" placeholder="搜索..." id="searchInput" onkeyup="searchTable()">
+                            <button class="btn btn-light btn-sm" type="button">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-container">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>线路</th>
+                                <th>电箱编号</th>
+                                <th>位置</th>
+                                <th>电压(V)</th>
+                                <th>电流(A)</th>
+                                <th>功率(W)</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="electricBoxTable">
+                            <!-- 表格数据将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 电力线路状态卡片 -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="power-card">
+                    <div class="card-header bg-gradient-success text-white">
+                        <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>线路1总功率</h6>
+                    </div>
+                    <h2 class="display-4" id="line1Power" data-unit="W">0</h2>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-gradient-success" role="progressbar" style="width: 75%" id="line1Bar"></div>
+                    </div>
+                    <div class="status" id="line1Status">
+                        <span class="status-badge status-normal" title="线路运行正常"><i class="bi bi-check-circle-fill"></i>正常运行</span>
+                    </div>
+                    <div class="mt-3 text-muted">
+                        <small>电箱数量: <span id="line1Count">0</span></small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <div class="power-card">
+                    <div class="card-header bg-gradient-warning text-white">
+                        <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>线路2总功率</h6>
+                    </div>
+                    <h2 class="display-4" id="line2Power" data-unit="W">0</h2>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-gradient-warning" role="progressbar" style="width: 65%" id="line2Bar"></div>
+                    </div>
+                    <div class="status" id="line2Status">
+                        <span class="status-badge status-normal" title="线路运行正常"><i class="bi bi-check-circle-fill me-1"></i>正常运行</span>
+                    </div>
+                    <div class="mt-3 text-muted">
+                        <small>电箱数量: <span id="line2Count">0</span></small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="power-card">
+                    <div class="card-header bg-gradient-danger text-white">
+                        <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>线路3总功率</h6>
+                    </div>
+                    <h2 class="display-4" id="line3Power" data-unit="W">0</h2>
+                    <div class="progress mb-3">
+                        <div class="progress-bar bg-gradient-danger" role="progressbar" style="width: 85%" id="line3Bar"></div>
+                    </div>
+                    <div class="status" id="line3Status">
+                        <span class="status-badge status-normal" title="线路运行正常"><i class="bi bi-check-circle-fill me-1"></i>正常运行</span>
+                    </div>
+                    <div class="mt-3 text-muted">
+                        <small>电箱数量: <span id="line3Count">0</span></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部信息 -->
+        <div class="footer">
+            <p>© 2023 小区用电监测系统</p>
+        </div>
+    </div>
+
+    <!-- 模态框：添加电箱数据 -->
+    <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addModalLabel">添加电箱数据</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addForm">
+                        <div class="mb-3">
+                            <label for="lineAdd" class="form-label">线路</label>
+                            <select class="form-select" id="lineAdd" required>
+                                <option value="">选择线路</option>
+                                <option value="1">线路1</option>
+                                <option value="2">线路2</option>
+                                <option value="3">线路3</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="boxIdAdd" class="form-label">电箱编号</label>
+                            <input type="number" class="form-control" id="boxIdAdd" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="locationAdd" class="form-label">位置</label>
+                            <input type="text" class="form-control" id="locationAdd" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="voltageAdd" class="form-label">电压(V)</label>
+                            <input type="number" class="form-control" id="voltageAdd" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="currentAdd" class="form-label">电流(A)</label>
+                            <input type="number" class="form-control" id="currentAdd" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="powerAdd" class="form-label">功率(W)</label>
+                            <input type="number" class="form-control" id="powerAdd" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="statusAdd" class="form-label">状态</label>
+                            <select class="form-select" id="statusAdd" required>
+                                <option value="">选择状态</option>
+                                <option value="正常">正常</option>
+                                <option value="警告">警告</option>
+                                <option value="故障">故障</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="addElectricBox()">添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：编辑电箱数据 -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">编辑电箱数据</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm">
+                        <div class="mb-3">
+                            <label for="lineEdit" class="form-label">线路</label>
+                            <select class="form-select" id="lineEdit" required>
+                                <option value="">选择线路</option>
+                                <option value="1">线路1</option>
+                                <option value="2">线路2</option>
+                                <option value="3">线路3</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="boxIdEdit" class="form-label">电箱编号</label>
+                            <input type="number" class="form-control" id="boxIdEdit" required readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="locationEdit" class="form-label">位置</label>
+                            <input type="text" class="form-control" id="locationEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="voltageEdit" class="form-label">电压(V)</label>
+                            <input type="number" class="form-control" id="voltageEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="currentEdit" class="form-label">电流(A)</label>
+                            <input type="number" class="form-control" id="currentEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="powerEdit" class="form-label">功率(W)</label>
+                            <input type="number" class="form-control" id="powerEdit" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="statusEdit" class="form-label">状态</label>
+                            <select class="form-select" id="statusEdit" required>
+                                <option value="">选择状态</option>
+                                <option value="正常">正常</option>
+                                <option value="警告">警告</option>
+                                <option value="故障">故障</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="editElectricBox()">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：删除电箱数据 -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">删除电箱数据</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5>确定要删除选中的电箱数据吗？</h5>
+                    <p>此操作不可撤销。</p>
+                    <input type="hidden" id="deleteBoxId" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteElectricBox()">删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：刷新数据 -->
+    <div class="modal fade" id="refreshModal" tabindex="-1" aria-labelledby="refreshModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="refreshModalLabel">刷新数据</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5>正在从服务器获取最新数据...</h5>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：筛选数据 -->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">筛选数据</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="filterForm">
+                        <div class="mb-3">
+                            <label for="lineFilter" class="form-label">线路</label>
+                            <select class="form-select" id="lineFilter">
+                                <option value="">全部线路</option>
+                                <option value="1">线路1</option>
+                                <option value="2">线路2</option>
+                                <option value="3">线路3</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="statusFilter" class="form-label">状态</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="">全部状态</option>
+                                <option value="正常">正常</option>
+                                <option value="警告">警告</option>
+                                <option value="故障">故障</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="powerMinFilter" class="form-label">功率下限(W)</label>
+                            <input type="number" class="form-control" id="powerMinFilter">
+                        </div>
+                        <div class="mb-3">
+                            <label for="powerMaxFilter" class="form-label">功率上限(W)</label>
+                            <input type="number" class="form-control" id="powerMaxFilter">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="applyFilter()">应用筛选</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 示例数据 - 实际应用中应从后端API获取
+        let electricBoxes = [
+            { id: 1, line: 1, boxId: 101, location: "1号楼1单元", voltage: 220, current: 5, power: 1100, status: "正常" },
+            { id: 2, line: 1, boxId: 102, location: "1号楼2单元", voltage: 220, current: 4, power: 880, status: "正常" },
+            { id: 3, line: 2, boxId: 201, location: "2号楼1单元", voltage: 220, current: 6, power: 1320, status: "正常" },
+            { id: 4, line: 2, boxId: 202, location: "2号楼2单元", voltage: 220, current: 5, power: 1100, status: "正常" },
+            { id: 5, line: 3, boxId: 301, location: "3号楼1单元", voltage: 220, current: 8, power: 1760, status: "警告" },
+            { id: 6, line: 3, boxId: 302, location: "3号楼2单元", voltage: 220, current: 7, power: 1540, status: "正常" },
+            { id: 7, line: 1, boxId: 103, location: "1号楼3单元", voltage: 220, current: 6, power: 1320, status: "正常" },
+            { id: 8, line: 2, boxId: 203, location: "2号楼3单元", voltage: 220, current: 3, power: 660, status: "正常" },
+            { id: 9, line: 3, boxId: 303, location: "3号楼3单元", voltage: 220, current: 9, power: 1980, status: "故障" }
+        ];
+
+        // 当前选中的电箱ID
+        let selectedBoxId = null;
+        
+        // 当前显示的电箱数据（用于筛选和搜索）
+        let displayedBoxes = [...electricBoxes];
+
+        // 页面加载时初始化数据
+        document.addEventListener('DOMContentLoaded', function() {
+            renderElectricBoxTable();
+            updateUpdateTime();
+            calculateLinePower();
+            updateDashboardStats();
+            
+            // 添加卡片悬停效果
+            addCardHoverEffects();
+            
+            // 设置自动刷新
+            setInterval(function() {
+                updateUpdateTime();
+            }, 60000); // 每分钟更新一次时间
+        });
+        
+        // 添加卡片悬停效果
+        function addCardHoverEffects() {
+            const cards = document.querySelectorAll('.power-card, .stat-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px)';
+                    this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.2)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                });
+            });
+        }
+
+        // 更新仪表盘统计数据
+        function updateDashboardStats() {
+            // 计算总功率
+            const totalPower = electricBoxes.reduce((sum, box) => sum + box.power, 0);
+            document.getElementById('totalPower').textContent = totalPower;
+            
+            // 计算电箱总数
+            document.getElementById('totalBoxes').textContent = electricBoxes.length;
+            
+            // 计算警告和故障电箱数量
+            const warningBoxes = electricBoxes.filter(box => box.status === "警告").length;
+            const faultBoxes = electricBoxes.filter(box => box.status === "故障").length;
+            
+            document.getElementById('warningBoxes').textContent = warningBoxes;
+            document.getElementById('faultBoxes').textContent = faultBoxes;
+            
+            // 添加动画效果
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.style.animation = 'fadeIn 0.5s ease-out';
+                setTimeout(() => {
+                    card.style.animation = '';
+                }, 500);
+            });
+            
+            // 更新各线路电箱数量
+            const line1Count = electricBoxes.filter(box => box.line === 1).length;
+            const line2Count = electricBoxes.filter(box => box.line === 2).length;
+            const line3Count = electricBoxes.filter(box => box.line === 3).length;
+            
+            document.getElementById('line1Count').textContent = line1Count;
+            document.getElementById('line2Count').textContent = line2Count;
+            document.getElementById('line3Count').textContent = line3Count;
+        }
+
+        // 搜索表格
+        function searchTable() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (searchTerm.trim() === '') {
+                displayedBoxes = [...electricBoxes];
+                renderElectricBoxTable();
+                return;
+            }
+            
+            displayedBoxes = electricBoxes.filter(box => {
+                return box.boxId.toString().includes(searchTerm) ||
+                       box.location.toLowerCase().includes(searchTerm) ||
+                       box.status.toLowerCase().includes(searchTerm) ||
+                       ('线路' + box.line).includes(searchTerm);
+            });
+            
+            renderElectricBoxTable(displayedBoxes);
+        }
+
+        // 渲染电箱数据表格
+        function renderElectricBoxTable(boxes = displayedBoxes) {
+            const tableBody = document.getElementById('electricBoxTable');
+            
+            // 保存当前状态，用于检测变化
+            const currentRows = tableBody.querySelectorAll('tr');
+            const currentStatuses = {};
+            
+            currentRows.forEach(row => {
+                const boxId = row.getAttribute('data-box-id');
+                if (boxId) {
+                    const statusBadge = row.querySelector('.status-badge');
+                    if (statusBadge) {
+                        currentStatuses[boxId] = statusBadge.classList[1]; // 保存状态类名
+                    }
+                }
+            });
+            
+            tableBody.innerHTML = '';
+            
+            if (boxes.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="9" class="text-center">没有找到匹配的数据</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            boxes.forEach((box, index) => {
+                const row = document.createElement('tr');
+                
+                // 根据状态设置行的类和状态标签
+                let statusBadge = '';
+                let statusClass = '';
+                let statusTitle = '';
+                let statusIcon = '';
+                
+                if (box.status === "警告") {
+                    row.classList.add('table-warning');
+                    statusClass = 'status-warning';
+                    statusTitle = '需要关注';
+                    statusIcon = '<i class="bi bi-exclamation-triangle-fill"></i>';
+                } else if (box.status === "故障") {
+                    row.classList.add('table-danger');
+                    statusClass = 'status-danger';
+                    statusTitle = '需要立即处理';
+                    statusIcon = '<i class="bi bi-x-circle-fill"></i>';
+                } else {
+                    statusClass = 'status-normal';
+                    statusTitle = '运行正常';
+                    statusIcon = '<i class="bi bi-check-circle-fill"></i>';
+                }
+                
+                statusBadge = `<span class="status-badge ${statusClass}" title="${statusTitle}">${statusIcon}${box.status}</span>`;
+                
+                // 设置行的data-box-id属性，用于状态变化检测
+                row.setAttribute('data-box-id', box.id);
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><span class="badge bg-${box.line === 1 ? 'success' : box.line === 2 ? 'warning' : 'danger'}">线路 ${box.line}</span></td>
+                    <td>${box.boxId}</td>
+                    <td>${box.location}</td>
+                    <td>${box.voltage.toFixed(1)}</td>
+                    <td>${box.current.toFixed(1)}</td>
+                    <td><strong>${box.power}</strong></td>
+                    <td>${statusBadge}</td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="selectElectricBox(${box.id}, ${box.line}, ${box.boxId}, '${box.location}', ${box.voltage}, ${box.current}, ${box.power}, '${box.status}')"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-outline-danger" onclick="prepareDelete(${box.id})"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+                
+                // 检查状态是否变化，如果变化则添加动画效果
+                if (currentStatuses[box.id] && currentStatuses[box.id] !== (box.status === "警告" ? 'status-warning' : box.status === "故障" ? 'status-danger' : 'status-normal')) {
+                    const newBadge = row.querySelector('.status-badge');
+                    if (newBadge) {
+                        newBadge.classList.add('status-badge-animated');
+                        
+                        // 移除动画类，以便下次状态变化时可以再次触发
+                        setTimeout(() => {
+                            newBadge.classList.remove('status-badge-animated');
+                        }, 600);
+                    }
+                }
+            });
+        }
+
+        // 更新更新时间
+        function updateUpdateTime() {
+            const now = new Date();
+            const formattedTime = now.toLocaleString('zh-CN', { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('updateTime').textContent = formattedTime;
+        }
+
+        // 准备删除电箱数据
+        function prepareDelete(id) {
+            document.getElementById('deleteBoxId').value = id;
+            const box = electricBoxes.find(box => box.id === id);
+            if (box) {
+                const deleteModalLabel = document.getElementById('deleteModalLabel');
+                deleteModalLabel.textContent = `删除电箱数据 - ${box.location} (编号: ${box.boxId})`;
+            }
+            var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            deleteModal.show();
+        }
+
+        // 选择电箱数据
+        function selectElectricBox(id, line, boxId, location, voltage, current, power, status) {
+            selectedBoxId = id;
+            
+            // 填充编辑表单
+            document.getElementById('lineEdit').value = line;
+            document.getElementById('boxIdEdit').value = boxId;
+            document.getElementById('locationEdit').value = location;
+            document.getElementById('voltageEdit').value = voltage;
+            document.getElementById('currentEdit').value = current;
+            document.getElementById('powerEdit').value = power;
+            document.getElementById('statusEdit').value = status;
+            
+            // 更新模态框标题
+            const editModalLabel = document.getElementById('editModalLabel');
+            editModalLabel.textContent = `编辑电箱数据 - ${location} (编号: ${boxId})`;
+            
+            // 显示编辑模态框
+            var editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+        }
+
+        // 添加电箱数据
+        function addElectricBox() {
+            const line = parseInt(document.getElementById('lineAdd').value);
+            const boxId = parseInt(document.getElementById('boxIdAdd').value);
+            const location = document.getElementById('locationAdd').value;
+            const voltage = parseFloat(document.getElementById('voltageAdd').value);
+            const current = parseFloat(document.getElementById('currentAdd').value);
+            const power = parseFloat(document.getElementById('powerAdd').value);
+            const status = document.getElementById('statusAdd').value;
+            
+            // 验证输入
+            if (!line || !boxId || !location || !voltage || !current || !power || !status) {
+                alert('请填写所有必填字段！');
+                return;
+            }
+            
+            // 检查电箱编号是否已存在
+            if (electricBoxes.some(box => box.boxId === boxId)) {
+                alert('电箱编号已存在，请使用其他编号！');
+                return;
+            }
+            
+            // 生成新的ID（实际应用中应由后端生成）
+            const newId = electricBoxes.length > 0 ? Math.max(...electricBoxes.map(box => box.id)) + 1 : 1;
+            
+            // 创建新电箱数据
+            const newBox = {
+                id: newId,
+                line: line,
+                boxId: boxId,
+                location: location,
+                voltage: voltage,
+                current: current,
+                power: power,
+                status: status
+            };
+            
+            // 添加到数组
+            electricBoxes.push(newBox);
+            displayedBoxes = [...electricBoxes];
+            
+            // 更新表格和线路功率
+            renderElectricBoxTable();
+            calculateLinePower();
+            updateUpdateTime();
+            updateDashboardStats();
+            
+            // 关闭模态框
+            var addModal = bootstrap.Modal.getInstance(document.getElementById('addModal'));
+            addModal.hide();
+            
+            // 重置表单
+            document.getElementById('addForm').reset();
+            
+            // 显示成功消息
+            showToast('添加成功', `已成功添加电箱数据：${location} (编号: ${boxId})`);
+        }
+
+        // 编辑电箱数据
+        function editElectricBox() {
+            const line = parseInt(document.getElementById('lineEdit').value);
+            const boxId = parseInt(document.getElementById('boxIdEdit').value);
+            const location = document.getElementById('locationEdit').value;
+            const voltage = parseFloat(document.getElementById('voltageEdit').value);
+            const current = parseFloat(document.getElementById('currentEdit').value);
+            const power = parseFloat(document.getElementById('powerEdit').value);
+            const status = document.getElementById('statusEdit').value;
+            
+            // 验证输入
+            if (!line || !location || !voltage || !current || !power || !status) {
+                alert('请填写所有必填字段！');
+                return;
+            }
+            
+            // 找到并更新选中的电箱
+            const index = electricBoxes.findIndex(box => box.id === selectedBoxId);
+            if (index !== -1) {
+                electricBoxes[index].line = line;
+                electricBoxes[index].location = location;
+                electricBoxes[index].voltage = voltage;
+                electricBoxes[index].current = current;
+                electricBoxes[index].power = power;
+                electricBoxes[index].status = status;
+            }
+            
+            displayedBoxes = [...electricBoxes];
+            
+            // 更新表格和线路功率
+            renderElectricBoxTable();
+            calculateLinePower();
+            updateUpdateTime();
+            updateDashboardStats();
+            
+            // 关闭模态框
+            var editModal = bootstrap.Modal.getInstance(document.getElementById('editModal'));
+            editModal.hide();
+            
+            // 重置选中的ID
+            selectedBoxId = null;
+            
+            // 显示成功消息
+            showToast('更新成功', `已成功更新电箱数据：${location} (编号: ${boxId})`);
+        }
+
+        // 删除电箱数据
+        function deleteElectricBox() {
+            const boxId = parseInt(document.getElementById('deleteBoxId').value);
+            
+            // 找到要删除的电箱
+            const boxToDelete = electricBoxes.find(box => box.id === boxId);
+            if (!boxToDelete) return;
+            
+            // 找到并删除选中的电箱
+            const index = electricBoxes.findIndex(box => box.id === boxId);
+            if (index !== -1) {
+                electricBoxes.splice(index, 1);
+            }
+            
+            displayedBoxes = [...electricBoxes];
+            
+            // 更新表格和线路功率
+            renderElectricBoxTable();
+            calculateLinePower();
+            updateUpdateTime();
+            updateDashboardStats();
+            
+            // 关闭模态框
+            var deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+            deleteModal.hide();
+            
+            // 显示成功消息
+            showToast('删除成功', `已成功删除电箱数据：${boxToDelete.location} (编号: ${boxToDelete.boxId})`);
+        }
+
+        // 刷新数据
+        function refreshData() {
+            // 显示加载动画
+            const loadingToast = showToast('正在刷新', '正在从服务器获取最新数据...', false);
+            
+            // 模拟异步操作
+            setTimeout(() => {
+                // 在实际应用中，这里应该从后端API获取最新数据
+                // 这里只是演示，我们随机更改一些数据来模拟刷新
+                electricBoxes = electricBoxes.map(box => {
+                    // 随机变化电压、电流和功率
+                    const voltageChange = (Math.random() - 0.5) * 10;
+                    const currentChange = (Math.random() - 0.5) * 2;
+                    const newPower = Math.round((box.voltage + voltageChange) * (box.current + currentChange));
+                    
+                    // 根据功率变化随机更新状态
+                    let newStatus = box.status;
+                    const statusRandom = Math.random();
+                    if (newPower > 1800 || statusRandom > 0.9) {
+                        newStatus = "警告";
+                    } else if (newPower > 2000 || statusRandom > 0.95) {
+                        newStatus = "故障";
+                    } else if (statusRandom > 0.8) {
+                        newStatus = "正常";
+                    }
+                    
+                    return {
+                        ...box,
+                        voltage: Math.max(180, Math.min(260, box.voltage + voltageChange)),
+                        current: Math.max(0, box.current + currentChange),
+                        power: newPower,
+                        status: newStatus
+                    };
+                });
+                
+                displayedBoxes = [...electricBoxes];
+                
+                // 更新表格和线路功率
+                renderElectricBoxTable();
+                calculateLinePower();
+                updateUpdateTime();
+                updateDashboardStats();
+                
+                // 隐藏加载动画并显示成功消息
+                if (loadingToast) {
+                    loadingToast.hide();
+                }
+                showToast('刷新成功', '数据已成功更新！');
+            }, 1000);
+        }
+
+        // 应用筛选
+        function applyFilter() {
+            const lineFilter = document.getElementById('lineFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const powerMin = document.getElementById('powerMinFilter').value ? parseFloat(document.getElementById('powerMinFilter').value) : 0;
+            const powerMax = document.getElementById('powerMaxFilter').value ? parseFloat(document.getElementById('powerMaxFilter').value) : Infinity;
+            
+            // 筛选数据
+            displayedBoxes = electricBoxes.filter(box => {
+                return (lineFilter === '' || box.line === parseInt(lineFilter)) &&
+                       (statusFilter === '' || box.status === statusFilter) &&
+                       (box.power >= powerMin) &&
+                       (box.power <= powerMax);
+            });
+            
+            // 渲染筛选后的表格
+            renderElectricBoxTable();
+            
+            // 关闭模态框
+            var filterModal = bootstrap.Modal.getInstance(document.getElementById('filterModal'));
+            filterModal.hide();
+            
+            // 显示筛选结果消息
+            showToast('筛选完成', `共找到 ${displayedBoxes.length} 条匹配数据`);
+        }
+
+        // 计算并更新各线路总功率
+        function calculateLinePower() {
+            // 计算各线路总功率
+            const line1Boxes = electricBoxes.filter(box => box.line === 1);
+            const line2Boxes = electricBoxes.filter(box => box.line === 2);
+            const line3Boxes = electricBoxes.filter(box => box.line === 3);
+            
+            const line1Power = line1Boxes.reduce((sum, box) => sum + box.power, 0);
+            const line2Power = line2Boxes.reduce((sum, box) => sum + box.power, 0);
+            const line3Power = line3Boxes.reduce((sum, box) => sum + box.power, 0);
+            
+            // 更新UI
+            document.getElementById('line1Power').textContent = line1Power;
+            document.getElementById('line2Power').textContent = line2Power;
+            document.getElementById('line3Power').textContent = line3Power;
+            
+            // 添加动画效果
+            document.querySelectorAll('.power-card').forEach(card => {
+                card.style.animation = 'pulse 0.5s ease-out';
+                setTimeout(() => {
+                    card.style.animation = '';
+                }, 500);
+            });
+            
+            // 更新进度条
+            const line1Bar = document.getElementById('line1Bar');
+            const line2Bar = document.getElementById('line2Bar');
+            const line3Bar = document.getElementById('line3Bar');
+            
+            const maxPower = Math.max(line1Power, line2Power, line3Power, 1); // 避免除以零
+            
+            line1Bar.style.width = (line1Power / maxPower * 100) + '%';
+            line2Bar.style.width = (line2Power / maxPower * 100) + '%';
+            line3Bar.style.width = (line3Power / maxPower * 100) + '%';
+            
+            // 更新线路状态
+            updateLineStatus(1, line1Power, line1Boxes);
+            updateLineStatus(2, line2Power, line2Boxes);
+            updateLineStatus(3, line3Power, line3Boxes);
+        }
+        
+        // 更新线路状态
+        function updateLineStatus(lineNumber, power, boxes) {
+            const statusElement = document.getElementById(`line${lineNumber}Status`);
+            let statusClass = 'status-normal';
+            let statusText = '正常运行';
+            
+            // 检查是否有故障电箱
+            const hasFault = boxes.some(box => box.status === '故障');
+            // 检查是否有警告电箱
+            const hasWarning = boxes.some(box => box.status === '警告');
+            // 检查功率是否超过阈值
+            const isPowerHigh = power > 3000;
+            
+            if (hasFault || isPowerHigh) {
+                statusClass = 'status-danger';
+                statusText = hasFault ? '存在故障电箱' : '功率过高';
+            } else if (hasWarning) {
+                statusClass = 'status-warning';
+                statusText = '存在警告电箱';
+            }
+            
+            const statusIcon = statusClass === 'status-normal' ? 
+                '<i class="bi bi-check-circle-fill"></i>' : 
+                statusClass === 'status-warning' ? 
+                '<i class="bi bi-exclamation-triangle-fill"></i>' : 
+                '<i class="bi bi-x-circle-fill"></i>';
+                
+            const statusTitle = statusClass === 'status-normal' ? 
+                '线路运行正常' : 
+                statusClass === 'status-warning' ? 
+                '线路需要关注' : 
+                '线路需要立即处理';
+            
+            // 获取当前状态文本
+            const currentStatus = statusElement.querySelector('.status-badge');
+            const currentStatusClass = currentStatus ? currentStatus.classList[1] : null;
+            
+            // 创建新的状态徽章
+            statusElement.innerHTML = `<span class="status-badge ${statusClass}" title="${statusTitle}">${statusIcon}${statusText}</span>`;
+            
+            // 如果状态发生变化，添加动画效果
+            if (currentStatusClass && currentStatusClass !== statusClass) {
+                const newBadge = statusElement.querySelector('.status-badge');
+                newBadge.classList.add('status-badge-animated');
+                
+                // 移除动画类，以便下次状态变化时可以再次触发
+                setTimeout(() => {
+                    newBadge.classList.remove('status-badge-animated');
+                }, 600);
+            }
+        }
+        
+        // 显示提示消息
+        function showToast(title, message, autoHide = true) {
+            // 检查是否已存在toast容器，如果不存在则创建
+            let toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                document.body.appendChild(toastContainer);
+            }
+            
+            // 创建唯一ID
+            const toastId = 'toast-' + Date.now();
+            
+            // 创建toast元素
+            const toastHtml = `
+                <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header">
+                        <strong class="me-auto">${title}</strong>
+                        <small>刚刚</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            // 添加到容器
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            
+            // 获取toast元素并显示
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, {
+                autohide: autoHide,
+                delay: 3000
+            });
+            toast.show();
+            
+            // 如果自动隐藏，设置监听器在隐藏后移除元素
+            if (autoHide) {
+                toastElement.addEventListener('hidden.bs.toast', function () {
+                    toastElement.remove();
+                });
+            }
+            
+            return toast;
+        }
+    </script>
+</body>
+</html>
