@@ -14,37 +14,53 @@
             color: #333;
         }
         .dashboard {
-            max-width: 1200px;
             margin: 0 auto;
         }
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+        }
+        .charts-scroll-container {
+            width: 1900px;
+            height: 500px;
+            overflow-x: auto;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .charts-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 15px;
+            width: 100%;
+            box-sizing: border-box;
         }
         .chart-container {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin: 0 15px 15px 0;
+            width: calc(50% - 15px);
+            box-sizing: border-box;
         }
-        .chart-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 20px;
+        .chart-container:nth-child(2n) {
+            margin-right: 0;
         }
         .chart-box {
-            flex: 1;
-            min-width: 300px;
+            width: 100%;
+            height: 200px;
         }
         h1 {
             color: #2c3e50;
         }
         h2 {
             color: #34495e;
-            font-size: 1.3em;
+            font-size: 1.2em;
             margin-top: 0;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -53,46 +69,49 @@
         <div class="header">
         </div>
 
-        <div class="chart-container">
-            <h2>1. Creator Type Distribution (Pie Chart)</h2>
-            <div class="chart-box">
-                <canvas id="pieChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-container">
-            <h2>2. Monthly Content Output by Creator Type (Bar Chart)</h2>
-            <div class="chart-box">
-                <canvas id="barChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-row">
-            <div class="chart-container" style="flex: 2;">
-                <h2>3. Audience Engagement by Creator Type (Line Chart)</h2>
-                <div class="chart-box">
-                    <canvas id="lineChart"></canvas>
+        <div class="charts-scroll-container">
+            <div class="charts-wrapper">
+                <div class="chart-container">
+                    <h2>1. Creator Type Distribution (Pie Chart)</h2>
+                    <div class="chart-box">
+                        <canvas id="pieChart"></canvas>
+                    </div>
                 </div>
-            </div>
-            <div class="chart-container" style="flex: 1;">
-                <h2>4. Top Performing Types (Doughnut)</h2>
-                <div class="chart-box">
-                    <canvas id="doughnutChart"></canvas>
+
+                <div class="chart-container">
+                    <h2>2. Monthly Content Output by Creator Type (Bar Chart)</h2>
+                    <div class="chart-box">
+                        <canvas id="barChart"></canvas>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="chart-container">
-            <h2>5. Revenue Distribution by Creator Type (Horizontal Bar)</h2>
-            <div class="chart-box">
-                <canvas id="horizontalBarChart"></canvas>
-            </div>
-        </div>
+                <div class="chart-container">
+                    <h2>3. Audience Engagement by Creator Type (Line Chart)</h2>
+                    <div class="chart-box">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                </div>
 
-        <div class="chart-container">
-            <h2>6. Growth Trends by Creator Type (Radar Chart)</h2>
-            <div class="chart-box">
-                <canvas id="radarChart"></canvas>
+                <div class="chart-container">
+                    <h2>4. Top Performing Types (Doughnut)</h2>
+                    <div class="chart-box">
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h2>5. Revenue Distribution by Creator Type (Horizontal Bar)</h2>
+                    <div class="chart-box">
+                        <canvas id="horizontalBarChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h2>6. Growth Trends by Creator Type (Radar Chart)</h2>
+                    <div class="chart-box">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -130,13 +149,23 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 10
+                            }
+                        }
                     },
                     title: {
                         display: true,
-                        text: 'Percentage of Each Creator Type'
+                        text: 'Percentage of Each Creator Type',
+                        font: {
+                            size: 14
+                        }
                     }
                 }
             }
@@ -172,19 +201,46 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Number of Videos'
+                            text: 'Number of Videos',
+                            font: {
+                                size: 10
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
                         }
                     }
                 },
                 plugins: {
+                    legend: {
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
                     title: {
                         display: true,
-                        text: 'Content Output per Month by Creator Type'
+                        text: 'Content Output per Month by Creator Type',
+                        font: {
+                            size: 14
+                        }
                     }
                 }
             }
@@ -237,19 +293,46 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     y: {
                         beginAtZero: false,
                         title: {
                             display: true,
-                            text: 'Engagement Rate (%)'
+                            text: 'Engagement Rate (%)',
+                            font: {
+                                size: 10
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
                         }
                     }
                 },
                 plugins: {
+                    legend: {
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
                     title: {
                         display: true,
-                        text: 'Monthly Engagement Trends by Creator Type'
+                        text: 'Monthly Engagement Trends by Creator Type',
+                        font: {
+                            size: 14
+                        }
                     }
                 }
             }
@@ -277,10 +360,23 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
                     title: {
                         display: true,
-                        text: 'Top 5 Performing Creator Types'
+                        text: 'Top 5 Performing Creator Types',
+                        font: {
+                            size: 14
+                        }
                     }
                 }
             }
@@ -317,19 +413,46 @@
             options: {
                 indexAxis: 'y',
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     x: {
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Monthly Revenue (USD)'
+                            text: 'Monthly Revenue (USD)',
+                            font: {
+                                size: 10
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
                         }
                     }
                 },
                 plugins: {
+                    legend: {
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
                     title: {
                         display: true,
-                        text: 'Revenue Distribution Across Creator Types'
+                        text: 'Revenue Distribution Across Creator Types',
+                        font: {
+                            size: 14
+                        }
                     }
                 }
             }
@@ -374,19 +497,41 @@
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 scales: {
                     r: {
                         angleLines: {
                             display: true
                         },
                         suggestedMin: 0,
-                        suggestedMax: 100
+                        suggestedMax: 100,
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 10
+                            }
+                        }
                     }
                 },
                 plugins: {
+                    legend: {
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
                     title: {
                         display: true,
-                        text: 'Growth Potential Comparison'
+                        text: 'Growth Potential Comparison',
+                        font: {
+                            size: 14
+                        }
                     }
                 }
             }
