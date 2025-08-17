@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Type Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .chart-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .chart-box {
+            flex: 1;
+            min-width: 300px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        h2 {
+            color: #34495e;
+            font-size: 1.3em;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>Creator Type Analysis Dashboard</h1>
+            <p>Comprehensive analytics across different creator categories</p>
+        </div>
+
+        <div class="chart-container">
+            <h2>1. Creator Type Distribution (Pie Chart)</h2>
+            <div class="chart-box">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>2. Monthly Content Output by Creator Type (Bar Chart)</h2>
+            <div class="chart-box">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-row">
+            <div class="chart-container" style="flex: 2;">
+                <h2>3. Audience Engagement by Creator Type (Line Chart)</h2>
+                <div class="chart-box">
+                    <canvas id="lineChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container" style="flex: 1;">
+                <h2>4. Top Performing Types (Doughnut)</h2>
+                <div class="chart-box">
+                    <canvas id="doughnutChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>5. Revenue Distribution by Creator Type (Horizontal Bar)</h2>
+            <div class="chart-box">
+                <canvas id="horizontalBarChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h2>6. Growth Trends by Creator Type (Radar Chart)</h2>
+            <div class="chart-box">
+                <canvas id="radarChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pie Chart - Creator Type Distribution
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        const pieChart = new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: [
+                    'Tech Reviewers', 
+                    'Beauty Gurus', 
+                    'Gaming Streamers', 
+                    'Fitness Coaches',
+                    'Travel Vloggers',
+                    'Food Bloggers',
+                    'DIY Crafters',
+                    'Finance Experts',
+                    'Comedy Sketchers',
+                    'Educational Channels',
+                    'ASMR Artists',
+                    'Parenting Vloggers',
+                    'Book Reviewers'
+                ],
+                datasets: [{
+                    data: [12, 15, 18, 8, 10, 14, 7, 5, 11, 9, 6, 4, 3],
+                    backgroundColor: [
+                        '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
+                        '#1abc9c', '#d35400', '#34495e', '#7f8c8d', '#27ae60',
+                        '#8e44ad', '#c0392b', '#16a085'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Percentage of Each Creator Type'
+                    }
+                }
+            }
+        });
+
+        // Bar Chart - Monthly Content Output
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Tech Reviewers', 
+                    'Beauty Gurus', 
+                    'Gaming Streamers', 
+                    'Fitness Coaches',
+                    'Travel Vloggers',
+                    'Food Bloggers',
+                    'DIY Crafters',
+                    'Finance Experts',
+                    'Comedy Sketchers',
+                    'Educational Channels',
+                    'ASMR Artists',
+                    'Parenting Vloggers',
+                    'Book Reviewers'
+                ],
+                datasets: [{
+                    label: 'Average Monthly Videos',
+                    data: [8, 12, 25, 6, 9, 15, 5, 4, 10, 7, 18, 5, 3],
+                    backgroundColor: '#3498db',
+                    borderColor: '#2980b9',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Videos'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Content Output per Month by Creator Type'
+                    }
+                }
+            }
+        });
+
+        // Line Chart - Audience Engagement
+        const lineCtx = document.getElementById('lineChart').getContext('2d');
+        const lineChart = new Chart(lineCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [
+                    {
+                        label: 'Tech Reviewers',
+                        data: [65, 59, 80, 81, 76, 85, 90],
+                        borderColor: '#3498db',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Beauty Gurus',
+                        data: [55, 65, 70, 72, 75, 80, 82],
+                        borderColor: '#e74c3c',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Gaming Streamers',
+                        data: [80, 82, 85, 83, 87, 90, 92],
+                        borderColor: '#2ecc71',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Fitness Coaches',
+                        data: [40, 45, 50, 52, 55, 58, 60],
+                        borderColor: '#f39c12',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Travel Vloggers',
+                        data: [60, 62, 65, 63, 68, 70, 72],
+                        borderColor: '#9b59b6',
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Food Bloggers',
+                        data: [70, 72, 75, 77, 80, 82, 85],
+                        borderColor: '#1abc9c',
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Engagement Rate (%)'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Monthly Engagement Trends by Creator Type'
+                    }
+                }
+            }
+        });
+
+        // Doughnut Chart - Top Performing Types
+        const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
+        const doughnutChart = new Chart(doughnutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [
+                    'Gaming Streamers', 
+                    'Food Bloggers', 
+                    'Tech Reviewers', 
+                    'Beauty Gurus',
+                    'Comedy Sketchers'
+                ],
+                datasets: [{
+                    data: [28, 22, 18, 15, 17],
+                    backgroundColor: [
+                        '#2ecc71', '#1abc9c', '#3498db', '#e74c3c', '#f39c12'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Top 5 Performing Creator Types'
+                    }
+                }
+            }
+        });
+
+        // Horizontal Bar Chart - Revenue Distribution
+        const horizontalBarCtx = document.getElementById('horizontalBarChart').getContext('2d');
+        const horizontalBarChart = new Chart(horizontalBarCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Tech Reviewers', 
+                    'Beauty Gurus', 
+                    'Gaming Streamers', 
+                    'Fitness Coaches',
+                    'Travel Vloggers',
+                    'Food Bloggers',
+                    'DIY Crafters',
+                    'Finance Experts',
+                    'Comedy Sketchers',
+                    'Educational Channels',
+                    'ASMR Artists',
+                    'Parenting Vloggers',
+                    'Book Reviewers'
+                ],
+                datasets: [{
+                    label: 'Average Monthly Revenue ($)',
+                    data: [8500, 12000, 15000, 6000, 9000, 11000, 4500, 8000, 9500, 7000, 5000, 4000, 3500],
+                    backgroundColor: '#9b59b6',
+                    borderColor: '#8e44ad',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Monthly Revenue (USD)'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Revenue Distribution Across Creator Types'
+                    }
+                }
+            }
+        });
+
+        // Radar Chart - Growth Trends
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        const radarChart = new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    'Subscriber Growth', 
+                    'View Count', 
+                    'Engagement Rate', 
+                    'Revenue Potential',
+                    'Sponsorship Opportunities',
+                    'Content Frequency'
+                ],
+                datasets: [
+                    {
+                        label: 'Tech Reviewers',
+                        data: [80, 75, 70, 85, 80, 65],
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Gaming Streamers',
+                        data: [90, 95, 85, 75, 70, 90],
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Food Bloggers',
+                        data: [75, 80, 85, 80, 75, 70],
+                        backgroundColor: 'rgba(26, 188, 156, 0.2)',
+                        borderColor: 'rgba(26, 188, 156, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Growth Potential Comparison'
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
