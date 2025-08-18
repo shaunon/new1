@@ -6,6 +6,20 @@
     <title>Creator Ecosystem Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- 表格排序样式 -->
+    <style>
+        .data-table th {
+            cursor: pointer;
+        }
+        .data-table th.sort-asc::after {
+            content: ' ↑';
+            color: #555;
+        }
+        .data-table th.sort-desc::after {
+            content: ' ↓';
+            color: #555;
+        }
+    </style>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -15,7 +29,7 @@
             color: #333;
         }
         .dashboard {
-            max-width: 1600px;
+            max-width: 1900px;
             margin: 0 auto;
         }
         /* 移除页面总标题 */
@@ -64,18 +78,6 @@
             background-color: #f2f2f2;
             position: sticky;
             top: 0;
-            cursor: pointer;
-        }
-        .data-table th:hover {
-            background-color: #e0e0e0;
-        }
-        .data-table th.asc:after {
-            content: ' ↑';
-            color: #555;
-        }
-        .data-table th.desc:after {
-            content: ' ↓';
-            color: #555;
         }
         .data-table tr:nth-child(even) {
             background-color: #f9f9f9;
@@ -639,58 +641,51 @@
         });
     </script>
 
-    <!-- 表格排序功能 -->
+    <!-- 使用纯JavaScript实现表格排序 -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const table = document.querySelector('.data-table');
             const headers = table.querySelectorAll('th');
             const tableBody = table.querySelector('tbody');
             const rows = tableBody.querySelectorAll('tr');
-
-            // 排序方向跟踪
-            const directions = Array.from(headers).map(function() {
-                return '';
-            });
-
+            
             // 为每个表头添加点击事件
             headers.forEach(function(header, index) {
                 header.addEventListener('click', function() {
                     // 清除所有表头的排序标记
                     headers.forEach(h => {
-                        h.classList.remove('asc', 'desc');
+                        h.classList.remove('sort-asc', 'sort-desc');
                     });
-
+                    
                     // 确定排序方向
-                    const direction = directions[index] === 'asc' ? 'desc' : 'asc';
-                    directions.fill('', 0, directions.length);
-                    directions[index] = direction;
-                    header.classList.add(direction);
-
+                    const isAscending = !header.classList.contains('sort-asc');
+                    header.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
+                    
                     // 获取所有行并转换为数组
                     const rowsArray = Array.from(rows);
-
+                    
                     // 排序行
                     const sortedRows = rowsArray.sort(function(a, b) {
                         const aColText = a.querySelector(`td:nth-child(${index + 1})`).textContent.trim();
                         const bColText = b.querySelector(`td:nth-child(${index + 1})`).textContent.trim();
-
+                        
                         // 处理数字格式（包括逗号和百分号）
                         const aValue = parseValue(aColText);
                         const bValue = parseValue(bColText);
-
-                        return direction === 'asc' ? compareValues(aValue, bValue) : compareValues(bValue, aValue);
+                        
+                        return isAscending ? compareValues(aValue, bValue) : compareValues(bValue, aValue);
                     });
-
+                    
                     // 从表格中移除所有现有行
                     while (tableBody.firstChild) {
                         tableBody.removeChild(tableBody.firstChild);
                     }
-
+                    
                     // 添加排序后的行
                     tableBody.append(...sortedRows);
                 });
             });
-
+            
             // 解析各种格式的值（文本、数字、百分比等）
             function parseValue(value) {
                 // 移除千位分隔符
@@ -705,7 +700,7 @@
                 const parsedValue = parseFloat(value);
                 return isNaN(parsedValue) ? value.toLowerCase() : parsedValue;
             }
-
+            
             // 比较两个值
             function compareValues(a, b) {
                 if (typeof a === 'string' && typeof b === 'string') {
