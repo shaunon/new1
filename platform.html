@@ -3,23 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creator Ecosystem Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <!-- 表格排序样式 -->
-    <style>
-        .data-table th {
-            cursor: pointer;
-        }
-        .data-table th.sort-asc::after {
-            content: ' ↑';
-            color: #555;
-        }
-        .data-table th.sort-desc::after {
-            content: ' ↓';
-            color: #555;
-        }
-    </style>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -32,7 +16,6 @@
             max-width: 1900px;
             margin: 0 auto;
         }
-        /* 移除页面总标题 */
         .chart-container {
             background: white;
             border-radius: 8px;
@@ -48,14 +31,7 @@
         }
         .chart-box {
             flex: 1;
-            min-width: 350px;
-        }
-        .main-chart {
-            min-height: 550px;
-        }
-        h1 {
-            color: white;
-            margin-bottom: 10px;
+            min-width: 300px;
         }
         h2 {
             color: #2c3e50;
@@ -75,6 +51,8 @@
             text-align: left;
         }
         .data-table th {
+            cursor: pointer;
+            user-select: none;
             background-color: #f2f2f2;
             position: sticky;
             top: 0;
@@ -90,21 +68,31 @@
             max-height: 500px;
             overflow-y: auto;
         }
+        .platform-1 { background-color: rgba(255, 99, 132, 0.2); border-color: rgba(255, 99, 132, 1); }
+        .platform-2 { background-color: rgba(54, 162, 235, 0.2); border-color: rgba(54, 162, 235, 1); }
+        .platform-3 { background-color: rgba(255, 206, 86, 0.2); border-color: rgba(255, 206, 86, 1); }
+        .platform-4 { background-color: rgba(75, 192, 192, 0.2); border-color: rgba(75, 192, 192, 1); }
+        .platform-5 { background-color: rgba(153, 102, 255, 0.2); border-color: rgba(153, 102, 255, 1); }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <!-- 页面总标题已移除 -->
+        <div class="chart-container">
+            <h2>1. Platform Performance Comparison (Bar Chart)</h2>
+            <div class="chart-box">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
 
         <div class="chart-row">
-            <div class="chart-container main-chart" style="flex: 1.2;">
-                <h2>1. Creator Type Distribution (Donut Chart)</h2>
+            <div class="chart-container" style="flex: 1.5;">
+                <h2>2. Platform Metric Comparison (Radar Chart)</h2>
                 <div class="chart-box">
-                    <canvas id="donutChart"></canvas>
+                    <canvas id="radarChart"></canvas>
                 </div>
             </div>
-            <div class="chart-container" style="flex: 1.8;">
-                <h2>2. Monthly Video Contribution (Stacked Bar Chart)</h2>
+            <div class="chart-container" style="flex: 1;">
+                <h2>3. Content Category Distribution (100% Stacked Bar)</h2>
                 <div class="chart-box">
                     <canvas id="stackedBarChart"></canvas>
                 </div>
@@ -112,214 +100,95 @@
         </div>
 
         <div class="chart-container">
-            <h2>3. Creator Performance Analysis (Bubble Chart)</h2>
-            <div class="chart-box">
-                <canvas id="bubbleChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-container">
-            <h2>4. Detailed Metrics by Creator Type</h2>
+            <h2>4. Platform Performance Metrics</h2>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Creator Type</th>
+                            <th>Platform</th>
                             <th>Video Count</th>
-                            <th>Video %</th>
                             <th>Total Views</th>
-                            <th>Avg Views/Video</th>
                             <th>Total Engagement</th>
-                            <th>Engagement Rate</th>
-                            <th>Creator Count</th>
-                            <th>Total Followers</th>
-                            <th>Avg Followers</th>
-                            <th>View/Follower</th>
-                            <th>Viral Videos %</th>
+                            <th>Avg. Engagement Rate</th>
+                            <th>Avg. Completion Rate</th>
+                            <th>Median Followers</th>
+                            <th>Comment/Like Ratio</th>
+                            <th>Share Rate</th>
+                            <th>Daily Active Creators</th>
+                            <th>Avg. Video Lifespan (hrs)</th>
+                            <th>Top 3 Categories</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Tech Reviewers</td>
-                            <td>1,250</td>
-                            <td>12.5%</td>
-                            <td>85,000,000</td>
-                            <td>68,000</td>
-                            <td>3,400,000</td>
+                            <td>YouTube</td>
+                            <td>1,850,000</td>
+                            <td>85,000,000,000</td>
+                            <td>3,400,000,000</td>
                             <td>4.0%</td>
-                            <td>120</td>
-                            <td>12,000,000</td>
-                            <td>100,000</td>
-                            <td>7.08</td>
-                            <td>2.8%</td>
+                            <td>65%</td>
+                            <td>125,000</td>
+                            <td>0.12</td>
+                            <td>0.08</td>
+                            <td>950,000</td>
+                            <td>720</td>
+                            <td>Entertainment, Music, Gaming</td>
                         </tr>
                         <tr>
-                            <td>Beauty Gurus</td>
-                            <td>1,800</td>
-                            <td>18.0%</td>
-                            <td>120,000,000</td>
-                            <td>66,667</td>
-                            <td>6,000,000</td>
+                            <td>TikTok</td>
+                            <td>3,200,000</td>
+                            <td>120,000,000,000</td>
+                            <td>6,000,000,000</td>
                             <td>5.0%</td>
-                            <td>150</td>
-                            <td>18,000,000</td>
-                            <td>120,000</td>
-                            <td>6.67</td>
-                            <td>3.2%</td>
-                        </tr>
-                        <tr>
-                            <td>Gaming Streamers</td>
-                            <td>2,700</td>
-                            <td>27.0%</td>
-                            <td>216,000,000</td>
-                            <td>80,000</td>
-                            <td>10,800,000</td>
-                            <td>5.0%</td>
-                            <td>180</td>
-                            <td>27,000,000</td>
-                            <td>150,000</td>
-                            <td>8.00</td>
-                            <td>4.5%</td>
-                        </tr>
-                        <tr>
-                            <td>Fitness Coaches</td>
-                            <td>750</td>
-                            <td>7.5%</td>
-                            <td>37,500,000</td>
-                            <td>50,000</td>
+                            <td>45%</td>
+                            <td>85,000</td>
+                            <td>0.18</td>
+                            <td>0.15</td>
                             <td>1,500,000</td>
+                            <td>168</td>
+                            <td>Dance, Comedy, Lifestyle</td>
+                        </tr>
+                        <tr>
+                            <td>Instagram</td>
+                            <td>2,700,000</td>
+                            <td>65,000,000,000</td>
+                            <td>2,800,000,000</td>
+                            <td>4.3%</td>
+                            <td>52%</td>
+                            <td>95,000</td>
+                            <td>0.15</td>
+                            <td>0.12</td>
+                            <td>1,200,000</td>
+                            <td>240</td>
+                            <td>Fashion, Food, Travel</td>
+                        </tr>
+                        <tr>
+                            <td>Facebook</td>
+                            <td>1,500,000</td>
+                            <td>45,000,000,000</td>
+                            <td>1,800,000,000</td>
                             <td>4.0%</td>
-                            <td>90</td>
-                            <td>6,300,000</td>
-                            <td>70,000</td>
-                            <td>5.95</td>
-                            <td>1.8%</td>
+                            <td>40%</td>
+                            <td>75,000</td>
+                            <td>0.20</td>
+                            <td>0.10</td>
+                            <td>800,000</td>
+                            <td>360</td>
+                            <td>News, Family, Sports</td>
                         </tr>
                         <tr>
-                            <td>Travel Vloggers</td>
-                            <td>900</td>
-                            <td>9.0%</td>
-                            <td>63,000,000</td>
-                            <td>70,000</td>
-                            <td>2,520,000</td>
-                            <td>4.0%</td>
-                            <td>100</td>
-                            <td>9,000,000</td>
-                            <td>90,000</td>
-                            <td>7.00</td>
-                            <td>2.5%</td>
-                        </tr>
-                        <tr>
-                            <td>Food Bloggers</td>
-                            <td>1,400</td>
-                            <td>14.0%</td>
-                            <td>98,000,000</td>
-                            <td>70,000</td>
-                            <td>4,900,000</td>
-                            <td>5.0%</td>
-                            <td>140</td>
-                            <td>14,000,000</td>
-                            <td>100,000</td>
-                            <td>7.00</td>
-                            <td>3.0%</td>
-                        </tr>
-                        <tr>
-                            <td>DIY Crafters</td>
-                            <td>500</td>
-                            <td>5.0%</td>
-                            <td>25,000,000</td>
-                            <td>50,000</td>
-                            <td>1,000,000</td>
-                            <td>4.0%</td>
-                            <td>80</td>
-                            <td>5,600,000</td>
-                            <td>70,000</td>
-                            <td>4.46</td>
-                            <td>1.2%</td>
-                        </tr>
-                        <tr>
-                            <td>Finance Experts</td>
-                            <td>400</td>
-                            <td>4.0%</td>
-                            <td>32,000,000</td>
-                            <td>80,000</td>
-                            <td>1,280,000</td>
-                            <td>4.0%</td>
-                            <td>50</td>
-                            <td>6,000,000</td>
-                            <td>120,000</td>
-                            <td>5.33</td>
-                            <td>2.0%</td>
-                        </tr>
-                        <tr>
-                            <td>Comedy Sketchers</td>
-                            <td>1,100</td>
-                            <td>11.0%</td>
-                            <td>77,000,000</td>
-                            <td>70,000</td>
-                            <td>3,850,000</td>
-                            <td>5.0%</td>
-                            <td>110</td>
-                            <td>12,100,000</td>
-                            <td>110,000</td>
-                            <td>6.36</td>
-                            <td>2.8%</td>
-                        </tr>
-                        <tr>
-                            <td>Educational Channels</td>
-                            <td>700</td>
-                            <td>7.0%</td>
-                            <td>49,000,000</td>
-                            <td>70,000</td>
-                            <td>1,470,000</td>
-                            <td>3.0%</td>
-                            <td>70</td>
-                            <td>7,700,000</td>
-                            <td>110,000</td>
-                            <td>6.36</td>
-                            <td>1.5%</td>
-                        </tr>
-                        <tr>
-                            <td>ASMR Artists</td>
-                            <td>300</td>
-                            <td>3.0%</td>
-                            <td>21,000,000</td>
-                            <td>70,000</td>
-                            <td>840,000</td>
-                            <td>4.0%</td>
-                            <td>60</td>
-                            <td>4,800,000</td>
-                            <td>80,000</td>
-                            <td>4.38</td>
-                            <td>1.0%</td>
-                        </tr>
-                        <tr>
-                            <td>Parenting Vloggers</td>
-                            <td>350</td>
-                            <td>3.5%</td>
-                            <td>17,500,000</td>
-                            <td>50,000</td>
-                            <td>700,000</td>
-                            <td>4.0%</td>
-                            <td>70</td>
-                            <td>5,600,000</td>
-                            <td>80,000</td>
-                            <td>3.13</td>
-                            <td>0.8%</td>
-                        </tr>
-                        <tr>
-                            <td>Book Reviewers</td>
-                            <td>250</td>
-                            <td>2.5%</td>
-                            <td>12,500,000</td>
-                            <td>50,000</td>
-                            <td>500,000</td>
-                            <td>4.0%</td>
-                            <td>50</td>
-                            <td>3,500,000</td>
-                            <td>70,000</td>
-                            <td>3.57</td>
-                            <td>0.5%</td>
+                            <td>Twitch</td>
+                            <td>850,000</td>
+                            <td>25,000,000,000</td>
+                            <td>1,200,000,000</td>
+                            <td>4.8%</td>
+                            <td>30%</td>
+                            <td>65,000</td>
+                            <td>0.25</td>
+                            <td>0.05</td>
+                            <td>350,000</td>
+                            <td>48</td>
+                            <td>Gaming, Music, Talk Shows</td>
                         </tr>
                     </tbody>
                 </table>
@@ -327,47 +196,82 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
-        // Donut Chart - Creator Type Distribution
-        const donutCtx = document.getElementById('donutChart').getContext('2d');
-        const donutChart = new Chart(donutCtx, {
-            type: 'doughnut',
+        // Table sorting function
+        $(document).ready(function() {
+            $('th').click(function() {
+                var table = $(this).parents('table').eq(0);
+                var rows = table.find('tr:gt(0)').toArray().sort(comparer($(this).index()));
+                this.asc = !this.asc;
+                if (!this.asc) rows = rows.reverse();
+                for (var i = 0; i < rows.length; i++) table.append(rows[i]);
+            });
+        });
+
+        function comparer(index) {
+            return function(a, b) {
+                var valA = getCellValue(a, index), valB = getCellValue(b, index);
+                if (!isNaN(valA) && !isNaN(valB)) {
+                    return valA - valB;
+                } else {
+                    return valA.toString().localeCompare(valB);
+                }
+            };
+        }
+
+        function getCellValue(row, index) {
+            var value = $(row).children('td').eq(index).text();
+            if (value.includes(',')) value = value.replace(/,/g, '');
+            if (!isNaN(value)) return parseFloat(value);
+            return value;
+        }
+
+        // Bar Chart - Platform Comparison
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        const barChart = new Chart(barCtx, {
+            type: 'bar',
             data: {
-                labels: [
-                    'Tech Reviewers', 
-                    'Beauty Gurus', 
-                    'Gaming Streamers', 
-                    'Fitness Coaches',
-                    'Travel Vloggers',
-                    'Food Bloggers',
-                    'DIY Crafters',
-                    'Finance Experts',
-                    'Comedy Sketchers',
-                    'Educational Channels',
-                    'ASMR Artists',
-                    'Parenting Vloggers',
-                    'Book Reviewers'
-                ],
-                datasets: [{
-                    data: [12.5, 18, 27, 7.5, 9, 14, 5, 4, 11, 7, 3, 3.5, 2.5],
-                    backgroundColor: [
-                        '#4e79a7', '#f28e2c', '#e15759', '#76b7b2', '#59a14f',
-                        '#edc949', '#af7aa1', '#ff9da7', '#9c755f', '#bab0ab',
-                        '#6b9ac4', '#d37295', '#a6cee3'
-                    ],
-                    borderWidth: 1
-                }]
+                labels: ['YouTube', 'TikTok', 'Instagram', 'Facebook', 'Twitch'],
+                datasets: [
+                    {
+                        label: 'Video Count (millions)',
+                        data: [1.85, 3.2, 2.7, 1.5, 0.85],
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Total Views (billions)',
+                        data: [85, 120, 65, 45, 25],
+                        backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Total Engagement (millions)',
+                        data: [3400, 6000, 2800, 1800, 1200],
+                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    }
+                ]
             },
             options: {
                 responsive: true,
-                cutout: '70%',
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Count/Volume'
+                        }
+                    }
+                },
                 plugins: {
-                    legend: {
-                        position: 'right',
-                    },
                     title: {
                         display: true,
-                        text: 'Creator Type Distribution (%)',
+                        text: 'Platform Performance Comparison (Absolute Values)',
                         font: {
                             size: 16
                         }
@@ -375,65 +279,140 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return `${context.label}: ${context.raw}%`;
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.datasetIndex === 0) label += context.raw.toLocaleString() + 'M';
+                                if (context.datasetIndex === 1) label += context.raw.toLocaleString() + 'B';
+                                if (context.datasetIndex === 2) label += context.raw.toLocaleString() + 'M';
+                                return label;
                             }
                         }
                     },
-                    datalabels: {
-                        formatter: (value) => {
-                            return `${value}%`;
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+
+        // Radar Chart - Platform Metrics
+        const radarCtx = document.getElementById('radarChart').getContext('2d');
+        const radarChart = new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    'Engagement Rate', 
+                    'Completion Rate', 
+                    'Share Rate', 
+                    'Comment/Like Ratio',
+                    'Video Lifespan',
+                    'Creator Activity'
+                ],
+                datasets: [
+                    {
+                        label: 'YouTube',
+                        data: [4.0, 65, 0.08, 0.12, 30, 95],
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'TikTok',
+                        data: [5.0, 45, 0.15, 0.18, 7, 150],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Instagram',
+                        data: [4.3, 52, 0.12, 0.15, 10, 120],
+                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                        borderColor: 'rgba(255, 206, 86, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
                         },
-                        color: '#fff',
+                        suggestedMin: 0,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Platform Metric Comparison (Normalized Scores)',
                         font: {
-                            weight: 'bold'
+                            size: 16
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.dataIndex === 0) label += context.raw + '%';
+                                else if (context.dataIndex === 2) label += context.raw.toFixed(2);
+                                else if (context.dataIndex === 3) label += context.raw.toFixed(2);
+                                else if (context.dataIndex === 4) label += context.raw + ' days';
+                                else if (context.dataIndex === 5) label += context.raw + 'K creators';
+                                else label += context.raw + '%';
+                                return label;
+                            }
                         }
                     }
                 }
-            },
-            plugins: [ChartDataLabels]
+            }
         });
 
-        // Stacked Bar Chart - Monthly Video Contribution
+        // 100% Stacked Bar Chart - Content Category Distribution
         const stackedBarCtx = document.getElementById('stackedBarChart').getContext('2d');
         const stackedBarChart = new Chart(stackedBarCtx, {
             type: 'bar',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                labels: ['YouTube', 'TikTok', 'Instagram', 'Facebook', 'Twitch'],
                 datasets: [
                     {
-                        label: 'Tech Reviewers',
-                        data: [120, 130, 125, 140, 150, 160, 170],
-                        backgroundColor: '#4e79a7',
+                        label: 'Entertainment',
+                        data: [35, 25, 20, 15, 10],
+                        backgroundColor: '#FF6384',
                         stack: 'Stack 0'
                     },
                     {
-                        label: 'Beauty Gurus',
-                        data: [180, 190, 185, 200, 210, 220, 230],
-                        backgroundColor: '#f28e2c',
+                        label: 'Music',
+                        data: [20, 15, 10, 5, 25],
+                        backgroundColor: '#36A2EB',
                         stack: 'Stack 0'
                     },
                     {
-                        label: 'Gaming Streamers',
-                        data: [270, 280, 290, 300, 310, 320, 330],
-                        backgroundColor: '#e15759',
+                        label: 'Gaming',
+                        data: [15, 10, 5, 10, 40],
+                        backgroundColor: '#FFCE56',
                         stack: 'Stack 0'
                     },
                     {
-                        label: 'Fitness Coaches',
-                        data: [75, 80, 85, 90, 95, 100, 105],
-                        backgroundColor: '#76b7b2',
+                        label: 'Lifestyle',
+                        data: [10, 20, 25, 15, 5],
+                        backgroundColor: '#4BC0C0',
                         stack: 'Stack 0'
                     },
                     {
-                        label: 'Travel Vloggers',
-                        data: [90, 95, 100, 105, 110, 115, 120],
-                        backgroundColor: '#59a14f',
+                        label: 'Education',
+                        data: [10, 5, 15, 10, 5],
+                        backgroundColor: '#9966FF',
                         stack: 'Stack 0'
                     },
                     {
-                        label: 'Food Bloggers',
-                        data: [140, 145, 150, 155, 160, 165, 170],
-                        backgroundColor: '#edc949',
+                        label: 'Other',
+                        data: [10, 25, 25, 45, 15],
+                        backgroundColor: '#C9CBCF',
                         stack: 'Stack 0'
                     }
                 ]
@@ -443,183 +422,20 @@
                 scales: {
                     x: {
                         stacked: true,
-                        title: {
-                            display: true,
-                            text: 'Month'
-                        }
                     },
                     y: {
                         stacked: true,
+                        max: 100,
                         title: {
                             display: true,
-                            text: 'Number of Videos'
+                            text: 'Percentage (%)'
                         }
                     }
                 },
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Monthly Video Contribution by Creator Type',
-                        font: {
-                            size: 16
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    },
-                    legend: {
-                        position: 'bottom',
-                    }
-                }
-            }
-        });
-
-        // Bubble Chart - Creator Performance
-        const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
-        const bubbleChart = new Chart(bubbleCtx, {
-            type: 'bubble',
-            data: {
-                datasets: [
-                    {
-                        label: 'Tech Reviewers',
-                        data: [{
-                            x: 1250,
-                            y: 68000,
-                            r: 34
-                        }],
-                        backgroundColor: '#4e79a7'
-                    },
-                    {
-                        label: 'Beauty Gurus',
-                        data: [{
-                            x: 1800,
-                            y: 66667,
-                            r: 60
-                        }],
-                        backgroundColor: '#f28e2c'
-                    },
-                    {
-                        label: 'Gaming Streamers',
-                        data: [{
-                            x: 2700,
-                            y: 80000,
-                            r: 108
-                        }],
-                        backgroundColor: '#e15759'
-                    },
-                    {
-                        label: 'Fitness Coaches',
-                        data: [{
-                            x: 750,
-                            y: 50000,
-                            r: 15
-                        }],
-                        backgroundColor: '#76b7b2'
-                    },
-                    {
-                        label: 'Travel Vloggers',
-                        data: [{
-                            x: 900,
-                            y: 70000,
-                            r: 25
-                        }],
-                        backgroundColor: '#59a14f'
-                    },
-                    {
-                        label: 'Food Bloggers',
-                        data: [{
-                            x: 1400,
-                            y: 70000,
-                            r: 49
-                        }],
-                        backgroundColor: '#edc949'
-                    },
-                    {
-                        label: 'DIY Crafters',
-                        data: [{
-                            x: 500,
-                            y: 50000,
-                            r: 10
-                        }],
-                        backgroundColor: '#af7aa1'
-                    },
-                    {
-                        label: 'Finance Experts',
-                        data: [{
-                            x: 400,
-                            y: 80000,
-                            r: 13
-                        }],
-                        backgroundColor: '#ff9da7'
-                    },
-                    {
-                        label: 'Comedy Sketchers',
-                        data: [{
-                            x: 1100,
-                            y: 70000,
-                            r: 39
-                        }],
-                        backgroundColor: '#9c755f'
-                    },
-                    {
-                        label: 'Educational Channels',
-                        data: [{
-                            x: 700,
-                            y: 70000,
-                            r: 15
-                        }],
-                        backgroundColor: '#bab0ab'
-                    },
-                    {
-                        label: 'ASMR Artists',
-                        data: [{
-                            x: 300,
-                            y: 70000,
-                            r: 8
-                        }],
-                        backgroundColor: '#6b9ac4'
-                    },
-                    {
-                        label: 'Parenting Vloggers',
-                        data: [{
-                            x: 350,
-                            y: 50000,
-                            r: 7
-                        }],
-                        backgroundColor: '#d37295'
-                    },
-                    {
-                        label: 'Book Reviewers',
-                        data: [{
-                            x: 250,
-                            y: 50000,
-                            r: 5
-                        }],
-                        backgroundColor: '#a6cee3'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Number of Videos'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Average Views per Video'
-                        }
-                    }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Creator Performance Analysis (Bubble size = Total Engagement in 100k)',
+                        text: 'Content Category Distribution by Platform',
                         font: {
                             size: 16
                         }
@@ -627,9 +443,7 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                const label = context.dataset.label || '';
-                                const data = context.raw;
-                                return `${label}: ${data.x} videos, ${data.y.toLocaleString()} avg views, ${(data.r*100000).toLocaleString()} total engagement`;
+                                return `${context.dataset.label}: ${context.raw}%`;
                             }
                         }
                     },
@@ -637,76 +451,6 @@
                         position: 'bottom',
                     }
                 }
-            }
-        });
-    </script>
-
-    <!-- 使用纯JavaScript实现表格排序 -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const table = document.querySelector('.data-table');
-            const headers = table.querySelectorAll('th');
-            const tableBody = table.querySelector('tbody');
-            const rows = tableBody.querySelectorAll('tr');
-            
-            // 为每个表头添加点击事件
-            headers.forEach(function(header, index) {
-                header.addEventListener('click', function() {
-                    // 清除所有表头的排序标记
-                    headers.forEach(h => {
-                        h.classList.remove('sort-asc', 'sort-desc');
-                    });
-                    
-                    // 确定排序方向
-                    const isAscending = !header.classList.contains('sort-asc');
-                    header.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
-                    
-                    // 获取所有行并转换为数组
-                    const rowsArray = Array.from(rows);
-                    
-                    // 排序行
-                    const sortedRows = rowsArray.sort(function(a, b) {
-                        const aColText = a.querySelector(`td:nth-child(${index + 1})`).textContent.trim();
-                        const bColText = b.querySelector(`td:nth-child(${index + 1})`).textContent.trim();
-                        
-                        // 处理数字格式（包括逗号和百分号）
-                        const aValue = parseValue(aColText);
-                        const bValue = parseValue(bColText);
-                        
-                        return isAscending ? compareValues(aValue, bValue) : compareValues(bValue, aValue);
-                    });
-                    
-                    // 从表格中移除所有现有行
-                    while (tableBody.firstChild) {
-                        tableBody.removeChild(tableBody.firstChild);
-                    }
-                    
-                    // 添加排序后的行
-                    tableBody.append(...sortedRows);
-                });
-            });
-            
-            // 解析各种格式的值（文本、数字、百分比等）
-            function parseValue(value) {
-                // 移除千位分隔符
-                value = value.replace(/,/g, '');
-                
-                // 检查是否为百分比
-                if (value.endsWith('%')) {
-                    return parseFloat(value) / 100;
-                }
-                
-                // 尝试转换为数字
-                const parsedValue = parseFloat(value);
-                return isNaN(parsedValue) ? value.toLowerCase() : parsedValue;
-            }
-            
-            // 比较两个值
-            function compareValues(a, b) {
-                if (typeof a === 'string' && typeof b === 'string') {
-                    return a.localeCompare(b);
-                }
-                return a - b;
             }
         });
     </script>
