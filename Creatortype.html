@@ -3,124 +3,321 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creator Type Analysis</title>
+    <title>Creator Ecosystem Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f5f7fa;
+            background-color: #f8f9fa;
             color: #333;
         }
         .dashboard {
+            max-width: 1600px;
             margin: 0 auto;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .charts-scroll-container {
-            width: 1900px;
-            height: 500px;
-            overflow-x: auto;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .charts-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 15px;
-            width: 100%;
-            box-sizing: border-box;
-        }
+        /* 移除页面总标题 */
         .chart-container {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            padding: 15px;
-            margin: 0 15px 15px 0;
-            width: calc(50% - 15px);
-            box-sizing: border-box;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
         }
-        .chart-container:nth-child(2n) {
-            margin-right: 0;
+        .chart-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
         }
         .chart-box {
-            width: 100%;
-            height: 200px;
+            flex: 1;
+            min-width: 350px;
+        }
+        .main-chart {
+            min-height: 550px;
         }
         h1 {
-            color: #2c3e50;
+            color: white;
+            margin-bottom: 10px;
         }
         h2 {
-            color: #34495e;
-            font-size: 1.2em;
+            color: #2c3e50;
+            font-size: 1.3em;
             margin-top: 0;
-            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0;
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .data-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .table-container {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
     <div class="dashboard">
-        <div class="header">
+        <!-- 页面总标题已移除 -->
+
+        <div class="chart-row">
+            <div class="chart-container main-chart" style="flex: 1.2;">
+                <h2>1. Creator Type Distribution (Donut Chart)</h2>
+                <div class="chart-box">
+                    <canvas id="donutChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-container" style="flex: 1.8;">
+                <h2>2. Monthly Video Contribution (Stacked Bar Chart)</h2>
+                <div class="chart-box">
+                    <canvas id="stackedBarChart"></canvas>
+                </div>
+            </div>
         </div>
 
-        <div class="charts-scroll-container">
-            <div class="charts-wrapper">
-                <div class="chart-container">
-                    <h2>1. Creator Type Distribution (Pie Chart)</h2>
-                    <div class="chart-box">
-                        <canvas id="pieChart"></canvas>
-                    </div>
-                </div>
+        <div class="chart-container">
+            <h2>3. Creator Performance Analysis (Bubble Chart)</h2>
+            <div class="chart-box">
+                <canvas id="bubbleChart"></canvas>
+            </div>
+        </div>
 
-                <div class="chart-container">
-                    <h2>2. Monthly Content Output by Creator Type (Bar Chart)</h2>
-                    <div class="chart-box">
-                        <canvas id="barChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-container">
-                    <h2>3. Audience Engagement by Creator Type (Line Chart)</h2>
-                    <div class="chart-box">
-                        <canvas id="lineChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-container">
-                    <h2>4. Top Performing Types (Doughnut)</h2>
-                    <div class="chart-box">
-                        <canvas id="doughnutChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-container">
-                    <h2>5. Revenue Distribution by Creator Type (Horizontal Bar)</h2>
-                    <div class="chart-box">
-                        <canvas id="horizontalBarChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-container">
-                    <h2>6. Growth Trends by Creator Type (Radar Chart)</h2>
-                    <div class="chart-box">
-                        <canvas id="radarChart"></canvas>
-                    </div>
-                </div>
+        <div class="chart-container">
+            <h2>4. Detailed Metrics by Creator Type</h2>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Creator Type</th>
+                            <th>Video Count</th>
+                            <th>Video %</th>
+                            <th>Total Views</th>
+                            <th>Avg Views/Video</th>
+                            <th>Total Engagement</th>
+                            <th>Engagement Rate</th>
+                            <th>Creator Count</th>
+                            <th>Total Followers</th>
+                            <th>Avg Followers</th>
+                            <th>View/Follower</th>
+                            <th>Viral Videos %</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tech Reviewers</td>
+                            <td>1,250</td>
+                            <td>12.5%</td>
+                            <td>85,000,000</td>
+                            <td>68,000</td>
+                            <td>3,400,000</td>
+                            <td>4.0%</td>
+                            <td>120</td>
+                            <td>12,000,000</td>
+                            <td>100,000</td>
+                            <td>7.08</td>
+                            <td>2.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Beauty Gurus</td>
+                            <td>1,800</td>
+                            <td>18.0%</td>
+                            <td>120,000,000</td>
+                            <td>66,667</td>
+                            <td>6,000,000</td>
+                            <td>5.0%</td>
+                            <td>150</td>
+                            <td>18,000,000</td>
+                            <td>120,000</td>
+                            <td>6.67</td>
+                            <td>3.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Gaming Streamers</td>
+                            <td>2,700</td>
+                            <td>27.0%</td>
+                            <td>216,000,000</td>
+                            <td>80,000</td>
+                            <td>10,800,000</td>
+                            <td>5.0%</td>
+                            <td>180</td>
+                            <td>27,000,000</td>
+                            <td>150,000</td>
+                            <td>8.00</td>
+                            <td>4.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Fitness Coaches</td>
+                            <td>750</td>
+                            <td>7.5%</td>
+                            <td>37,500,000</td>
+                            <td>50,000</td>
+                            <td>1,500,000</td>
+                            <td>4.0%</td>
+                            <td>90</td>
+                            <td>6,300,000</td>
+                            <td>70,000</td>
+                            <td>5.95</td>
+                            <td>1.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Travel Vloggers</td>
+                            <td>900</td>
+                            <td>9.0%</td>
+                            <td>63,000,000</td>
+                            <td>70,000</td>
+                            <td>2,520,000</td>
+                            <td>4.0%</td>
+                            <td>100</td>
+                            <td>9,000,000</td>
+                            <td>90,000</td>
+                            <td>7.00</td>
+                            <td>2.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Food Bloggers</td>
+                            <td>1,400</td>
+                            <td>14.0%</td>
+                            <td>98,000,000</td>
+                            <td>70,000</td>
+                            <td>4,900,000</td>
+                            <td>5.0%</td>
+                            <td>140</td>
+                            <td>14,000,000</td>
+                            <td>100,000</td>
+                            <td>7.00</td>
+                            <td>3.0%</td>
+                        </tr>
+                        <tr>
+                            <td>DIY Crafters</td>
+                            <td>500</td>
+                            <td>5.0%</td>
+                            <td>25,000,000</td>
+                            <td>50,000</td>
+                            <td>1,000,000</td>
+                            <td>4.0%</td>
+                            <td>80</td>
+                            <td>5,600,000</td>
+                            <td>70,000</td>
+                            <td>4.46</td>
+                            <td>1.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Finance Experts</td>
+                            <td>400</td>
+                            <td>4.0%</td>
+                            <td>32,000,000</td>
+                            <td>80,000</td>
+                            <td>1,280,000</td>
+                            <td>4.0%</td>
+                            <td>50</td>
+                            <td>6,000,000</td>
+                            <td>120,000</td>
+                            <td>5.33</td>
+                            <td>2.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Comedy Sketchers</td>
+                            <td>1,100</td>
+                            <td>11.0%</td>
+                            <td>77,000,000</td>
+                            <td>70,000</td>
+                            <td>3,850,000</td>
+                            <td>5.0%</td>
+                            <td>110</td>
+                            <td>12,100,000</td>
+                            <td>110,000</td>
+                            <td>6.36</td>
+                            <td>2.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Educational Channels</td>
+                            <td>700</td>
+                            <td>7.0%</td>
+                            <td>49,000,000</td>
+                            <td>70,000</td>
+                            <td>1,470,000</td>
+                            <td>3.0%</td>
+                            <td>70</td>
+                            <td>7,700,000</td>
+                            <td>110,000</td>
+                            <td>6.36</td>
+                            <td>1.5%</td>
+                        </tr>
+                        <tr>
+                            <td>ASMR Artists</td>
+                            <td>300</td>
+                            <td>3.0%</td>
+                            <td>21,000,000</td>
+                            <td>70,000</td>
+                            <td>840,000</td>
+                            <td>4.0%</td>
+                            <td>60</td>
+                            <td>4,800,000</td>
+                            <td>80,000</td>
+                            <td>4.38</td>
+                            <td>1.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Parenting Vloggers</td>
+                            <td>350</td>
+                            <td>3.5%</td>
+                            <td>17,500,000</td>
+                            <td>50,000</td>
+                            <td>700,000</td>
+                            <td>4.0%</td>
+                            <td>70</td>
+                            <td>5,600,000</td>
+                            <td>80,000</td>
+                            <td>3.13</td>
+                            <td>0.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Book Reviewers</td>
+                            <td>250</td>
+                            <td>2.5%</td>
+                            <td>12,500,000</td>
+                            <td>50,000</td>
+                            <td>500,000</td>
+                            <td>4.0%</td>
+                            <td>50</td>
+                            <td>3,500,000</td>
+                            <td>70,000</td>
+                            <td>3.57</td>
+                            <td>0.5%</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // Pie Chart - Creator Type Distribution
-        const pieCtx = document.getElementById('pieChart').getContext('2d');
-        const pieChart = new Chart(pieCtx, {
-            type: 'pie',
+        // Donut Chart - Creator Type Distribution
+        const donutCtx = document.getElementById('donutChart').getContext('2d');
+        const donutChart = new Chart(donutCtx, {
+            type: 'doughnut',
             data: {
                 labels: [
                     'Tech Reviewers', 
@@ -138,400 +335,292 @@
                     'Book Reviewers'
                 ],
                 datasets: [{
-                    data: [12, 15, 18, 8, 10, 14, 7, 5, 11, 9, 6, 4, 3],
+                    data: [12.5, 18, 27, 7.5, 9, 14, 5, 4, 11, 7, 3, 3.5, 2.5],
                     backgroundColor: [
-                        '#3498db', '#e74c3c', '#2ecc71', '#f39c12', '#9b59b6',
-                        '#1abc9c', '#d35400', '#34495e', '#7f8c8d', '#27ae60',
-                        '#8e44ad', '#c0392b', '#16a085'
+                        '#4e79a7', '#f28e2c', '#e15759', '#76b7b2', '#59a14f',
+                        '#edc949', '#af7aa1', '#ff9da7', '#9c755f', '#bab0ab',
+                        '#6b9ac4', '#d37295', '#a6cee3'
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                cutout: '70%',
                 plugins: {
                     legend: {
                         position: 'right',
-                        labels: {
-                            boxWidth: 12,
-                            font: {
-                                size: 10
-                            }
-                        }
                     },
                     title: {
                         display: true,
-                        text: 'Percentage of Each Creator Type',
+                        text: 'Creator Type Distribution (%)',
                         font: {
-                            size: 14
+                            size: 16
                         }
-                    }
-                }
-            }
-        });
-
-        // Bar Chart - Monthly Content Output
-        const barCtx = document.getElementById('barChart').getContext('2d');
-        const barChart = new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: [
-                    'Tech Reviewers', 
-                    'Beauty Gurus', 
-                    'Gaming Streamers', 
-                    'Fitness Coaches',
-                    'Travel Vloggers',
-                    'Food Bloggers',
-                    'DIY Crafters',
-                    'Finance Experts',
-                    'Comedy Sketchers',
-                    'Educational Channels',
-                    'ASMR Artists',
-                    'Parenting Vloggers',
-                    'Book Reviewers'
-                ],
-                datasets: [{
-                    label: 'Average Monthly Videos',
-                    data: [8, 12, 25, 6, 9, 15, 5, 4, 10, 7, 18, 5, 3],
-                    backgroundColor: '#3498db',
-                    borderColor: '#2980b9',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Videos',
-                            font: {
-                                size: 10
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}%`;
                             }
+                        }
+                    },
+                    datalabels: {
+                        formatter: (value) => {
+                            return `${value}%`;
                         },
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            boxWidth: 12,
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Content Output per Month by Creator Type',
+                        color: '#fff',
                         font: {
-                            size: 14
+                            weight: 'bold'
                         }
                     }
                 }
-            }
+            },
+            plugins: [ChartDataLabels]
         });
 
-        // Line Chart - Audience Engagement
-        const lineCtx = document.getElementById('lineChart').getContext('2d');
-        const lineChart = new Chart(lineCtx, {
-            type: 'line',
+        // Stacked Bar Chart - Monthly Video Contribution
+        const stackedBarCtx = document.getElementById('stackedBarChart').getContext('2d');
+        const stackedBarChart = new Chart(stackedBarCtx, {
+            type: 'bar',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
                 datasets: [
                     {
                         label: 'Tech Reviewers',
-                        data: [65, 59, 80, 81, 76, 85, 90],
-                        borderColor: '#3498db',
-                        tension: 0.1
+                        data: [120, 130, 125, 140, 150, 160, 170],
+                        backgroundColor: '#4e79a7',
+                        stack: 'Stack 0'
                     },
                     {
                         label: 'Beauty Gurus',
-                        data: [55, 65, 70, 72, 75, 80, 82],
-                        borderColor: '#e74c3c',
-                        tension: 0.1
+                        data: [180, 190, 185, 200, 210, 220, 230],
+                        backgroundColor: '#f28e2c',
+                        stack: 'Stack 0'
                     },
                     {
                         label: 'Gaming Streamers',
-                        data: [80, 82, 85, 83, 87, 90, 92],
-                        borderColor: '#2ecc71',
-                        tension: 0.1
+                        data: [270, 280, 290, 300, 310, 320, 330],
+                        backgroundColor: '#e15759',
+                        stack: 'Stack 0'
                     },
                     {
                         label: 'Fitness Coaches',
-                        data: [40, 45, 50, 52, 55, 58, 60],
-                        borderColor: '#f39c12',
-                        tension: 0.1
+                        data: [75, 80, 85, 90, 95, 100, 105],
+                        backgroundColor: '#76b7b2',
+                        stack: 'Stack 0'
                     },
                     {
                         label: 'Travel Vloggers',
-                        data: [60, 62, 65, 63, 68, 70, 72],
-                        borderColor: '#9b59b6',
-                        tension: 0.1
+                        data: [90, 95, 100, 105, 110, 115, 120],
+                        backgroundColor: '#59a14f',
+                        stack: 'Stack 0'
                     },
                     {
                         label: 'Food Bloggers',
-                        data: [70, 72, 75, 77, 80, 82, 85],
-                        borderColor: '#1abc9c',
-                        tension: 0.1
+                        data: [140, 145, 150, 155, 160, 165, 170],
+                        backgroundColor: '#edc949',
+                        stack: 'Stack 0'
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 scales: {
-                    y: {
-                        beginAtZero: false,
+                    x: {
+                        stacked: true,
                         title: {
                             display: true,
-                            text: 'Engagement Rate (%)',
-                            font: {
-                                size: 10
-                            }
-                        },
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
+                            text: 'Month'
                         }
                     },
-                    x: {
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
+                    y: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Videos'
                         }
                     }
                 },
                 plugins: {
-                    legend: {
-                        labels: {
-                            boxWidth: 12,
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
                     title: {
                         display: true,
-                        text: 'Monthly Engagement Trends by Creator Type',
+                        text: 'Monthly Video Contribution by Creator Type',
                         font: {
-                            size: 14
+                            size: 16
                         }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    legend: {
+                        position: 'bottom',
                     }
                 }
             }
         });
 
-        // Doughnut Chart - Top Performing Types
-        const doughnutCtx = document.getElementById('doughnutChart').getContext('2d');
-        const doughnutChart = new Chart(doughnutCtx, {
-            type: 'doughnut',
+        // Bubble Chart - Creator Performance
+        const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
+        const bubbleChart = new Chart(bubbleCtx, {
+            type: 'bubble',
             data: {
-                labels: [
-                    'Gaming Streamers', 
-                    'Food Bloggers', 
-                    'Tech Reviewers', 
-                    'Beauty Gurus',
-                    'Comedy Sketchers'
-                ],
-                datasets: [{
-                    data: [28, 22, 18, 15, 17],
-                    backgroundColor: [
-                        '#2ecc71', '#1abc9c', '#3498db', '#e74c3c', '#f39c12'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            boxWidth: 12,
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Top 5 Performing Creator Types',
-                        font: {
-                            size: 14
-                        }
-                    }
-                }
-            }
-        });
-
-        // Horizontal Bar Chart - Revenue Distribution
-        const horizontalBarCtx = document.getElementById('horizontalBarChart').getContext('2d');
-        const horizontalBarChart = new Chart(horizontalBarCtx, {
-            type: 'bar',
-            data: {
-                labels: [
-                    'Tech Reviewers', 
-                    'Beauty Gurus', 
-                    'Gaming Streamers', 
-                    'Fitness Coaches',
-                    'Travel Vloggers',
-                    'Food Bloggers',
-                    'DIY Crafters',
-                    'Finance Experts',
-                    'Comedy Sketchers',
-                    'Educational Channels',
-                    'ASMR Artists',
-                    'Parenting Vloggers',
-                    'Book Reviewers'
-                ],
-                datasets: [{
-                    label: 'Average Monthly Revenue ($)',
-                    data: [8500, 12000, 15000, 6000, 9000, 11000, 4500, 8000, 9500, 7000, 5000, 4000, 3500],
-                    backgroundColor: '#9b59b6',
-                    borderColor: '#8e44ad',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Monthly Revenue (USD)',
-                            font: {
-                                size: 10
-                            }
-                        },
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    y: {
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            boxWidth: 12,
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    title: {
-                        display: true,
-                        text: 'Revenue Distribution Across Creator Types',
-                        font: {
-                            size: 14
-                        }
-                    }
-                }
-            }
-        });
-
-        // Radar Chart - Growth Trends
-        const radarCtx = document.getElementById('radarChart').getContext('2d');
-        const radarChart = new Chart(radarCtx, {
-            type: 'radar',
-            data: {
-                labels: [
-                    'Subscriber Growth', 
-                    'View Count', 
-                    'Engagement Rate', 
-                    'Revenue Potential',
-                    'Sponsorship Opportunities',
-                    'Content Frequency'
-                ],
                 datasets: [
                     {
                         label: 'Tech Reviewers',
-                        data: [80, 75, 70, 85, 80, 65],
-                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
-                        borderColor: 'rgba(52, 152, 219, 1)',
-                        borderWidth: 1
+                        data: [{
+                            x: 1250,
+                            y: 68000,
+                            r: 34
+                        }],
+                        backgroundColor: '#4e79a7'
+                    },
+                    {
+                        label: 'Beauty Gurus',
+                        data: [{
+                            x: 1800,
+                            y: 66667,
+                            r: 60
+                        }],
+                        backgroundColor: '#f28e2c'
                     },
                     {
                         label: 'Gaming Streamers',
-                        data: [90, 95, 85, 75, 70, 90],
-                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
-                        borderColor: 'rgba(46, 204, 113, 1)',
-                        borderWidth: 1
+                        data: [{
+                            x: 2700,
+                            y: 80000,
+                            r: 108
+                        }],
+                        backgroundColor: '#e15759'
+                    },
+                    {
+                        label: 'Fitness Coaches',
+                        data: [{
+                            x: 750,
+                            y: 50000,
+                            r: 15
+                        }],
+                        backgroundColor: '#76b7b2'
+                    },
+                    {
+                        label: 'Travel Vloggers',
+                        data: [{
+                            x: 900,
+                            y: 70000,
+                            r: 25
+                        }],
+                        backgroundColor: '#59a14f'
                     },
                     {
                         label: 'Food Bloggers',
-                        data: [75, 80, 85, 80, 75, 70],
-                        backgroundColor: 'rgba(26, 188, 156, 0.2)',
-                        borderColor: 'rgba(26, 188, 156, 1)',
-                        borderWidth: 1
+                        data: [{
+                            x: 1400,
+                            y: 70000,
+                            r: 49
+                        }],
+                        backgroundColor: '#edc949'
+                    },
+                    {
+                        label: 'DIY Crafters',
+                        data: [{
+                            x: 500,
+                            y: 50000,
+                            r: 10
+                        }],
+                        backgroundColor: '#af7aa1'
+                    },
+                    {
+                        label: 'Finance Experts',
+                        data: [{
+                            x: 400,
+                            y: 80000,
+                            r: 13
+                        }],
+                        backgroundColor: '#ff9da7'
+                    },
+                    {
+                        label: 'Comedy Sketchers',
+                        data: [{
+                            x: 1100,
+                            y: 70000,
+                            r: 39
+                        }],
+                        backgroundColor: '#9c755f'
+                    },
+                    {
+                        label: 'Educational Channels',
+                        data: [{
+                            x: 700,
+                            y: 70000,
+                            r: 15
+                        }],
+                        backgroundColor: '#bab0ab'
+                    },
+                    {
+                        label: 'ASMR Artists',
+                        data: [{
+                            x: 300,
+                            y: 70000,
+                            r: 8
+                        }],
+                        backgroundColor: '#6b9ac4'
+                    },
+                    {
+                        label: 'Parenting Vloggers',
+                        data: [{
+                            x: 350,
+                            y: 50000,
+                            r: 7
+                        }],
+                        backgroundColor: '#d37295'
+                    },
+                    {
+                        label: 'Book Reviewers',
+                        data: [{
+                            x: 250,
+                            y: 50000,
+                            r: 5
+                        }],
+                        backgroundColor: '#a6cee3'
                     }
                 ]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
                 scales: {
-                    r: {
-                        angleLines: {
-                            display: true
-                        },
-                        suggestedMin: 0,
-                        suggestedMax: 100,
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
-                        },
-                        pointLabels: {
-                            font: {
-                                size: 10
-                            }
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Number of Videos'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Average Views per Video'
                         }
                     }
                 },
                 plugins: {
-                    legend: {
-                        labels: {
-                            boxWidth: 12,
-                            font: {
-                                size: 10
+                    title: {
+                        display: true,
+                        text: 'Creator Performance Analysis (Bubble size = Total Engagement in 100k)',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || '';
+                                const data = context.raw;
+                                return `${label}: ${data.x} videos, ${data.y.toLocaleString()} avg views, ${(data.r*100000).toLocaleString()} total engagement`;
                             }
                         }
                     },
-                    title: {
-                        display: true,
-                        text: 'Growth Potential Comparison',
-                        font: {
-                            size: 14
-                        }
+                    legend: {
+                        position: 'bottom',
                     }
                 }
             }
