@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trending Tags Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-graph@latest/dist/chartjs-chart-graph.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -12,79 +14,31 @@
             background-color: #f0f2f5;
             width: 1900px;
         }
-
-        .dashboard-container {
+        .main-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
         }
-
         .chart-section {
             background-color: #fff;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px;
         }
-
-        .chart-section.main-chart {
+        .full-width {
             grid-column: 1 / -1;
         }
-
-        .chart-section h3 {
+        .chart-title {
             margin-top: 0;
             margin-bottom: 15px;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             color: #333;
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
         }
-
         .chart-container {
             height: 400px;
-            position: relative;
         }
-
-        .chart-placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            background-color: #fafafa;
-            border-radius: 8px;
-            color: #ccc;
-            font-size: 1.5rem;
-            text-align: center;
-        }
-        
-        .bar-chart-placeholder .bar-container {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            height: 100%;
-            padding: 20px 0;
-        }
-        
-        .bar-chart-placeholder .bar {
-            width: 50px;
-            background-color: #007bff;
-            margin: 0 5px;
-            border-radius: 5px 5px 0 0;
-            transition: height 0.5s ease-in-out;
-            position: relative;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-        }
-
-        .bar-chart-placeholder .label {
-            position: absolute;
-            top: -25px;
-            font-size: 0.8rem;
-            color: #555;
-            white-space: nowrap;
-        }
-
         .table-section {
             grid-column: 1 / -1;
             background-color: #fff;
@@ -93,272 +47,231 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             overflow-x: auto;
         }
-
-        .table-section h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-            color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
             text-align: left;
         }
-
         th, td {
             padding: 12px 15px;
             border-bottom: 1px solid #ddd;
-            vertical-align: top;
             font-size: 0.9rem;
-            white-space: nowrap;
         }
-
         th {
             background-color: #f8f9fa;
             font-weight: 600;
             color: #555;
             position: sticky;
             top: 0;
+            white-space: nowrap;
         }
-
-        tr:nth-child(even) {
-            background-color: #fcfcfc;
-        }
-
         tr:hover {
             background-color: #f1f1f1;
         }
     </style>
 </head>
 <body>
-
-    <div class="dashboard-container">
-        <div class="chart-section main-chart">
-            <h3>Top Tags by Total Views</h3>
-            <div id="bar-chart" class="chart-container bar-chart-placeholder">
-                <div class="bar-container">
-                    <div class="bar" style="height: 90%;">
-                        <span class="label">#TravelVlog</span>
-                    </div>
-                    <div class="bar" style="height: 80%;">
-                        <span class="label">#GamingCommunity</span>
-                    </div>
-                    <div class="bar" style="height: 75%;">
-                        <span class="label">#TechReview</span>
-                    </div>
-                    <div class="bar" style="height: 65%;">
-                        <span class="label">#FoodieLife</span>
-                    </div>
-                    <div class="bar" style="height: 55%;">
-                        <span class="label">#DailyTips</span>
-                    </div>
-                    <div class="bar" style="height: 50%;">
-                        <span class="label">#FitnessMotivation</span>
-                    </div>
-                    <div class="bar" style="height: 40%;">
-                        <span class="label">#DIYProjects</span>
-                    </div>
-                    <div class="bar" style="height: 35%;">
-                        <span class="label">#Bookworm</span>
-                    </div>
-                    <div class="bar" style="height: 25%;">
-                        <span class="label">#ArtisticJourney</span>
-                    </div>
-                    <div class="bar" style="height: 20%;">
-                        <span class="label">#PetLover</span>
-                    </div>
-                </div>
+    <div class="main-container">
+        <div class="chart-section full-width">
+            <h3 class="chart-title">Top 10 Tags by Total Views</h3>
+            <div class="chart-container">
+                <canvas id="topTagsChart"></canvas>
             </div>
         </div>
 
         <div class="chart-section">
-            <h3>Tag Co-occurrence Network</h3>
-            <div id="network-graph" class="chart-container">
-                <div class="chart-placeholder">
-                    [Network Graph showing related tag clusters]
-                </div>
+            <h3 class="chart-title">Tag Co-occurrence Network</h3>
+            <div class="chart-container">
+                <canvas id="networkGraph"></canvas>
             </div>
         </div>
 
         <div class="chart-section">
-            <h3>Key Tag Trend Over Time</h3>
-            <div id="trend-line-chart" class="chart-container">
-                <div class="chart-placeholder">
-                    [Trend Line Chart tracking a tag's usage/views over months]
-                </div>
+            <h3 class="chart-title">Key Tag Trend Over Time</h3>
+            <div class="chart-container">
+                <canvas id="trendLineChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3 class="chart-title">Tag Type Distribution</h3>
+            <div class="chart-container">
+                <canvas id="pieChart"></canvas>
             </div>
         </div>
 
         <div class="table-section">
-            <h3>Trending Tags Data</h3>
+            <h3 class="chart-title">Trending Tags Data</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Rank</th>
                         <th>Trending Tag</th>
-                        <th>Usage Count</th>
-                        <th>Related Videos</th>
-                        <th>Total Views Generated</th>
-                        <th>Avg. Engagement Rate/Video</th>
+                        <th>Usage Count (M)</th>
+                        <th>Related Videos (K)</th>
+                        <th>Total Views (B)</th>
+                        <th>Avg. Engagement Rate/Video (%)</th>
                         <th>Tag Type</th>
-                        <th>Original Video %</th>
-                        <th>Discovery Page Contribution (Est.)</th>
+                        <th>Original Video (%)</th>
+                        <th>Discovery Page Contribution (%)</th>
                         <th>Follower Tier Distribution</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>#TravelVlog</td>
-                        <td>5.2M</td>
-                        <td>850K</td>
-                        <td>1.2B</td>
-                        <td>6.5%</td>
-                        <td>Niche</td>
-                        <td>45%</td>
-                        <td>35%</td>
-                        <td>Micro: 30%, Mid: 40%, Top: 30%</td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>#GamingCommunity</td>
-                        <td>4.8M</td>
-                        <td>780K</td>
-                        <td>1.1B</td>
-                        <td>8.2%</td>
-                        <td>Community</td>
-                        <td>60%</td>
-                        <td>40%</td>
-                        <td>Micro: 20%, Mid: 35%, Top: 45%</td>
-                    </tr>
-                    <tr>
-                        <td>3</td>
-                        <td>#TechReview</td>
-                        <td>3.5M</td>
-                        <td>550K</td>
-                        <td>950M</td>
-                        <td>7.1%</td>
-                        <td>Niche</td>
-                        <td>70%</td>
-                        <td>30%</td>
-                        <td>Micro: 15%, Mid: 50%, Top: 35%</td>
-                    </tr>
-                    <tr>
-                        <td>4</td>
-                        <td>#FoodieLife</td>
-                        <td>4.1M</td>
-                        <td>620K</td>
-                        <td>880M</td>
-                        <td>6.8%</td>
-                        <td>Niche</td>
-                        <td>55%</td>
-                        <td>32%</td>
-                        <td>Micro: 25%, Mid: 45%, Top: 30%</td>
-                    </tr>
-                    <tr>
-                        <td>5</td>
-                        <td>#DailyTips</td>
-                        <td>6.0M</td>
-                        <td>910K</td>
-                        <td>750M</td>
-                        <td>5.5%</td>
-                        <td>General</td>
-                        <td>30%</td>
-                        <td>25%</td>
-                        <td>Micro: 60%, Mid: 30%, Top: 10%</td>
-                    </tr>
-                    <tr>
-                        <td>6</td>
-                        <td>#FitnessMotivation</td>
-                        <td>2.9M</td>
-                        <td>450K</td>
-                        <td>680M</td>
-                        <td>7.5%</td>
-                        <td>Niche</td>
-                        <td>50%</td>
-                        <td>38%</td>
-                        <td>Micro: 22%, Mid: 43%, Top: 35%</td>
-                    </tr>
-                    <tr>
-                        <td>7</td>
-                        <td>#DIYProjects</td>
-                        <td>3.3M</td>
-                        <td>480K</td>
-                        <td>590M</td>
-                        <td>6.1%</td>
-                        <td>Niche</td>
-                        <td>65%</td>
-                        <td>31%</td>
-                        <td>Micro: 35%, Mid: 40%, Top: 25%</td>
-                    </tr>
-                    <tr>
-                        <td>8</td>
-                        <td>#Bookworm</td>
-                        <td>1.5M</td>
-                        <td>210K</td>
-                        <td>350M</td>
-                        <td>9.0%</td>
-                        <td>Niche</td>
-                        <td>80%</td>
-                        <td>45%</td>
-                        <td>Micro: 50%, Mid: 40%, Top: 10%</td>
-                    </tr>
-                    <tr>
-                        <td>9</td>
-                        <td>#ArtisticJourney</td>
-                        <td>1.2M</td>
-                        <td>180K</td>
-                        <td>280M</td>
-                        <td>8.5%</td>
-                        <td>Niche</td>
-                        <td>75%</td>
-                        <td>42%</td>
-                        <td>Micro: 45%, Mid: 40%, Top: 15%</td>
-                    </tr>
-                    <tr>
-                        <td>10</td>
-                        <td>#PetLover</td>
-                        <td>2.0M</td>
-                        <td>350K</td>
-                        <td>410M</td>
-                        <td>7.8%</td>
-                        <td>Community</td>
-                        <td>50%</td>
-                        <td>37%</td>
-                        <td>Micro: 40%, Mid: 45%, Top: 15%</td>
-                    </tr>
-                    <tr>
-                        <td>11</td>
-                        <td>#BrandSponsor</td>
-                        <td>800K</td>
-                        <td>120K</td>
-                        <td>200M</td>
-                        <td>5.0%</td>
-                        <td>Brand</td>
-                        <td>10%</td>
-                        <td>15%</td>
-                        <td>Micro: 5%, Mid: 20%, Top: 75%</td>
-                    </tr>
-                    <tr>
-                        <td>12</td>
-                        <td>#SummerChallenge2025</td>
-                        <td>2.5M</td>
-                        <td>300K</td>
-                        <td>500M</td>
-                        <td>7.2%</td>
-                        <td>Campaign</td>
-                        <td>55%</td>
-                        <td>50%</td>
-                        <td>Micro: 35%, Mid: 35%, Top: 30%</td>
-                    </tr>
+                <tbody id="tags-data-body">
+                    <!-- Data will be populated by JavaScript -->
                 </tbody>
             </table>
         </div>
     </div>
 
+    <script>
+        const tagsData = [
+            { rank: 1, tag: "#TravelVlog", usage: 5.2, videos: 850, views: 1.2, engagement: 6.5, type: "Niche", original: 45, discovery: 35, tiers: "Micro: 30%, Mid: 40%, Top: 30%" },
+            { rank: 2, tag: "#GamingCommunity", usage: 4.8, videos: 780, views: 1.1, engagement: 8.2, type: "Community", original: 60, discovery: 40, tiers: "Micro: 20%, Mid: 35%, Top: 45%" },
+            { rank: 3, tag: "#TechReview", usage: 3.5, videos: 550, views: 0.95, engagement: 7.1, type: "Niche", original: 70, discovery: 30, tiers: "Micro: 15%, Mid: 50%, Top: 35%" },
+            { rank: 4, tag: "#FoodieLife", usage: 4.1, videos: 620, views: 0.88, engagement: 6.8, type: "Niche", original: 55, discovery: 32, tiers: "Micro: 25%, Mid: 45%, Top: 30%" },
+            { rank: 5, tag: "#DailyTips", usage: 6.0, videos: 910, views: 0.75, engagement: 5.5, type: "General", original: 30, discovery: 25, tiers: "Micro: 60%, Mid: 30%, Top: 10%" },
+            { rank: 6, tag: "#FitnessMotivation", usage: 2.9, videos: 450, views: 0.68, engagement: 7.5, type: "Niche", original: 50, discovery: 38, tiers: "Micro: 22%, Mid: 43%, Top: 35%" },
+            { rank: 7, tag: "#DIYProjects", usage: 3.3, videos: 480, views: 0.59, engagement: 6.1, type: "Niche", original: 65, discovery: 31, tiers: "Micro: 35%, Mid: 40%, Top: 25%" },
+            { rank: 8, tag: "#Bookworm", usage: 1.5, videos: 210, views: 0.35, engagement: 9.0, type: "Niche", original: 80, discovery: 45, tiers: "Micro: 50%, Mid: 40%, Top: 10%" },
+            { rank: 9, tag: "#ArtisticJourney", usage: 1.2, videos: 180, views: 0.28, engagement: 8.5, type: "Niche", original: 75, discovery: 42, tiers: "Micro: 45%, Mid: 40%, Top: 15%" },
+            { rank: 10, tag: "#PetLover", usage: 2.0, videos: 350, views: 0.41, engagement: 7.8, type: "Community", original: 50, discovery: 37, tiers: "Micro: 40%, Mid: 45%, Top: 15%" },
+            { rank: 11, tag: "#BrandSponsor", usage: 0.8, videos: 120, views: 0.2, engagement: 5.0, type: "Brand", original: 10, discovery: 15, tiers: "Micro: 5%, Mid: 20%, Top: 75%" },
+            { rank: 12, tag: "#SummerChallenge2025", usage: 2.5, videos: 300, views: 0.5, engagement: 7.2, type: "Campaign", original: 55, discovery: 50, tiers: "Micro: 35%, Mid: 35%, Top: 30%" }
+        ];
+
+        // Populate Table
+        const tableBody = document.getElementById('tags-data-body');
+        tagsData.forEach(t => {
+            const row = `<tr>
+                <td>${t.rank}</td>
+                <td>${t.tag}</td>
+                <td>${t.usage}</td>
+                <td>${t.videos}</td>
+                <td>${t.views}</td>
+                <td>${t.engagement}</td>
+                <td>${t.type}</td>
+                <td>${t.original}</td>
+                <td>${t.discovery}</td>
+                <td>${t.tiers}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+
+        // Top Tags Chart (Bar)
+        const top10Tags = tagsData.slice(0, 10);
+        const topTagsCtx = document.getElementById('topTagsChart').getContext('2d');
+        new Chart(topTagsCtx, {
+            type: 'bar',
+            data: {
+                labels: top10Tags.map(t => t.tag),
+                datasets: [{
+                    label: 'Total Views (B)',
+                    data: top10Tags.map(t => t.views),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+        // Network Graph (Bubble Chart as a substitute)
+        const networkCtx = document.getElementById('networkGraph').getContext('2d');
+        new Chart(networkCtx, {
+            type: 'bubble',
+            data: {
+                datasets: tagsData.map(t => ({
+                    label: t.tag,
+                    data: [{
+                        x: Math.random() * 100,
+                        y: Math.random() * 100,
+                        r: t.videos / 20
+                    }],
+                    backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.7)`
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { 
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Dimension 1'
+                        }
+                    },
+                    y: { 
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Dimension 2'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Trend Line Chart
+        const trendLineCtx = document.getElementById('trendLineChart').getContext('2d');
+        new Chart(trendLineCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: '#TravelVlog Usage',
+                        data: [120, 150, 180, 220, 250, 300],
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: '#GamingCommunity Usage',
+                        data: [200, 210, 230, 240, 260, 270],
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Pie Chart
+        const tagTypes = tagsData.reduce((acc, t) => {
+            acc[t.type] = (acc[t.type] || 0) + 1;
+            return acc;
+        }, {});
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(tagTypes),
+                datasets: [{
+                    data: Object.values(tagTypes),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
 </body>
 </html>
