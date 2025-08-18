@@ -17,8 +17,8 @@
         }
         .dashboard {
             display: grid;
-            grid-template-columns: 60% 40%;
-            grid-gap: 20px;
+            grid-template-columns: 1fr;
+            grid-gap: 30px;
             margin-bottom: 30px;
         }
         .chart-container {
@@ -47,6 +47,20 @@
         th {
             background-color: #f2f2f2;
             font-weight: bold;
+            position: relative;
+            padding-right: 20px;
+        }
+        th.asc::after {
+            content: '▲';
+            position: absolute;
+            right: 5px;
+            color: #666;
+        }
+        th.desc::after {
+            content: '▼';
+            position: absolute;
+            right: 5px;
+            color: #666;
         }
         tr:nth-child(even) {
             background-color: #f9f9f9;
@@ -56,7 +70,7 @@
         }
         #heatmap-container {
             width: 100%;
-            height: 300px;
+            height: 400px;
         }
     </style>
 </head>
@@ -64,11 +78,11 @@
     <div class="dashboard">
         <div class="chart-container">
             <div class="chart-title">Video Upload Trend (Line Chart)</div>
-            <canvas id="lineChart" height="400"></canvas>
+            <canvas id="lineChart" height="500"></canvas>
         </div>
         <div class="chart-container">
             <div class="chart-title">Cumulative Uploads (Area Chart)</div>
-            <canvas id="areaChart" height="400"></canvas>
+            <canvas id="areaChart" height="500"></canvas>
         </div>
     </div>
     
@@ -79,7 +93,8 @@
     
     <div class="data-table">
         <h3>Sample Data (Last 14 Days)</h3>
-        <table>
+        <div style="overflow-x: auto;">
+        <table id="dataTable">
             <thead>
                 <tr>
                     <th>Date/Time</th>
@@ -228,6 +243,47 @@
                 </tr>
             </tbody>
         </table>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const table = document.getElementById('dataTable');
+    const headers = table.getElementsByTagName('th');
+    const tableBody = table.getElementsByTagName('tbody')[0];
+    const rows = tableBody.getElementsByTagName('tr');
+    
+    const sortTable = (columnIndex, isNumeric) => {
+        const direction = headers[columnIndex].classList.contains('asc') ? -1 : 1;
+        const directionClass = direction === 1 ? 'asc' : 'desc';
+        
+        Array.from(headers).forEach(header => header.classList.remove('asc', 'desc'));
+        headers[columnIndex].classList.add(directionClass);
+        
+        const rowArray = Array.from(rows);
+        rowArray.sort((a, b) => {
+            let aValue = a.cells[columnIndex].textContent;
+            let bValue = b.cells[columnIndex].textContent;
+            
+            if (isNumeric) {
+                aValue = parseFloat(aValue.replace(/[^0-9.-]+/g, ''));
+                bValue = parseFloat(bValue.replace(/[^0-9.-]+/g, ''));
+                return direction * (aValue - bValue);
+            } else {
+                return direction * aValue.localeCompare(bValue);
+            }
+        });
+        
+        rowArray.forEach(row => tableBody.appendChild(row));
+    };
+    
+    Array.from(headers).forEach((header, index) => {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', () => {
+            const isNumeric = index >= 3 && index <= 8;
+            sortTable(index, isNumeric);
+        });
+    });
+});
+</script>
     </div>
 
     <script>
@@ -256,6 +312,8 @@
             data: lineData,
             options: {
                 responsive: true,
+            maintainAspectRatio: false,
+            maintainAspectRatio: false,
                 interaction: {
                     mode: 'index',
                     intersect: false,
