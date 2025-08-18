@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Creator Analysis Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            width: 1900px;
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .chart-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .chart-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .chart-container {
+            height: 400px;
+        }
+        .table-section {
+            grid-column: 1 / -1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="chart-section full-width">
+            <h3 class="chart-title">Top 10 Creators by Total Views</h3>
+            <div class="chart-container">
+                <canvas id="leaderboardChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3 class="chart-title">Followers vs. Engagement Rate</h3>
+            <div class="chart-container">
+                <canvas id="scatterPlot"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3 class="chart-title">Creator View Distribution</h3>
+            <div class="chart-container">
+                <canvas id="bubbleChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3 class="chart-title">Creator Type Distribution</h3>
+            <div class="chart-container">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <h3 class="chart-title">Detailed Creator Data</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Creator Name</th>
+                        <th>Creator Type</th>
+                        <th>Followers (M)</th>
+                        <th>Follower Growth (MoM %)</th>
+                        <th>Videos Published</th>
+                        <th>Frequency (Videos/Week)</th>
+                        <th>Total Views (M)</th>
+                        <th>Total Engagement (M)</th>
+                        <th>Engagement Rate (%)</th>
+                        <th>Positive Sentiment (%)</th>
+                        <th>Follower Overlap (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="creator-data-body">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const creatorData = [
+            { rank: 1, name: "Anya's Adventures", type: "Travel, Vlogs", followers: 12.5, growth: 3.1, videos: 250, frequency: 3, views: 950, engagement: 55, engagementRate: 5.8, sentiment: 92, overlap: "-" },
+            { rank: 2, name: "TechGuru", type: "Tech, Reviews", followers: 8.2, growth: 2.5, videos: 180, frequency: 2, views: 800, engagement: 48, engagementRate: 6.0, sentiment: 88, overlap: "15%" },
+            { rank: 3, name: "CreativeCuisine", type: "Food, Cooking", followers: 6.9, growth: 4.0, videos: 310, frequency: 4, views: 750, engagement: 42, engagementRate: 5.6, sentiment: 95, overlap: "12%" },
+            { rank: 4, name: "GameMaster", type: "Gaming, Livestreams", followers: 10.1, growth: 1.8, videos: 450, frequency: 5, views: 650, engagement: 65, engagementRate: 10.0, sentiment: 78, overlap: "22%" },
+            { rank: 5, name: "FitnessFusion", type: "Fitness, Health", followers: 5.4, growth: 2.9, videos: 210, frequency: 3, views: 580, engagement: 35, engagementRate: 6.0, sentiment: 91, overlap: "14%" },
+            { rank: 6, name: "DIYwithDan", type: "DIY, Home Repair", followers: 4.8, growth: 3.5, videos: 280, frequency: 3, views: 450, engagement: 28, engagementRate: 6.2, sentiment: 89, overlap: "18%" },
+            { rank: 7, name: "HistoricalHub", type: "Education, History", followers: 3.1, growth: 2.0, videos: 150, frequency: 1, views: 410, engagement: 20, engagementRate: 4.9, sentiment: 93, overlap: "10%" },
+            { rank: 8, name: "TravelTales", type: "Travel, Guides", followers: 2.9, growth: 2.8, videos: 190, frequency: 2, views: 380, engagement: 21, engagementRate: 5.5, sentiment: 90, overlap: "16%" },
+            { rank: 9, name: "ArtisticAura", type: "Art, Painting", followers: 2.5, growth: 4.5, videos: 120, frequency: 1, views: 250, engagement: 15, engagementRate: 6.0, sentiment: 96, overlap: "9%" },
+            { rank: 10, name: "MindfulMoments", type: "Wellness, Meditation", followers: 1.8, growth: 5.1, videos: 85, frequency: 1, views: 200, engagement: 12, engagementRate: 6.0, sentiment: 98, overlap: "7%" },
+            { rank: 11, name: "ScienceSimplified", type: "Science, Education", followers: 3.5, growth: 2.7, videos: 160, frequency: 2, views: 320, engagement: 18, engagementRate: 5.6, sentiment: 94, overlap: "11%" },
+            { rank: 12, name: "UrbanExplorer", type: "City Vlogs, Adventure", followers: 2.1, growth: 3.8, videos: 145, frequency: 2, views: 220, engagement: 14, engagementRate: 6.4, sentiment: 91, overlap: "13%" }
+        ];
+
+        // Populate Table
+        const tableBody = document.getElementById('creator-data-body');
+        creatorData.forEach(c => {
+            const row = `<tr>
+                <td>${c.rank}</td>
+                <td>${c.name}</td>
+                <td>${c.type}</td>
+                <td>${c.followers}</td>
+                <td>${c.growth}</td>
+                <td>${c.videos}</td>
+                <td>${c.frequency}</td>
+                <td>${c.views}</td>
+                <td>${c.engagement}</td>
+                <td>${c.engagementRate}</td>
+                <td>${c.sentiment}</td>
+                <td>${c.overlap}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+
+        // Leaderboard Chart (Bar)
+        const top10Creators = creatorData.slice(0, 10);
+        const leaderboardCtx = document.getElementById('leaderboardChart').getContext('2d');
+        new Chart(leaderboardCtx, {
+            type: 'bar',
+            data: {
+                labels: top10Creators.map(c => c.name),
+                datasets: [{
+                    label: 'Total Views (M)',
+                    data: top10Creators.map(c => c.views),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Scatter Plot
+        const scatterCtx = document.getElementById('scatterPlot').getContext('2d');
+        new Chart(scatterCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Creator Performance',
+                    data: creatorData.map(c => ({ x: c.followers, y: c.engagementRate, r: c.views / 25 })),
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { title: { display: true, text: 'Followers (M)' } },
+                    y: { title: { display: true, text: 'Engagement Rate (%)' } }
+                }
+            }
+        });
+
+        // Bubble Chart
+        const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
+        new Chart(bubbleCtx, {
+            type: 'bubble',
+            data: {
+                datasets: creatorData.map(c => ({
+                    label: c.name,
+                    data: [{
+                        x: Math.random() * 100,
+                        y: Math.random() * 100,
+                        r: c.views / 20
+                    }],
+                    backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.7)`
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Pie Chart
+        const creatorTypes = creatorData.reduce((acc, c) => {
+            const types = c.type.split(', ');
+            types.forEach(t => {
+                acc[t] = (acc[t] || 0) + 1;
+            });
+            return acc;
+        }, {});
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(creatorTypes),
+                datasets: [{
+                    data: Object.values(creatorTypes),
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(199, 199, 199, 0.7)',
+                        'rgba(83, 102, 255, 0.7)',
+                        'rgba(255, 99, 255, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+</body>
+</html>
