@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trending Tags Analysis</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            width: 1900px;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .chart-section.main-chart {
+            grid-column: 1 / -1;
+        }
+
+        .chart-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background-color: #fafafa;
+            border-radius: 8px;
+            color: #ccc;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .bar-chart-placeholder .bar-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100%;
+            padding: 20px 0;
+        }
+        
+        .bar-chart-placeholder .bar {
+            width: 50px;
+            background-color: #007bff;
+            margin: 0 5px;
+            border-radius: 5px 5px 0 0;
+            transition: height 0.5s ease-in-out;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .bar-chart-placeholder .label {
+            position: absolute;
+            top: -25px;
+            font-size: 0.8rem;
+            color: #555;
+            white-space: nowrap;
+        }
+
+        .table-section {
+            grid-column: 1 / -1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        .table-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            vertical-align: top;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fcfcfc;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="chart-section main-chart">
+            <h3>Top Tags by Total Views</h3>
+            <div id="bar-chart" class="chart-container bar-chart-placeholder">
+                <div class="bar-container">
+                    <div class="bar" style="height: 90%;">
+                        <span class="label">#TravelVlog</span>
+                    </div>
+                    <div class="bar" style="height: 80%;">
+                        <span class="label">#GamingCommunity</span>
+                    </div>
+                    <div class="bar" style="height: 75%;">
+                        <span class="label">#TechReview</span>
+                    </div>
+                    <div class="bar" style="height: 65%;">
+                        <span class="label">#FoodieLife</span>
+                    </div>
+                    <div class="bar" style="height: 55%;">
+                        <span class="label">#DailyTips</span>
+                    </div>
+                    <div class="bar" style="height: 50%;">
+                        <span class="label">#FitnessMotivation</span>
+                    </div>
+                    <div class="bar" style="height: 40%;">
+                        <span class="label">#DIYProjects</span>
+                    </div>
+                    <div class="bar" style="height: 35%;">
+                        <span class="label">#Bookworm</span>
+                    </div>
+                    <div class="bar" style="height: 25%;">
+                        <span class="label">#ArtisticJourney</span>
+                    </div>
+                    <div class="bar" style="height: 20%;">
+                        <span class="label">#PetLover</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3>Tag Co-occurrence Network</h3>
+            <div id="network-graph" class="chart-container">
+                <div class="chart-placeholder">
+                    [Network Graph showing related tag clusters]
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3>Key Tag Trend Over Time</h3>
+            <div id="trend-line-chart" class="chart-container">
+                <div class="chart-placeholder">
+                    [Trend Line Chart tracking a tag's usage/views over months]
+                </div>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <h3>Trending Tags Data</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Trending Tag</th>
+                        <th>Usage Count</th>
+                        <th>Related Videos</th>
+                        <th>Total Views Generated</th>
+                        <th>Avg. Engagement Rate/Video</th>
+                        <th>Tag Type</th>
+                        <th>Original Video %</th>
+                        <th>Discovery Page Contribution (Est.)</th>
+                        <th>Follower Tier Distribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>#TravelVlog</td>
+                        <td>5.2M</td>
+                        <td>850K</td>
+                        <td>1.2B</td>
+                        <td>6.5%</td>
+                        <td>Niche</td>
+                        <td>45%</td>
+                        <td>35%</td>
+                        <td>Micro: 30%, Mid: 40%, Top: 30%</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>#GamingCommunity</td>
+                        <td>4.8M</td>
+                        <td>780K</td>
+                        <td>1.1B</td>
+                        <td>8.2%</td>
+                        <td>Community</td>
+                        <td>60%</td>
+                        <td>40%</td>
+                        <td>Micro: 20%, Mid: 35%, Top: 45%</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>#TechReview</td>
+                        <td>3.5M</td>
+                        <td>550K</td>
+                        <td>950M</td>
+                        <td>7.1%</td>
+                        <td>Niche</td>
+                        <td>70%</td>
+                        <td>30%</td>
+                        <td>Micro: 15%, Mid: 50%, Top: 35%</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>#FoodieLife</td>
+                        <td>4.1M</td>
+                        <td>620K</td>
+                        <td>880M</td>
+                        <td>6.8%</td>
+                        <td>Niche</td>
+                        <td>55%</td>
+                        <td>32%</td>
+                        <td>Micro: 25%, Mid: 45%, Top: 30%</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>#DailyTips</td>
+                        <td>6.0M</td>
+                        <td>910K</td>
+                        <td>750M</td>
+                        <td>5.5%</td>
+                        <td>General</td>
+                        <td>30%</td>
+                        <td>25%</td>
+                        <td>Micro: 60%, Mid: 30%, Top: 10%</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>#FitnessMotivation</td>
+                        <td>2.9M</td>
+                        <td>450K</td>
+                        <td>680M</td>
+                        <td>7.5%</td>
+                        <td>Niche</td>
+                        <td>50%</td>
+                        <td>38%</td>
+                        <td>Micro: 22%, Mid: 43%, Top: 35%</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>#DIYProjects</td>
+                        <td>3.3M</td>
+                        <td>480K</td>
+                        <td>590M</td>
+                        <td>6.1%</td>
+                        <td>Niche</td>
+                        <td>65%</td>
+                        <td>31%</td>
+                        <td>Micro: 35%, Mid: 40%, Top: 25%</td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>#Bookworm</td>
+                        <td>1.5M</td>
+                        <td>210K</td>
+                        <td>350M</td>
+                        <td>9.0%</td>
+                        <td>Niche</td>
+                        <td>80%</td>
+                        <td>45%</td>
+                        <td>Micro: 50%, Mid: 40%, Top: 10%</td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>#ArtisticJourney</td>
+                        <td>1.2M</td>
+                        <td>180K</td>
+                        <td>280M</td>
+                        <td>8.5%</td>
+                        <td>Niche</td>
+                        <td>75%</td>
+                        <td>42%</td>
+                        <td>Micro: 45%, Mid: 40%, Top: 15%</td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>#PetLover</td>
+                        <td>2.0M</td>
+                        <td>350K</td>
+                        <td>410M</td>
+                        <td>7.8%</td>
+                        <td>Community</td>
+                        <td>50%</td>
+                        <td>37%</td>
+                        <td>Micro: 40%, Mid: 45%, Top: 15%</td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>#BrandSponsor</td>
+                        <td>800K</td>
+                        <td>120K</td>
+                        <td>200M</td>
+                        <td>5.0%</td>
+                        <td>Brand</td>
+                        <td>10%</td>
+                        <td>15%</td>
+                        <td>Micro: 5%, Mid: 20%, Top: 75%</td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td>#SummerChallenge2025</td>
+                        <td>2.5M</td>
+                        <td>300K</td>
+                        <td>500M</td>
+                        <td>7.2%</td>
+                        <td>Campaign</td>
+                        <td>55%</td>
+                        <td>50%</td>
+                        <td>Micro: 35%, Mid: 35%, Top: 30%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
