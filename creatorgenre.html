@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/chartjs-chart-box-and-violin-plot@3.1.0/build/Chart.BoxPlot.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            width: 1900px;
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .chart-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .chart-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .chart-container {
+            height: 500px;
+        }
+        .table-section {
+            grid-column: 1 / -1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="chart-section full-width">
+            <h3 class="chart-title">Creator Genres Ranked by Average Views</h3>
+            <div class="chart-container">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3 class="chart-title">Video View Distribution by Genre</h3>
+            <div class="chart-container">
+                <canvas id="boxPlot"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3 class="chart-title">Genre Performance: Views vs. Engagement</h3>
+            <div class="chart-container">
+                <canvas id="scatterPlot"></canvas>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <h3 class="chart-title">Top Creator Genres Data</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Creator Type</th>
+                        <th>Avg Views/Video</th>
+                        <th>Avg Engagement Rate</th>
+                        <th>Avg Completion Rate</th>
+                        <th>Hit Rate (%)</th>
+                        <th>Fan to View Conversion Rate</th>
+                        <th>Comment/Like Ratio</th>
+                        <th>Est. CPM/CPE</th>
+                        <th>Fan Stickiness (Repeat Viewer Ratio)</th>
+                        <th>Sponsored Content Avg Performance</th>
+                    </tr>
+                </thead>
+                <tbody id="genre-data-body">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const genreData = [
+            { rank: 1, creatorType: "Gaming", avgViews: 1500000, avgEngagement: 0.08, completionRate: 0.65, hitRate: 15, fanConversion: 0.25, commentLikeRatio: 0.12, estCpm: 8.50, fanStickiness: 0.45, sponsoredPerformance: 1.2 },
+            { rank: 2, creatorType: "Comedy", avgViews: 1200000, avgEngagement: 0.12, completionRate: 0.75, hitRate: 20, fanConversion: 0.30, commentLikeRatio: 0.18, estCpm: 10.20, fanStickiness: 0.55, sponsoredPerformance: 1.5 },
+            { rank: 3, creatorType: "Education", avgViews: 950000, avgEngagement: 0.06, completionRate: 0.80, hitRate: 10, fanConversion: 0.20, commentLikeRatio: 0.10, estCpm: 12.00, fanStickiness: 0.60, sponsoredPerformance: 1.1 },
+            { rank: 4, creatorType: "DIY/Crafts", avgViews: 880000, avgEngagement: 0.09, completionRate: 0.70, hitRate: 12, fanConversion: 0.22, commentLikeRatio: 0.14, estCpm: 9.00, fanStickiness: 0.50, sponsoredPerformance: 1.3 },
+            { rank: 5, creatorType: "Tech Reviews", avgViews: 1100000, avgEngagement: 0.07, completionRate: 0.78, hitRate: 18, fanConversion: 0.28, commentLikeRatio: 0.11, estCpm: 15.50, fanStickiness: 0.58, sponsoredPerformance: 1.4 },
+            { rank: 6, creatorType: "Fashion", avgViews: 750000, avgEngagement: 0.15, completionRate: 0.60, hitRate: 25, fanConversion: 0.35, commentLikeRatio: 0.20, estCpm: 18.00, fanStickiness: 0.48, sponsoredPerformance: 1.8 },
+            { rank: 7, creatorType: "Food/Cooking", avgViews: 920000, avgEngagement: 0.10, completionRate: 0.72, hitRate: 16, fanConversion: 0.26, commentLikeRatio: 0.15, estCpm: 11.50, fanStickiness: 0.52, sponsoredPerformance: 1.4 },
+            { rank: 8, creatorType: "Travel", avgViews: 1350000, avgEngagement: 0.11, completionRate: 0.68, hitRate: 22, fanConversion: 0.32, commentLikeRatio: 0.16, estCpm: 14.00, fanStickiness: 0.53, sponsoredPerformance: 1.6 },
+            { rank: 9, creatorType: "Fitness", avgViews: 800000, avgEngagement: 0.08, completionRate: 0.77, hitRate: 14, fanConversion: 0.23, commentLikeRatio: 0.13, estCpm: 9.80, fanStickiness: 0.56, sponsoredPerformance: 1.2 },
+            { rank: 10, creatorType: "Animation", avgViews: 1800000, avgEngagement: 0.09, completionRate: 0.85, hitRate: 19, fanConversion: 0.29, commentLikeRatio: 0.11, estCpm: 13.20, fanStickiness: 0.62, sponsoredPerformance: 1.3 }
+        ];
+
+        // Populate Table
+        const tableBody = document.getElementById('genre-data-body');
+        genreData.forEach(g => {
+            const row = `<tr>
+                <td>${g.rank}</td>
+                <td>${g.creatorType}</td>
+                <td>${g.avgViews.toLocaleString()}</td>
+                <td>${(g.avgEngagement * 100).toFixed(1)}%</td>
+                <td>${(g.completionRate * 100).toFixed(1)}%</td>
+                <td>${g.hitRate}%</td>
+                <td>${(g.fanConversion * 100).toFixed(1)}%</td>
+                <td>${g.commentLikeRatio.toFixed(2)}</td>
+                <td>$${g.estCpm.toFixed(2)}</td>
+                <td>${(g.fanStickiness * 100).toFixed(1)}%</td>
+                <td>${g.sponsoredPerformance.toFixed(1)}x</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+
+        // Bar Chart
+        const sortedByViews = [...genreData].sort((a, b) => b.avgViews - a.avgViews);
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: sortedByViews.map(g => g.creatorType),
+                datasets: [{
+                    label: 'Average Views',
+                    data: sortedByViews.map(g => g.avgViews),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Avg Views: ${context.raw.toLocaleString()}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Box Plot
+        const boxPlotCtx = document.getElementById('boxPlot').getContext('2d');
+        new Chart(boxPlotCtx, {
+            type: 'boxplot',
+            data: {
+                labels: genreData.map(g => g.creatorType),
+                datasets: [{
+                    label: 'Video View Distribution',
+                    data: genreData.map(g => {
+                        // Generating sample data for box plot
+                        const views = Array.from({length: 20}, () => g.avgViews + (Math.random() - 0.5) * g.avgViews * 0.5);
+                        views.sort((a, b) => a - b);
+                        return views;
+                    }),
+                    backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
+        // Scatter Plot
+        const scatterCtx = document.getElementById('scatterPlot').getContext('2d');
+        new Chart(scatterCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Creator Genres',
+                    data: genreData.map(g => ({
+                        x: g.avgViews,
+                        y: g.avgEngagement,
+                        label: g.creatorType
+                    })),
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.data[context.dataIndex].label;
+                                const x = context.parsed.x.toLocaleString();
+                                const y = (context.parsed.y * 100).toFixed(1) + '%';
+                                return `${label}: (Avg Views: ${x}, Engagement: ${y})`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Average Views per Video'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Average Engagement Rate'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
