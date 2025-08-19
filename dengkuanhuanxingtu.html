@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Media Metrics - Thin Rings Chart</title>
+    <title>Social Media Metrics</title>
     <style>
         * {
             margin: 0;
@@ -19,47 +19,33 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 10px;
         }
         
         .container {
-            width: 1044px;
-            height: 500px;
+            width: 522px;
+            height: 250px;
             background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 12px;
             display: flex;
             overflow: hidden;
         }
         
         .chart-section {
-            width: 60%;
+            width: 55%;
             height: 100%;
             display: flex;
             flex-direction: column;
         }
         
         .info-section {
-            width: 40%;
+            width: 45%;
             height: 100%;
-            padding: 20px 0 20px 20px;
+            padding: 0 0 0 10px;
             display: flex;
             flex-direction: column;
-        }
-        
-        h1 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-            font-weight: 600;
-            font-size: 24px;
-        }
-        
-        .description {
-            color: #7f8c8d;
-            margin-bottom: 20px;
-            line-height: 1.5;
-            font-size: 14px;
         }
         
         .chart-container {
@@ -77,14 +63,14 @@
         
         .ring {
             fill: none;
-            stroke-width: 6;
+            stroke-width: 3;
             stroke-linecap: round;
             transform-origin: center;
             transition: all 0.3s ease;
         }
         
         .ring:hover {
-            stroke-width: 8;
+            stroke-width: 4;
             opacity: 0.9;
         }
         
@@ -120,10 +106,10 @@
         .ring-label {
             position: absolute;
             background: white;
-            padding: 6px 12px;
-            border-radius: 15px;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            font-size: 10px;
             font-weight: 500;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -146,53 +132,53 @@
         }
         
         .center-value {
-            font-size: 28px;
+            font-size: 14px;
             font-weight: 700;
             color: #2c3e50;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
         
         .center-label {
-            font-size: 14px;
+            font-size: 10px;
             color: #7f8c8d;
         }
         
         .metrics-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 6px;
             overflow-y: auto;
-            padding-right: 10px;
+            padding-right: 5px;
+            height: 100%;
         }
         
         .metric-item {
             display: flex;
             align-items: center;
-            padding: 12px 15px;
+            padding: 6px 8px;
             background: #f8f9fc;
-            border-radius: 10px;
-            border-left: 4px solid;
-            transition: all 0.3s ease;
+            border-radius: 6px;
+            border-left: 3px solid;
+            transition: all 0.2s ease;
             cursor: pointer;
         }
         
         .metric-item:hover {
             background: #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-            transform: translateX(5px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transform: translateX(3px);
         }
         
         .metric-item.active {
             background: #fff;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
         }
         
         .metric-color {
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            margin-right: 12px;
+            margin-right: 8px;
         }
         
         .metric-info {
@@ -200,19 +186,19 @@
         }
         
         .metric-title {
-            font-size: 14px;
+            font-size: 10px;
             color: #7f8c8d;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
         
         .metric-value {
-            font-size: 18px;
+            font-size: 12px;
             font-weight: 700;
             color: #2c3e50;
         }
         
         .metric-percentage {
-            font-size: 14px;
+            font-size: 10px;
             color: #7f8c8d;
             font-weight: 500;
         }
@@ -229,29 +215,31 @@
         .color-comments { background: #e74a3b; }
         .color-engagement { background: #6f42c1; }
         
-        .legend-info {
-            text-align: center;
-            margin-top: 15px;
-            color: #7f8c8d;
-            font-style: italic;
-            font-size: 12px;
+        /* Scrollbar styling */
+        .metrics-list::-webkit-scrollbar {
+            width: 4px;
         }
         
-        @media (max-width: 1100px) {
-            .container {
-                transform: scale(0.9);
-            }
+        .metrics-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 2px;
+        }
+        
+        .metrics-list::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 2px;
+        }
+        
+        .metrics-list::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="chart-section">
-            <h1>Social Media Metrics</h1>
-            <p class="description">Visualization of engagement metrics with thin rings of equal width but different lengths</p>
-            
             <div class="chart-container">
-                <svg class="chart-svg" width="380" height="380" viewBox="0 0 120 120">
+                <svg class="chart-svg" width="180" height="180" viewBox="0 0 120 120">
                     <circle class="ring ring-views" r="50" cx="60" cy="60"></circle>
                     <circle class="ring ring-likes" r="40" cx="60" cy="60"></circle>
                     <circle class="ring ring-shares" r="30" cx="60" cy="60"></circle>
@@ -272,14 +260,9 @@
                     <div class="center-label" id="center-label">Views</div>
                 </div>
             </div>
-            
-            <p class="legend-info">Each ring has the same width but different length representing the metric value</p>
         </div>
         
         <div class="info-section">
-            <h1>Metrics Details</h1>
-            <p class="description">Click on a metric to highlight it on the chart</p>
-            
             <div class="metrics-list">
                 <div class="metric-item views active" data-metric="views">
                     <div class="metric-color color-views"></div>
@@ -425,8 +408,8 @@
                 const y = 60 + radius * Math.sin(angle);
                 
                 label.textContent = `${metrics[metricType].label}: ${metrics[metricType].value.toLocaleString()}${metricType === 'engagement' ? '%' : ''}`;
-                label.style.left = `${x * 3.2}px`;
-                label.style.top = `${y * 3.2}px`;
+                label.style.left = `${x * 1.5}px`;
+                label.style.top = `${y * 1.5}px`;
                 label.classList.add('active');
                 
                 // Store for mouseleave if not persist
