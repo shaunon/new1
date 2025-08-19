@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Metrics - Thin Rings Chart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 1044px;
+            height: 500px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        .chart-section {
+            width: 60%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-section {
+            width: 40%;
+            height: 100%;
+            padding: 20px 0 20px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 24px;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .chart-svg {
+            transform: rotate(-90deg);
+        }
+        
+        .ring {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+            transform-origin: center;
+            transition: all 0.3s ease;
+        }
+        
+        .ring:hover {
+            stroke-width: 8;
+            opacity: 0.9;
+        }
+        
+        .ring-views {
+            stroke: #4e73df;
+        }
+        
+        .ring-likes {
+            stroke: #1cc88a;
+        }
+        
+        .ring-shares {
+            stroke: #f6c23e;
+        }
+        
+        .ring-comments {
+            stroke: #e74a3b;
+        }
+        
+        .ring-engagement {
+            stroke: #6f42c1;
+        }
+        
+        .ring-labels {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .ring-label {
+            position: absolute;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            font-size: 12px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        .ring-label.active {
+            opacity: 1;
+        }
+        
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+        }
+        
+        .center-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .center-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        .metrics-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .metric-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fc;
+            border-radius: 10px;
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .metric-item:hover {
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transform: translateX(5px);
+        }
+        
+        .metric-item.active {
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        
+        .metric-info {
+            flex: 1;
+        }
+        
+        .metric-title {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 2px;
+        }
+        
+        .metric-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .metric-percentage {
+            font-size: 14px;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .views { border-color: #4e73df; }
+        .likes { border-color: #1cc88a; }
+        .shares { border-color: #f6c23e; }
+        .comments { border-color: #e74a3b; }
+        .engagement { border-color: #6f42c1; }
+        
+        .color-views { background: #4e73df; }
+        .color-likes { background: #1cc88a; }
+        .color-shares { background: #f6c23e; }
+        .color-comments { background: #e74a3b; }
+        .color-engagement { background: #6f42c1; }
+        
+        .legend-info {
+            text-align: center;
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-style: italic;
+            font-size: 12px;
+        }
+        
+        @media (max-width: 1100px) {
+            .container {
+                transform: scale(0.9);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chart-section">
+            <h1>Social Media Metrics</h1>
+            <p class="description">Visualization of engagement metrics with thin rings of equal width but different lengths</p>
+            
+            <div class="chart-container">
+                <svg class="chart-svg" width="380" height="380" viewBox="0 0 120 120">
+                    <circle class="ring ring-views" r="50" cx="60" cy="60"></circle>
+                    <circle class="ring ring-likes" r="40" cx="60" cy="60"></circle>
+                    <circle class="ring ring-shares" r="30" cx="60" cy="60"></circle>
+                    <circle class="ring ring-comments" r="20" cx="60" cy="60"></circle>
+                    <circle class="ring ring-engagement" r="10" cx="60" cy="60"></circle>
+                </svg>
+                
+                <div class="ring-labels">
+                    <div class="ring-label" id="label-views"></div>
+                    <div class="ring-label" id="label-likes"></div>
+                    <div class="ring-label" id="label-shares"></div>
+                    <div class="ring-label" id="label-comments"></div>
+                    <div class="ring-label" id="label-engagement"></div>
+                </div>
+                
+                <div class="center-text">
+                    <div class="center-value" id="center-value">125,890</div>
+                    <div class="center-label" id="center-label">Views</div>
+                </div>
+            </div>
+            
+            <p class="legend-info">Each ring has the same width but different length representing the metric value</p>
+        </div>
+        
+        <div class="info-section">
+            <h1>Metrics Details</h1>
+            <p class="description">Click on a metric to highlight it on the chart</p>
+            
+            <div class="metrics-list">
+                <div class="metric-item views active" data-metric="views">
+                    <div class="metric-color color-views"></div>
+                    <div class="metric-info">
+                        <div class="metric-title">Views</div>
+                        <div class="metric-value">125,890</div>
+                    </div>
+                    <div class="metric-percentage">100%</div>
+                </div>
+                
+                <div class="metric-item likes" data-metric="likes">
+                    <div class="metric-color color-likes"></div>
+                    <div class="metric-info">
+                        <div class="metric-title">Likes</div>
+                        <div class="metric-value">8,742</div>
+                    </div>
+                    <div class="metric-percentage">6.9%</div>
+                </div>
+                
+                <div class="metric-item shares" data-metric="shares">
+                    <div class="metric-color color-shares"></div>
+                    <div class="metric-info">
+                        <div class="metric-title">Shares</div>
+                        <div class="metric-value">2,153</div>
+                    </div>
+                    <div class="metric-percentage">1.7%</div>
+                </div>
+                
+                <div class="metric-item comments" data-metric="comments">
+                    <div class="metric-color color-comments"></div>
+                    <div class="metric-info">
+                        <div class="metric-title">Comments</div>
+                        <div class="metric-value">1,287</div>
+                    </div>
+                    <div class="metric-percentage">1.0%</div>
+                </div>
+                
+                <div class="metric-item engagement" data-metric="engagement">
+                    <div class="metric-color color-engagement"></div>
+                    <div class="metric-info">
+                        <div class="metric-title">Engagement</div>
+                        <div class="metric-value">9.7%</div>
+                    </div>
+                    <div class="metric-percentage">9.7%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Data for the chart
+            const metrics = {
+                views: { value: 125890, radius: 50, color: '#4e73df', label: 'Views' },
+                likes: { value: 8742, radius: 40, color: '#1cc88a', label: 'Likes' },
+                shares: { value: 2153, radius: 30, color: '#f6c23e', label: 'Shares' },
+                comments: { value: 1287, radius: 20, color: '#e74a3b', label: 'Comments' },
+                engagement: { value: 9.7, radius: 10, color: '#6f42c1', label: 'Engagement Rate' }
+            };
+            
+            // Calculate circumference for each ring
+            const calculateCircumference = (radius) => 2 * Math.PI * radius;
+            
+            // Set up the rings
+            const rings = document.querySelectorAll('.ring');
+            rings.forEach(ring => {
+                const radius = parseInt(ring.getAttribute('r'));
+                const circumference = calculateCircumference(radius);
+                
+                // Set stroke-dasharray and stroke-dashoffset for animation
+                ring.style.strokeDasharray = `${circumference} ${circumference}`;
+                ring.style.strokeDashoffset = circumference;
+                
+                // Get the metric type from class list
+                let metricType;
+                if (ring.classList.contains('ring-views')) metricType = 'views';
+                if (ring.classList.contains('ring-likes')) metricType = 'likes';
+                if (ring.classList.contains('ring-shares')) metricType = 'shares';
+                if (ring.classList.contains('ring-comments')) metricType = 'comments';
+                if (ring.classList.contains('ring-engagement')) metricType = 'engagement';
+                
+                // Animate the ring
+                setTimeout(() => {
+                    let offset;
+                    if (metricType === 'engagement') {
+                        // For engagement rate, we use a fixed scale
+                        offset = circumference - (metrics[metricType].value / 20) * circumference;
+                    } else {
+                        // For other metrics, scale relative to views
+                        offset = circumference - (metrics[metricType].value / metrics.views.value) * circumference;
+                    }
+                    ring.style.transition = 'stroke-dashoffset 1.5s ease-in-out';
+                    ring.style.strokeDashoffset = offset;
+                }, 100);
+                
+                // Add hover event
+                ring.addEventListener('mouseenter', () => {
+                    highlightMetric(metricType);
+                });
+                
+                ring.addEventListener('mouseleave', () => {
+                    removeHighlight();
+                });
+            });
+            
+            // Set up metric items
+            const metricItems = document.querySelectorAll('.metric-item');
+            metricItems.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    const metricType = item.getAttribute('data-metric');
+                    highlightMetric(metricType);
+                });
+                
+                item.addEventListener('mouseleave', removeHighlight);
+                
+                item.addEventListener('click', () => {
+                    const metricType = item.getAttribute('data-metric');
+                    highlightMetric(metricType, true);
+                    
+                    // Update active class
+                    metricItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                });
+            });
+            
+            // Highlight a metric
+            function highlightMetric(metricType, persist = false) {
+                // Update center text
+                document.getElementById('center-value').textContent = 
+                    metricType === 'engagement' 
+                    ? `${metrics[metricType].value}%` 
+                    : metrics[metricType].value.toLocaleString();
+                document.getElementById('center-label').textContent = metrics[metricType].label;
+                
+                // Show label
+                const label = document.getElementById(`label-${metricType}`);
+                const ring = document.querySelector(`.ring-${metricType}`);
+                const radius = parseInt(ring.getAttribute('r'));
+                
+                // Calculate label position
+                const angle = Math.PI / 4; // 45 degrees
+                const x = 60 + radius * Math.cos(angle);
+                const y = 60 + radius * Math.sin(angle);
+                
+                label.textContent = `${metrics[metricType].label}: ${metrics[metricType].value.toLocaleString()}${metricType === 'engagement' ? '%' : ''}`;
+                label.style.left = `${x * 3.2}px`;
+                label.style.top = `${y * 3.2}px`;
+                label.classList.add('active');
+                
+                // Store for mouseleave if not persist
+                if (!persist) {
+                    window.currentHighlight = metricType;
+                }
+            }
+            
+            // Remove highlight
+            function removeHighlight() {
+                if (window.currentHighlight) {
+                    document.getElementById(`label-${window.currentHighlight}`).classList.remove('active');
+                    
+                    // Reset center text to default (views)
+                    document.getElementById('center-value').textContent = 
+                        metrics.views.value.toLocaleString();
+                    document.getElementById('center-label').textContent = metrics.views.label;
+                }
+            }
+            
+            // Initialize with views
+            highlightMetric('views', true);
+        });
+    </script>
+</body>
+</html>
