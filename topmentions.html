@@ -311,22 +311,40 @@
             }
         });
 
-        // Network Graph - 简化数据
+        // Network Graph - 丰富数据
         const networkData = {
             nodes: [
                 { id: 'BrandA', group: 1 },
                 { id: 'CelebrityX', group: 1 },
                 { id: 'CreatorZ', group: 1 },
+                { id: 'GameDevCo', group: 1 },
+                { id: 'FashionistaY', group: 1 },
+                { id: 'TechGuru', group: 1 },
                 { id: 'Creator1', group: 2 },
                 { id: 'Creator2', group: 2 },
-                { id: 'Creator3', group: 2 }
+                { id: 'Creator3', group: 2 },
+                { id: 'Creator4', group: 2 },
+                { id: 'Creator5', group: 2 },
+                { id: 'Creator6', group: 2 },
+                { id: 'Creator7', group: 2 },
+                { id: 'Creator8', group: 3, description: '新兴创作者' }
             ],
             links: [
-                { source: 'Creator1', target: 'BrandA', value: 5 },
-                { source: 'Creator2', target: 'BrandA', value: 3 },
-                { source: 'Creator3', target: 'CelebrityX', value: 4 },
-                { source: 'Creator1', target: 'CreatorZ', value: 2 },
-                { source: 'Creator2', target: 'CelebrityX', value: 1 }
+                { source: 'Creator1', target: 'BrandA', value: 8, type: 'strong' },
+                { source: 'Creator2', target: 'BrandA', value: 6, type: 'medium' },
+                { source: 'Creator3', target: 'CelebrityX', value: 7, type: 'strong' },
+                { source: 'Creator4', target: 'CelebrityX', value: 5, type: 'medium' },
+                { source: 'Creator5', target: 'CreatorZ', value: 6, type: 'medium' },
+                { source: 'Creator1', target: 'CreatorZ', value: 4, type: 'medium' },
+                { source: 'Creator2', target: 'CelebrityX', value: 3, type: 'weak' },
+                { source: 'Creator6', target: 'GameDevCo', value: 7, type: 'strong' },
+                { source: 'Creator7', target: 'FashionistaY', value: 6, type: 'medium' },
+                { source: 'Creator8', target: 'TechGuru', value: 5, type: 'medium' },
+                { source: 'Creator3', target: 'GameDevCo', value: 4, type: 'weak' },
+                { source: 'Creator4', target: 'FashionistaY', value: 3, type: 'weak' },
+                { source: 'Creator5', target: 'TechGuru', value: 5, type: 'medium' },
+                { source: 'Creator6', target: 'BrandA', value: 2, type: 'weak' },
+                { source: 'Creator7', target: 'CreatorZ', value: 3, type: 'weak' }
             ]
         };
 
@@ -338,49 +356,146 @@
             .attr('viewBox', [0, 0, 800, 300]);
 
         const simulation = d3.forceSimulation(networkData.nodes)
-            .force('link', d3.forceLink(networkData.links).id(d => d.id).distance(80))
-            .force('charge', d3.forceManyBody().strength(-200))
-            .force('center', d3.forceCenter(200, 135));
+            .force('link', d3.forceLink(networkData.links).id(d => d.id).distance(d => {
+                // 根据连接类型设置不同的距离
+                if (d.type === 'strong') return 80;
+                if (d.type === 'medium') return 120;
+                return 160; // weak
+            }))
+            .force('charge', d3.forceManyBody().strength(-300))
+            .force('center', d3.forceCenter(250, 135))
+            .force('x', d3.forceX(250).strength(0.08))
+            .force('y', d3.forceY(135).strength(0.08))
+            .force('collision', d3.forceCollide().radius(d => {
+                // 根据节点分组设置不同的碰撞半径
+                if (d.group === 1) return 15;
+                if (d.group === 2) return 12;
+                return 10;
+            }));
 
         const link = networkSvg.append('g')
             .selectAll('line')
             .data(networkData.links)
             .join('line')
-            .attr('stroke', '#999')
-            .attr('stroke-opacity', 0.6)
+            .attr('stroke', d => {
+                if (d.type === 'strong') return '#ff7f0e';
+                if (d.type === 'medium') return '#1f77b4';
+                return '#999';
+            })
+            .attr('stroke-opacity', d => {
+                if (d.type === 'strong') return 0.8;
+                if (d.type === 'medium') return 0.6;
+                return 0.4;
+            })
             .attr('stroke-width', d => Math.sqrt(d.value));
+            
+        link.append('title')
+            .text(d => `${d.source.id} → ${d.target.id}\n强度: ${d.value}`);
 
-        const node = networkSvg.append('g')
-            .selectAll('circle')
+        // 添加连接线的箭头标记
+        networkSvg.append('defs').selectAll('marker')
+            .data(['strong', 'medium', 'weak'])
+            .join('marker')
+            .attr('id', d => `arrow-${d}`)
+            .attr('viewBox', '0 -5 10 10')
+            .attr('refX', 25)
+            .attr('refY', 0)
+            .attr('markerWidth', 6)
+            .attr('markerHeight', 6)
+            .attr('orient', 'auto')
+            .append('path')
+            .attr('fill', d => {
+                if (d === 'strong') return '#ff7f0e';
+                if (d === 'medium') return '#1f77b4';
+                return '#999';
+            })
+            .attr('d', 'M0,-5L10,0L0,5');
+
+        // 更新连接线，添加箭头
+        link.attr('marker-end', d => `url(#arrow-${d.type})`);
+
+        // 创建节点组，包含圆圈和光晕效果
+        const nodeGroup = networkSvg.append('g')
+            .selectAll('g')
             .data(networkData.nodes)
-            .join('circle')
-            .attr('r', d => d.group === 1 ? 10 : 7)
-            .attr('fill', d => d.group === 1 ? '#ff7f0e' : '#1f77b4')
+            .join('g');
+            
+        // 添加节点光晕
+        nodeGroup.append('circle')
+            .attr('r', d => {
+                if (d.group === 1) return 16;
+                if (d.group === 2) return 12;
+                return 10;
+            })
+            .attr('fill', d => {
+                if (d.group === 1) return '#ff7f0e';
+                if (d.group === 2) return '#1f77b4';
+                return '#2ca02c';
+            })
+            .attr('opacity', 0.3);
+            
+        // 添加节点主体
+        const node = nodeGroup.append('circle')
+            .attr('r', d => {
+                if (d.group === 1) return 12;
+                if (d.group === 2) return 8;
+                return 6;
+            })
+            .attr('fill', d => {
+                if (d.group === 1) return '#ff7f0e';
+                if (d.group === 2) return '#1f77b4';
+                return '#2ca02c';
+            })
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 1.5)
             .call(drag(simulation));
 
+        // 添加更详细的节点提示信息
         node.append('title')
-            .text(d => d.id);
+            .text(d => {
+                const baseInfo = d.description ? `${d.id}\n${d.description}` : d.id;
+                return d.followers ? `${baseInfo}\n粉丝数: ${d.followers?.toLocaleString() || '未知'}` : baseInfo;
+            });
 
+        // 改进节点文本标签
         const text = networkSvg.append('g')
             .selectAll('text')
             .data(networkData.nodes)
             .join('text')
             .text(d => d.id)
-            .attr('font-size', 10)
-            .attr('dx', 12)
-            .attr('dy', 4);
+            .attr('font-size', d => d.group === 1 ? 11 : 9)
+            .attr('font-weight', d => d.group === 1 ? 'bold' : 'normal')
+            .attr('dx', d => {
+                if (d.group === 1) return 14;
+                if (d.group === 2) return 10;
+                return 8;
+            })
+            .attr('dy', 4)
+            .attr('fill', d => {
+                if (d.group === 1) return '#d62728';
+                return '#333';
+            });
 
+        // 更新模拟的tick函数，包括节点组和文本
         simulation.on('tick', () => {
+            // 确保节点不会超出边界
+            networkData.nodes.forEach(d => {
+                d.x = Math.max(20, Math.min(480, d.x));
+                d.y = Math.max(20, Math.min(250, d.y));
+            });
+            
+            // 更新连接线位置
             link
                 .attr('x1', d => d.source.x)
                 .attr('y1', d => d.source.y)
                 .attr('x2', d => d.target.x)
                 .attr('y2', d => d.target.y);
 
-            node
-                .attr('cx', d => d.x)
-                .attr('cy', d => d.y);
+            // 更新节点组位置
+            nodeGroup
+                .attr('transform', d => `translate(${d.x}, ${d.y})`);
 
+            // 更新文本位置
             text
                 .attr('x', d => d.x)
                 .attr('y', d => d.y);
@@ -410,22 +525,36 @@
                 .on('end', dragended);
         }
 
-        // Sankey Diagram - 简化数据
+        // Sankey Diagram - 丰富数据
         const sankeyData = {
             nodes: [
-                { name: 'Creator1' },
-                { name: 'Creator2' },
-                { name: 'Creator3' },
-                { name: 'BrandA' },
-                { name: 'CelebrityX' },
-                { name: 'CreatorZ' }
+                { name: 'Creator1', category: '顶级创作者' },
+                { name: 'Creator2', category: '顶级创作者' },
+                { name: 'Creator3', category: '顶级创作者' },
+                { name: 'Creator4', category: '中等创作者' },
+                { name: 'Creator5', category: '中等创作者' },
+                { name: 'Creator6', category: '新兴创作者' },
+                { name: 'BrandA', category: '品牌' },
+                { name: 'CelebrityX', category: '名人' },
+                { name: 'CreatorZ', category: '创作者' },
+                { name: 'GameDevCo', category: '游戏公司' },
+                { name: 'FashionistaY', category: '时尚博主' },
+                { name: 'TechGuru', category: '科技博主' }
             ],
             links: [
-                { source: 0, target: 3, value: 5000 },
-                { source: 1, target: 3, value: 3000 },
-                { source: 1, target: 4, value: 2000 },
-                { source: 2, target: 4, value: 4000 },
-                { source: 0, target: 5, value: 1500 }
+                { source: 0, target: 6, value: 8500, type: '合作' },
+                { source: 1, target: 6, value: 6200, type: '合作' },
+                { source: 2, target: 7, value: 7300, type: '挑战' },
+                { source: 3, target: 7, value: 4800, type: '挑战' },
+                { source: 4, target: 8, value: 5600, type: '评论' },
+                { source: 0, target: 8, value: 3200, type: '评论' },
+                { source: 1, target: 7, value: 2800, type: '挑战' },
+                { source: 5, target: 9, value: 4100, type: '合作' },
+                { source: 3, target: 10, value: 3700, type: '评论' },
+                { source: 4, target: 11, value: 4200, type: '合作' },
+                { source: 2, target: 9, value: 2500, type: '评论' },
+                { source: 5, target: 10, value: 1900, type: '挑战' },
+                { source: 0, target: 11, value: 2200, type: '评论' }
             ]
         };
 
@@ -437,9 +566,9 @@
             .attr('viewBox', [0, 0, 800, 300]);
 
         const sankey = d3.sankey()
-            .nodeWidth(12)
-            .nodePadding(8)
-            .extent([[1, 1], [399, 269]]);
+            .nodeWidth(15)
+            .nodePadding(10)
+            .extent([[1, 1], [500, 269]]);
 
         const { nodes, links } = sankey(sankeyData);
 
@@ -451,10 +580,20 @@
             .attr('y', d => d.y0)
             .attr('height', d => d.y1 - d.y0)
             .attr('width', d => d.x1 - d.x0)
-            .attr('fill', d => d.name.includes('Brand') || d.name.includes('Celebrity') || d.name.includes('CreatorZ') ? '#ff7f0e' : '#1f77b4')
-            .attr('opacity', 0.8)
+            .attr('fill', d => {
+                if (d.category === '品牌' || d.category === '名人') return '#ff7f0e';
+                if (d.category === '创作者' || d.category === '游戏公司') return '#1f77b4';
+                if (d.category === '时尚博主') return '#d62728';
+                if (d.category === '科技博主') return '#2ca02c';
+                if (d.category === '顶级创作者') return '#9467bd';
+                if (d.category === '中等创作者') return '#8c564b';
+                return '#e377c2';
+            })
+            .attr('opacity', 0.85)
+            .attr('stroke', '#fff')
+            .attr('stroke-width', 0.5)
             .append('title')
-            .text(d => `${d.name}\n${d.value.toLocaleString()}`);
+            .text(d => `${d.name}\n类别: ${d.category}\n流量: ${d.value.toLocaleString()}`);
 
         sankeySvg.append('g')
             .attr('fill', 'none')
@@ -462,23 +601,30 @@
             .data(links)
             .join('path')
             .attr('d', d3.sankeyLinkHorizontal())
-            .attr('stroke', d => d.source.name.includes('Brand') || d.source.name.includes('Celebrity') || d.source.name.includes('CreatorZ') ? '#ff7f0e' : '#1f77b4')
+            .attr('stroke', d => {
+                if (d.type === '合作') return '#ff7f0e';
+                if (d.type === '挑战') return '#1f77b4';
+                return '#2ca02c';
+            })
             .attr('stroke-width', d => Math.max(1, d.width))
-            .attr('stroke-opacity', 0.5)
+            .attr('stroke-opacity', 0.6)
             .style('mix-blend-mode', 'multiply')
             .append('title')
-            .text(d => `${d.source.name} → ${d.target.name}\n${d.value.toLocaleString()}`);
+            .text(d => `${d.source.name} → ${d.target.name}\n类型: ${d.type}\n流量: ${d.value.toLocaleString()}`);
 
         sankeySvg.append('g')
             .style('font', '9px sans-serif')
             .selectAll('text')
             .data(nodes)
             .join('text')
-            .attr('x', d => d.x0 < 200 ? d.x1 + 6 : d.x0 - 6)
+            .attr('x', d => d.x0 < 250 ? d.x1 + 6 : d.x0 - 6)
             .attr('y', d => (d.y1 + d.y0) / 2)
             .attr('dy', '0.35em')
-            .attr('text-anchor', d => d.x0 < 200 ? 'start' : 'end')
-            .text(d => d.name);
+            .attr('text-anchor', d => d.x0 < 250 ? 'start' : 'end')
+            .attr('fill', '#333')
+            .text(d => d.name)
+            .append('title')
+            .text(d => `${d.name}\n类别: ${d.category}`);
     </script>
 </body>
 </html>
