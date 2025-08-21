@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Creator Analysis Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -15,7 +15,7 @@
         }
         .main-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
         }
         .chart-section {
@@ -36,7 +36,7 @@
             padding-bottom: 10px;
         }
         .chart-container {
-            height: 400px;
+            height: 500px;
         }
         .table-section {
             grid-column: 1 / -1;
@@ -67,12 +67,43 @@
         tr:hover {
             background-color: #f1f1f1;
         }
+        .quadrant-labels {
+            position: absolute;
+            font-size: 0.8rem;
+            color: #666;
+            pointer-events: none;
+        }
+        .bubble-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            box-sizing: border-box;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            text-shadow: 0 0 3px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .bubble:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
     <div class="main-container">
         <div class="chart-section full-width">
-            <h3 class="chart-title">Top 10 Creators by Total Views</h3>
+            <h3 class="chart-title">Top Creators by Total Views</h3>
             <div class="chart-container">
                 <canvas id="leaderboardChart"></canvas>
             </div>
@@ -86,21 +117,14 @@
         </div>
 
         <div class="chart-section">
-            <h3 class="chart-title">Creator View Distribution</h3>
+            <h3 class="chart-title">Creator Influence Map</h3>
             <div class="chart-container">
-                <canvas id="bubbleChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-section">
-            <h3 class="chart-title">Creator Type Distribution</h3>
-            <div class="chart-container">
-                <canvas id="pieChart"></canvas>
+                <div id="bubbleChart" class="bubble-container"></div>
             </div>
         </div>
 
         <div class="table-section">
-            <h3 class="chart-title">Detailed Creator Data</h3>
+            <h3 class="chart-title">Top Creator Analysis</h3>
             <table>
                 <thead>
                     <tr>
@@ -127,18 +151,21 @@
 
     <script>
         const creatorData = [
-            { rank: 1, name: "Anya's Adventures", type: "Travel, Vlogs", followers: 12.5, growth: 3.1, videos: 250, frequency: 3, views: 950, engagement: 55, engagementRate: 5.8, sentiment: 92, overlap: "-" },
-            { rank: 2, name: "TechGuru", type: "Tech, Reviews", followers: 8.2, growth: 2.5, videos: 180, frequency: 2, views: 800, engagement: 48, engagementRate: 6.0, sentiment: 88, overlap: "15%" },
-            { rank: 3, name: "CreativeCuisine", type: "Food, Cooking", followers: 6.9, growth: 4.0, videos: 310, frequency: 4, views: 750, engagement: 42, engagementRate: 5.6, sentiment: 95, overlap: "12%" },
-            { rank: 4, name: "GameMaster", type: "Gaming, Livestreams", followers: 10.1, growth: 1.8, videos: 450, frequency: 5, views: 650, engagement: 65, engagementRate: 10.0, sentiment: 78, overlap: "22%" },
-            { rank: 5, name: "FitnessFusion", type: "Fitness, Health", followers: 5.4, growth: 2.9, videos: 210, frequency: 3, views: 580, engagement: 35, engagementRate: 6.0, sentiment: 91, overlap: "14%" },
-            { rank: 6, name: "DIYwithDan", type: "DIY, Home Repair", followers: 4.8, growth: 3.5, videos: 280, frequency: 3, views: 450, engagement: 28, engagementRate: 6.2, sentiment: 89, overlap: "18%" },
-            { rank: 7, name: "HistoricalHub", type: "Education, History", followers: 3.1, growth: 2.0, videos: 150, frequency: 1, views: 410, engagement: 20, engagementRate: 4.9, sentiment: 93, overlap: "10%" },
-            { rank: 8, name: "TravelTales", type: "Travel, Guides", followers: 2.9, growth: 2.8, videos: 190, frequency: 2, views: 380, engagement: 21, engagementRate: 5.5, sentiment: 90, overlap: "16%" },
-            { rank: 9, name: "ArtisticAura", type: "Art, Painting", followers: 2.5, growth: 4.5, videos: 120, frequency: 1, views: 250, engagement: 15, engagementRate: 6.0, sentiment: 96, overlap: "9%" },
-            { rank: 10, name: "MindfulMoments", type: "Wellness, Meditation", followers: 1.8, growth: 5.1, videos: 85, frequency: 1, views: 200, engagement: 12, engagementRate: 6.0, sentiment: 98, overlap: "7%" },
-            { rank: 11, name: "ScienceSimplified", type: "Science, Education", followers: 3.5, growth: 2.7, videos: 160, frequency: 2, views: 320, engagement: 18, engagementRate: 5.6, sentiment: 94, overlap: "11%" },
-            { rank: 12, name: "UrbanExplorer", type: "City Vlogs, Adventure", followers: 2.1, growth: 3.8, videos: 145, frequency: 2, views: 220, engagement: 14, engagementRate: 6.4, sentiment: 91, overlap: "13%" }
+            { rank: 1, name: "MrBeast", type: "Entertainment, Challenges", followers: 180.5, growth: 4.2, videos: 720, frequency: 2, views: 32500, engagement: 2800, engagementRate: 8.6, sentiment: 94, overlap: "35%" },
+            { rank: 2, name: "PewDiePie", type: "Gaming, Commentary", followers: 111.0, growth: 1.8, videos: 4200, frequency: 5, views: 28000, engagement: 1950, engagementRate: 7.0, sentiment: 88, overlap: "28%" },
+            { rank: 3, name: "Like Nastya", type: "Kids, Entertainment", followers: 105.0, growth: 3.5, videos: 850, frequency: 3, views: 26800, engagement: 1750, engagementRate: 6.5, sentiment: 96, overlap: "22%" },
+            { rank: 4, name: "Cocomelon", type: "Kids, Education", followers: 150.0, growth: 2.9, videos: 780, frequency: 3, views: 25500, engagement: 1600, engagementRate: 6.3, sentiment: 95, overlap: "18%" },
+            { rank: 5, name: "SET India", type: "Entertainment, TV Shows", followers: 145.0, growth: 3.8, videos: 15000, frequency: 10, views: 24800, engagement: 1550, engagementRate: 6.2, sentiment: 91, overlap: "15%" },
+            { rank: 6, name: "WWE", type: "Sports, Entertainment", followers: 92.5, growth: 2.2, videos: 65000, frequency: 15, views: 23200, engagement: 2100, engagementRate: 9.1, sentiment: 87, overlap: "25%" },
+            { rank: 7, name: "BLACKPINK", type: "Music, K-pop", followers: 85.0, growth: 5.1, videos: 450, frequency: 1, views: 22500, engagement: 3200, engagementRate: 14.2, sentiment: 97, overlap: "32%" },
+            { rank: 8, name: "5-Minute Crafts", type: "DIY, Lifehacks", followers: 77.0, growth: 1.5, videos: 5200, frequency: 8, views: 21800, engagement: 1250, engagementRate: 5.7, sentiment: 82, overlap: "20%" },
+            { rank: 9, name: "Zee Music", type: "Music, Bollywood", followers: 93.0, growth: 3.2, videos: 4800, frequency: 7, views: 21200, engagement: 1480, engagementRate: 7.0, sentiment: 93, overlap: "22%" },
+            { rank: 10, name: "T-Series", type: "Music, Entertainment", followers: 230.0, growth: 2.0, videos: 17500, frequency: 12, views: 20500, engagement: 1350, engagementRate: 6.6, sentiment: 90, overlap: "28%" },
+            { rank: 11, name: "Dude Perfect", type: "Sports, Comedy", followers: 58.0, growth: 2.5, videos: 320, frequency: 1, views: 15800, engagement: 1750, engagementRate: 11.1, sentiment: 95, overlap: "30%" },
+            { rank: 12, name: "Marques Brownlee", type: "Tech, Reviews", followers: 16.8, growth: 3.8, videos: 1450, frequency: 2, views: 4200, engagement: 520, engagementRate: 12.4, sentiment: 96, overlap: "18%" },
+            { rank: 13, name: "Emma Chamberlain", type: "Lifestyle, Vlogs", followers: 12.2, growth: 4.5, videos: 280, frequency: 1, views: 2800, engagement: 480, engagementRate: 17.1, sentiment: 92, overlap: "15%" },
+            { rank: 14, name: "MrWhoseTheBoss", type: "Tech, Reviews", followers: 13.5, growth: 4.2, videos: 850, frequency: 2, views: 3500, engagement: 390, engagementRate: 11.1, sentiment: 94, overlap: "22%" },
+            { rank: 15, name: "Gordon Ramsay", type: "Food, Cooking", followers: 19.5, growth: 3.0, videos: 1200, frequency: 3, views: 4800, engagement: 520, engagementRate: 10.8, sentiment: 89, overlap: "12%" }
         ];
 
         // Populate Table
@@ -148,13 +175,13 @@
                 <td>${c.rank}</td>
                 <td>${c.name}</td>
                 <td>${c.type}</td>
-                <td>${c.followers}</td>
-                <td>${c.growth}</td>
-                <td>${c.videos}</td>
+                <td>${c.followers.toLocaleString()}</td>
+                <td>${c.growth.toFixed(1)}%</td>
+                <td>${c.videos.toLocaleString()}</td>
                 <td>${c.frequency}</td>
-                <td>${c.views}</td>
-                <td>${c.engagement}</td>
-                <td>${c.engagementRate}</td>
+                <td>${c.views.toLocaleString()}</td>
+                <td>${c.engagement.toLocaleString()}</td>
+                <td>${c.engagementRate.toFixed(1)}</td>
                 <td>${c.sentiment}</td>
                 <td>${c.overlap}</td>
             </tr>`;
@@ -180,86 +207,228 @@
                 indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
-            }
-        });
-
-        // Scatter Plot
-        const scatterCtx = document.getElementById('scatterPlot').getContext('2d');
-        new Chart(scatterCtx, {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: 'Creator Performance',
-                    data: creatorData.map(c => ({ x: c.followers, y: c.engagementRate, r: c.views / 25 })),
-                    backgroundColor: 'rgba(255, 99, 132, 0.7)'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Views: ${context.raw.toLocaleString()} million`;
+                            }
+                        }
+                    }
+                },
                 scales: {
-                    x: { title: { display: true, text: 'Followers (M)' } },
-                    y: { title: { display: true, text: 'Engagement Rate (%)' } }
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Total Views (Millions)'
+                        }
+                    }
                 }
             }
         });
 
-        // Bubble Chart
-        const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
-        new Chart(bubbleCtx, {
-            type: 'bubble',
+        // Scatter Plot with Quadrants
+        const scatterCtx = document.getElementById('scatterPlot').getContext('2d');
+        
+        // Calculate averages for quadrant lines
+        const avgFollowers = creatorData.reduce((sum, c) => sum + c.followers, 0) / creatorData.length;
+        const avgEngagementRate = creatorData.reduce((sum, c) => sum + c.engagementRate, 0) / creatorData.length;
+        
+        const scatterChart = new Chart(scatterCtx, {
+            type: 'scatter',
             data: {
-                datasets: creatorData.map(c => ({
-                    label: c.name,
-                    data: [{
-                        x: Math.random() * 100,
-                        y: Math.random() * 100,
-                        r: c.views / 20
-                    }],
-                    backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.7)`
-                }))
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } }
-            }
-        });
-
-        // Pie Chart
-        const creatorTypes = creatorData.reduce((acc, c) => {
-            const types = c.type.split(', ');
-            types.forEach(t => {
-                acc[t] = (acc[t] || 0) + 1;
-            });
-            return acc;
-        }, {});
-        const pieCtx = document.getElementById('pieChart').getContext('2d');
-        new Chart(pieCtx, {
-            type: 'pie',
-            data: {
-                labels: Object.keys(creatorTypes),
                 datasets: [{
-                    data: Object.values(creatorTypes),
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(153, 102, 255, 0.7)',
-                        'rgba(255, 159, 64, 0.7)',
-                        'rgba(199, 199, 199, 0.7)',
-                        'rgba(83, 102, 255, 0.7)',
-                        'rgba(255, 99, 255, 0.7)'
-                    ]
+                    label: 'Creators',
+                    data: creatorData.map(c => ({
+                        x: c.followers,
+                        y: c.engagementRate,
+                        r: Math.sqrt(c.videos) / 5, // 圆点大小基于作品数量
+                        name: c.name,
+                        videos: c.videos,
+                        type: c.type
+                    })),
+                    backgroundColor: creatorData.map(c => {
+                        // Color based on quadrant
+                        if (c.followers >= avgFollowers && c.engagementRate >= avgEngagementRate) {
+                            return 'rgba(75, 192, 192, 0.8)'; // Top right - teal
+                        } else if (c.followers >= avgFollowers && c.engagementRate < avgEngagementRate) {
+                            return 'rgba(54, 162, 235, 0.8)'; // Bottom right - blue
+                        } else if (c.followers < avgFollowers && c.engagementRate >= avgEngagementRate) {
+                            return 'rgba(255, 206, 86, 0.8)'; // Top left - yellow
+                        } else {
+                            return 'rgba(255, 99, 132, 0.8)'; // Bottom left - red
+                        }
+                    }),
+                    pointRadius: creatorData.map(c => Math.sqrt(c.videos) / 5), // 动态设置圆点大小
+                    pointHoverRadius: creatorData.map(c => Math.sqrt(c.videos) / 4), // 悬停时略大一些
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const name = context.raw.name;
+                                const followers = context.parsed.x.toLocaleString();
+                                const engagementRate = context.parsed.y.toFixed(1);
+                                const videos = context.raw.videos.toLocaleString();
+                                const type = context.raw.type;
+                                return [
+                                    `${name} (${type})`,
+                                    `粉丝量: ${followers}M`,
+                                    `互动率: ${engagementRate}%`,
+                                    `作品数量: ${videos}`
+                                ];
+                            }
+                        }
+                    },
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: '粉丝量 (百万)'
+                        },
+                        min: 0,
+                        grid: {
+                            color: function(context) {
+                                if (context.tick.value === avgFollowers) {
+                                    return 'rgba(0, 0, 0, 0.5)';
+                                }
+                                return 'rgba(0, 0, 0, 0.1)';
+                            },
+                            lineWidth: function(context) {
+                                if (context.tick.value === avgFollowers) {
+                                    return 2;
+                                }
+                                return 1;
+                            }
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: '互动率 (%)'
+                        },
+                        min: 0,
+                        grid: {
+                            color: function(context) {
+                                if (context.tick.value === avgEngagementRate) {
+                                    return 'rgba(0, 0, 0, 0.5)';
+                                }
+                                return 'rgba(0, 0, 0, 0.1)';
+                            },
+                            lineWidth: function(context) {
+                                if (context.tick.value === avgEngagementRate) {
+                                    return 2;
+                                }
+                                return 1;
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    onComplete: function() {
+                        // Add quadrant labels after animation completes
+                        const chartArea = this.chartArea;
+                        const xAxis = this.scales.x;
+                        const yAxis = this.scales.y;
+                        
+                        const xCenter = xAxis.getPixelForValue(avgFollowers);
+                        const yCenter = yAxis.getPixelForValue(avgEngagementRate);
+                        
+                        const canvas = this.canvas;
+                        const ctx = canvas.getContext('2d');
+                        
+                        ctx.save();
+                        ctx.font = '12px Arial';
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+                        ctx.textAlign = 'center';
+                        
+                        // Top right quadrant
+                        ctx.fillText('明星创作者', (xCenter + chartArea.right) / 2, (chartArea.top + yCenter) / 2);
+                        
+                        // Top left quadrant
+                        ctx.fillText('潜力创作者', (chartArea.left + xCenter) / 2, (chartArea.top + yCenter) / 2);
+                        
+                        // Bottom right quadrant
+                        ctx.fillText('知名创作者', (xCenter + chartArea.right) / 2, (yCenter + chartArea.bottom) / 2);
+                        
+                        // Bottom left quadrant
+                        ctx.fillText('新兴创作者', (chartArea.left + xCenter) / 2, (yCenter + chartArea.bottom) / 2);
+                        
+                        ctx.restore();
+                    }
+                }
             }
         });
+
+        // Packed Bubble Chart using D3.js
+        function createBubbleChart() {
+            const width = document.getElementById('bubbleChart').clientWidth;
+            const height = document.getElementById('bubbleChart').clientHeight;
+            
+            // Clear previous chart if any
+            d3.select('#bubbleChart').html('');
+            
+            // Create bubble data
+            const bubbleData = creatorData.map(d => ({
+                name: d.name,
+                value: d.views, // Size based on views
+                type: d.type,
+                followers: d.followers,
+                engagement: d.engagementRate
+            }));
+            
+            // Create color scale based on creator types
+            const creatorTypes = [...new Set(bubbleData.flatMap(d => d.type.split(', ')))];
+            const colorScale = d3.scaleOrdinal()
+                .domain(creatorTypes)
+                .range(d3.schemeCategory10);
+            
+            // Create bubble layout
+            const pack = d3.pack()
+                .size([width, height])
+                .padding(3);
+            
+            const root = d3.hierarchy({ children: bubbleData })
+                .sum(d => d.value);
+            
+            // Generate bubble positions
+            const bubbles = pack(root).leaves();
+            
+            // Create bubbles
+            bubbles.forEach((bubble, i) => {
+                const d = bubble.data;
+                const mainType = d.type.split(', ')[0]; // Use first type for color
+                
+                const div = document.createElement('div');
+                div.className = 'bubble';
+                div.style.width = `${bubble.r * 2}px`;
+                div.style.height = `${bubble.r * 2}px`;
+                div.style.left = `${bubble.x - bubble.r}px`;
+                div.style.top = `${bubble.y - bubble.r}px`;
+                div.style.backgroundColor = colorScale(mainType);
+                
+                // Add text if bubble is large enough
+                if (bubble.r > 30) {
+                    div.textContent = d.name;
+                }
+                
+                // Add tooltip
+                div.title = `${d.name}\nType: ${d.type}\nViews: ${d.value.toLocaleString()}M\nFollowers: ${d.followers.toLocaleString()}M\nEngagement Rate: ${d.engagement.toFixed(1)}%`;
+                
+                document.getElementById('bubbleChart').appendChild(div);
+            });
+        }
+        
+        // Create bubble chart on load and resize
+        createBubbleChart();
+        window.addEventListener('resize', createBubbleChart);
     </script>
 </body>
 </html>
