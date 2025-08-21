@@ -182,6 +182,19 @@
             }
         });
 
+        function boxplotStats(arr) {
+            const sorted = arr.slice().sort((a, b) => a - b);
+            if (sorted.length === 0) {
+                return {};
+            }
+            const min = sorted[0];
+            const max = sorted[sorted.length - 1];
+            const q1 = sorted[Math.floor(sorted.length / 4)];
+            const median = sorted[Math.floor(sorted.length / 2)];
+            const q3 = sorted[Math.floor(sorted.length * 3 / 4)];
+            return {min, q1, median, q3, max};
+        }
+
         // Box Plot
         const boxPlotCtx = document.getElementById('boxPlot').getContext('2d');
         new Chart(boxPlotCtx, {
@@ -191,10 +204,8 @@
                 datasets: [{
                     label: 'Video View Distribution',
                     data: genreData.map(g => {
-                        // Generating sample data for box plot
                         const views = Array.from({length: 20}, () => g.avgViews + (Math.random() - 0.5) * g.avgViews * 0.5);
-                        views.sort((a, b) => a - b);
-                        return views;
+                        return boxplotStats(views);
                     }),
                     backgroundColor: 'rgba(255, 99, 132, 0.7)',
                     borderColor: 'rgba(255, 99, 132, 1)',
@@ -232,10 +243,12 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                const label = context.dataset.data[context.dataIndex].label;
-                                const x = context.parsed.x.toLocaleString();
-                                const y = (context.parsed.y * 100).toFixed(1) + '%';
-                                return `${label}: (Avg Views: ${x}, Engagement: ${y})`;
+                                const label = context.dataset.data[context.dataIndex].label || '';
+                                let labelLine = label ? `${label}: ` : '';
+                                if (context.parsed.x !== null) {
+                                    labelLine += `(Avg Views: ${context.parsed.x.toLocaleString()}, Engagement: ${(context.parsed.y * 100).toFixed(1)}%)`;
+                                }
+                                return labelLine;
                             }
                         }
                     }
