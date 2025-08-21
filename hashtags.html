@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trending Tags Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.5/build/d3.layout.cloud.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-graph@latest/dist/chartjs-chart-graph.min.js"></script>
     <style>
         body {
@@ -16,7 +18,7 @@
         }
         .main-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
         }
         .chart-section {
@@ -37,7 +39,11 @@
             padding-bottom: 10px;
         }
         .chart-container {
-            height: 400px;
+            height: 500px;
+        }
+        .word-cloud-container {
+            height: 600px;
+            position: relative;
         }
         .table-section {
             grid-column: 1 / -1;
@@ -46,6 +52,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             overflow-x: auto;
+            margin-top: 20px;
         }
         table {
             width: 100%;
@@ -68,53 +75,76 @@
         tr:hover {
             background-color: #f1f1f1;
         }
+        .bar-chart-race-container {
+            height: 500px;
+            position: relative;
+        }
+        .trend-positive {
+            color: #4caf50;
+        }
+        .trend-negative {
+            color: #f44336;
+        }
+        .trend-neutral {
+            color: #9e9e9e;
+        }
+        .lifecycle-emerging {
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        .lifecycle-peak {
+            background-color: rgba(33, 150, 243, 0.1);
+        }
+        .lifecycle-declining {
+            background-color: rgba(244, 67, 54, 0.1);
+        }
     </style>
 </head>
 <body>
     <div class="main-container">
+        <!-- Word Cloud (Main Visualization) -->
         <div class="chart-section full-width">
-            <h3 class="chart-title">Top 10 Tags by Total Views</h3>
-            <div class="chart-container">
-                <canvas id="topTagsChart"></canvas>
+            <h3 class="chart-title">Popular Hashtags Word Cloud</h3>
+            <div class="word-cloud-container" id="wordCloudContainer">
+                <!-- Word cloud will be rendered here -->
             </div>
         </div>
 
+        <!-- Trend Line Chart -->
         <div class="chart-section">
-            <h3 class="chart-title">Tag Co-occurrence Network</h3>
-            <div class="chart-container">
-                <canvas id="networkGraph"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-section">
-            <h3 class="chart-title">Key Tag Trend Over Time</h3>
+            <h3 class="chart-title">Key Hashtag Trends Over Time</h3>
             <div class="chart-container">
                 <canvas id="trendLineChart"></canvas>
             </div>
         </div>
 
+        <!-- Bar Chart Race -->
         <div class="chart-section">
-            <h3 class="chart-title">Tag Type Distribution</h3>
-            <div class="chart-container">
-                <canvas id="pieChart"></canvas>
+            <h3 class="chart-title">Hashtag Popularity Race</h3>
+            <div class="bar-chart-race-container" id="barChartRaceContainer">
+                <canvas id="barChartRace"></canvas>
+                <div style="text-align: center; margin-top: 10px;">
+                    <button id="playButton" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Play Animation</button>
+                </div>
             </div>
         </div>
 
+        <!-- Data Table -->
         <div class="table-section">
-            <h3 class="chart-title">Trending Tags Data</h3>
+            <h3 class="chart-title">Trending Hashtags Analysis</h3>
             <table>
                 <thead>
                     <tr>
                         <th>Rank</th>
-                        <th>Trending Tag</th>
-                        <th>Usage Count (M)</th>
+                        <th>Hashtag</th>
+                        <th>Mentions (M)</th>
                         <th>Related Videos (K)</th>
                         <th>Total Views (B)</th>
-                        <th>Avg. Engagement Rate/Video (%)</th>
-                        <th>Tag Type</th>
-                        <th>Original Video (%)</th>
-                        <th>Discovery Page Contribution (%)</th>
-                        <th>Follower Tier Distribution</th>
+                        <th>Avg. Engagement (%)</th>
+                        <th>Trend</th>
+                        <th>Lifecycle Stage</th>
+                        <th>Leading Creator</th>
+                        <th>Brand Affinity</th>
+                        <th>Regional Popularity</th>
                     </tr>
                 </thead>
                 <tbody id="tags-data-body">
@@ -125,152 +155,394 @@
     </div>
 
     <script>
+        // Enhanced hashtag data with additional fields
         const tagsData = [
-            { rank: 1, tag: "#TravelVlog", usage: 5.2, videos: 850, views: 1.2, engagement: 6.5, type: "Niche", original: 45, discovery: 35, tiers: "Micro: 30%, Mid: 40%, Top: 30%" },
-            { rank: 2, tag: "#GamingCommunity", usage: 4.8, videos: 780, views: 1.1, engagement: 8.2, type: "Community", original: 60, discovery: 40, tiers: "Micro: 20%, Mid: 35%, Top: 45%" },
-            { rank: 3, tag: "#TechReview", usage: 3.5, videos: 550, views: 0.95, engagement: 7.1, type: "Niche", original: 70, discovery: 30, tiers: "Micro: 15%, Mid: 50%, Top: 35%" },
-            { rank: 4, tag: "#FoodieLife", usage: 4.1, videos: 620, views: 0.88, engagement: 6.8, type: "Niche", original: 55, discovery: 32, tiers: "Micro: 25%, Mid: 45%, Top: 30%" },
-            { rank: 5, tag: "#DailyTips", usage: 6.0, videos: 910, views: 0.75, engagement: 5.5, type: "General", original: 30, discovery: 25, tiers: "Micro: 60%, Mid: 30%, Top: 10%" },
-            { rank: 6, tag: "#FitnessMotivation", usage: 2.9, videos: 450, views: 0.68, engagement: 7.5, type: "Niche", original: 50, discovery: 38, tiers: "Micro: 22%, Mid: 43%, Top: 35%" },
-            { rank: 7, tag: "#DIYProjects", usage: 3.3, videos: 480, views: 0.59, engagement: 6.1, type: "Niche", original: 65, discovery: 31, tiers: "Micro: 35%, Mid: 40%, Top: 25%" },
-            { rank: 8, tag: "#Bookworm", usage: 1.5, videos: 210, views: 0.35, engagement: 9.0, type: "Niche", original: 80, discovery: 45, tiers: "Micro: 50%, Mid: 40%, Top: 10%" },
-            { rank: 9, tag: "#ArtisticJourney", usage: 1.2, videos: 180, views: 0.28, engagement: 8.5, type: "Niche", original: 75, discovery: 42, tiers: "Micro: 45%, Mid: 40%, Top: 15%" },
-            { rank: 10, tag: "#PetLover", usage: 2.0, videos: 350, views: 0.41, engagement: 7.8, type: "Community", original: 50, discovery: 37, tiers: "Micro: 40%, Mid: 45%, Top: 15%" },
-            { rank: 11, tag: "#BrandSponsor", usage: 0.8, videos: 120, views: 0.2, engagement: 5.0, type: "Brand", original: 10, discovery: 15, tiers: "Micro: 5%, Mid: 20%, Top: 75%" },
-            { rank: 12, tag: "#SummerChallenge2025", usage: 2.5, videos: 300, views: 0.5, engagement: 7.2, type: "Campaign", original: 55, discovery: 50, tiers: "Micro: 35%, Mid: 35%, Top: 30%" }
+            { rank: 1, tag: "#TravelVlog", usage: 5.2, videos: 850, views: 1.2, engagement: 6.5, trend: "↑ 15%", lifecycle: "Peak", leadCreator: "GlobalExplorer", brandAffinity: "High", regionalPopularity: "Global, Asia-Pacific" },
+            { rank: 2, tag: "#GamingCommunity", usage: 4.8, videos: 780, views: 1.1, engagement: 8.2, trend: "↑ 8%", lifecycle: "Peak", leadCreator: "ProGamer", brandAffinity: "Medium", regionalPopularity: "North America, Europe" },
+            { rank: 3, tag: "#TechReview", usage: 3.5, videos: 550, views: 0.95, engagement: 7.1, trend: "↑ 5%", lifecycle: "Peak", leadCreator: "TechGuru", brandAffinity: "Very High", regionalPopularity: "Global" },
+            { rank: 4, tag: "#FoodieLife", usage: 4.1, videos: 620, views: 0.88, engagement: 6.8, trend: "↑ 3%", lifecycle: "Peak", leadCreator: "ChefMaster", brandAffinity: "Medium", regionalPopularity: "Global, Latin America" },
+            { rank: 5, tag: "#DailyTips", usage: 6.0, videos: 910, views: 0.75, engagement: 5.5, trend: "→ 0%", lifecycle: "Declining", leadCreator: "LifeHacker", brandAffinity: "Low", regionalPopularity: "Global" },
+            { rank: 6, tag: "#FitnessMotivation", usage: 2.9, videos: 450, views: 0.68, engagement: 7.5, trend: "↑ 12%", lifecycle: "Peak", leadCreator: "FitCoach", brandAffinity: "High", regionalPopularity: "North America, Europe" },
+            { rank: 7, tag: "#DIYProjects", usage: 3.3, videos: 480, views: 0.59, engagement: 6.1, trend: "↑ 7%", lifecycle: "Peak", leadCreator: "CraftyCreator", brandAffinity: "Medium", regionalPopularity: "North America, Europe" },
+            { rank: 8, tag: "#Bookworm", usage: 1.5, videos: 210, views: 0.35, engagement: 9.0, trend: "↑ 20%", lifecycle: "Emerging", leadCreator: "LiteraryLover", brandAffinity: "Low", regionalPopularity: "Europe, North America" },
+            { rank: 9, tag: "#ArtisticJourney", usage: 1.2, videos: 180, views: 0.28, engagement: 8.5, trend: "↑ 25%", lifecycle: "Emerging", leadCreator: "CreativeArtist", brandAffinity: "Low", regionalPopularity: "Global" },
+            { rank: 10, tag: "#PetLover", usage: 2.0, videos: 350, views: 0.41, engagement: 7.8, trend: "↑ 10%", lifecycle: "Peak", leadCreator: "AnimalWhisperer", brandAffinity: "Medium", regionalPopularity: "Global" },
+            { rank: 11, tag: "#BeautyHacks", usage: 3.8, videos: 520, views: 0.62, engagement: 6.3, trend: "↓ 5%", lifecycle: "Declining", leadCreator: "GlamGuru", brandAffinity: "High", regionalPopularity: "Global" },
+            { rank: 12, tag: "#SustainableLiving", usage: 1.7, videos: 230, views: 0.38, engagement: 8.7, trend: "↑ 30%", lifecycle: "Emerging", leadCreator: "EcoWarrior", brandAffinity: "Medium", regionalPopularity: "Europe, North America" },
+            { rank: 13, tag: "#HomeWorkout", usage: 2.5, videos: 380, views: 0.45, engagement: 7.2, trend: "↓ 8%", lifecycle: "Declining", leadCreator: "FitAtHome", brandAffinity: "Medium", regionalPopularity: "Global" },
+            { rank: 14, tag: "#DigitalNomad", usage: 1.9, videos: 270, views: 0.39, engagement: 8.1, trend: "↑ 18%", lifecycle: "Emerging", leadCreator: "RemoteWorker", brandAffinity: "Low", regionalPopularity: "Global" },
+            { rank: 15, tag: "#MusicCover", usage: 2.2, videos: 320, views: 0.52, engagement: 9.2, trend: "↑ 15%", lifecycle: "Peak", leadCreator: "MelodyMaker", brandAffinity: "Low", regionalPopularity: "Global" }
         ];
 
-        // Populate Table
+        // Historical data for bar chart race
+        const historicalData = {
+            "Jan 2023": [
+                { tag: "#TravelVlog", value: 3.5 },
+                { tag: "#GamingCommunity", value: 4.0 },
+                { tag: "#TechReview", value: 3.0 },
+                { tag: "#FoodieLife", value: 3.8 },
+                { tag: "#DailyTips", value: 6.0 }
+            ],
+            "Feb 2023": [
+                { tag: "#TravelVlog", value: 3.8 },
+                { tag: "#GamingCommunity", value: 4.2 },
+                { tag: "#TechReview", value: 3.1 },
+                { tag: "#FoodieLife", value: 3.9 },
+                { tag: "#FitnessMotivation", value: 2.0 }
+            ],
+            "Mar 2023": [
+                { tag: "#TravelVlog", value: 4.0 },
+                { tag: "#GamingCommunity", value: 4.3 },
+                { tag: "#TechReview", value: 3.2 },
+                { tag: "#FoodieLife", value: 4.0 },
+                { tag: "#FitnessMotivation", value: 2.2 }
+            ],
+            "Apr 2023": [
+                { tag: "#TravelVlog", value: 4.3 },
+                { tag: "#GamingCommunity", value: 4.5 },
+                { tag: "#TechReview", value: 3.3 },
+                { tag: "#FoodieLife", value: 4.0 },
+                { tag: "#DIYProjects", value: 2.8 }
+            ],
+            "May 2023": [
+                { tag: "#TravelVlog", value: 4.6 },
+                { tag: "#GamingCommunity", value: 4.6 },
+                { tag: "#TechReview", value: 3.4 },
+                { tag: "#FoodieLife", value: 4.1 },
+                { tag: "#DIYProjects", value: 3.0 }
+            ],
+            "Jun 2023": [
+                { tag: "#TravelVlog", value: 4.8 },
+                { tag: "#GamingCommunity", value: 4.7 },
+                { tag: "#TechReview", value: 3.4 },
+                { tag: "#FoodieLife", value: 4.1 },
+                { tag: "#DIYProjects", value: 3.1 }
+            ],
+            "Jul 2023": [
+                { tag: "#TravelVlog", value: 5.0 },
+                { tag: "#GamingCommunity", value: 4.7 },
+                { tag: "#TechReview", value: 3.5 },
+                { tag: "#FoodieLife", value: 4.1 },
+                { tag: "#PetLover", value: 1.5 }
+            ],
+            "Aug 2023": [
+                { tag: "#TravelVlog", value: 5.1 },
+                { tag: "#GamingCommunity", value: 4.8 },
+                { tag: "#TechReview", value: 3.5 },
+                { tag: "#FoodieLife", value: 4.1 },
+                { tag: "#PetLover", value: 1.7 }
+            ],
+            "Sep 2023": [
+                { tag: "#TravelVlog", value: 5.2 },
+                { tag: "#GamingCommunity", value: 4.8 },
+                { tag: "#TechReview", value: 3.5 },
+                { tag: "#FoodieLife", value: 4.1 },
+                { tag: "#PetLover", value: 1.8 }
+            ],
+            "Oct 2023": [
+                { tag: "#TravelVlog", value: 5.2 },
+                { tag: "#GamingCommunity", value: 4.8 },
+                { tag: "#TechReview", value: 3.5 },
+                { tag: "#FoodieLife", value: 4.1 },
+                { tag: "#PetLover", value: 1.9 }
+            ],
+            "Nov 2023": [
+                { tag: "#TravelVlog", value: 5.2 },
+                { tag: "#GamingCommunity", value: 4.8 },
+                { tag: "#TechReview", value: 3.5 },
+                { tag: "#FoodieLife", value: 4.1 },
+                { tag: "#PetLover", value: 2.0 }
+            ]
+        };
+
+        // Populate Table with enhanced data
         const tableBody = document.getElementById('tags-data-body');
         tagsData.forEach(t => {
-            const row = `<tr>
+            const trendClass = t.trend.includes('↑') ? 'trend-positive' : (t.trend.includes('↓') ? 'trend-negative' : 'trend-neutral');
+            const lifecycleClass = t.lifecycle === 'Emerging' ? 'lifecycle-emerging' : (t.lifecycle === 'Peak' ? 'lifecycle-peak' : 'lifecycle-declining');
+            
+            const row = `<tr class="${lifecycleClass}">
                 <td>${t.rank}</td>
-                <td>${t.tag}</td>
+                <td><strong>${t.tag}</strong></td>
                 <td>${t.usage}</td>
                 <td>${t.videos}</td>
                 <td>${t.views}</td>
                 <td>${t.engagement}</td>
-                <td>${t.type}</td>
-                <td>${t.original}</td>
-                <td>${t.discovery}</td>
-                <td>${t.tiers}</td>
+                <td class="${trendClass}">${t.trend}</td>
+                <td>${t.lifecycle}</td>
+                <td>${t.leadCreator}</td>
+                <td>${t.brandAffinity}</td>
+                <td>${t.regionalPopularity}</td>
             </tr>`;
             tableBody.innerHTML += row;
         });
 
-        // Top Tags Chart (Bar)
-        const top10Tags = tagsData.slice(0, 10);
-        const topTagsCtx = document.getElementById('topTagsChart').getContext('2d');
-        new Chart(topTagsCtx, {
-            type: 'bar',
-            data: {
-                labels: top10Tags.map(t => t.tag),
-                datasets: [{
-                    label: 'Total Views (B)',
-                    data: top10Tags.map(t => t.views),
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
+        // 1. Word Cloud Visualization
+        function createWordCloud() {
+            const width = document.getElementById('wordCloudContainer').offsetWidth;
+            const height = document.getElementById('wordCloudContainer').offsetHeight;
+            
+            // Prepare data for word cloud
+            const words = tagsData.map(t => ({
+                text: t.tag,
+                size: 10 + (t.usage * 10), // Scale size based on usage
+                value: t.views, // For tooltip
+                color: getRandomColor(t.lifecycle)
+            }));
+            
+            // Clear previous word cloud if any
+            d3.select("#wordCloudContainer").selectAll("*").remove();
+            
+            // Create SVG container
+            const svg = d3.select("#wordCloudContainer")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width/2},${height/2})`);
+            
+            // Create word cloud layout
+            const layout = d3.layout.cloud()
+                .size([width, height])
+                .words(words)
+                .padding(10)
+                .rotate(() => ~~(Math.random() * 2) * 90)
+                .fontSize(d => d.size)
+                .on("end", draw);
+            
+            layout.start();
+            
+            // Draw the word cloud
+            function draw(words) {
+                svg.selectAll("text")
+                    .data(words)
+                    .enter()
+                    .append("text")
+                    .style("font-size", d => `${d.size}px`)
+                    .style("fill", d => d.color)
+                    .attr("text-anchor", "middle")
+                    .attr("transform", d => `translate(${d.x},${d.y}) rotate(${d.rotate})`)
+                    .text(d => d.text)
+                    .on("mouseover", function(event, d) {
+                        // Show tooltip on hover
+                        d3.select(this).style("cursor", "pointer").style("font-weight", "bold");
+                        
+                        // Create tooltip
+                        d3.select("#wordCloudContainer")
+                            .append("div")
+                            .attr("class", "tooltip")
+                            .style("position", "absolute")
+                            .style("background", "rgba(0,0,0,0.7)")
+                            .style("color", "white")
+                            .style("padding", "8px")
+                            .style("border-radius", "4px")
+                            .style("font-size", "12px")
+                            .style("left", `${event.pageX}px`)
+                            .style("top", `${event.pageY - 28}px`)
+                            .html(`${d.text}<br>Mentions: ${tagsData.find(t => t.tag === d.text).usage}M<br>Views: ${tagsData.find(t => t.tag === d.text).views}B`);
+                    })
+                    .on("mouseout", function() {
+                        d3.select(this).style("font-weight", "normal");
+                        d3.select(".tooltip").remove();
+                    });
             }
-        });
+            
+            // Helper function for color based on lifecycle
+            function getRandomColor(lifecycle) {
+                if (lifecycle === "Emerging") return `hsl(${120 + Math.random() * 30}, 70%, 60%)`;
+                if (lifecycle === "Peak") return `hsl(${200 + Math.random() * 40}, 70%, 60%)`;
+                return `hsl(${0 + Math.random() * 30}, 70%, 60%)`;
+            }
+        }
 
-        // Network Graph (Bubble Chart as a substitute)
-        const networkCtx = document.getElementById('networkGraph').getContext('2d');
-        new Chart(networkCtx, {
-            type: 'bubble',
-            data: {
-                datasets: tagsData.map(t => ({
-                    label: t.tag,
-                    data: [{
-                        x: Math.random() * 100,
-                        y: Math.random() * 100,
-                        r: t.videos / 20
-                    }],
-                    backgroundColor: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.7)`
-                }))
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { 
-                        display: true,
-                        title: {
-                            display: true,
-                            text: 'Dimension 1'
+        // 2. Trend Line Chart for key hashtags
+        function createTrendLineChart() {
+            const ctx = document.getElementById('trendLineChart').getContext('2d');
+            
+            // Prepare data for trend line chart
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+            const topTags = tagsData.slice(0, 5).map(t => t.tag);
+            
+            // Generate trend data for each tag
+            const datasets = topTags.map((tag, index) => {
+                const baseValue = tagsData.find(t => t.tag === tag).usage;
+                const colorHue = 360 * (index / topTags.length);
+                
+                // Generate realistic trend data
+                const data = months.map((_, i) => {
+                    const progress = i / (months.length - 1);
+                    const noise = Math.random() * 0.4 - 0.2; // Random fluctuation
+                    
+                    // Different growth patterns based on lifecycle
+                    const lifecycle = tagsData.find(t => t.tag === tag).lifecycle;
+                    let growth;
+                    
+                    if (lifecycle === "Emerging") {
+                        growth = baseValue * (0.5 + progress * 1.5); // Upward trend
+                    } else if (lifecycle === "Peak") {
+                        growth = baseValue * (0.8 + Math.sin(progress * Math.PI) * 0.4); // Peak in middle
+                    } else {
+                        growth = baseValue * (1.2 - progress * 0.5); // Downward trend
+                    }
+                    
+                    return growth + noise;
+                });
+                
+                return {
+                    label: tag,
+                    data: data,
+                    borderColor: `hsl(${colorHue}, 70%, 60%)`,
+                    backgroundColor: `hsla(${colorHue}, 70%, 60%, 0.1)`,
+                    tension: 0.4,
+                    fill: true
+                };
+            });
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Mentions (Millions)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Month (2023)'
+                            }
                         }
                     },
-                    y: { 
-                        display: true,
-                        title: {
-                            display: true,
-                            text: 'Dimension 2'
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw.toFixed(1)}M mentions`;
+                                }
+                            }
                         }
+                    },
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
                     }
                 }
-            }
-        });
+            });
+        }
 
-        // Trend Line Chart
-        const trendLineCtx = document.getElementById('trendLineChart').getContext('2d');
-        new Chart(trendLineCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [
-                    {
-                        label: '#TravelVlog Usage',
-                        data: [120, 150, 180, 220, 250, 300],
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        tension: 0.4
+        // 3. Bar Chart Race
+        function createBarChartRace() {
+            const ctx = document.getElementById('barChartRace').getContext('2d');
+            const months = Object.keys(historicalData);
+            let currentMonthIndex = 0;
+            let barChart;
+            
+            // Initial chart with first month data
+            function initBarChart() {
+                const monthData = historicalData[months[currentMonthIndex]];
+                const sortedData = [...monthData].sort((a, b) => a.value - b.value);
+                
+                barChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: sortedData.map(d => d.tag),
+                        datasets: [{
+                            label: 'Mentions (Millions)',
+                            data: sortedData.map(d => d.value),
+                            backgroundColor: sortedData.map((_, i) => `hsl(${220 + i * 30}, 70%, 60%)`),
+                            borderWidth: 0
+                        }]
                     },
-                    {
-                        label: '#GamingCommunity Usage',
-                        data: [200, 210, 230, 240, 260, 270],
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        tension: 0.4
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 1000
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: true,
+                                text: months[currentMonthIndex],
+                                font: {
+                                    size: 16
+                                }
+                            },
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'end',
+                                formatter: (value) => value.toFixed(1) + 'M',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                max: 7 // Fixed scale for better visualization
+                            }
+                        }
                     }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
+                });
             }
-        });
+            
+            // Update chart with new month data
+            function updateChart() {
+                currentMonthIndex = (currentMonthIndex + 1) % months.length;
+                const monthData = historicalData[months[currentMonthIndex]];
+                const sortedData = [...monthData].sort((a, b) => a.value - b.value);
+                
+                barChart.data.labels = sortedData.map(d => d.tag);
+                barChart.data.datasets[0].data = sortedData.map(d => d.value);
+                barChart.options.plugins.title.text = months[currentMonthIndex];
+                barChart.update();
+            }
+            
+            // Initialize chart
+            initBarChart();
+            
+            // Play button functionality
+            document.getElementById('playButton').addEventListener('click', function() {
+                this.disabled = true;
+                this.textContent = 'Playing...';
+                
+                let interval = setInterval(() => {
+                    updateChart();
+                    if (currentMonthIndex === months.length - 1) {
+                        clearInterval(interval);
+                        document.getElementById('playButton').disabled = false;
+                        document.getElementById('playButton').textContent = 'Replay Animation';
+                    }
+                }, 1200);
+            });
+        }
 
-        // Pie Chart
-        const tagTypes = tagsData.reduce((acc, t) => {
-            acc[t.type] = (acc[t.type] || 0) + 1;
-            return acc;
-        }, {});
-        const pieCtx = document.getElementById('pieChart').getContext('2d');
-        new Chart(pieCtx, {
-            type: 'pie',
-            data: {
-                labels: Object.keys(tagTypes),
-                datasets: [{
-                    data: Object.values(tagTypes),
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.7)',
-                        'rgba(54, 162, 235, 0.7)',
-                        'rgba(255, 206, 86, 0.7)',
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(153, 102, 255, 0.7)'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false
-            }
+        // Initialize all visualizations
+        window.addEventListener('load', function() {
+            createWordCloud();
+            createTrendLineChart();
+            createBarChartRace();
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                createWordCloud(); // Recreate word cloud on resize
+            });
         });
     </script>
 </body>
