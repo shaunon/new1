@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creator Ecosystem Analysis</title>
+    <title>post Ecosystem Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <!-- 表格排序样式 -->
@@ -98,7 +98,7 @@
 
         <div class="chart-row">
             <div class="chart-container main-chart" style="flex: 1.2;">
-                <h2>1. Creator Type Distribution (Donut Chart)</h2>
+                <h2>1. post Type Distribution (Donut Chart)</h2>
                 <div class="chart-box">
                     <canvas id="donutChart"></canvas>
                 </div>
@@ -112,26 +112,26 @@
         </div>
 
         <div class="chart-container">
-            <h2>3. Creator Performance Analysis (Bubble Chart)</h2>
+            <h2>3. post Performance Analysis (Bubble Chart)</h2>
             <div class="chart-box">
                 <canvas id="bubbleChart"></canvas>
             </div>
         </div>
 
         <div class="chart-container">
-            <h2>4. Detailed Metrics by Creator Type</h2>
+            <h2>4. Detailed Metrics by post Type</h2>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Creator Type</th>
+                            <th>post Type</th>
                             <th>Video Count</th>
                             <th>Video %</th>
                             <th>Total Views</th>
                             <th>Avg Views/Video</th>
                             <th>Total Engagement</th>
                             <th>Engagement Rate</th>
-                            <th>Creator Count</th>
+                            <th>post Count</th>
                             <th>Total Followers</th>
                             <th>Avg Followers</th>
                             <th>View/Follower</th>
@@ -328,7 +328,7 @@
     </div>
 
     <script>
-        // Donut Chart - Creator Type Distribution
+        // Donut Chart - post Type Distribution
         const donutCtx = document.getElementById('donutChart').getContext('2d');
         const donutChart = new Chart(donutCtx, {
             type: 'doughnut',
@@ -367,7 +367,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'Creator Type Distribution (%)',
+                        text: 'post Type Distribution (%)',
                         font: {
                             size: 16
                         }
@@ -459,7 +459,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Monthly Video Contribution by Creator Type',
+                        text: 'Monthly Video Contribution by post Type',
                         font: {
                             size: 16
                         }
@@ -475,7 +475,7 @@
             }
         });
 
-        // Bubble Chart - Creator Performance
+        // Bubble Chart - post Performance
         const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
         const bubbleChart = new Chart(bubbleCtx, {
             type: 'bubble',
@@ -619,7 +619,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Creator Performance Analysis (Bubble size = Total Engagement in 100k)',
+                        text: 'post Performance Analysis (Bubble size = Total Engagement in 100k)',
                         font: {
                             size: 16
                         }
