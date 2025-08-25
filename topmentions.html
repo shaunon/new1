@@ -3,271 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Analysis - Top Mentions</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
-    <script src="https://unpkg.com/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3"></script>
     <style>
+        /* --- Global Styles --- */
         body {
-            font-family: sans-serif;
-            background-color: #f0f2f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            background-color: #f4f7fa;
             color: #333;
-        }
-        .container {
-            width: 95%;
-            max-width: 1400px;
-            margin: 0 auto;
+            margin: 0;
             padding: 20px;
         }
+
+        /* --- Container and Layout --- */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-gap: 20px;
+            width: 1900px;
+            margin: 0 auto;
+        }
+
+        /* --- Card Styles --- */
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a253c;
+            margin: 0 0 5px 0;
+        }
+
+        .card-subtitle {
+            font-size: 14px;
+            color: #889;
+            margin: 0 0 15px 0;
+        }
+
         .chart-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            gap: 20px;
-        }
-        .main-chart {
-            width: 100%;
-            max-width: 100%;
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            height: 350px;
-        }
-        .aux-charts {
-            width: 100%;
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-        }
-        .aux-chart {
-            background: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             flex-grow: 1;
-            width: calc(50% - 10px);
-            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            min-height: 300px;
+            position: relative;
         }
-        h3 {
-            margin-top: 0;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+
+        /* --- Specific Card Layouts --- */
+        .card-full { grid-column: 1 / -1; }
+        .card-half { grid-column: span 6; }
+        .card-two-third { grid-column: span 8; }
+        .card-one-third { grid-column: span 4; }
+
+        /* --- Table Styles --- */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            overflow: hidden;
+            font-size: 14px;
         }
+
         th, td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 1px solid #e0e0e0;
         }
-        thead {
-            background-color: #f8f9fa;
+
+        thead tr {
+            background-color: #f7f9fc;
         }
+        
+        thead th {
+            color: #334;
+            font-weight: 600;
+        }
+
         tbody tr:hover {
-            background-color: #f1f1f1;
+            background-color: #f1f5f8;
         }
-        #network-graph {
+
+        /* --- Chart Specific Styles --- */
+        #bar-chart-container, #radar-chart-container, #sankey-diagram-container {
             width: 100%;
-            height: 270px;
-        }
-        #sankey-diagram {
-            width: 100%;
-            height: 270px;
-        }
-        .node rect {
-            cursor: move;
-            fill-opacity: .9;
-            shape-rendering: crispEdges;
-        }
-        .node text {
-            pointer-events: none;
-            text-shadow: 0 1px 0 #fff;
-        }
-        .link {
-            fill: none;
-            stroke: #000;
-            stroke-opacity: .2;
-        }
-        .link:hover {
-            stroke-opacity: .5;
+            height: 400px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="chart-container">
-            <div class="main-chart">
-                <h3>Top Mentioned Accounts (Bar Chart)</h3>
-                <canvas id="bar-chart"></canvas>
-            </div>
-            <div class="aux-charts">
-                <div class="aux-chart">
-                    <h3>Influence Network (Network Graph)</h3>
-                    <div id="network-graph"></div>
-                </div>
-                <div class="aux-chart">
-                    <h3>Mention Traffic Flow (Sankey Diagram)</h3>
-                    <div id="sankey-diagram"></div>
-                </div>
+
+    <div class="dashboard-container">
+        <div class="card card-full">
+            <h2 class="card-title">Top 10 Most Mentioned Accounts</h2>
+            <p class="card-subtitle">Ranking of the most mentioned accounts across platforms</p>
+            <div class="chart-container">
+                <canvas id="bar-chart-container"></canvas>
             </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Mentioned Account</th>
-                    <th>Mention Count</th>
-                    <th>Unique Mentioning Creators</th>
-                    <th>Total Related Video Views</th>
-                    <th>Mention Context/Scenario</th>
-                    <th>Fan Growth 24h After Mention</th>
-                    <th>Engagement Lift (%)</th>
-                    <th>Mention Sentiment (Positive %)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>@BrandA</td>
-                    <td>15,234</td>
-                    <td>8,123</td>
-                    <td>1.2B</td>
-                    <td>Collaboration</td>
-                    <td>+5.2K</td>
-                    <td>15.8%</td>
-                    <td>92%</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>@CelebrityX</td>
-                    <td>12,876</td>
-                    <td>7,543</td>
-                    <td>987M</td>
-                    <td>Challenge</td>
-                    <td>+4.1K</td>
-                    <td>12.3%</td>
-                    <td>88%</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>@CreatorZ</td>
-                    <td>10,987</td>
-                    <td>6,876</td>
-                    <td>754M</td>
-                    <td>Review</td>
-                    <td>+3.5K</td>
-                    <td>10.1%</td>
-                    <td>95%</td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>@GameDevCo</td>
-                    <td>9,876</td>
-                    <td>5,432</td>
-                    <td>612M</td>
-                    <td>Collaboration</td>
-                    <td>+2.8K</td>
-                    <td>9.5%</td>
-                    <td>89%</td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>@FashionistaY</td>
-                    <td>8,765</td>
-                    <td>4,321</td>
-                    <td>543M</td>
-                    <td>Challenge</td>
-                    <td>+2.1K</td>
-                    <td>8.7%</td>
-                    <td>91%</td>
-                </tr>
-                <tr>
-                    <td>6</td>
-                    <td>@TechGuru</td>
-                    <td>7,654</td>
-                    <td>3,210</td>
-                    <td>432M</td>
-                    <td>Review</td>
-                    <td>+1.9K</td>
-                    <td>7.9%</td>
-                    <td>97%</td>
-                </tr>
-                <tr>
-                    <td>7</td>
-                    <td>@FoodieChannel</td>
-                    <td>6,543</td>
-                    <td>2,109</td>
-                    <td>321M</td>
-                    <td>Collaboration</td>
-                    <td>+1.5K</td>
-                    <td>7.2%</td>
-                    <td>94%</td>
-                </tr>
-                <tr>
-                    <td>8</td>
-                    <td>@MovieStudio</td>
-                    <td>5,432</td>
-                    <td>1,987</td>
-                    <td>210M</td>
-                    <td>Review</td>
-                    <td>+1.2K</td>
-                    <td>6.8%</td>
-                    <td>85%</td>
-                </tr>
-                <tr>
-                    <td>9</td>
-                    <td>@TravelVlogger</td>
-                    <td>4,321</td>
-                    <td>1,567</td>
-                    <td>189M</td>
-                    <td>Challenge</td>
-                    <td>+980</td>
-                    <td>6.1%</td>
-                    <td>93%</td>
-                </tr>
-                <tr>
-                    <td>10</td>
-                    <td>@EcoWarriors</td>
-                    <td>3,210</td>
-                    <td>1,123</td>
-                    <td>154M</td>
-                    <td>Collaboration</td>
-                    <td>+760</td>
-                    <td>5.5%</td>
-                    <td>98%</td>
-                </tr>
-            </tbody>
-        </table>
+
+        <div class="card card-half">
+            <h2 class="card-title">Multi-dimensional Performance Analysis</h2>
+            <p class="card-subtitle">Comparing mentioned accounts across multiple metrics: mention count, high-play videos, positive sentiment ratio</p>
+            <div class="chart-container">
+                <canvas id="radar-chart-container"></canvas>
+            </div>
+        </div>
+
+        <div class="card card-half">
+            <h2 class="card-title">Mention Flow Distribution</h2>
+            <p class="card-subtitle">Visualization of mention flow from creators of different follower levels to mentioned accounts</p>
+            <div class="chart-container" id="sankey-diagram-container"></div>
+        </div>
+
+        <div class="card card-full">
+            <h2 class="card-title">Detailed Mention Data</h2>
+            <p class="card-subtitle">Comprehensive data table with key metrics for mentioned accounts</p>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Mentioned Account</th>
+                            <th>Mention Count</th>
+                            <th>High-play Videos</th>
+                            <th>Total Views</th>
+                            <th>Positive Sentiment (%)</th>
+                            <th>24h Follower Growth</th>
+                            <th>Weighted Influence Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>@FashionBrand</td>
+                            <td>1,245</td>
+                            <td>87</td>
+                            <td>15,780,000</td>
+                            <td>78%</td>
+                            <td>+12,500</td>
+                            <td>845.6</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>@TechGiant</td>
+                            <td>1,120</td>
+                            <td>92</td>
+                            <td>18,450,000</td>
+                            <td>65%</td>
+                            <td>+8,700</td>
+                            <td>789.1</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>@CelebrityA</td>
+                            <td>980</td>
+                            <td>75</td>
+                            <td>22,300,000</td>
+                            <td>82%</td>
+                            <td>+25,400</td>
+                            <td>752.5</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>@SportsTeam</td>
+                            <td>875</td>
+                            <td>68</td>
+                            <td>12,450,000</td>
+                            <td>71%</td>
+                            <td>+5,200</td>
+                            <td>667.9</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>@MusicArtist</td>
+                            <td>820</td>
+                            <td>63</td>
+                            <td>19,800,000</td>
+                            <td>88%</td>
+                            <td>+18,900</td>
+                            <td>654.4</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>@FoodBrand</td>
+                            <td>780</td>
+                            <td>52</td>
+                            <td>8,950,000</td>
+                            <td>75%</td>
+                            <td>+3,800</td>
+                            <td>589.5</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>@InfluencerB</td>
+                            <td>745</td>
+                            <td>58</td>
+                            <td>11,200,000</td>
+                            <td>79%</td>
+                            <td>+9,500</td>
+                            <td>578.3</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>@BeautyCompany</td>
+                            <td>690</td>
+                            <td>45</td>
+                            <td>7,850,000</td>
+                            <td>81%</td>
+                            <td>+6,200</td>
+                            <td>532.7</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>@GamingBrand</td>
+                            <td>650</td>
+                            <td>49</td>
+                            <td>9,350,000</td>
+                            <td>68%</td>
+                            <td>+7,800</td>
+                            <td>501.2</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>@TravelCompany</td>
+                            <td>610</td>
+                            <td>38</td>
+                            <td>6,750,000</td>
+                            <td>85%</td>
+                            <td>+4,100</td>
+                            <td>478.5</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>@AutoBrand</td>
+                            <td>580</td>
+                            <td>42</td>
+                            <td>8,250,000</td>
+                            <td>72%</td>
+                            <td>+3,500</td>
+                            <td>456.8</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>@LifestyleBlog</td>
+                            <td>540</td>
+                            <td>35</td>
+                            <td>5,950,000</td>
+                            <td>77%</td>
+                            <td>+5,800</td>
+                            <td>423.5</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Data for charts - 减少数据量，只保留前6个
-        const mentionData = [
-            { account: '@BrandA', count: 15234, creators: 8123 },
-            { account: '@CelebrityX', count: 12876, creators: 7543 },
-            { account: '@CreatorZ', count: 10987, creators: 6876 },
-            { account: '@GameDevCo', count: 9876, creators: 5432 },
-            { account: '@FashionistaY', count: 8765, creators: 4321 },
-            { account: '@TechGuru', count: 7654, creators: 3210 }
-        ];
+        // Data for charts
+        const mentionData = {
+            accounts: ['@FashionBrand', '@TechGiant', '@CelebrityA', '@SportsTeam', '@MusicArtist', 
+                      '@FoodBrand', '@InfluencerB', '@BeautyCompany', '@GamingBrand', '@TravelCompany'],
+            mentionCounts: [1245, 1120, 980, 875, 820, 780, 745, 690, 650, 610],
+            highPlayVideos: [87, 92, 75, 68, 63, 52, 58, 45, 49, 38],
+            positiveSentiment: [78, 65, 82, 71, 88, 75, 79, 81, 68, 85]
+        };
 
-        // Bar Chart
-        const barCtx = document.getElementById('bar-chart').getContext('2d');
+        // Bar Chart - Top 10 Most Mentioned Accounts
+        const barCtx = document.getElementById('bar-chart-container').getContext('2d');
         new Chart(barCtx, {
             type: 'bar',
             data: {
-                labels: mentionData.map(d => d.account),
+                labels: mentionData.accounts,
                 datasets: [{
                     label: 'Mention Count',
-                    data: mentionData.map(d => d.count),
-                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    data: mentionData.mentionCounts,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 }]
@@ -280,351 +311,320 @@
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Mention Count'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return value >= 1000 ? value/1000 + 'k' : value;
-                            }
+                            text: 'Number of Mentions'
                         }
                     },
                     x: {
                         title: {
                             display: true,
-                            text: 'Accounts'
+                            text: 'Mentioned Accounts'
                         }
                     }
                 },
                 plugins: {
-                    legend: {
+                    title: {
                         display: true,
-                        position: 'top'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `Mentions: ${context.raw.toLocaleString()}`;
-                            }
-                        }
+                        text: 'Top 10 Most Mentioned Accounts'
                     }
                 }
             }
         });
 
-        // Network Graph - 丰富数据
-        const networkData = {
-            nodes: [
-                { id: 'BrandA', group: 1 },
-                { id: 'CelebrityX', group: 1 },
-                { id: 'CreatorZ', group: 1 },
-                { id: 'GameDevCo', group: 1 },
-                { id: 'FashionistaY', group: 1 },
-                { id: 'TechGuru', group: 1 },
-                { id: 'Creator1', group: 2 },
-                { id: 'Creator2', group: 2 },
-                { id: 'Creator3', group: 2 },
-                { id: 'Creator4', group: 2 },
-                { id: 'Creator5', group: 2 },
-                { id: 'Creator6', group: 2 },
-                { id: 'Creator7', group: 2 },
-                { id: 'Creator8', group: 3, description: '新兴创作者' }
-            ],
-            links: [
-                { source: 'Creator1', target: 'BrandA', value: 8, type: 'strong' },
-                { source: 'Creator2', target: 'BrandA', value: 6, type: 'medium' },
-                { source: 'Creator3', target: 'CelebrityX', value: 7, type: 'strong' },
-                { source: 'Creator4', target: 'CelebrityX', value: 5, type: 'medium' },
-                { source: 'Creator5', target: 'CreatorZ', value: 6, type: 'medium' },
-                { source: 'Creator1', target: 'CreatorZ', value: 4, type: 'medium' },
-                { source: 'Creator2', target: 'CelebrityX', value: 3, type: 'weak' },
-                { source: 'Creator6', target: 'GameDevCo', value: 7, type: 'strong' },
-                { source: 'Creator7', target: 'FashionistaY', value: 6, type: 'medium' },
-                { source: 'Creator8', target: 'TechGuru', value: 5, type: 'medium' },
-                { source: 'Creator3', target: 'GameDevCo', value: 4, type: 'weak' },
-                { source: 'Creator4', target: 'FashionistaY', value: 3, type: 'weak' },
-                { source: 'Creator5', target: 'TechGuru', value: 5, type: 'medium' },
-                { source: 'Creator6', target: 'BrandA', value: 2, type: 'weak' },
-                { source: 'Creator7', target: 'CreatorZ', value: 3, type: 'weak' }
-            ]
+        // Extended data for radar chart
+        const radarData = {
+            // Mention rate (normalized)
+            mentionRate: [100, 90, 79, 66],
+            // High-play videos percentage
+            highPlayVideosRate: [94.6, 100, 81.5, 68.5],
+            // Positive sentiment percentage
+            positiveSentiment: [78, 65, 82, 88],
+            // Engagement rate (likes + comments + shares / views) - normalized to 100
+            engagementRate: [85, 72, 93, 100],
+            // Negative sentiment percentage
+            negativeSentiment: [12, 25, 8, 5],
+            // Likes to comments ratio (normalized)
+            likesCommentsRatio: [70, 65, 100, 90]
         };
 
-        // Create Network Graph
-        const networkSvg = d3.select('#network-graph')
-            .append('svg')
-            .attr('width', '100%')
-            .attr('height', '100%')
-            .attr('viewBox', [0, 0, 800, 300]);
-
-        const simulation = d3.forceSimulation(networkData.nodes)
-            .force('link', d3.forceLink(networkData.links).id(d => d.id).distance(d => {
-                // 根据连接类型设置不同的距离
-                if (d.type === 'strong') return 80;
-                if (d.type === 'medium') return 120;
-                return 160; // weak
-            }))
-            .force('charge', d3.forceManyBody().strength(-300))
-            .force('center', d3.forceCenter(250, 135))
-            .force('x', d3.forceX(250).strength(0.08))
-            .force('y', d3.forceY(135).strength(0.08))
-            .force('collision', d3.forceCollide().radius(d => {
-                // 根据节点分组设置不同的碰撞半径
-                if (d.group === 1) return 15;
-                if (d.group === 2) return 12;
-                return 10;
-            }));
-
-        const link = networkSvg.append('g')
-            .selectAll('line')
-            .data(networkData.links)
-            .join('line')
-            .attr('stroke', d => {
-                if (d.type === 'strong') return '#ff7f0e';
-                if (d.type === 'medium') return '#1f77b4';
-                return '#999';
-            })
-            .attr('stroke-opacity', d => {
-                if (d.type === 'strong') return 0.8;
-                if (d.type === 'medium') return 0.6;
-                return 0.4;
-            })
-            .attr('stroke-width', d => Math.sqrt(d.value));
-            
-        link.append('title')
-            .text(d => `${d.source.id} → ${d.target.id}\n强度: ${d.value}`);
-
-        // 添加连接线的箭头标记
-        networkSvg.append('defs').selectAll('marker')
-            .data(['strong', 'medium', 'weak'])
-            .join('marker')
-            .attr('id', d => `arrow-${d}`)
-            .attr('viewBox', '0 -5 10 10')
-            .attr('refX', 25)
-            .attr('refY', 0)
-            .attr('markerWidth', 6)
-            .attr('markerHeight', 6)
-            .attr('orient', 'auto')
-            .append('path')
-            .attr('fill', d => {
-                if (d === 'strong') return '#ff7f0e';
-                if (d === 'medium') return '#1f77b4';
-                return '#999';
-            })
-            .attr('d', 'M0,-5L10,0L0,5');
-
-        // 更新连接线，添加箭头
-        link.attr('marker-end', d => `url(#arrow-${d.type})`);
-
-        // 创建节点组，包含圆圈和光晕效果
-        const nodeGroup = networkSvg.append('g')
-            .selectAll('g')
-            .data(networkData.nodes)
-            .join('g');
-            
-        // 添加节点光晕
-        nodeGroup.append('circle')
-            .attr('r', d => {
-                if (d.group === 1) return 16;
-                if (d.group === 2) return 12;
-                return 10;
-            })
-            .attr('fill', d => {
-                if (d.group === 1) return '#ff7f0e';
-                if (d.group === 2) return '#1f77b4';
-                return '#2ca02c';
-            })
-            .attr('opacity', 0.3);
-            
-        // 添加节点主体
-        const node = nodeGroup.append('circle')
-            .attr('r', d => {
-                if (d.group === 1) return 12;
-                if (d.group === 2) return 8;
-                return 6;
-            })
-            .attr('fill', d => {
-                if (d.group === 1) return '#ff7f0e';
-                if (d.group === 2) return '#1f77b4';
-                return '#2ca02c';
-            })
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 1.5)
-            .call(drag(simulation));
-
-        // 添加更详细的节点提示信息
-        node.append('title')
-            .text(d => {
-                const baseInfo = d.description ? `${d.id}\n${d.description}` : d.id;
-                return d.followers ? `${baseInfo}\n粉丝数: ${d.followers?.toLocaleString() || '未知'}` : baseInfo;
-            });
-
-        // 改进节点文本标签
-        const text = networkSvg.append('g')
-            .selectAll('text')
-            .data(networkData.nodes)
-            .join('text')
-            .text(d => d.id)
-            .attr('font-size', d => d.group === 1 ? 11 : 9)
-            .attr('font-weight', d => d.group === 1 ? 'bold' : 'normal')
-            .attr('dx', d => {
-                if (d.group === 1) return 14;
-                if (d.group === 2) return 10;
-                return 8;
-            })
-            .attr('dy', 4)
-            .attr('fill', d => {
-                if (d.group === 1) return '#d62728';
-                return '#333';
-            });
-
-        // 更新模拟的tick函数，包括节点组和文本
-        simulation.on('tick', () => {
-            // 确保节点不会超出边界
-            networkData.nodes.forEach(d => {
-                d.x = Math.max(20, Math.min(480, d.x));
-                d.y = Math.max(20, Math.min(250, d.y));
-            });
-            
-            // 更新连接线位置
-            link
-                .attr('x1', d => d.source.x)
-                .attr('y1', d => d.source.y)
-                .attr('x2', d => d.target.x)
-                .attr('y2', d => d.target.y);
-
-            // 更新节点组位置
-            nodeGroup
-                .attr('transform', d => `translate(${d.x}, ${d.y})`);
-
-            // 更新文本位置
-            text
-                .attr('x', d => d.x)
-                .attr('y', d => d.y);
+        // Radar Chart - Multi-dimensional Performance
+        const radarCtx = document.getElementById('radar-chart-container').getContext('2d');
+        new Chart(radarCtx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    'Mention Rate', 
+                    'High-play Videos Rate', 
+                    'Positive Sentiment (%)', 
+                    'Engagement Rate',
+                    'Negative Sentiment (%)',
+                    'Likes-Comments Ratio'
+                ],
+                datasets: [
+                    {
+                        label: '@FashionBrand',
+                        data: [
+                            radarData.mentionRate[0], 
+                            radarData.highPlayVideosRate[0], 
+                            radarData.positiveSentiment[0],
+                            radarData.engagementRate[0],
+                            radarData.negativeSentiment[0],
+                            radarData.likesCommentsRatio[0]
+                        ],
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)'
+                    },
+                    {
+                        label: '@TechGiant',
+                        data: [
+                            radarData.mentionRate[1], 
+                            radarData.highPlayVideosRate[1], 
+                            radarData.positiveSentiment[1],
+                            radarData.engagementRate[1],
+                            radarData.negativeSentiment[1],
+                            radarData.likesCommentsRatio[1]
+                        ],
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+                    },
+                    {
+                        label: '@CelebrityA',
+                        data: [
+                            radarData.mentionRate[2], 
+                            radarData.highPlayVideosRate[2], 
+                            radarData.positiveSentiment[2],
+                            radarData.engagementRate[2],
+                            radarData.negativeSentiment[2],
+                            radarData.likesCommentsRatio[2]
+                        ],
+                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                        borderColor: 'rgba(255, 206, 86, 1)',
+                        pointBackgroundColor: 'rgba(255, 206, 86, 1)'
+                    },
+                    {
+                        label: '@MusicArtist',
+                        data: [
+                            radarData.mentionRate[3], 
+                            radarData.highPlayVideosRate[3], 
+                            radarData.positiveSentiment[3],
+                            radarData.engagementRate[3],
+                            radarData.negativeSentiment[3],
+                            radarData.likesCommentsRatio[3]
+                        ],
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 100,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Multi-dimensional Performance Comparison'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw;
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
         });
 
-        function drag(simulation) {
-            function dragstarted(event) {
-                if (!event.active) simulation.alphaTarget(0.3).restart();
-                event.subject.fx = event.subject.x;
-                event.subject.fy = event.subject.y;
-            }
+        // Sankey Diagram - Mention Flow
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sankey diagram data
+            const sankeyData = {
+                nodes: [
+                    // Creator follower levels
+                    { name: "Mega Creators (10M+)" },
+                    { name: "Macro Creators (1M-10M)" },
+                    { name: "Mid-tier Creators (100K-1M)" },
+                    { name: "Micro Creators (10K-100K)" },
+                    // Top mentioned accounts
+                    { name: "@FashionBrand" },
+                    { name: "@TechGiant" },
+                    { name: "@CelebrityA" },
+                    { name: "@MusicArtist" },
+                    { name: "@SportsTeam" }
+                ],
+                links: [
+                    // Links from creator levels to mentioned accounts
+                    { source: 0, target: 4, value: 350 },
+                    { source: 0, target: 5, value: 280 },
+                    { source: 0, target: 6, value: 420 },
+                    { source: 0, target: 7, value: 310 },
+                    { source: 0, target: 8, value: 180 },
+                    
+                    { source: 1, target: 4, value: 420 },
+                    { source: 1, target: 5, value: 390 },
+                    { source: 1, target: 6, value: 280 },
+                    { source: 1, target: 7, value: 250 },
+                    { source: 1, target: 8, value: 320 },
+                    
+                    { source: 2, target: 4, value: 280 },
+                    { source: 2, target: 5, value: 320 },
+                    { source: 2, target: 6, value: 180 },
+                    { source: 2, target: 7, value: 150 },
+                    { source: 2, target: 8, value: 220 },
+                    
+                    { source: 3, target: 4, value: 195 },
+                    { source: 3, target: 5, value: 130 },
+                    { source: 3, target: 6, value: 100 },
+                    { source: 3, target: 7, value: 110 },
+                    { source: 3, target: 8, value: 155 }
+                ]
+            };
+
+            // Set up dimensions for the Sankey diagram
+            const width = document.getElementById('sankey-diagram-container').clientWidth;
+            const height = 400;
+
+            // Create SVG
+            const svg = d3.select("#sankey-diagram-container")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+            // Create Sankey generator
+            const sankey = d3.sankey()
+                .nodeWidth(15)
+                .nodePadding(10)
+                .extent([[1, 1], [width - 1, height - 5]]);
+
+            // Generate the Sankey data
+            const { nodes, links } = sankey({
+                nodes: sankeyData.nodes.map(d => Object.assign({}, d)),
+                links: sankeyData.links.map(d => Object.assign({}, d))
+            });
+
+            // Define color scales for better visual distinction
+            const creatorColors = d3.scaleOrdinal()
+                .domain(["Mega Creators (10M+)", "Macro Creators (1M-10M)", "Mid-tier Creators (100K-1M)", "Micro Creators (10K-100K)"])
+                .range(["#4287f5", "#42c5f5", "#42f5e3", "#42f5a7"]);
+                
+            const brandColors = d3.scaleOrdinal()
+                .domain(["@FashionBrand", "@TechGiant", "@CelebrityA", "@MusicArtist", "@SportsTeam"])
+                .range(["#f54242", "#f59642", "#f5e642", "#c8f542", "#42f56f"]);
             
-            function dragged(event) {
-                event.subject.fx = event.x;
-                event.subject.fy = event.y;
-            }
+            // Color function for nodes
+            const nodeColor = (d) => {
+                if (d.name.startsWith("@")) {
+                    return brandColors(d.name);
+                } else {
+                    return creatorColors(d.name);
+                }
+            };
             
-            function dragended(event) {
-                if (!event.active) simulation.alphaTarget(0);
-                event.subject.fx = null;
-                event.subject.fy = null;
-            }
-            
-            return d3.drag()
-                .on('start', dragstarted)
-                .on('drag', dragged)
-                .on('end', dragended);
-        }
+            // Create gradient for links
+            const gradientLinks = (d) => {
+                // Create unique gradient ID
+                const gradientId = `link-gradient-${d.index}`;
+                
+                // Create gradient definition
+                const gradient = svg.append("defs")
+                    .append("linearGradient")
+                    .attr("id", gradientId)
+                    .attr("gradientUnits", "userSpaceOnUse")
+                    .attr("x1", d.source.x1)
+                    .attr("x2", d.target.x0);
+                    
+                gradient.append("stop")
+                    .attr("offset", "0%")
+                    .attr("stop-color", nodeColor(d.source));
+                    
+                gradient.append("stop")
+                    .attr("offset", "100%")
+                    .attr("stop-color", nodeColor(d.target));
+                    
+                return `url(#${gradientId})`;
+            };
 
-        // Sankey Diagram - 丰富数据
-        const sankeyData = {
-            nodes: [
-                { name: 'Creator1', category: '顶级创作者' },
-                { name: 'Creator2', category: '顶级创作者' },
-                { name: 'Creator3', category: '顶级创作者' },
-                { name: 'Creator4', category: '中等创作者' },
-                { name: 'Creator5', category: '中等创作者' },
-                { name: 'Creator6', category: '新兴创作者' },
-                { name: 'BrandA', category: '品牌' },
-                { name: 'CelebrityX', category: '名人' },
-                { name: 'CreatorZ', category: '创作者' },
-                { name: 'GameDevCo', category: '游戏公司' },
-                { name: 'FashionistaY', category: '时尚博主' },
-                { name: 'TechGuru', category: '科技博主' }
-            ],
-            links: [
-                { source: 0, target: 6, value: 8500, type: '合作' },
-                { source: 1, target: 6, value: 6200, type: '合作' },
-                { source: 2, target: 7, value: 7300, type: '挑战' },
-                { source: 3, target: 7, value: 4800, type: '挑战' },
-                { source: 4, target: 8, value: 5600, type: '评论' },
-                { source: 0, target: 8, value: 3200, type: '评论' },
-                { source: 1, target: 7, value: 2800, type: '挑战' },
-                { source: 5, target: 9, value: 4100, type: '合作' },
-                { source: 3, target: 10, value: 3700, type: '评论' },
-                { source: 4, target: 11, value: 4200, type: '合作' },
-                { source: 2, target: 9, value: 2500, type: '评论' },
-                { source: 5, target: 10, value: 1900, type: '挑战' },
-                { source: 0, target: 11, value: 2200, type: '评论' }
-            ]
-        };
+            // Create node groups
+            const node = svg.append("g")
+                .selectAll(".node")
+                .data(nodes)
+                .join("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-        // Create Sankey Diagram
-        const sankeySvg = d3.select('#sankey-diagram')
-            .append('svg')
-            .attr('width', '100%')
-            .attr('height', '100%')
-            .attr('viewBox', [0, 0, 800, 300]);
+            // Add rectangles to nodes with enhanced colors
+            node.append("rect")
+                .attr("height", d => d.y1 - d.y0)
+                .attr("width", d => d.x1 - d.x0)
+                .attr("fill", d => nodeColor(d))
+                .attr("stroke", d => d3.rgb(nodeColor(d)).darker(0.5))
+                .attr("stroke-width", 1)
+                .attr("opacity", 0.9)
+                .on("mouseover", function() {
+                    d3.select(this)
+                        .attr("opacity", 1)
+                        .attr("stroke-width", 2);
+                })
+                .on("mouseout", function() {
+                    d3.select(this)
+                        .attr("opacity", 0.9)
+                        .attr("stroke-width", 1);
+                })
+                .append("title")
+                .text(d => `${d.name}\n${d.value}`);
 
-        const sankey = d3.sankey()
-            .nodeWidth(15)
-            .nodePadding(10)
-            .extent([[1, 1], [500, 269]]);
+            // Add node labels with improved styling
+            node.append("text")
+                .attr("x", d => d.x0 < width / 2 ? 6 + (d.x1 - d.x0) : -6)
+                .attr("y", d => (d.y1 - d.y0) / 2)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+                .text(d => d.name)
+                .attr("font-size", "11px")
+                .attr("font-weight", "bold")
+                .attr("fill", d => d3.rgb(nodeColor(d)).darker(2));
 
-        const { nodes, links } = sankey(sankeyData);
-
-        sankeySvg.append('g')
-            .selectAll('rect')
-            .data(nodes)
-            .join('rect')
-            .attr('x', d => d.x0)
-            .attr('y', d => d.y0)
-            .attr('height', d => d.y1 - d.y0)
-            .attr('width', d => d.x1 - d.x0)
-            .attr('fill', d => {
-                if (d.category === '品牌' || d.category === '名人') return '#ff7f0e';
-                if (d.category === '创作者' || d.category === '游戏公司') return '#1f77b4';
-                if (d.category === '时尚博主') return '#d62728';
-                if (d.category === '科技博主') return '#2ca02c';
-                if (d.category === '顶级创作者') return '#9467bd';
-                if (d.category === '中等创作者') return '#8c564b';
-                return '#e377c2';
-            })
-            .attr('opacity', 0.85)
-            .attr('stroke', '#fff')
-            .attr('stroke-width', 0.5)
-            .append('title')
-            .text(d => `${d.name}\n类别: ${d.category}\n流量: ${d.value.toLocaleString()}`);
-
-        sankeySvg.append('g')
-            .attr('fill', 'none')
-            .selectAll('g')
-            .data(links)
-            .join('path')
-            .attr('d', d3.sankeyLinkHorizontal())
-            .attr('stroke', d => {
-                if (d.type === '合作') return '#ff7f0e';
-                if (d.type === '挑战') return '#1f77b4';
-                return '#2ca02c';
-            })
-            .attr('stroke-width', d => Math.max(1, d.width))
-            .attr('stroke-opacity', 0.6)
-            .style('mix-blend-mode', 'multiply')
-            .append('title')
-            .text(d => `${d.source.name} → ${d.target.name}\n类型: ${d.type}\n流量: ${d.value.toLocaleString()}`);
-
-        sankeySvg.append('g')
-            .style('font', '9px sans-serif')
-            .selectAll('text')
-            .data(nodes)
-            .join('text')
-            .attr('x', d => d.x0 < 250 ? d.x1 + 6 : d.x0 - 6)
-            .attr('y', d => (d.y1 + d.y0) / 2)
-            .attr('dy', '0.35em')
-            .attr('text-anchor', d => d.x0 < 250 ? 'start' : 'end')
-            .attr('fill', '#333')
-            .text(d => d.name)
-            .append('title')
-            .text(d => `${d.name}\n类别: ${d.category}`);
+            // Create link paths with gradients and interactivity
+            const link = svg.append("g")
+                .attr("fill", "none")
+                .selectAll(".link")
+                .data(links)
+                .join("path")
+                .attr("class", "link")
+                .attr("d", d3.sankeyLinkHorizontal())
+                .attr("stroke", gradientLinks)
+                .attr("stroke-width", d => Math.max(1, d.width))
+                .attr("opacity", 0.7)
+                .on("mouseover", function() {
+                    d3.select(this)
+                        .attr("opacity", 0.9)
+                        .attr("stroke-width", d => Math.max(1, d.width + 2));
+                })
+                .on("mouseout", function() {
+                    d3.select(this)
+                        .attr("opacity", 0.7)
+                        .attr("stroke-width", d => Math.max(1, d.width));
+                })
+                .append("title")
+                .text(d => `${d.source.name} → ${d.target.name}\n${d.value}`);
+        });
     </script>
 </body>
 </html>
