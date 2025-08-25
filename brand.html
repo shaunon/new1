@@ -435,48 +435,139 @@
         // Donut Chart (Sentiment Analysis)
         const donutCtx = document.getElementById('donutChart').getContext('2d');
         
-        // Calculate average sentiment across all brands
-        const avgSentiment = {
-            positive: brandData.reduce((sum, b) => sum + b.positiveMentions, 0) / brandData.length,
-            neutral: brandData.reduce((sum, b) => sum + b.neutralMentions, 0) / brandData.length,
-            negative: brandData.reduce((sum, b) => sum + b.negativeMentions, 0) / brandData.length
-        };
-
-        new Chart(donutCtx, {
-            type: 'doughnut',
-            data: {
+        // Create a dropdown for brand selection
+        const donutChartSection = document.querySelector('.chart-section:nth-child(3)');
+        const brandSelectorContainer = document.createElement('div');
+        brandSelectorContainer.style.marginBottom = '15px';
+        brandSelectorContainer.style.display = 'flex';
+        brandSelectorContainer.style.alignItems = 'center';
+        brandSelectorContainer.style.justifyContent = 'flex-end';
+        
+        const brandSelectorLabel = document.createElement('label');
+        brandSelectorLabel.textContent = 'Select Brand: ';
+        brandSelectorLabel.style.marginRight = '10px';
+        brandSelectorLabel.style.fontWeight = '500';
+        
+        const brandSelector = document.createElement('select');
+        brandSelector.id = 'brand-sentiment-selector';
+        brandSelector.style.padding = '5px 10px';
+        brandSelector.style.borderRadius = '4px';
+        brandSelector.style.border = '1px solid #ddd';
+        
+        // Add "All Brands" option
+        const allBrandsOption = document.createElement('option');
+        allBrandsOption.value = 'all';
+        allBrandsOption.textContent = 'All Brands (Average)';
+        brandSelector.appendChild(allBrandsOption);
+        
+        // Add individual brand options
+        brandData.forEach(brand => {
+            const option = document.createElement('option');
+            option.value = brand.brandName;
+            option.textContent = brand.brandName;
+            brandSelector.appendChild(option);
+        });
+        
+        brandSelectorContainer.appendChild(brandSelectorLabel);
+        brandSelectorContainer.appendChild(brandSelector);
+        
+        // Insert the selector before the chart container
+        const chartContainer = donutChartSection.querySelector('.chart-container');
+        donutChartSection.insertBefore(brandSelectorContainer, chartContainer);
+        
+        // Initialize sentiment chart
+        let sentimentChart;
+        
+        function updateSentimentChart(selectedBrand) {
+            const sentimentData = {
                 labels: ['Positive', 'Neutral', 'Negative'],
-                datasets: [{
+                datasets: []
+            };
+            
+            const sentimentColors = {
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',  // Positive - Green
+                    'rgba(201, 203, 207, 0.7)', // Neutral - Gray
+                    'rgba(255, 99, 132, 0.7)'   // Negative - Red
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(201, 203, 207, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ]
+            };
+            
+            if (selectedBrand === 'all') {
+                // Calculate average sentiment across all brands
+                const avgSentiment = {
+                    positive: brandData.reduce((sum, b) => sum + b.positiveMentions, 0) / brandData.length,
+                    neutral: brandData.reduce((sum, b) => sum + b.neutralMentions, 0) / brandData.length,
+                    negative: brandData.reduce((sum, b) => sum + b.negativeMentions, 0) / brandData.length
+                };
+                
+                sentimentData.datasets.push({
+                    label: 'All Brands (Average)',
                     data: [avgSentiment.positive, avgSentiment.neutral, avgSentiment.negative],
-                    backgroundColor: [
-                        'rgba(75, 192, 192, 0.7)',
-                        'rgba(201, 203, 207, 0.7)',
-                        'rgba(255, 99, 132, 0.7)'
-                    ],
-                    borderColor: [
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(201, 203, 207, 1)',
-                        'rgba(255, 99, 132, 1)'
-                    ],
+                    backgroundColor: sentimentColors.backgroundColor,
+                    borderColor: sentimentColors.borderColor,
                     borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.label}: ${context.raw.toFixed(1)}%`;
+                });
+            } else {
+                // Get sentiment data for the selected brand
+                const brand = brandData.find(b => b.brandName === selectedBrand);
+                
+                sentimentData.datasets.push({
+                    label: brand.brandName,
+                    data: [brand.positiveMentions, brand.neutralMentions, brand.negativeMentions],
+                    backgroundColor: sentimentColors.backgroundColor,
+                    borderColor: sentimentColors.borderColor,
+                    borderWidth: 1
+                });
+            }
+            
+            // Destroy previous chart if it exists
+            if (sentimentChart) {
+                sentimentChart.destroy();
+            }
+            
+            // Create new chart
+            sentimentChart = new Chart(donutCtx, {
+                type: 'doughnut',
+                data: sentimentData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.raw.toFixed(1);
+                                    return `${context.label}: ${value}%`;
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: selectedBrand === 'all' ? 'Average Sentiment Across All Brands' : `Sentiment Analysis for ${selectedBrand}`,
+                            font: {
+                                size: 14
                             }
                         }
                     }
                 }
-            }
+            });
+        }
+        
+        // Initialize with all brands
+        updateSentimentChart('all');
+        
+        // Add event listener for brand selection change
+        brandSelector.addEventListener('change', function() {
+            updateSentimentChart(this.value);
         });
 
         // Scatter Plot
