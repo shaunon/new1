@@ -198,19 +198,184 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
     <script>
-        // 加载JSON数据
-        fetch('/Users/shaun/Documents/代码原型/DOCTYPE html.files/test_influencer_report_20250822_193645.json')
-            .then(response => response.json())
-            .then(data => {
-                console.log('数据加载成功:', data);
-                if (data && !data.error) {
-                    renderInfluencerProfile(data);
-                    if (data.profile && data.profile.audience) {
-                        renderAudienceData(data.profile.audience);
-                    }
+        // 直接嵌入JSON数据
+        const influencerData = {
+            "error": false,
+            "profile": {
+                "userId": "1662424886",
+                "profile": {
+                    "fullname": "Cedra Ammara",
+                    "username": "cedrabeauty",
+                    "url": "https://www.instagram.com/cedrabeauty",
+                    "picture": "https://imgigp.modash.io/v2?mb0KwpL92uYofJiSjDn1%2F6peL1lBwv3s%2BUvShHERlDbGeCY4WbaUvEZ8r8Z%2B4khbBT7PY0TA2IwU6hklVrTcLA5ncqDZ6wlgnUa%2FzxKfmsozYu2gVw1aMZKHqQ0VsbC8Xt%2FYzeksBPYLUknr5ild2A%3D%3D",
+                    "followers": 7326270,
+                    "engagementRate": 0.145712,
+                    "engagements": 1114274,
+                    "avgLikes": 1114274,
+                    "avgComments": 13393
+                },
+                "isPrivate": false,
+                "isVerified": true,
+                "city": "Dubai",
+                "country": "AE",
+                "language": {
+                    "code": "ar",
+                    "name": "Arabic"
+                },
+                "gender": "FEMALE",
+                "bio": "•Dubai\n•Beauty & lifestyle",
+                "audience": {
+                    "languages": [
+                        {
+                            "code": "ar",
+                            "name": "Arabic",
+                            "weight": 0.720539
+                        },
+                        {
+                            "code": "en",
+                            "name": "English",
+                            "weight": 0.188034
+                        },
+                        {
+                            "code": "fr",
+                            "name": "French",
+                            "weight": 0.037037
+                        },
+                        {
+                            "code": "arz",
+                            "name": "Arabic (Egyptian)",
+                            "weight": 0.010878
+                        },
+                        {
+                            "code": "tr",
+                            "name": "Turkish",
+                            "weight": 0.007252
+                        }
+                    ],
+                    "ethnicities": [
+                        {
+                            "code": "african_american",
+                            "name": "African American",
+                            "weight": 0.025624
+                        },
+                        {
+                            "code": "white",
+                            "name": "White / Caucasian",
+                            "weight": 0.888296
+                        },
+                        {
+                            "code": "asian",
+                            "name": "Asian",
+                            "weight": 0.085413
+                        },
+                        {
+                            "code": "hispanic",
+                            "name": "Hispanic",
+                            "weight": 0.000667
+                        }
+                    ],
+                    "credibility": 0.7238,
+                    "notable": 0.0742,
+                    "genders": [
+                        {
+                            "code": "FEMALE",
+                            "weight": 0.766484
+                        },
+                        {
+                            "code": "MALE",
+                            "weight": 0.233516
+                        }
+                    ],
+                    "geoCities": [
+                        {
+                            "name": "Baghdad",
+                            "weight": 0.046667,
+                            "country": "Iraq"
+                        },
+                        {
+                            "name": "Jeddah",
+                            "weight": 0.024,
+                            "country": "Saudi Arabia"
+                        },
+                        {
+                            "name": "Istanbul",
+                            "weight": 0.022667,
+                            "country": "Turkey"
+                        },
+                        {
+                            "name": "Riyadh",
+                            "weight": 0.019333,
+                            "country": "Saudi Arabia"
+                        },
+                        {
+                            "name": "Algiers",
+                            "weight": 0.018,
+                            "country": "Algeria"
+                        },
+                        {
+                            "name": "Casablanca",
+                            "weight": 0.016667,
+                            "country": "Morocco"
+                        },
+                        {
+                            "name": "Dubai",
+                            "weight": 0.012667,
+                            "country": "United Arab Emirates"
+                        },
+                        {
+                            "name": "Basra",
+                            "weight": 0.012,
+                            "country": "Iraq"
+                        },
+                        {
+                            "name": "Mecca",
+                            "weight": 0.010667,
+                            "country": "Saudi Arabia"
+                        },
+                        {
+                            "name": "Oran",
+                            "weight": 0.01,
+                            "country": "Algeria"
+                        }
+                    ],
+                    "geoCountries": [
+                        {
+                            "name": "Iraq",
+                            "code": "IQ",
+                            "weight": 0.109333
+                        },
+                        {
+                            "name": "Saudi Arabia",
+                            "code": "SA",
+                            "weight": 0.106667
+                        },
+                        {
+                            "name": "Morocco",
+                            "code": "MA",
+                            "weight": 0.095333
+                        },
+                        {
+                            "name": "Algeria",
+                            "code": "DZ",
+                            "weight": 0.079333
+                        },
+                        {
+                            "name": "Tunisia",
+                            "code": "TN",
+                            "weight": 0.063333
+                        }
+                    ]
                 }
-            })
-            .catch(error => console.error('获取数据失败:', error));
+            }
+        };
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            renderInfluencerProfile(influencerData);
+            if (influencerData.profile && influencerData.profile.audience) {
+                renderAudienceData(influencerData.profile.audience);
+            }
+        });
 
         // 渲染达人基本资料
         function renderInfluencerProfile(data) {
