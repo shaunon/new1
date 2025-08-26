@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网红粉丝画像分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 10px 10px;
+        }
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            background-color: #f1f5f9;
+            border-bottom: none;
+            font-weight: bold;
+        }
+        .stats-item {
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .stats-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #6a11cb;
+        }
+        .stats-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .progress {
+            height: 20px;
+            margin-bottom: 10px;
+        }
+        .progress-bar {
+            background-color: #6a11cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header text-center">
+            <h1>网红粉丝画像分析</h1>
+            <p class="lead">基于社交媒体数据的详细分析报告</p>
+        </div>
+
+        <div class="row" id="profile-section">
+            <!-- 达人基本信息 -->
+            <div class="col-md-4 text-center">
+                <img src="" alt="达人头像" class="profile-img mb-3" id="profile-img">
+                <h2 id="fullname"></h2>
+                <p id="username"></p>
+                <a href="#" id="profile-url" target="_blank" class="btn btn-primary mb-3">查看达人主页</a>
+                <div id="bio" class="mb-3"></div>
+            </div>
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="stats-item">
+                            <div class="stats-number" id="followers"></div>
+                            <div class="stats-label">粉丝数</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-item">
+                            <div class="stats-number" id="engagement-rate"></div>
+                            <div class="stats-label">互动率</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-item">
+                            <div class="stats-number" id="avg-likes"></div>
+                            <div class="stats-label">平均点赞</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">粉丝画像概览</div>
+                    <div class="card-body">
+                        <p class="lead text-center mb-4">以下是 <span id="influencer-name"></span> 的粉丝画像分析</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">粉丝性别分布</div>
+                    <div class="card-body">
+                        <canvas id="gendersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">粉丝种族分布</div>
+                    <div class="card-body">
+                        <canvas id="ethnicitiesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">粉丝语言分布</div>
+                    <div class="card-body">
+                        <canvas id="languagesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">粉丝国家分布</div>
+                    <div class="card-body">
+                        <canvas id="countriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">粉丝城市分布 (Top 10)</div>
+                    <div class="card-body">
+                        <div id="cities-container">
+                            <!-- 城市分布将通过JavaScript动态加载 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">粉丝可信度与知名度</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>粉丝可信度</h5>
+                                <div class="progress">
+                                    <div class="progress-bar" id="credibility-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <p id="credibility-text" class="text-center"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>粉丝知名度</h5>
+                                <div class="progress">
+                                    <div class="progress-bar" id="notable-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <p id="notable-text" class="text-center"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        // 加载JSON数据
+        fetch('/Users/shaun/Documents/代码原型/DOCTYPE html.files/test_influencer_report_20250822_193645.json')
+            .then(response => response.json())
+            .then(data => {
+                console.log('数据加载成功:', data);
+                if (data && !data.error) {
+                    renderInfluencerProfile(data);
+                    if (data.profile && data.profile.audience) {
+                        renderAudienceData(data.profile.audience);
+                    }
+                }
+            })
+            .catch(error => console.error('获取数据失败:', error));
+
+        // 渲染达人基本资料
+        function renderInfluencerProfile(data) {
+            const profile = data.profile;
+            if (!profile || !profile.profile) return;
+            
+            // 基本信息
+            document.getElementById('profile-img').src = profile.profile.picture;
+            document.getElementById('fullname').textContent = profile.profile.fullname;
+            document.getElementById('username').textContent = '@' + profile.profile.username;
+            document.getElementById('profile-url').href = profile.profile.url;
+            document.getElementById('bio').textContent = profile.bio;
+            document.getElementById('influencer-name').textContent = profile.profile.fullname;
+            
+            // 统计数据
+            document.getElementById('followers').textContent = formatNumber(profile.profile.followers);
+            document.getElementById('engagement-rate').textContent = (profile.profile.engagementRate * 100).toFixed(2) + '%';
+            document.getElementById('avg-likes').textContent = formatNumber(profile.profile.avgLikes);
+        }
+
+        // 渲染粉丝数据
+        function renderAudienceData(audience) {
+            console.log('渲染粉丝数据:', audience);
+            
+            // 渲染性别分布
+            if (audience && audience.genders && audience.genders.length > 0) {
+                renderGendersChart(audience.genders);
+            }
+            
+            // 渲染种族分布
+            if (audience && audience.ethnicities && audience.ethnicities.length > 0) {
+                renderEthnicitiesChart(audience.ethnicities);
+            }
+            
+            // 渲染语言分布
+            if (audience && audience.languages && audience.languages.length > 0) {
+                renderLanguagesChart(audience.languages);
+            }
+            
+            // 渲染国家分布
+            if (audience && audience.geoCountries && audience.geoCountries.length > 0) {
+                renderCountriesChart(audience.geoCountries);
+            }
+            
+            // 渲染城市分布
+            if (audience && audience.geoCities && audience.geoCities.length > 0) {
+                renderCitiesDistribution(audience.geoCities);
+            }
+            
+            // 渲染可信度和知名度
+            if (audience && audience.credibility !== undefined && audience.notable !== undefined) {
+                renderCredibilityAndNotable(audience.credibility, audience.notable);
+            }
+        }
+
+        // 格式化数字
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num;
+        }
+
+        // 渲染性别分布图表
+        function renderGendersChart(genders) {
+            const ctx = document.getElementById('gendersChart').getContext('2d');
+            const labels = genders.map(item => item.code === 'FEMALE' ? '女性' : item.code === 'MALE' ? '男性' : item.name);
+            const data = genders.map(item => item.weight * 100);
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染种族分布图表
+        function renderEthnicitiesChart(ethnicities) {
+            const ctx = document.getElementById('ethnicitiesChart').getContext('2d');
+            const labels = ethnicities.map(item => {
+                switch(item.code) {
+                    case 'african_american': return '非裔';
+                    case 'white': return '白人';
+                    case 'asian': return '亚裔';
+                    case 'hispanic': return '拉丁裔';
+                    default: return item.name || item.code;
+                }
+            });
+            const data = ethnicities.map(item => item.weight * 100);
+            
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9966']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染语言分布图表
+        function renderLanguagesChart(languages) {
+            const ctx = document.getElementById('languagesChart').getContext('2d');
+            // 只取前5种语言
+            const topLanguages = languages.slice(0, 5);
+            const labels = topLanguages.map(item => item.name || item.code);
+            const data = topLanguages.map(item => item.weight * 100);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '语言分布 (%)',
+                        data: data,
+                        backgroundColor: '#6a11cb'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染国家分布图表
+        function renderCountriesChart(countries) {
+            const ctx = document.getElementById('countriesChart').getContext('2d');
+            // 只取前5个国家
+            const topCountries = countries.slice(0, 5);
+            const labels = topCountries.map(item => item.name || item.code);
+            const data = topCountries.map(item => item.weight * 100);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '国家分布 (%)',
+                        data: data,
+                        backgroundColor: '#2575fc'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染城市分布
+        function renderCitiesDistribution(cities) {
+            const container = document.getElementById('cities-container');
+            container.innerHTML = '';
+            
+            // 只取前10个城市
+            const topCities = cities.slice(0, 10);
+            
+            topCities.forEach(city => {
+                const row = document.createElement('div');
+                row.classList.add('mb-2');
+                
+                const cityName = city.name || city.code || '未知城市';
+                const countryName = city.country || '';
+                const percentage = (city.weight * 100).toFixed(1);
+                
+                const content = `
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>${cityName}${countryName ? ', ' + countryName : ''}</span>
+                        <span>${percentage}%</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: ${percentage}%" 
+                            aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                `;
+                
+                row.innerHTML = content;
+                container.appendChild(row);
+            });
+        }
+
+        // 渲染可信度和知名度
+        function renderCredibilityAndNotable(credibility, notable) {
+            const credibilityPercentage = (credibility * 100).toFixed(1);
+            const notablePercentage = (notable * 100).toFixed(1);
+            
+            // 设置进度条
+            document.getElementById('credibility-bar').style.width = credibilityPercentage + '%';
+            document.getElementById('credibility-bar').setAttribute('aria-valuenow', credibilityPercentage);
+            document.getElementById('credibility-text').textContent = credibilityPercentage + '%';
+            
+            document.getElementById('notable-bar').style.width = notablePercentage + '%';
+            document.getElementById('notable-bar').setAttribute('aria-valuenow', notablePercentage);
+            document.getElementById('notable-text').textContent = notablePercentage + '%';
+        }
+    </script>
+</body>
+</html>
