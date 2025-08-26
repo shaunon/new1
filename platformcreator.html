@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            max-width: 1900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            background-color: #f1f5f9;
+            border-bottom: none;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .chart-container {
+            position: relative;
+            height: 500px;
+            width: 100%;
+        }
+        .legend-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 15px 10px 0;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">Platform Distribution - Creator Follower Tiers (100% Stacked)</div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="stackedBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">Platform Creator Distribution Data Table</div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Platform</th>
+                                        <th>Total Creators</th>
+                                        <th>Mega (>10M)</th>
+                                        <th>Macro (1M-10M)</th>
+                                        <th>Mid-tier (100K-1M)</th>
+                                        <th>Micro (10K-100K)</th>
+                                        <th>Nano (<10K)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="platformTableBody">
+                                    <!-- Table data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for platform distribution by follower tiers
+        const platformData = [
+            { 
+                platform: "YouTube", 
+                totalCreators: 1250000,
+                mega: 2500,
+                macro: 35000,
+                midTier: 185000,
+                micro: 427500,
+                nano: 600000
+            },
+            { 
+                platform: "Instagram", 
+                totalCreators: 1850000,
+                mega: 1800,
+                macro: 28000,
+                midTier: 220000,
+                micro: 650000,
+                nano: 950200
+            },
+            { 
+                platform: "TikTok", 
+                totalCreators: 2100000,
+                mega: 1200,
+                macro: 18000,
+                midTier: 180000,
+                micro: 700000,
+                nano: 1200800
+            },
+            { 
+                platform: "Twitch", 
+                totalCreators: 450000,
+                mega: 350,
+                macro: 8500,
+                midTier: 41150,
+                micro: 150000,
+                nano: 250000
+            },
+            { 
+                platform: "Twitter", 
+                totalCreators: 1600000,
+                mega: 1100,
+                macro: 22000,
+                midTier: 177000,
+                micro: 550000,
+                nano: 849900
+            },
+            { 
+                platform: "Facebook", 
+                totalCreators: 980000,
+                mega: 800,
+                macro: 14200,
+                midTier: 115000,
+                micro: 350000,
+                nano: 500000
+            },
+            { 
+                platform: "LinkedIn", 
+                totalCreators: 420000,
+                mega: 200,
+                macro: 5000,
+                midTier: 45000,
+                micro: 120000,
+                nano: 249800
+            },
+            { 
+                platform: "Pinterest", 
+                totalCreators: 380000,
+                mega: 150,
+                macro: 3500,
+                midTier: 36350,
+                micro: 140000,
+                nano: 200000
+            },
+            { 
+                platform: "Snapchat", 
+                totalCreators: 520000,
+                mega: 300,
+                macro: 7000,
+                midTier: 52700,
+                micro: 160000,
+                nano: 300000
+            },
+            { 
+                platform: "Douyin", 
+                totalCreators: 1750000,
+                mega: 1500,
+                macro: 25000,
+                midTier: 173500,
+                micro: 550000,
+                nano: 1000000
+            },
+            { 
+                platform: "Kuaishou", 
+                totalCreators: 1450000,
+                mega: 1200,
+                macro: 21000,
+                midTier: 157800,
+                micro: 470000,
+                nano: 800000
+            },
+            { 
+                platform: "Bilibili", 
+                totalCreators: 850000,
+                mega: 600,
+                macro: 12000,
+                midTier: 87400,
+                micro: 250000,
+                nano: 500000
+            }
+        ];
+
+        // Populate the table
+        function populateTable() {
+            const tableBody = document.getElementById('platformTableBody');
+            platformData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.platform}</td>
+                    <td>${item.totalCreators.toLocaleString()}</td>
+                    <td>${item.mega.toLocaleString()} (${((item.mega / item.totalCreators) * 100).toFixed(1)}%)</td>
+                    <td>${item.macro.toLocaleString()} (${((item.macro / item.totalCreators) * 100).toFixed(1)}%)</td>
+                    <td>${item.midTier.toLocaleString()} (${((item.midTier / item.totalCreators) * 100).toFixed(1)}%)</td>
+                    <td>${item.micro.toLocaleString()} (${((item.micro / item.totalCreators) * 100).toFixed(1)}%)</td>
+                    <td>${item.nano.toLocaleString()} (${((item.nano / item.totalCreators) * 100).toFixed(1)}%)</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Create 100% stacked bar chart
+        function createStackedBarChart() {
+            const ctx = document.getElementById('stackedBarChart').getContext('2d');
+            
+            // Prepare data for the chart
+            const platforms = platformData.map(item => item.platform);
+            
+            // Calculate percentages for each tier
+            const megaPercentages = platformData.map(item => (item.mega / item.totalCreators) * 100);
+            const macroPercentages = platformData.map(item => (item.macro / item.totalCreators) * 100);
+            const midTierPercentages = platformData.map(item => (item.midTier / item.totalCreators) * 100);
+            const microPercentages = platformData.map(item => (item.micro / item.totalCreators) * 100);
+            const nanoPercentages = platformData.map(item => (item.nano / item.totalCreators) * 100);
+            
+            // Create the chart
+            const stackedBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: platforms,
+                    datasets: [
+                        {
+                            label: 'Mega (>10M)',
+                            data: megaPercentages,
+                            backgroundColor: '#FF6384',
+                            borderColor: '#FF6384',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Macro (1M-10M)',
+                            data: macroPercentages,
+                            backgroundColor: '#36A2EB',
+                            borderColor: '#36A2EB',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Mid-tier (100K-1M)',
+                            data: midTierPercentages,
+                            backgroundColor: '#FFCE56',
+                            borderColor: '#FFCE56',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Micro (10K-100K)',
+                            data: microPercentages,
+                            backgroundColor: '#4BC0C0',
+                            borderColor: '#4BC0C0',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Nano (<10K)',
+                            data: nanoPercentages,
+                            backgroundColor: '#9966FF',
+                            borderColor: '#9966FF',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            max: 100,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                },
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y.toFixed(1);
+                                    return `${label}: ${value}%`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                padding: 20,
+                                boxWidth: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: function(context) {
+                                return context.dataset.data[context.dataIndex] > 5; // Only show labels for segments > 5%
+                            },
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 11
+                            },
+                            formatter: function(value) {
+                                return value > 5 ? value.toFixed(1) + '%' : '';
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            populateTable();
+            createStackedBarChart();
+        });
+    </script>
+</body>
+</html>
