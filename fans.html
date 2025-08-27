@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fan Tier Distribution Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            width: 1900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .chart {
+            width: 48%;
+            height: 400px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .section-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section-title">Fans (Fan Tier Distribution)</div>
+        
+        <div class="chart-container">
+            <div class="chart">
+                <canvas id="creatorsReachChart"></canvas>
+            </div>
+            <div class="chart">
+                <canvas id="engagementCostChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="section-title">Fan Tier Value Analysis</div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Fans Tier</th>
+                    <th>Follower Range</th>
+                    <th>Number of Creators</th>
+                    <th>Percentage</th>
+                    <th>Total Reach</th>
+                    <th>Avg. Engagement Rate</th>
+                    <th>Est. Cost Per Engagement (eCPE)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Mega Influencers</td>
+                    <td>10M+</td>
+                    <td>3,500</td>
+                    <td>1.4%</td>
+                    <td>125.8B</td>
+                    <td>1.2%</td>
+                    <td>$0.85</td>
+                </tr>
+                <tr>
+                    <td>Macro Influencers</td>
+                    <td>1M-10M</td>
+                    <td>32,000</td>
+                    <td>12.8%</td>
+                    <td>98.5B</td>
+                    <td>1.8%</td>
+                    <td>$0.65</td>
+                </tr>
+                <tr>
+                    <td>Mid-tier Influencers</td>
+                    <td>100K-1M</td>
+                    <td>78,500</td>
+                    <td>31.4%</td>
+                    <td>35.2B</td>
+                    <td>2.5%</td>
+                    <td>$0.42</td>
+                </tr>
+                <tr>
+                    <td>Micro Influencers</td>
+                    <td>10K-100K</td>
+                    <td>95,000</td>
+                    <td>38.0%</td>
+                    <td>4.8B</td>
+                    <td>4.2%</td>
+                    <td>$0.28</td>
+                </tr>
+                <tr>
+                    <td>Nano Influencers</td>
+                    <td>1K-10K</td>
+                    <td>35,000</td>
+                    <td>14.0%</td>
+                    <td>210M</td>
+                    <td>6.8%</td>
+                    <td>$0.15</td>
+                </tr>
+                <tr>
+                    <td>Emerging Creators</td>
+                    <td>500-1K</td>
+                    <td>3,800</td>
+                    <td>1.5%</td>
+                    <td>2.9M</td>
+                    <td>8.5%</td>
+                    <td>$0.08</td>
+                </tr>
+                <tr>
+                    <td>Hobby Creators</td>
+                    <td>100-500</td>
+                    <td>1,200</td>
+                    <td>0.5%</td>
+                    <td>420K</td>
+                    <td>9.2%</td>
+                    <td>$0.05</td>
+                </tr>
+                <tr>
+                    <td>Casual Creators</td>
+                    <td>50-100</td>
+                    <td>500</td>
+                    <td>0.2%</td>
+                    <td>35K</td>
+                    <td>10.5%</td>
+                    <td>$0.03</td>
+                </tr>
+                <tr>
+                    <td>Beginner Creators</td>
+                    <td>10-50</td>
+                    <td>300</td>
+                    <td>0.1%</td>
+                    <td>9K</td>
+                    <td>12.8%</td>
+                    <td>$0.02</td>
+                </tr>
+                <tr>
+                    <td>New Creators</td>
+                    <td><10</td>
+                    <td>200</td>
+                    <td>0.1%</td>
+                    <td>1.5K</td>
+                    <td>15.5%</td>
+                    <td>$0.01</td>
+                </tr>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td>-</td>
+                    <td><strong>250,000</strong></td>
+                    <td><strong>100%</strong></td>
+                    <td><strong>264.5B+</strong></td>
+                    <td><strong>7.3% (Avg.)</strong></td>
+                    <td><strong>$0.25 (Avg.)</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <button class="export-btn">Export to Google Sheets</button>
+    </div>
+
+    <script>
+        // Data for charts
+        const fanTiers = ['Mega (10M+)', 'Macro (1M-10M)', 'Mid-tier (100K-1M)', 'Micro (10K-100K)', 'Nano (1K-10K)', 'Emerging (500-1K)', 'Hobby (100-500)', 'Casual (50-100)', 'Beginner (10-50)', 'New (<10)'];
+        const creatorNumbers = [3500, 32000, 78500, 95000, 35000, 3800, 1200, 500, 300, 200];
+        const totalReach = [125.8, 98.5, 35.2, 4.8, 0.21, 0.0029, 0.00042, 0.000035, 0.000009, 0.0000015]; // In billions
+        const engagementRates = [1.2, 1.8, 2.5, 4.2, 6.8, 8.5, 9.2, 10.5, 12.8, 15.5];
+        const costPerEngagement = [0.85, 0.65, 0.42, 0.28, 0.15, 0.08, 0.05, 0.03, 0.02, 0.01];
+
+        // Chart 1: Creators vs Total Reach
+        const creatorsReachCtx = document.getElementById('creatorsReachChart').getContext('2d');
+        new Chart(creatorsReachCtx, {
+            type: 'bar',
+            data: {
+                labels: fanTiers,
+                datasets: [
+                    {
+                        label: 'Number of Creators',
+                        data: creatorNumbers,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Total Reach (Billions)',
+                        data: totalReach,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Creator Numbers vs Total Reach by Fan Tier',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Number of Creators'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Total Reach (Billions)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Engagement Rate vs eCPE
+        const engagementCostCtx = document.getElementById('engagementCostChart').getContext('2d');
+        new Chart(engagementCostCtx, {
+            type: 'bar',
+            data: {
+                labels: fanTiers,
+                datasets: [
+                    {
+                        label: 'Avg. Engagement Rate (%)',
+                        data: engagementRates,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Est. Cost Per Engagement ($)',
+                        data: costPerEngagement,
+                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Engagement Rate vs Cost Per Engagement by Fan Tier',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Engagement Rate (%)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Cost Per Engagement ($)'
+                        },
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Export button functionality (placeholder)
+        document.querySelector('.export-btn').addEventListener('click', function() {
+            alert('Exporting to Google Sheets functionality would be implemented here.');
+        });
+    </script>
+</body>
+</html>
