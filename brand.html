@@ -3,76 +3,801 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <title>Brand Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f0f2f5;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: white;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
             width: 1900px;
         }
+        
         .main-container {
+            max-width: 1850px;
+            margin: 0 auto;
+            padding: 30px 20px;
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            grid-template-columns: 1fr;
+            gap: 30px;
         }
+        
         .chart-section {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+        
+        .chart-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chart-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .chart-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        .chart-container {
+            height: 450px;
+            margin-bottom: 20px;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
         .full-width {
             grid-column: 1 / -1;
         }
-        .chart-title {
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-size: 1.3rem;
-            color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        .chart-container {
-            height: 500px;
-        }
+        
         .table-section {
-            grid-column: 1 / -1;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            overflow-x: auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
         }
+        
         table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
+             width: 100%;
+             border-collapse: collapse;
+             margin-top: 20px;
+             border-radius: 15px;
+             overflow: hidden;
+             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+             font-size: 0.9rem;
         }
-        th, td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #ddd;
-            font-size: 0.9rem;
+        
+        .brand-row {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        th {
-            background-color: #f8f9fa;
+        
+        .brand-row:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .brand-row.active {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        .brand-name {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .dropdown-arrow {
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+        
+        .brand-row.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .related-content {
+            display: none;
+            background-color: #f9f9f9;
+        }
+        
+         
+         th {
+             background: linear-gradient(135deg, #667eea, #764ba2);
+             color: white;
+             padding: 20px 15px;
+             text-align: left;
+             font-weight: 600;
+             font-size: 0.85rem;
+             position: sticky;
+             top: 0;
+             z-index: 10;
+             text-transform: uppercase;
+             letter-spacing: 0.5px;
+             border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+         }
+         
+         td {
+             padding: 18px 15px;
+             border-bottom: 1px solid #e2e8f0;
+             background: white;
+             transition: all 0.3s ease;
+             position: relative;
+         }
+         
+         tr:hover td {
+             background-color: #f7fafc;
+             transform: scale(1.01);
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+         }
+         
+         tr:nth-child(even) td {
+             background-color: #f8fafc;
+         }
+         
+         tr:nth-child(even):hover td {
+             background-color: #edf2f7;
+         }
+         
+         /* 数据单元格特殊样式 */
+         td:nth-child(2), td:nth-child(3), td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7) {
+             font-weight: 600;
+             color: #2d3748;
+         }
+         
+         /* 品牌名称样式 */
+         td:first-child {
+             font-weight: 700;
+             color: #667eea;
+             font-size: 1rem;
+             cursor: pointer;
+             position: relative;
+         }
+         
+         .brand-name {
+             display: flex;
+             align-items: center;
+             justify-content: space-between;
+             padding: 8px 12px;
+             border-radius: 6px;
+             transition: all 0.2s ease;
+             font-weight: 500;
+             background: rgba(102, 126, 234, 0.02);
+         }
+         
+         .brand-name:hover {
+             background: rgba(102, 126, 234, 0.08);
+             transform: translateY(-1px);
+         }
+         
+         .dropdown-arrow {
+             font-size: 12px;
+             color: #667eea;
+             transition: all 0.2s ease;
+             margin-left: 8px;
+             font-weight: bold;
+         }
+         
+         .brand-name:hover .dropdown-arrow {
+             color: #5a67d8;
+             transform: scale(1.1);
+         }
+         
+         .brand-dropdown {
+             position: absolute;
+             top: 100%;
+             left: 0;
+             right: 0;
+             background: white;
+             border: 1px solid #e2e8f0;
+             border-radius: 8px;
+             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+             z-index: 1000;
+             display: none;
+             max-height: 400px;
+             overflow-y: auto;
+         }
+         
+         .related-content {
+             display: none;
+             padding: 15px;
+             background-color: #f9f9f9;
+             border-top: 1px solid #eee;
+         }
+         
+         .related-content-grid {
+             display: flex;
+             flex-direction: column;
+             gap: 20px;
+         }
+         
+         .brand-row {
+             cursor: pointer;
+         }
+         
+         .brand-row.active {
+             background-color: #e3f2fd;
+         }
+         
+         @keyframes fadeInDown {
+             from {
+                 opacity: 0;
+                 transform: translateY(-10px);
+             }
+             to {
+                 opacity: 1;
+                 transform: translateY(0);
+             }
+         }
+         
+         .dropdown-section {
+             padding: 20px;
+             border-bottom: 1px solid #e2e8f0;
+         }
+         
+         .dropdown-section:last-child {
+             border-bottom: none;
+         }
+         
+         .dropdown-title {
+             font-weight: 700;
+             color: #2d3748;
+             margin-bottom: 15px;
+             font-size: 1.1rem;
+             text-transform: uppercase;
+             letter-spacing: 0.5px;
+             border-bottom: 2px solid #667eea;
+             padding-bottom: 8px;
+         }
+         
+         .content-grid {
+             display: grid;
+             grid-template-columns: repeat(5, 1fr);
+             gap: 15px;
+         }
+         
+         .content-card {
+             background: white;
+             border-radius: 12px;
+             overflow: hidden;
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+             transition: all 0.3s ease;
+             border: 1px solid #e2e8f0;
+         }
+         
+         .content-card:hover {
+             transform: translateY(-5px);
+             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+         }
+         
+         .content-thumbnail {
+             width: 100%;
+             height: 100px;
+             background: linear-gradient(135deg, #667eea, #764ba2);
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: white;
+             font-weight: bold;
+             font-size: 0.8rem;
+         }
+         
+         .content-details {
+             padding: 12px;
+         }
+         
+         .content-title {
+             font-weight: 600;
+             font-size: 0.85rem;
+             margin-bottom: 8px;
+             color: #2d3748;
+             display: -webkit-box;
+             -webkit-line-clamp: 2;
+             -webkit-box-orient: vertical;
+             overflow: hidden;
+             line-height: 1.3;
+         }
+         
+         .content-creator {
+             font-size: 0.75rem;
+             color: #667eea;
+             margin-bottom: 8px;
+             font-weight: 500;
+         }
+         
+         .content-stats {
+             display: flex;
+             flex-wrap: wrap;
+             gap: 8px;
+             font-size: 0.7rem;
+         }
+         
+         .content-stat {
+             display: flex;
+             align-items: center;
+             color: #718096;
+             background: #f7fafc;
+             padding: 2px 6px;
+             border-radius: 4px;
+         }
+         
+         .content-stat i {
+             margin-right: 3px;
+             font-size: 0.65rem;
+         }
+         
+         /* 百分比数据样式 */
+         td:nth-child(3), td:nth-child(7), td:nth-child(8), td:nth-child(9), td:nth-child(10) {
+             text-align: center;
+         }
+         
+         /* 数值数据样式 */
+         td:nth-child(2), td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(11) {
+             text-align: right;
+             font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+         }
+        
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+            margin-top: 20px;
+            border-radius: 15px;
+        }
+        
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .table-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+        
+        select {
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            margin-right: 15px;
+            font-size: 0.95rem;
+            background: white;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        select:hover {
+            border-color: #cbd5e0;
+        }
+        
+        label {
             font-weight: 600;
-            color: #555;
-            position: sticky;
-            top: 0;
-            white-space: nowrap;
+            color: #4a5568;
+            font-size: 0.95rem;
         }
-        tr:hover {
-            background-color: #f1f1f1;
+        
+        .brand-checkbox {
+            margin-right: 8px;
+            transform: scale(1.2);
+            accent-color: #667eea;
+        }
+        
+        .chart-controls {
+             display: flex;
+             align-items: center;
+             margin-bottom: 25px;
+             flex-wrap: wrap;
+             gap: 20px;
+             padding: 20px;
+             background: rgba(102, 126, 234, 0.05);
+             border-radius: 15px;
+             border: 1px solid rgba(102, 126, 234, 0.1);
+         }
+         
+         .control-group {
+             display: flex;
+             align-items: center;
+             gap: 10px;
+         }
+         
+         .brand-filter-section {
+             margin-bottom: 25px;
+             padding: 20px;
+             background: rgba(118, 75, 162, 0.05);
+             border-radius: 15px;
+             border: 1px solid rgba(118, 75, 162, 0.1);
+         }
+         
+         .filter-label {
+             display: block;
+             margin-bottom: 15px;
+             font-weight: 700;
+             color: #2d3748;
+             font-size: 1.1rem;
+         }
+         
+         .brand-checkboxes {
+             display: flex;
+             flex-wrap: wrap;
+             gap: 15px;
+         }
+         
+         .checkbox-item {
+             display: flex;
+             align-items: center;
+             padding: 8px 15px;
+             background: white;
+             border-radius: 25px;
+             border: 2px solid #e2e8f0;
+             transition: all 0.3s ease;
+             cursor: pointer;
+         }
+         
+         .checkbox-item:hover {
+             border-color: #667eea;
+             transform: translateY(-2px);
+             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+         }
+         
+         .checkbox-item label {
+              cursor: pointer;
+              margin-left: 5px;
+              font-weight: 500;
+          }
+          
+          /* 下拉选择框样式 */
+          select {
+              padding: 10px 15px;
+              border: 2px solid #e2e8f0;
+              border-radius: 10px;
+              background: white;
+              font-size: 0.9rem;
+              font-weight: 500;
+              color: #2d3748;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              outline: none;
+              appearance: none;
+              background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="%23666" d="M2 0L0 2h4zm0 5L0 3h4z"/></svg>');
+              background-repeat: no-repeat;
+              background-position: right 12px center;
+              background-size: 12px;
+              padding-right: 35px;
+          }
+          
+          select:hover {
+              border-color: #667eea;
+              box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+          }
+          
+          select:focus {
+              border-color: #667eea;
+              box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          }
+          
+          /* 复选框样式 */
+          input[type="checkbox"] {
+              width: 18px;
+              height: 18px;
+              border: 2px solid #e2e8f0;
+              border-radius: 4px;
+              background: white;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              appearance: none;
+              position: relative;
+          }
+          
+          input[type="checkbox"]:hover {
+              border-color: #667eea;
+              box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+          }
+          
+          input[type="checkbox"]:checked {
+              background: linear-gradient(135deg, #667eea, #764ba2);
+              border-color: #667eea;
+          }
+          
+          input[type="checkbox"]:checked::after {
+              content: '✓';
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              color: white;
+              font-size: 12px;
+              font-weight: bold;
+          }
+          
+          /* 标签样式优化 */
+          label {
+              font-size: 0.9rem;
+              color: #4a5568;
+              font-weight: 500;
+          }
+          
+          /* 控件组标签 */
+          .control-group label {
+              margin-right: 8px;
+              font-weight: 600;
+              color: #2d3748;
+          }
+          
+          /* 悬停效果增强 */
+          .control-group:hover {
+              transform: translateY(-1px);
+          }
+          
+          .brand-filter-section:hover {
+              box-shadow: 0 8px 25px rgba(118, 75, 162, 0.15);
+          }
+          
+          .chart-controls:hover {
+              box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+          }
+        
+        /* 动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        /* 应用动画 */
+        .page-header {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .chart-section {
+            animation: slideInLeft 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .chart-section:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        
+        .chart-section:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        
+        .chart-section:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+        
+        .table-section {
+            animation: fadeInUp 0.8s ease-out 0.4s;
+            animation-fill-mode: both;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .main-container {
+                padding: 25px 15px;
+                gap: 25px;
+            }
+            
+            .chart-section, .table-section {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px 15px;
+                gap: 20px;
+            }
+            
+            .chart-section, .table-section {
+                padding: 20px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .page-subtitle {
+                font-size: 1rem;
+            }
+            
+            .chart-title {
+                font-size: 1.5rem;
+            }
+            
+            .chart-container {
+                height: 350px;
+            }
+            
+            .chart-controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .control-group {
+                justify-content: space-between;
+            }
+            
+            .brand-checkboxes {
+                gap: 10px;
+            }
+            
+            .checkbox-item {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+            }
+            
+            th {
+                font-size: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 15px 10px;
+                gap: 15px;
+            }
+            
+            .chart-section, .table-section {
+                padding: 15px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .page-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+            
+            .chart-controls {
+                padding: 10px;
+            }
+            
+            .brand-filter-section {
+                padding: 15px;
+            }
+            
+            .brand-checkboxes {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .checkbox-item {
+                justify-content: center;
+            }
+            
+            table {
+                font-size: 0.7rem;
+            }
+            
+            th, td {
+                padding: 8px 4px;
+            }
+            
+            /* 隐藏部分列以适应小屏幕 */
+            th:nth-child(n+8), td:nth-child(n+8) {
+                display: none;
+            }
+        }
+        
+        /* 添加页面标题样式 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+        
+        .page-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            font-weight: 400;
         }
     </style>
 </head>
 <body>
+    
     <div class="main-container">
         <div class="chart-section full-width">
-            <h3 class="chart-title">Brand Share of Voice Over Time (Monthly)</h3>
+            <h3 class="chart-title">Brand Share of Voice Over Time</h3>
+            <div class="chart-controls">
+                <div class="control-group">
+                    <label>Time Period:</label>
+                    <select id="time-period-selector-1">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly" selected>Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+            </div>
             <div class="chart-container">
                 <canvas id="stackedBarChart"></canvas>
             </div>
@@ -80,6 +805,50 @@
 
         <div class="chart-section">
             <h3 class="chart-title">Brand Mentions Trend</h3>
+            <div class="chart-controls">
+                <div class="control-group">
+                    <label>Metric:</label>
+                    <select id="metric-selector">
+                        <option value="engagement">Engagement</option>
+                        <option value="videos">Works</option>
+                        <option value="creators">Creators</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Time Period:</label>
+                    <select id="time-period-selector-2">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly" selected>Monthly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                </div>
+            </div>
+            <div class="brand-filter-section">
+                <label class="filter-label">Brand Comparison:</label>
+                <div class="brand-checkboxes">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="brand-nike" class="brand-checkbox" value="Nike" checked>
+                        <label for="brand-nike">Nike</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="brand-adidas" class="brand-checkbox" value="Adidas" checked>
+                        <label for="brand-adidas">Adidas</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="brand-puma" class="brand-checkbox" value="Puma">
+                        <label for="brand-puma">Puma</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="brand-ua" class="brand-checkbox" value="Under Armour">
+                        <label for="brand-ua">Under Armour</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="brand-nb" class="brand-checkbox" value="New Balance">
+                        <label for="brand-nb">New Balance</label>
+                    </div>
+                </div>
+            </div>
             <div class="chart-container">
                 <canvas id="lineChart"></canvas>
             </div>
@@ -92,42 +861,113 @@
             </div>
         </div>
 
-        <div class="chart-section full-width">
-            <h3 class="chart-title">Brand Performance: Mentions vs. Engagement</h3>
-            <div class="chart-container">
-                <canvas id="scatterPlot"></canvas>
-            </div>
-        </div>
-
         <div class="table-section">
             <h3 class="chart-title">Brand Analysis Data</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Brand Name</th>
-                        <th>Mentions</th>
-                        <th>Share of Voice (%)</th>
-                        <th>Related Videos</th>
-                        <th>Total Views</th>
-                        <th>Total Engagement</th>
-                        <th>Avg. Engagement Rate</th>
-                        <th>Positive Mentions (%)</th>
-                        <th>Neutral Mentions (%)</th>
-                        <th>Negative Mentions (%)</th>
-                        <th>Unique Creators</th>
-                        <th>Top Mentioning Creator</th>
-                        <th>KOL vs UGC Ratio</th>
-                        <th>Main Associated Topics/Tags</th>
-                    </tr>
-                </thead>
-                <tbody id="brand-data-body">
-                    <!-- Data will be populated by JavaScript -->
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Brand Name</th>
+                            <th>Works</th>
+                            <th>Creators</th>
+                            <th>Engagement</th>
+                            <th>Views</th>
+                            <th>Top 3 Topics</th>
+                        </tr>
+                    </thead>
+                    <tbody id="brand-data-body">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
+        // Sample top works and creators data for each brand
+        const brandDetailsData = {
+            "Nike": {
+                topWorks: [
+                    { title: "Nike Air Max Revolution", views: "2.5M", engagement: "180K", creator: "SportsFanatic" },
+                    { title: "Just Do It Challenge", views: "1.8M", engagement: "145K", creator: "FitnessGuru" },
+                    { title: "Nike Basketball Highlights", views: "1.6M", engagement: "120K", creator: "CourtKing" },
+                    { title: "Running with Nike Zoom", views: "1.4M", engagement: "98K", creator: "RunningAddict" },
+                    { title: "Nike Style Guide 2024", views: "1.2M", engagement: "85K", creator: "UrbanStyler" }
+                ],
+                topCreators: [
+                    { name: "SportsFanatic", followers: "2.8M", engagement: "8.5%", videos: 45 },
+                    { name: "FitnessGuru", followers: "1.9M", engagement: "7.2%", videos: 32 },
+                    { name: "CourtKing", followers: "1.5M", engagement: "9.1%", videos: 28 },
+                    { name: "RunningAddict", followers: "1.2M", engagement: "6.8%", videos: 38 },
+                    { name: "UrbanStyler", followers: "980K", engagement: "7.9%", videos: 25 }
+                ]
+            },
+            "Adidas": {
+                topWorks: [
+                    { title: "Adidas Originals Street Style", views: "2.1M", engagement: "165K", creator: "UrbanStyler" },
+                    { title: "Football Skills with Adidas", views: "1.9M", engagement: "142K", creator: "FootballPro" },
+                    { title: "Three Stripes Fashion", views: "1.5M", engagement: "118K", creator: "StreetFashion" },
+                    { title: "Adidas Boost Technology", views: "1.3M", engagement: "95K", creator: "TechReviewer" },
+                    { title: "Adidas x Celebrity Collab", views: "1.1M", engagement: "88K", creator: "CelebWatch" }
+                ],
+                topCreators: [
+                    { name: "UrbanStyler", followers: "2.2M", engagement: "7.8%", videos: 38 },
+                    { name: "FootballPro", followers: "1.8M", engagement: "8.2%", videos: 42 },
+                    { name: "StreetFashion", followers: "1.4M", engagement: "6.9%", videos: 35 },
+                    { name: "TechReviewer", followers: "1.1M", engagement: "7.5%", videos: 28 },
+                    { name: "CelebWatch", followers: "950K", engagement: "8.8%", videos: 22 }
+                ]
+            },
+            "Puma": {
+                topWorks: [
+                    { title: "Puma Motorsport Collection", views: "1.8M", engagement: "135K", creator: "RacingFan" },
+                    { title: "Track and Field with Puma", views: "1.5M", engagement: "112K", creator: "TrackStar" },
+                    { title: "Puma Lifestyle Lookbook", views: "1.2M", engagement: "89K", creator: "StyleInfluencer" },
+                    { title: "Puma Training Gear Review", views: "1.0M", engagement: "76K", creator: "FitnessReview" },
+                    { title: "Puma x Athlete Collaboration", views: "950K", engagement: "68K", creator: "AthleteSpotlight" }
+                ],
+                topCreators: [
+                    { name: "TrackStar", followers: "1.6M", engagement: "8.1%", videos: 35 },
+                    { name: "RacingFan", followers: "1.3M", engagement: "7.4%", videos: 28 },
+                    { name: "StyleInfluencer", followers: "1.1M", engagement: "6.8%", videos: 32 },
+                    { name: "FitnessReview", followers: "890K", engagement: "7.9%", videos: 25 },
+                    { name: "AthleteSpotlight", followers: "750K", engagement: "8.5%", videos: 20 }
+                ]
+            },
+            "Under Armour": {
+                topWorks: [
+                    { title: "Under Armour Training Series", views: "1.4M", engagement: "105K", creator: "FitnessGuru" },
+                    { title: "Basketball Performance Gear", views: "1.2M", engagement: "92K", creator: "CourtKing" },
+                    { title: "Under Armour Tech Review", views: "1.0M", engagement: "78K", creator: "TechReviewer" },
+                    { title: "Athlete Recovery Tips", views: "850K", engagement: "65K", creator: "RecoveryExpert" },
+                    { title: "Under Armour Style Guide", views: "720K", engagement: "55K", creator: "SportStyle" }
+                ],
+                topCreators: [
+                    { name: "FitnessGuru", followers: "1.4M", engagement: "7.6%", videos: 30 },
+                    { name: "CourtKing", followers: "1.2M", engagement: "8.3%", videos: 25 },
+                    { name: "TechReviewer", followers: "980K", engagement: "7.1%", videos: 22 },
+                    { name: "RecoveryExpert", followers: "850K", engagement: "8.0%", videos: 28 },
+                    { name: "SportStyle", followers: "720K", engagement: "7.8%", videos: 18 }
+                ]
+            },
+            "New Balance": {
+                topWorks: [
+                    { title: "New Balance Running Revolution", views: "1.3M", engagement: "98K", creator: "RunningAddict" },
+                    { title: "Made in USA Collection", views: "1.1M", engagement: "85K", creator: "AmericanMade" },
+                    { title: "New Balance Lifestyle", views: "950K", engagement: "72K", creator: "CasualStyle" },
+                    { title: "Fresh Foam Technology", views: "820K", engagement: "62K", creator: "TechRunner" },
+                    { title: "New Balance Heritage", views: "750K", engagement: "58K", creator: "VintageVibes" }
+                ],
+                topCreators: [
+                    { name: "RunningAddict", followers: "1.3M", engagement: "8.2%", videos: 42 },
+                    { name: "AmericanMade", followers: "1.0M", engagement: "7.5%", videos: 28 },
+                    { name: "CasualStyle", followers: "890K", engagement: "6.9%", videos: 35 },
+                    { name: "TechRunner", followers: "750K", engagement: "8.1%", videos: 25 },
+                    { name: "VintageVibes", followers: "680K", engagement: "7.7%", videos: 22 }
+                ]
+            }
+        };
+
         // Sample data for brand analysis
         const brandData = [
             {
@@ -292,45 +1132,415 @@
             }
         ];
 
-        // Monthly data for stacked bar chart and line chart
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-        const monthlyData = {
-            Nike: [2000, 2200, 2100, 2300, 1900, 2000],
-            Adidas: [1600, 1700, 1650, 1550, 1700, 1600],
-            Puma: [850, 900, 850, 800, 900, 900],
-            'Under Armour': [700, 650, 700, 750, 650, 650],
-            'New Balance': [600, 650, 600, 650, 650, 650],
-            Reebok: [500, 450, 500, 500, 450, 500],
-            Asics: [350, 400, 350, 350, 400, 350],
-            Converse: [300, 350, 300, 350, 300, 300],
-            Vans: [250, 300, 250, 250, 300, 250],
-            Fila: [200, 200, 200, 200, 200, 200]
+        // Chart colors
+        const chartColors = [
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)',
+            'rgba(255, 206, 86, 0.7)',
+            'rgba(75, 192, 192, 0.7)',
+            'rgba(153, 102, 255, 0.7)',
+            'rgba(255, 159, 64, 0.7)',
+            'rgba(199, 199, 199, 0.7)',
+            'rgba(83, 102, 255, 0.7)',
+            'rgba(40, 159, 64, 0.7)',
+            'rgba(210, 105, 30, 0.7)'
+        ];
+
+        // Time period data for charts
+        const timePeriodsData = {
+            day: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                videos: {
+                    Nike: [320, 350, 380, 400, 420, 380, 350],
+                    Adidas: [280, 300, 320, 340, 360, 330, 310],
+                    Puma: [150, 160, 170, 180, 190, 170, 160],
+                    'Under Armour': [120, 130, 140, 150, 160, 140, 130],
+                    'New Balance': [100, 110, 120, 130, 140, 120, 110],
+                    Reebok: [90, 95, 100, 105, 110, 100, 95],
+                    Asics: [70, 75, 80, 85, 90, 80, 75],
+                    Converse: [60, 65, 70, 75, 80, 70, 65],
+                    Vans: [50, 55, 60, 65, 70, 60, 55],
+                    Fila: [40, 45, 50, 55, 60, 50, 45]
+                },
+                mentions: {
+                    Nike: [500, 550, 600, 650, 700, 600, 550],
+                    Adidas: [400, 450, 500, 550, 600, 500, 450],
+                    Puma: [200, 220, 240, 260, 280, 240, 220],
+                    'Under Armour': [180, 200, 220, 240, 260, 220, 200],
+                    'New Balance': [160, 180, 200, 220, 240, 200, 180],
+                    Reebok: [140, 150, 160, 170, 180, 160, 150],
+                    Asics: [100, 110, 120, 130, 140, 120, 110],
+                    Converse: [90, 100, 110, 120, 130, 110, 100],
+                    Vans: [80, 90, 100, 110, 120, 100, 90],
+                    Fila: [60, 70, 80, 90, 100, 80, 70]
+                },
+                engagement: {
+                    Nike: [50000, 55000, 60000, 65000, 70000, 60000, 55000],
+                    Adidas: [40000, 45000, 50000, 55000, 60000, 50000, 45000],
+                    Puma: [20000, 22000, 24000, 26000, 28000, 24000, 22000],
+                    'Under Armour': [18000, 20000, 22000, 24000, 26000, 22000, 20000],
+                    'New Balance': [16000, 18000, 20000, 22000, 24000, 20000, 18000],
+                    Reebok: [14000, 15000, 16000, 17000, 18000, 16000, 15000],
+                    Asics: [10000, 11000, 12000, 13000, 14000, 12000, 11000],
+                    Converse: [9000, 10000, 11000, 12000, 13000, 11000, 10000],
+                    Vans: [8000, 9000, 10000, 11000, 12000, 10000, 9000],
+                    Fila: [6000, 7000, 8000, 9000, 10000, 8000, 7000]
+                },
+                creators: {
+                    Nike: [100, 110, 120, 130, 140, 120, 110],
+                    Adidas: [90, 100, 110, 120, 130, 110, 100],
+                    Puma: [50, 55, 60, 65, 70, 60, 55],
+                    'Under Armour': [45, 50, 55, 60, 65, 55, 50],
+                    'New Balance': [40, 45, 50, 55, 60, 50, 45],
+                    Reebok: [35, 40, 45, 50, 55, 45, 40],
+                    Asics: [25, 30, 35, 40, 45, 35, 30],
+                    Converse: [20, 25, 30, 35, 40, 30, 25],
+                    Vans: [15, 20, 25, 30, 35, 25, 20],
+                    Fila: [10, 15, 20, 25, 30, 20, 15]
+                }
+            },
+            week: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                videos: {
+                    Nike: [2200, 2400, 2600, 2800],
+                    Adidas: [1800, 2000, 2200, 2400],
+                    Puma: [1000, 1100, 1200, 1300],
+                    'Under Armour': [800, 900, 1000, 1100],
+                    'New Balance': [700, 800, 900, 1000],
+                    Reebok: [600, 650, 700, 750],
+                    Asics: [500, 550, 600, 650],
+                    Converse: [400, 450, 500, 550],
+                    Vans: [350, 400, 450, 500],
+                    Fila: [300, 350, 400, 450]
+                },
+                mentions: {
+                    Nike: [3500, 3800, 4100, 4400],
+                    Adidas: [2800, 3100, 3400, 3700],
+                    Puma: [1500, 1700, 1900, 2100],
+                    'Under Armour': [1200, 1400, 1600, 1800],
+                    'New Balance': [1100, 1300, 1500, 1700],
+                    Reebok: [900, 1000, 1100, 1200],
+                    Asics: [700, 800, 900, 1000],
+                    Converse: [600, 700, 800, 900],
+                    Vans: [500, 600, 700, 800],
+                    Fila: [400, 500, 600, 700]
+                },
+                engagement: {
+                    Nike: [350000, 380000, 410000, 440000],
+                    Adidas: [280000, 310000, 340000, 370000],
+                    Puma: [150000, 170000, 190000, 210000],
+                    'Under Armour': [120000, 140000, 160000, 180000],
+                    'New Balance': [110000, 130000, 150000, 170000],
+                    Reebok: [90000, 100000, 110000, 120000],
+                    Asics: [70000, 80000, 90000, 100000],
+                    Converse: [60000, 70000, 80000, 90000],
+                    Vans: [50000, 60000, 70000, 80000],
+                    Fila: [40000, 50000, 60000, 70000]
+                },
+                creators: {
+                    Nike: [700, 750, 800, 850],
+                    Adidas: [600, 650, 700, 750],
+                    Puma: [350, 400, 450, 500],
+                    'Under Armour': [300, 350, 400, 450],
+                    'New Balance': [280, 320, 360, 400],
+                    Reebok: [250, 280, 310, 340],
+                    Asics: [180, 210, 240, 270],
+                    Converse: [160, 190, 220, 250],
+                    Vans: [140, 170, 200, 230],
+                    Fila: [120, 150, 180, 210]
+                }
+            },
+            month: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                videos: {
+                    Nike: [3200, 3400, 3300, 3500, 3100, 3200],
+                    Adidas: [2700, 2800, 2750, 2650, 2800, 2700],
+                    Puma: [1400, 1450, 1400, 1350, 1450, 1450],
+                    'Under Armour': [1100, 1050, 1100, 1150, 1050, 1050],
+                    'New Balance': [950, 1000, 950, 1000, 1000, 1000],
+                    Reebok: [780, 730, 780, 780, 730, 780],
+                    Asics: [580, 630, 580, 580, 630, 580],
+                    Converse: [520, 570, 520, 570, 520, 520],
+                    Vans: [450, 500, 450, 450, 500, 450],
+                    Fila: [320, 320, 320, 320, 320, 320]
+                },
+                mentions: {
+                    Nike: [2000, 2200, 2100, 2300, 1900, 2000],
+                    Adidas: [1600, 1700, 1650, 1550, 1700, 1600],
+                    Puma: [850, 900, 850, 800, 900, 900],
+                    'Under Armour': [700, 650, 700, 750, 650, 650],
+                    'New Balance': [600, 650, 600, 650, 650, 650],
+                    Reebok: [500, 450, 500, 500, 450, 500],
+                    Asics: [350, 400, 350, 350, 400, 350],
+                    Converse: [300, 350, 300, 350, 300, 300],
+                    Vans: [250, 300, 250, 250, 300, 250],
+                    Fila: [200, 200, 200, 200, 200, 200]
+                },
+                engagement: {
+                    Nike: [650000, 700000, 680000, 720000, 630000, 650000],
+                    Adidas: [500000, 530000, 520000, 490000, 530000, 500000],
+                    Puma: [300000, 320000, 300000, 290000, 320000, 320000],
+                    'Under Armour': [210000, 200000, 210000, 220000, 200000, 200000],
+                    'New Balance': [230000, 240000, 230000, 240000, 240000, 240000],
+                    Reebok: [170000, 160000, 170000, 170000, 160000, 170000],
+                    Asics: [120000, 130000, 120000, 120000, 130000, 120000],
+                    Converse: [140000, 150000, 140000, 150000, 140000, 140000],
+                    Vans: [110000, 120000, 110000, 110000, 120000, 110000],
+                    Fila: [70000, 70000, 70000, 70000, 70000, 70000]
+                },
+                creators: {
+                    Nike: [1850, 1900, 1880, 1920, 1830, 1850],
+                    Adidas: [1520, 1550, 1540, 1510, 1550, 1520],
+                    Puma: [980, 1000, 980, 970, 1000, 1000],
+                    'Under Armour': [720, 710, 720, 730, 710, 710],
+                    'New Balance': [680, 690, 680, 690, 690, 690],
+                    Reebok: [520, 510, 520, 520, 510, 520],
+                    Asics: [390, 400, 390, 390, 400, 390],
+                    Converse: [420, 430, 420, 430, 420, 420],
+                    Vans: [350, 360, 350, 350, 360, 350],
+                    Fila: [280, 280, 280, 280, 280, 280]
+                }
+            },
+            year: {
+                labels: ['2018', '2019', '2020', '2021', '2022', '2023'],
+                videos: {
+                    Nike: [28000, 30000, 32000, 35000, 38000, 40000],
+                    Adidas: [24000, 26000, 28000, 30000, 32000, 34000],
+                    Puma: [12000, 13000, 14000, 15000, 16000, 17000],
+                    'Under Armour': [10000, 11000, 12000, 13000, 14000, 15000],
+                    'New Balance': [9000, 10000, 11000, 12000, 13000, 14000],
+                    Reebok: [7000, 7500, 8000, 8500, 9000, 9500],
+                    Asics: [5000, 5500, 6000, 6500, 7000, 7500],
+                    Converse: [4500, 5000, 5500, 6000, 6500, 7000],
+                    Vans: [4000, 4500, 5000, 5500, 6000, 6500],
+                    Fila: [3000, 3500, 4000, 4500, 5000, 5500]
+                },
+                mentions: {
+                    Nike: [20000, 22000, 24000, 26000, 28000, 30000],
+                    Adidas: [16000, 18000, 20000, 22000, 24000, 26000],
+                    Puma: [8000, 9000, 10000, 11000, 12000, 13000],
+                    'Under Armour': [6000, 7000, 8000, 9000, 10000, 11000],
+                    'New Balance': [5500, 6500, 7500, 8500, 9500, 10500],
+                    Reebok: [4500, 5000, 5500, 6000, 6500, 7000],
+                    Asics: [3000, 3500, 4000, 4500, 5000, 5500],
+                    Converse: [2500, 3000, 3500, 4000, 4500, 5000],
+                    Vans: [2000, 2500, 3000, 3500, 4000, 4500],
+                    Fila: [1500, 2000, 2500, 3000, 3500, 4000]
+                },
+                engagement: {
+                    Nike: [6000000, 7000000, 8000000, 9000000, 10000000, 11000000],
+                    Adidas: [5000000, 5500000, 6000000, 6500000, 7000000, 7500000],
+                    Puma: [2500000, 3000000, 3500000, 4000000, 4500000, 5000000],
+                    'Under Armour': [2000000, 2300000, 2600000, 2900000, 3200000, 3500000],
+                    'New Balance': [1800000, 2100000, 2400000, 2700000, 3000000, 3300000],
+                    Reebok: [1500000, 1700000, 1900000, 2100000, 2300000, 2500000],
+                    Asics: [1000000, 1200000, 1400000, 1600000, 1800000, 2000000],
+                    Converse: [1200000, 1400000, 1600000, 1800000, 2000000, 2200000],
+                    Vans: [900000, 1100000, 1300000, 1500000, 1700000, 1900000],
+                    Fila: [600000, 800000, 1000000, 1200000, 1400000, 1600000]
+                },
+                creators: {
+                    Nike: [15000, 17000, 19000, 21000, 23000, 25000],
+                    Adidas: [12000, 14000, 16000, 18000, 20000, 22000],
+                    Puma: [7000, 8000, 9000, 10000, 11000, 12000],
+                    'Under Armour': [5000, 6000, 7000, 8000, 9000, 10000],
+                    'New Balance': [4500, 5500, 6500, 7500, 8500, 9500],
+                    Reebok: [3500, 4000, 4500, 5000, 5500, 6000],
+                    Asics: [2500, 3000, 3500, 4000, 4500, 5000],
+                    Converse: [2000, 2500, 3000, 3500, 4000, 4500],
+                    Vans: [1800, 2300, 2800, 3300, 3800, 4300],
+                    Fila: [1200, 1700, 2200, 2700, 3200, 3700]
+                }
+            }
         };
+
+        // Functions to generate dropdown content
+        function generateTopWorksHTML(brandName) {
+            const brandDetails = brandDetailsData[brandName];
+            if (!brandDetails || !brandDetails.topWorks) return '<div class="content-grid"><div class="content-card"><div class="content-details">暂无数据</div></div></div>';
+            
+            return `
+                <div class="content-grid">
+                    ${brandDetails.topWorks.map(work => `
+                        <div class="content-card">
+                            <div class="content-thumbnail">
+                                📹 ${work.title.substring(0, 10)}...
+                            </div>
+                            <div class="content-details">
+                                <div class="content-title">${work.title}</div>
+                                <div class="content-creator">@${work.creator}</div>
+                                <div class="content-stats">
+                                    <div class="content-stat"><i>👁️</i>${work.views}</div>
+                                    <div class="content-stat"><i>❤️</i>${work.engagement}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function generateTopCreatorsHTML(brandName) {
+            const brandDetails = brandDetailsData[brandName];
+            if (!brandDetails || !brandDetails.topCreators) return '<div class="content-grid"><div class="content-card"><div class="content-details">暂无数据</div></div></div>';
+            
+            return `
+                <div class="content-grid">
+                    ${brandDetails.topCreators.map(creator => `
+                        <div class="content-card">
+                            <div class="content-thumbnail">
+                                👤 ${creator.name.substring(0, 8)}
+                            </div>
+                            <div class="content-details">
+                                <div class="content-title">${creator.name}</div>
+                                <div class="content-creator">创作者</div>
+                                <div class="content-stats">
+                                    <div class="content-stat"><i>👥</i>${creator.followers}</div>
+                                    <div class="content-stat"><i>❤️</i>${creator.engagement}</div>
+                                    <div class="content-stat"><i>📹</i>${creator.videos}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Add click event to brand rows
+        document.querySelectorAll('.brand-row').forEach(row => {
+            row.addEventListener('click', function() {
+                const brandName = this.getAttribute('data-brand');
+                const safeBrandName = brandName.replace(/'/g, "\\'").replace(/"/g, '\\"');
+                const contentRow = document.getElementById(`content-${safeBrandName}`);
+                
+                // Toggle active class on row
+                this.classList.toggle('active');
+                
+                // Toggle display of content row
+                if (contentRow.style.display === 'table-row') {
+                    contentRow.style.display = 'none';
+                } else {
+                    // Hide all other content rows
+                    document.querySelectorAll('.related-content').forEach(r => {
+                        r.style.display = 'none';
+                    });
+                    
+                    // Remove active class from all rows
+                    document.querySelectorAll('.brand-row').forEach(r => {
+                        r.classList.remove('active');
+                    });
+                    
+                    // Show selected content row and add active class to current row
+                    contentRow.style.display = 'table-row';
+                    this.classList.add('active');
+                }
+            });
+        });
 
         // Populate Table
         const tableBody = document.getElementById('brand-data-body');
         brandData.forEach(b => {
-            const row = `<tr>
-                <td>${b.brandName}</td>
-                <td>${b.mentions.toLocaleString()}</td>
-                <td>${b.shareOfVoice.toFixed(1)}%</td>
+            const safeBrandName = b.brandName.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            
+            // Create main row
+            const row = document.createElement('tr');
+            row.className = 'brand-row';
+            row.setAttribute('data-brand', b.brandName);
+            
+            // Extract top 3 topics from mainTopics
+            const topicsArray = b.mainTopics.split(', ');
+            const top3Topics = topicsArray.slice(0, 3).join(', ');
+            
+            row.innerHTML = `
+                <td><div class="brand-name"><strong>${b.brandName}</strong> <span class="dropdown-arrow">▼</span></div></td>
                 <td>${b.relatedVideos.toLocaleString()}</td>
-                <td>${b.totalViews.toLocaleString()}</td>
-                <td>${b.totalEngagement.toLocaleString()}</td>
-                <td>${(b.avgEngagementRate * 100).toFixed(1)}%</td>
-                <td>${b.positiveMentions}%</td>
-                <td>${b.neutralMentions}%</td>
-                <td>${b.negativeMentions}%</td>
                 <td>${b.uniqueCreators.toLocaleString()}</td>
-                <td>${b.topCreator}</td>
-                <td>${b.kolUgcRatio}</td>
-                <td>${b.mainTopics}</td>
-            </tr>`;
-            tableBody.innerHTML += row;
+                <td>${b.totalEngagement.toLocaleString()}</td>
+                <td>${b.totalViews.toLocaleString()}</td>
+                <td>${top3Topics}</td>
+            `;
+            
+            tableBody.appendChild(row);
+            
+            // Create related content row
+            const contentRow = document.createElement('tr');
+            contentRow.className = 'related-content';
+            contentRow.id = `content-${safeBrandName}`;
+            
+            // Create related content HTML
+            let contentHTML = '<td colspan="6"><div class="related-content-grid">';
+            
+            // Add Top 5 Works section
+            contentHTML += '<div class="dropdown-section"><div class="dropdown-title">Top 5 Works</div><div class="content-grid">';
+            const topWorks = getTopWorks(b.brandName);
+            topWorks.forEach(work => {
+                contentHTML += `
+                    <div class="content-card">
+                        <div class="content-thumbnail">${work.title.substring(0, 3)}</div>
+                        <div class="content-details">
+                            <div class="content-title">${work.title}</div>
+                            <div class="content-creator">${work.creator}</div>
+                            <div class="content-stats">
+                                <div class="content-stat"><i>👁️</i>${work.views}</div>
+                                <div class="content-stat"><i>❤️</i>${work.likes || work.engagement}</div>
+                                <div class="content-stat"><i>💬</i>${work.comments || ''}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            contentHTML += '</div></div>';
+            
+            // Add Top 5 Creators section
+            contentHTML += '<div class="dropdown-section"><div class="dropdown-title">Top 5 Creators</div><div class="content-grid">';
+            const topCreators = getTopCreators(b.brandName);
+            topCreators.forEach(creator => {
+                contentHTML += `
+                    <div class="content-card">
+                        <div class="content-thumbnail">${creator.name.substring(0, 3)}</div>
+                        <div class="content-details">
+                            <div class="content-title">${creator.name}</div>
+                            <div class="content-creator">Creator</div>
+                            <div class="content-stats">
+                                <div class="content-stat"><i>👥</i>${creator.followers}</div>
+                                <div class="content-stat"><i>❤️</i>${creator.engagement}</div>
+                                <div class="content-stat"><i>📹</i>${creator.posts || creator.videos}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            contentHTML += '</div></div>';
+            
+            contentHTML += '</div></td>';
+            contentRow.innerHTML = contentHTML;
+            
+            tableBody.appendChild(contentRow);
+            
+            // Add click event to toggle dropdown
+            row.addEventListener('click', function() {
+                const contentRow = document.getElementById(`content-${safeBrandName}`);
+                if (contentRow.style.display === 'table-row') {
+                    contentRow.style.display = 'none';
+                    this.classList.remove('active');
+                } else {
+                    // Hide all other content rows
+                    document.querySelectorAll('.related-content').forEach(r => {
+                        r.style.display = 'none';
+                    });
+                    
+                    // Remove active class from all rows
+                    document.querySelectorAll('.brand-row').forEach(r => {
+                        r.classList.remove('active');
+                    });
+                    
+                    // Show selected content row and add active class to current row
+                    contentRow.style.display = 'table-row';
+                    this.classList.add('active');
+                }
+            });
         });
 
-        // Stacked Bar Chart
-        const stackedBarCtx = document.getElementById('stackedBarChart').getContext('2d');
         const brandNames = brandData.map(b => b.brandName);
         const brandColors = [
             'rgba(255, 99, 132, 0.7)',
@@ -345,92 +1555,215 @@
             'rgba(210, 105, 30, 0.7)'
         ];
 
-        const stackedBarDatasets = brandNames.map((brand, index) => {
-            return {
-                label: brand,
-                data: monthlyData[brand],
-                backgroundColor: brandColors[index],
-                borderColor: brandColors[index].replace('0.7', '1'),
-                borderWidth: 1
-            };
-        });
+        // Register Chart.js plugins
+        Chart.register(ChartDataLabels);
 
-        new Chart(stackedBarCtx, {
-            type: 'bar',
-            data: {
-                labels: months,
-                datasets: stackedBarDatasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        stacked: true,
-                        title: {
-                            display: true,
-                            text: 'Month'
+        // Initialize charts
+        let stackedBarChart;
+        let lineChart;
+
+        // Function to update stacked bar chart
+        function updateStackedBarChart(timePeriod) {
+            const ctx = document.getElementById('stackedBarChart').getContext('2d');
+            const labels = timePeriodsData[timePeriod].labels;
+            
+            const datasets = brandNames.map((brand, index) => {
+                return {
+                    label: brand,
+                    data: timePeriodsData[timePeriod].videos[brand],
+                    backgroundColor: brandColors[index],
+                    borderColor: brandColors[index].replace('0.7', '1'),
+                    borderWidth: 1
+                };
+            });
+
+            // Destroy previous chart if it exists
+            if (stackedBarChart) {
+                stackedBarChart.destroy();
+            }
+
+            // Create new chart
+            stackedBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Time Period'
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Works'
+                            }
                         }
                     },
-                    y: {
-                        stacked: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Mentions'
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw} works`;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'right'
+                        },
+                        datalabels: {
+                            display: function(context) {
+                                return context.dataset.data[context.dataIndex] > 0;
+                            },
+                            color: '#fff',
+                            font: {
+                                weight: 'bold',
+                                size: 10
+                            },
+                            formatter: function(value, context) {
+                                return value;
+                            }
                         }
                     }
+                }
+            });
+        }
+
+        // Function to update line chart
+        function updateLineChart(timePeriod, metric) {
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            const labels = timePeriodsData[timePeriod].labels;
+            
+            // Get selected brands from checkboxes
+            const brandCheckboxes = document.querySelectorAll('.brand-checkbox:checked');
+            const selectedBrands = Array.from(brandCheckboxes).map(cb => cb.value);
+            
+            // If no brands selected, use top 5 brands
+            const brandsToShow = selectedBrands.length > 0 ? selectedBrands : brandNames.slice(0, 5);
+            
+            const datasets = brandsToShow.map((brand, index) => {
+                return {
+                    label: brand,
+                    data: timePeriodsData[timePeriod][metric][brand],
+                    borderColor: brandColors[brandNames.indexOf(brand)].replace('0.7', '1'),
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    pointRadius: 3,
+                    tension: 0.1
+                };
+            });
+
+            // Determine y-axis title based on metric
+            let yAxisTitle = 'Number of Mentions';
+            if (metric === 'engagement') {
+                yAxisTitle = 'Engagement Count';
+            } else if (metric === 'videos') {
+                yAxisTitle = 'Number of Works';
+            } else if (metric === 'creators') {
+                yAxisTitle = 'Number of Creators';
+            }
+
+            // Destroy previous chart if it exists
+            if (lineChart) {
+                lineChart.destroy();
+            }
+
+            // Create new chart
+            lineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
                 },
-                plugins: {
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: yAxisTitle
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Time Period'
+                            }
+                        }
                     },
-                    legend: {
-                        position: 'right'
-                    }
-                }
-            }
-        });
-
-        // Line Chart
-        const lineCtx = document.getElementById('lineChart').getContext('2d');
-        const lineDatasets = brandNames.slice(0, 5).map((brand, index) => {
-            return {
-                label: brand,
-                data: monthlyData[brand],
-                borderColor: brandColors[index].replace('0.7', '1'),
-                backgroundColor: 'transparent',
-                borderWidth: 2,
-                pointRadius: 3,
-                tension: 0.1
-            };
-        });
-
-        new Chart(lineCtx, {
-            type: 'line',
-            data: {
-                labels: months,
-                datasets: lineDatasets
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Number of Mentions'
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        legend: {
+                            position: 'right'
+                        },
+                        datalabels: {
+                            display: function(context) {
+                                // Only show data labels for the last point in each dataset
+                                return context.dataIndex === context.dataset.data.length - 1;
+                            },
+                            align: 'right',
+                            anchor: 'end',
+                            offset: 5,
+                            color: function(context) {
+                                return context.dataset.borderColor;
+                            },
+                            font: {
+                                weight: 'bold',
+                                size: 10
+                            },
+                            formatter: function(value, context) {
+                                return context.dataset.label + ': ' + value;
+                            }
                         }
                     }
-                },
-                plugins: {
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false
-                    }
                 }
-            }
-        });
+            });
+        }
+
+        // 初始化图表
+        window.onload = function() {
+            // 注册Chart.js的datalabels插件
+            Chart.register(ChartDataLabels);
+            
+            // 初始化图表
+            updateStackedBarChart('month');
+            updateLineChart('month', 'mentions');
+            
+            // 添加事件监听器
+            document.getElementById('time-period-selector-1').addEventListener('change', function() {
+                updateStackedBarChart(this.value);
+            });
+
+            document.getElementById('time-period-selector-2').addEventListener('change', function() {
+                updateLineChart(this.value, document.getElementById('metric-selector').value);
+            });
+
+            document.getElementById('metric-selector').addEventListener('change', function() {
+                updateLineChart(document.getElementById('time-period-selector-2').value, this.value);
+            });
+            
+            document.querySelectorAll('.brand-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateLineChart(document.getElementById('time-period-selector-2').value, document.getElementById('metric-selector').value);
+                });
+            });
+        };
+
+        // 事件监听器已移至window.onload函数中
 
         // Donut Chart (Sentiment Analysis)
         const donutCtx = document.getElementById('donutChart').getContext('2d');
@@ -570,59 +1903,32 @@
             updateSentimentChart(this.value);
         });
 
-        // Scatter Plot
-        const scatterCtx = document.getElementById('scatterPlot').getContext('2d');
-        new Chart(scatterCtx, {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: 'Brands',
-                    data: brandData.map(b => ({
-                        x: b.mentions,
-                        y: b.avgEngagementRate,
-                        brandName: b.brandName
-                    })),
-                    backgroundColor: brandData.map((_, i) => brandColors[i]),
-                    pointRadius: 8,
-                    pointHoverRadius: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const brandName = context.raw.brandName;
-                                const mentions = context.parsed.x.toLocaleString();
-                                const engagementRate = (context.parsed.y * 100).toFixed(1) + '%';
-                                return `${brandName}: (Mentions: ${mentions}, Engagement Rate: ${engagementRate})`;
-                            }
-                        }
-                    },
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Number of Mentions'
-                        },
-                        beginAtZero: true
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Average Engagement Rate'
-                        },
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
+        // Scatter Chart - Removed to focus on the three main charts
+        // This section has been intentionally removed to simplify the dashboard
+        // and focus on the three main charts: stacked bar chart, line chart, and donut chart
+        
+        // Helper functions for getting top works and creators
+        function getTopWorks(brandName) {
+            // Mock data - in a real application, this would fetch data from an API
+            return [
+                { title: brandName + " 作品1", creator: "创作者A", views: "1.2M", likes: "45K", comments: "3.2K" },
+                { title: brandName + " 作品2", creator: "创作者B", views: "980K", likes: "32K", comments: "2.1K" },
+                { title: brandName + " 作品3", creator: "创作者C", views: "750K", likes: "28K", comments: "1.8K" },
+                { title: brandName + " 作品4", creator: "创作者D", views: "620K", likes: "21K", comments: "1.5K" },
+                { title: brandName + " 作品5", creator: "创作者E", views: "540K", likes: "19K", comments: "1.2K" }
+            ];
+        }
+        
+        function getTopCreators(brandName) {
+            // Mock data - in a real application, this would fetch data from an API
+            return [
+                { name: "创作者A", followers: "2.5M", engagement: "4.2%", posts: "12" },
+                { name: "创作者B", followers: "1.8M", engagement: "3.9%", posts: "8" },
+                { name: "创作者C", followers: "1.2M", engagement: "4.5%", posts: "10" },
+                { name: "创作者D", followers: "950K", engagement: "3.7%", posts: "7" },
+                { name: "创作者E", followers: "780K", engagement: "4.1%", posts: "9" }
+            ];
+        }
     </script>
 </body>
 </html>
