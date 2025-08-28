@@ -175,6 +175,17 @@
         <!-- Trend Line Chart -->
         <div class="chart-section full-width">
             <h3 class="chart-title">Key Hashtag Trends Over Time</h3>
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+                <div class="time-selector">
+                    <label for="timeScale">Time Scale:</label>
+                    <select id="timeScale" style="padding: 6px; border-radius: 4px; border: 1px solid #ddd; margin-left: 8px;">
+                        <option value="day">Day</option>
+                        <option value="week">Week</option>
+                        <option value="month" selected>Month</option>
+                        <option value="year">Year</option>
+                    </select>
+                </div>
+            </div>
             <div class="chart-container">
                 <canvas id="trendLineChart"></canvas>
             </div>
@@ -510,11 +521,33 @@
         }
 
         // 2. Trend Line Chart for key hashtags
-        function createTrendLineChart() {
+        function createTrendLineChart(timeScale = 'month') {
             const ctx = document.getElementById('trendLineChart').getContext('2d');
             
-            // Prepare data for trend line chart
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+            // Prepare data for trend line chart based on time scale
+            let labels = [];
+            let xAxisTitle = '';
+            
+            switch(timeScale) {
+                case 'day':
+                    labels = Array.from({length: 30}, (_, i) => `Day ${i+1}`);
+                    xAxisTitle = 'Day (Last 30 Days)';
+                    break;
+                case 'week':
+                    labels = Array.from({length: 12}, (_, i) => `Week ${i+1}`);
+                    xAxisTitle = 'Week (Last 12 Weeks)';
+                    break;
+                case 'month':
+                    labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+                    xAxisTitle = 'Month (2023)';
+                    break;
+                case 'year':
+                    labels = ['2018', '2019', '2020', '2021', '2022', '2023'];
+                    xAxisTitle = 'Year';
+                    break;
+            }
+            
+            const months = labels;
             const topTags = tagsData.slice(0, 5).map(t => t.tag);
             
             // Generate trend data for each tag
@@ -572,7 +605,7 @@
                         x: {
                             title: {
                                 display: true,
-                                text: 'Month (2023)'
+                                text: xAxisTitle
                             }
                         }
                     },
@@ -691,7 +724,18 @@
         window.addEventListener('load', function() {
             createWordCloud();
             createTrendLineChart();
-            createBarChartRace();
+            
+            // Skip barChartRace since the element doesn't exist
+            // createBarChartRace();
+            
+            // Handle time scale change
+            document.getElementById('timeScale').addEventListener('change', function() {
+                const timeScale = this.value;
+                // Destroy existing chart
+                Chart.getChart('trendLineChart').destroy();
+                // Create new chart with selected time scale
+                createTrendLineChart(timeScale);
+            });
             
             // Handle window resize
             window.addEventListener('resize', function() {
