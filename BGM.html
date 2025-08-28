@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            width: 1900px;
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .chart-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .chart-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+        .radar-container {
+            height: 400px;
+            display: none;
+        }
+        .table-section {
+            grid-column: 1 / -1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .related-content {
+            display: none;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+        .related-content-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .content-thumbnail {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+        }
+        .content-details {
+            padding: 10px;
+        }
+        .content-title {
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .content-creator {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .content-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 0.75rem;
+        }
+        .content-stat {
+            display: flex;
+            align-items: center;
+            color: #666;
+        }
+        .content-stat i {
+            margin-right: 3px;
+        }
+        .bgm-row {
+            cursor: pointer;
+        }
+        .bgm-row.active {
+            background-color: #e3f2fd;
+        }
+        .toggle-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        .toggle-btn:hover {
+            background-color: #3a7bc8;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="main-container">
+        <!-- Music Type Charts -->
+        <div class="chart-section">
+            <h3 class="chart-title">
+                Music Type Distribution
+                <button class="toggle-btn" id="toggleMusicTypeChart">Show Radar Chart</button>
+            </h3>
+            <div class="chart-container" id="musicTypePieContainer">
+                <canvas id="musicTypePieChart"></canvas>
+            </div>
+            <div class="radar-container" id="musicTypeRadarContainer">
+                <canvas id="musicTypeRadarChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Music Tone Charts -->
+        <div class="chart-section">
+            <h3 class="chart-title">
+                Music Tone Distribution
+                <button class="toggle-btn" id="toggleMusicToneChart">Show Radar Chart</button>
+            </h3>
+            <div class="chart-container" id="musicTonePieContainer">
+                <canvas id="musicTonePieChart"></canvas>
+            </div>
+            <div class="radar-container" id="musicToneRadarContainer">
+                <canvas id="musicToneRadarChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-section">
+            <h3 class="chart-title">BGM Analysis</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>BGM Name</th>
+                        <th>Related Videos</th>
+                        <th>Total Views</th>
+                        <th>Comments</th>
+                        <th>Shares</th>
+                        <th>Avg. Engagement Rate</th>
+                        <th>BGM Type</th>
+                        <th>BGM Tone</th>
+                    </tr>
+                </thead>
+                <tbody id="bgm-data-body">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Function to generate SVG data URL for thumbnails
+        function generateSvgThumbnail(text) {
+            const encodedText = text.replace(/\s+/g, ' ').trim();
+            return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23cccccc'/%3E%3Ctext x='50%25' y='50%25' font-size='18' text-anchor='middle' alignment-baseline='middle' font-family='Arial, sans-serif' fill='%23333333'%3E${encodedText}%3C/text%3E%3C/svg%3E`;
+        }
+
+        // Sample data for BGM analysis
+        const bgmData = [
+            {
+                name: "Dance Monkey",
+                videos: 125000,
+                views: 1200000000,
+                comments: 2500000,
+                shares: 1800000,
+                engagementRate: 8.2,
+                type: "Pop",
+                tone: "Upbeat",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dance+Video+1",
+                        title: "Amazing Dance Routine to Dance Monkey",
+                        creator: "DanceProTV",
+                        likes: 1200000,
+                        shares: 350000,
+                        comments: 85000,
+                        views: 15000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dance+Video+2",
+                        title: "Street Performance with Dance Monkey",
+                        creator: "UrbanDancers",
+                        likes: 980000,
+                        shares: 290000,
+                        comments: 62000,
+                        views: 12000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dance+Video+3",
+                        title: "Kids Dancing to Dance Monkey",
+                        creator: "TinyDancers",
+                        likes: 1500000,
+                        shares: 420000,
+                        comments: 95000,
+                        views: 18000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dance+Video+4",
+                        title: "Professional Choreography - Dance Monkey",
+                        creator: "ProDance",
+                        likes: 850000,
+                        shares: 210000,
+                        comments: 45000,
+                        views: 9500000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dance+Video+5",
+                        title: "Dance Monkey Challenge Compilation",
+                        creator: "TrendingDances",
+                        likes: 2100000,
+                        shares: 580000,
+                        comments: 125000,
+                        views: 25000000
+                    }
+                ]
+            },
+            {
+                name: "Blinding Lights",
+                videos: 98000,
+                views: 950000000,
+                comments: 1800000,
+                shares: 1500000,
+                engagementRate: 7.8,
+                type: "R&B",
+                tone: "Energetic",
+                topContent: [
+                    {
+                        thumbnail: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200' viewBox='0 0 300 200'%3E%3Crect width='300' height='200' fill='%23cccccc'/%3E%3Ctext x='50%25' y='50%25' font-size='18' text-anchor='middle' alignment-baseline='middle' font-family='Arial, sans-serif' fill='%23333333'%3EBlinding Lights 1%3C/text%3E%3C/svg%3E",
+                        title: "Blinding Lights Dance Challenge",
+                        creator: "DanceStars",
+                        likes: 1100000,
+                        shares: 320000,
+                        comments: 75000,
+                        views: 14000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Blinding+Lights+2",
+                        title: "Blinding Lights Workout Routine",
+                        creator: "FitnessFun",
+                        likes: 890000,
+                        shares: 250000,
+                        comments: 58000,
+                        views: 11000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Blinding+Lights+3",
+                        title: "Couple Dance to Blinding Lights",
+                        creator: "DuoDancers",
+                        likes: 1300000,
+                        shares: 380000,
+                        comments: 82000,
+                        views: 16000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Blinding+Lights+4",
+                        title: "Blinding Lights Lip Sync Challenge",
+                        creator: "LipSyncStars",
+                        likes: 780000,
+                        shares: 190000,
+                        comments: 42000,
+                        views: 8500000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Blinding+Lights+5",
+                        title: "Blinding Lights - Best Moments",
+                        creator: "MusicHighlights",
+                        likes: 1900000,
+                        shares: 520000,
+                        comments: 110000,
+                        views: 22000000
+                    }
+                ]
+            },
+            {
+                name: "Savage Love",
+                videos: 85000,
+                views: 820000000,
+                comments: 1600000,
+                shares: 1300000,
+                engagementRate: 7.5,
+                type: "Pop",
+                tone: "Upbeat",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Savage+Love+1",
+                        title: "Savage Love Dance Challenge",
+                        creator: "DanceWithMe",
+                        likes: 950000,
+                        shares: 280000,
+                        comments: 65000,
+                        views: 12500000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Savage+Love+2",
+                        title: "Savage Love - Best TikTok Compilation",
+                        creator: "TikTokStars",
+                        likes: 820000,
+                        shares: 230000,
+                        comments: 52000,
+                        views: 10800000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Savage+Love+3",
+                        title: "Savage Love Remix Dance",
+                        creator: "RemixKings",
+                        likes: 1100000,
+                        shares: 320000,
+                        comments: 75000,
+                        views: 14200000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Savage+Love+4",
+                        title: "Savage Love Cover - Acoustic Version",
+                        creator: "AcousticCovers",
+                        likes: 680000,
+                        shares: 180000,
+                        comments: 38000,
+                        views: 7500000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Savage+Love+5",
+                        title: "Savage Love - Official Music Video Reaction",
+                        creator: "MusicReactions",
+                        likes: 750000,
+                        shares: 210000,
+                        comments: 48000,
+                        views: 9800000
+                    }
+                ]
+            },
+            {
+                name: "Mood",
+                videos: 72000,
+                views: 680000000,
+                comments: 1200000,
+                shares: 950000,
+                engagementRate: 6.9,
+                type: "Hip Hop",
+                tone: "Chill",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Mood+1",
+                        title: "Mood - Skateboarding Compilation",
+                        creator: "SkateLife",
+                        likes: 880000,
+                        shares: 240000,
+                        comments: 58000,
+                        views: 11500000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Mood+2",
+                        title: "Mood - Chill Vibes Montage",
+                        creator: "ChillVibesOnly",
+                        likes: 760000,
+                        shares: 210000,
+                        comments: 45000,
+                        views: 9800000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Mood+3",
+                        title: "Mood - Sunset Drive",
+                        creator: "SunsetChasers",
+                        likes: 920000,
+                        shares: 270000,
+                        comments: 62000,
+                        views: 12200000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Mood+4",
+                        title: "Mood - Urban Photography",
+                        creator: "UrbanLens",
+                        likes: 650000,
+                        shares: 170000,
+                        comments: 35000,
+                        views: 7200000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Mood+5",
+                        title: "Mood - Late Night Drive",
+                        creator: "NightDrives",
+                        likes: 780000,
+                        shares: 220000,
+                        comments: 48000,
+                        views: 10100000
+                    }
+                ]
+            },
+            {
+                name: "Levitating",
+                videos: 68000,
+                views: 650000000,
+                comments: 1100000,
+                shares: 900000,
+                engagementRate: 6.8,
+                type: "Disco",
+                tone: "Upbeat",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Levitating+1",
+                        title: "Levitating - Roller Skating Routine",
+                        creator: "RollerQueen",
+                        likes: 850000,
+                        shares: 230000,
+                        comments: 55000,
+                        views: 11000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Levitating+2",
+                        title: "Levitating - Disco Party",
+                        creator: "DiscoFever",
+                        likes: 730000,
+                        shares: 200000,
+                        comments: 42000,
+                        views: 9500000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Levitating+3",
+                        title: "Levitating - Dance Tutorial",
+                        creator: "DanceSteps",
+                        likes: 890000,
+                        shares: 250000,
+                        comments: 60000,
+                        views: 11800000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Levitating+4",
+                        title: "Levitating - Remix Challenge",
+                        creator: "RemixBattle",
+                        likes: 620000,
+                        shares: 160000,
+                        comments: 32000,
+                        views: 6800000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Levitating+5",
+                        title: "Levitating - Light Show Performance",
+                        creator: "LightArtists",
+                        likes: 750000,
+                        shares: 210000,
+                        comments: 45000,
+                        views: 9800000
+                    }
+                ]
+            },
+            {
+                name: "Astronaut In The Ocean",
+                videos: 65000,
+                views: 620000000,
+                comments: 980000,
+                shares: 850000,
+                engagementRate: 6.5,
+                type: "Hip Hop",
+                tone: "Intense",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Astronaut+1",
+                        title: "Astronaut In The Ocean - Workout Motivation",
+                        creator: "FitnessMotive",
+                        likes: 820000,
+                        shares: 220000,
+                        comments: 52000,
+                        views: 10500000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Astronaut+2",
+                        title: "Astronaut In The Ocean - Sports Highlights",
+                        creator: "SportsClips",
+                        likes: 700000,
+                        shares: 190000,
+                        comments: 40000,
+                        views: 9200000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Astronaut+3",
+                        title: "Astronaut In The Ocean - Parkour",
+                        creator: "ParkourExtreme",
+                        likes: 860000,
+                        shares: 240000,
+                        comments: 58000,
+                        views: 11300000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Astronaut+4",
+                        title: "Astronaut In The Ocean - Gaming Montage",
+                        creator: "GamerMontage",
+                        likes: 590000,
+                        shares: 150000,
+                        comments: 30000,
+                        views: 6500000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Astronaut+5",
+                        title: "Astronaut In The Ocean - Martial Arts",
+                        creator: "MartialMasters",
+                        likes: 720000,
+                        shares: 200000,
+                        comments: 42000,
+                        views: 9400000
+                    }
+                ]
+            },
+            {
+                name: "Drivers License",
+                videos: 62000,
+                views: 590000000,
+                comments: 950000,
+                shares: 780000,
+                engagementRate: 6.2,
+                type: "Ballad",
+                tone: "Melancholic",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Drivers+License+1",
+                        title: "Drivers License - Emotional Cover",
+                        creator: "CoverArtists",
+                        likes: 790000,
+                        shares: 210000,
+                        comments: 50000,
+                        views: 10000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Drivers+License+2",
+                        title: "Drivers License - Piano Version",
+                        creator: "PianoCovers",
+                        likes: 680000,
+                        shares: 180000,
+                        comments: 38000,
+                        views: 8800000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Drivers+License+3",
+                        title: "Drivers License - Story Time",
+                        creator: "StoryTellers",
+                        likes: 830000,
+                        shares: 230000,
+                        comments: 55000,
+                        views: 10800000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Drivers+License+4",
+                        title: "Drivers License - Reaction Video",
+                        creator: "ReactChannel",
+                        likes: 560000,
+                        shares: 140000,
+                        comments: 28000,
+                        views: 6200000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Drivers+License+5",
+                        title: "Drivers License - Lyric Analysis",
+                        creator: "LyricBreakdown",
+                        likes: 690000,
+                        shares: 190000,
+                        comments: 40000,
+                        views: 9000000
+                    }
+                ]
+            },
+            {
+                name: "Stay",
+                videos: 58000,
+                views: 550000000,
+                comments: 920000,
+                shares: 750000,
+                engagementRate: 6.0,
+                type: "Electronic",
+                tone: "Energetic",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Stay+1",
+                        title: "Stay - EDM Dance Party",
+                        creator: "EDMDancers",
+                        likes: 760000,
+                        shares: 200000,
+                        comments: 48000,
+                        views: 9500000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Stay+2",
+                        title: "Stay - Festival Highlights",
+                        creator: "FestivalVibes",
+                        likes: 650000,
+                        shares: 170000,
+                        comments: 36000,
+                        views: 8400000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Stay+3",
+                        title: "Stay - Light Show Choreography",
+                        creator: "LightDancers",
+                        likes: 800000,
+                        shares: 220000,
+                        comments: 52000,
+                        views: 10300000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Stay+4",
+                        title: "Stay - DJ Mix",
+                        creator: "DJMixMasters",
+                        likes: 530000,
+                        shares: 130000,
+                        comments: 26000,
+                        views: 5900000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Stay+5",
+                        title: "Stay - Club Remix",
+                        creator: "ClubRemixes",
+                        likes: 660000,
+                        shares: 180000,
+                        comments: 38000,
+                        views: 8600000
+                    }
+                ]
+            },
+            {
+                name: "Watermelon Sugar",
+                videos: 55000,
+                views: 520000000,
+                comments: 880000,
+                shares: 720000,
+                engagementRate: 5.8,
+                type: "Pop Rock",
+                tone: "Cheerful",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Watermelon+Sugar+1",
+                        title: "Watermelon Sugar - Summer Vibes",
+                        creator: "SummerLife",
+                        likes: 730000,
+                        shares: 190000,
+                        comments: 46000,
+                        views: 9100000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Watermelon+Sugar+2",
+                        title: "Watermelon Sugar - Beach Party",
+                        creator: "BeachVibes",
+                        likes: 620000,
+                        shares: 160000,
+                        comments: 34000,
+                        views: 8000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Watermelon+Sugar+3",
+                        title: "Watermelon Sugar - Guitar Cover",
+                        creator: "GuitarHeroes",
+                        likes: 770000,
+                        shares: 210000,
+                        comments: 50000,
+                        views: 9800000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Watermelon+Sugar+4",
+                        title: "Watermelon Sugar - Food Challenge",
+                        creator: "FoodChallenges",
+                        likes: 500000,
+                        shares: 120000,
+                        comments: 24000,
+                        views: 5600000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Watermelon+Sugar+5",
+                        title: "Watermelon Sugar - Summer Fashion",
+                        creator: "FashionTrends",
+                        likes: 630000,
+                        shares: 170000,
+                        comments: 36000,
+                        views: 8200000
+                    }
+                ]
+            },
+            {
+                name: "Dynamite",
+                videos: 52000,
+                views: 500000000,
+                comments: 850000,
+                shares: 700000,
+                engagementRate: 5.7,
+                type: "K-Pop",
+                tone: "Upbeat",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dynamite+1",
+                        title: "Dynamite - K-Pop Dance Cover",
+                        creator: "KPopDancers",
+                        likes: 700000,
+                        shares: 180000,
+                        comments: 44000,
+                        views: 8700000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dynamite+2",
+                        title: "Dynamite - Fan Meeting Highlights",
+                        creator: "KPopFans",
+                        likes: 590000,
+                        shares: 150000,
+                        comments: 32000,
+                        views: 7600000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dynamite+3",
+                        title: "Dynamite - Dance Tutorial",
+                        creator: "DanceWithK",
+                        likes: 740000,
+                        shares: 200000,
+                        comments: 48000,
+                        views: 9300000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dynamite+4",
+                        title: "Dynamite - Reaction Compilation",
+                        creator: "KPopReactions",
+                        likes: 470000,
+                        shares: 110000,
+                        comments: 22000,
+                        views: 5300000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Dynamite+5",
+                        title: "Dynamite - Music Video Analysis",
+                        creator: "MVBreakdown",
+                        likes: 600000,
+                        shares: 160000,
+                        comments: 34000,
+                        views: 7800000
+                    }
+                ]
+            },
+            {
+                name: "Positions",
+                videos: 48000,
+                views: 460000000,
+                comments: 780000,
+                shares: 650000,
+                engagementRate: 5.5,
+                type: "R&B",
+                tone: "Smooth",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Positions+1",
+                        title: "Positions - Choreography",
+                        creator: "DanceStudio",
+                        likes: 670000,
+                        shares: 170000,
+                        comments: 42000,
+                        views: 8300000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Positions+2",
+                        title: "Positions - Vocal Cover",
+                        creator: "VocalStars",
+                        likes: 560000,
+                        shares: 140000,
+                        comments: 30000,
+                        views: 7200000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Positions+3",
+                        title: "Positions - Fashion Lookbook",
+                        creator: "StyleGuide",
+                        likes: 710000,
+                        shares: 190000,
+                        comments: 46000,
+                        views: 8800000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Positions+4",
+                        title: "Positions - Behind The Scenes",
+                        creator: "MusicInsider",
+                        likes: 440000,
+                        shares: 100000,
+                        comments: 20000,
+                        views: 5000000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=Positions+5",
+                        title: "Positions - R&B Mix",
+                        creator: "RnBMixes",
+                        likes: 570000,
+                        shares: 150000,
+                        comments: 32000,
+                        views: 7400000
+                    }
+                ]
+            },
+            {
+                name: "34+35",
+                videos: 45000,
+                views: 430000000,
+                comments: 750000,
+                shares: 620000,
+                engagementRate: 5.3,
+                type: "Pop",
+                tone: "Playful",
+                topContent: [
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=34+35+1",
+                        title: "34+35 - Dance Routine",
+                        creator: "ChoreographyPro",
+                        likes: 640000,
+                        shares: 160000,
+                        comments: 40000,
+                        views: 7900000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=34+35+2",
+                        title: "34+35 - Remix Reaction",
+                        creator: "MusicReviews",
+                        likes: 530000,
+                        shares: 130000,
+                        comments: 28000,
+                        views: 6800000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=34+35+3",
+                        title: "34+35 - Lyric Breakdown",
+                        creator: "LyricAnalysis",
+                        likes: 680000,
+                        shares: 180000,
+                        comments: 44000,
+                        views: 8300000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=34+35+4",
+                        title: "34+35 - Music Video Parody",
+                        creator: "ParodyKings",
+                        likes: 410000,
+                        shares: 90000,
+                        comments: 18000,
+                        views: 4700000
+                    },
+                    {
+                        thumbnail: "https://via.placeholder.com/300x200?text=34+35+5",
+                        title: "34+35 - Fan Edit Compilation",
+                        creator: "FanEdits",
+                        likes: 540000,
+                        shares: 140000,
+                        comments: 30000,
+                        views: 7000000
+                    }
+                ]
+            }
+        ];
+
+        // Aggregate data for charts
+        function aggregateByType(data, property) {
+            const aggregated = {};
+            data.forEach(item => {
+                if (!aggregated[item[property]]) {
+                    aggregated[item[property]] = {
+                        count: 0,
+                        videos: 0,
+                        views: 0,
+                        comments: 0,
+                        shares: 0,
+                        engagement: 0
+                    };
+                }
+                aggregated[item[property]].count++;
+                aggregated[item[property]].videos += item.videos;
+                aggregated[item[property]].views += item.views;
+                aggregated[item[property]].comments += item.comments;
+                aggregated[item[property]].shares += item.shares;
+                aggregated[item[property]].engagement += item.engagementRate;
+            });
+            return aggregated;
+        }
+
+        // Populate table
+        function populateTable() {
+            const tableBody = document.getElementById('bgm-data-body');
+            tableBody.innerHTML = '';
+
+            bgmData.forEach(bgm => {
+                // Create main row
+                const row = document.createElement('tr');
+                row.className = 'bgm-row';
+                row.setAttribute('data-bgm', bgm.name);
+                
+                row.innerHTML = `
+                    <td><strong>${bgm.name}</strong></td>
+                    <td>${(bgm.videos).toLocaleString()}</td>
+                    <td>${(bgm.views).toLocaleString()}</td>
+                    <td>${(bgm.comments).toLocaleString()}</td>
+                    <td>${(bgm.shares).toLocaleString()}</td>
+                    <td>${bgm.engagementRate.toFixed(1)}%</td>
+                    <td>${bgm.type}</td>
+                    <td>${bgm.tone}</td>
+                `;
+                
+                tableBody.appendChild(row);
+                
+                // Create related content row
+                const contentRow = document.createElement('tr');
+                contentRow.className = 'related-content';
+                contentRow.id = `content-${bgm.name.replace(/\s+/g, '-')}`;
+                
+                // Create related content grid
+                let contentHTML = '<td colspan="8"><div class="related-content-grid">';
+                
+                // Add content cards
+                if (bgm.topContent && bgm.topContent.length > 0) {
+                    bgm.topContent.forEach(content => {
+                        contentHTML += `
+                            <div class="content-card">
+                                <img src="${generateSvgThumbnail(content.title)}" alt="${content.title}" class="content-thumbnail">
+                                <div class="content-details">
+                                    <div class="content-title">${content.title}</div>
+                                    <div class="content-creator">${content.creator}</div>
+                                    <div class="content-stats">
+                                        <div class="content-stat"><i class="fas fa-heart"></i> ${(content.likes).toLocaleString()}</div>
+                                        <div class="content-stat"><i class="fas fa-share"></i> ${(content.shares).toLocaleString()}</div>
+                                        <div class="content-stat"><i class="fas fa-comment"></i> ${(content.comments).toLocaleString()}</div>
+                                        <div class="content-stat"><i class="fas fa-eye"></i> ${(content.views).toLocaleString()}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                contentHTML += '</div></td>';
+                contentRow.innerHTML = contentHTML;
+                
+                tableBody.appendChild(contentRow);
+            });
+            
+            // Add click event to bgm rows
+            document.querySelectorAll('.bgm-row').forEach(row => {
+                row.addEventListener('click', function() {
+                    const bgmName = this.getAttribute('data-bgm');
+                    const contentRow = document.getElementById(`content-${bgmName.replace(/\s+/g, '-')}`);
+                    
+                    // Toggle active class on row
+                    this.classList.toggle('active');
+                    
+                    // Toggle display of content row
+                    if (contentRow.style.display === 'table-row') {
+                        contentRow.style.display = 'none';
+                    } else {
+                        // Hide all other content rows
+                        document.querySelectorAll('.related-content').forEach(r => {
+                            r.style.display = 'none';
+                        });
+                        
+                        // Remove active class from all rows
+                        document.querySelectorAll('.bgm-row').forEach(r => {
+                            r.classList.remove('active');
+                        });
+                        
+                        // Show selected content row and add active class to current row
+                        contentRow.style.display = 'table-row';
+                        this.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // Create Music Type Pie Chart
+        function createMusicTypePieChart() {
+            const musicTypeData = aggregateByType(bgmData, 'type');
+            const ctx = document.getElementById('musicTypePieChart').getContext('2d');
+            
+            const labels = Object.keys(musicTypeData);
+            const data = labels.map(label => musicTypeData[label].count);
+            const backgroundColors = [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                '#FF9F40', '#C9CBCF', '#7FC97F', '#BEAED4', '#FDC086'
+            ];
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors.slice(0, labels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${percentage}% (${value})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Music Type Radar Chart
+        function createMusicTypeRadarChart() {
+            const musicTypeData = aggregateByType(bgmData, 'type');
+            const ctx = document.getElementById('musicTypeRadarChart').getContext('2d');
+            
+            const labels = ['Likes', 'Engagement', 'Comments', 'Shares', 'Videos'];
+            const datasets = [];
+            
+            const backgroundColors = [
+                'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 
+                'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)',
+                'rgba(201, 203, 207, 0.2)', 'rgba(127, 201, 127, 0.2)'
+            ];
+            
+            const borderColors = [
+                'rgb(255, 99, 132)', 'rgb(54, 162, 235)', 
+                'rgb(255, 206, 86)', 'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)', 'rgb(255, 159, 64)',
+                'rgb(201, 203, 207)', 'rgb(127, 201, 127)'
+            ];
+            
+            let i = 0;
+            for (const type in musicTypeData) {
+                // Calculate percentages for each metric
+                const totalVideos = bgmData.reduce((sum, item) => sum + item.videos, 0);
+                const totalViews = bgmData.reduce((sum, item) => sum + item.views, 0);
+                const totalComments = bgmData.reduce((sum, item) => sum + item.comments, 0);
+                const totalShares = bgmData.reduce((sum, item) => sum + item.shares, 0);
+                const totalEngagement = bgmData.reduce((sum, item) => sum + item.engagementRate, 0);
+                
+                const videosPercentage = (musicTypeData[type].videos / totalVideos) * 100;
+                const viewsPercentage = (musicTypeData[type].views / totalViews) * 100;
+                const commentsPercentage = (musicTypeData[type].comments / totalComments) * 100;
+                const sharesPercentage = (musicTypeData[type].shares / totalShares) * 100;
+                const engagementPercentage = (musicTypeData[type].engagement / totalEngagement) * 100;
+                
+                datasets.push({
+                    label: type,
+                    data: [viewsPercentage, engagementPercentage, commentsPercentage, sharesPercentage, videosPercentage],
+                    backgroundColor: backgroundColors[i % backgroundColors.length],
+                    borderColor: borderColors[i % borderColors.length],
+                    borderWidth: 1
+                });
+                i++;
+            }
+            
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Music Tone Pie Chart
+        function createMusicTonePieChart() {
+            const musicToneData = aggregateByType(bgmData, 'tone');
+            const ctx = document.getElementById('musicTonePieChart').getContext('2d');
+            
+            const labels = Object.keys(musicToneData);
+            const data = labels.map(label => musicToneData[label].count);
+            const backgroundColors = [
+                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                '#FF9F40', '#C9CBCF', '#7FC97F', '#BEAED4', '#FDC086'
+            ];
+
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: backgroundColors.slice(0, labels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${percentage}% (${value})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Music Tone Radar Chart
+        function createMusicToneRadarChart() {
+            const musicToneData = aggregateByType(bgmData, 'tone');
+            const ctx = document.getElementById('musicToneRadarChart').getContext('2d');
+            
+            const labels = ['Likes', 'Engagement', 'Comments', 'Shares', 'Videos'];
+            const datasets = [];
+            
+            const backgroundColors = [
+                'rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 
+                'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)', 'rgba(255, 159, 64, 0.2)',
+                'rgba(201, 203, 207, 0.2)', 'rgba(127, 201, 127, 0.2)'
+            ];
+            
+            const borderColors = [
+                'rgb(255, 99, 132)', 'rgb(54, 162, 235)', 
+                'rgb(255, 206, 86)', 'rgb(75, 192, 192)',
+                'rgb(153, 102, 255)', 'rgb(255, 159, 64)',
+                'rgb(201, 203, 207)', 'rgb(127, 201, 127)'
+            ];
+            
+            let i = 0;
+            for (const tone in musicToneData) {
+                // Calculate percentages for each metric
+                const totalVideos = bgmData.reduce((sum, item) => sum + item.videos, 0);
+                const totalViews = bgmData.reduce((sum, item) => sum + item.views, 0);
+                const totalComments = bgmData.reduce((sum, item) => sum + item.comments, 0);
+                const totalShares = bgmData.reduce((sum, item) => sum + item.shares, 0);
+                const totalEngagement = bgmData.reduce((sum, item) => sum + item.engagementRate, 0);
+                
+                const videosPercentage = (musicToneData[tone].videos / totalVideos) * 100;
+                const viewsPercentage = (musicToneData[tone].views / totalViews) * 100;
+                const commentsPercentage = (musicToneData[tone].comments / totalComments) * 100;
+                const sharesPercentage = (musicToneData[tone].shares / totalShares) * 100;
+                const engagementPercentage = (musicToneData[tone].engagement / totalEngagement) * 100;
+                
+                datasets.push({
+                    label: tone,
+                    data: [viewsPercentage, engagementPercentage, commentsPercentage, sharesPercentage, videosPercentage],
+                    backgroundColor: backgroundColors[i % backgroundColors.length],
+                    borderColor: borderColors[i % borderColors.length],
+                    borderWidth: 1
+                });
+                i++;
+            }
+            
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Toggle between pie and radar charts
+        function setupToggleButtons() {
+            document.getElementById('toggleMusicTypeChart').addEventListener('click', function() {
+                const pieContainer = document.getElementById('musicTypePieContainer');
+                const radarContainer = document.getElementById('musicTypeRadarContainer');
+                const button = document.getElementById('toggleMusicTypeChart');
+                
+                if (pieContainer.style.display !== 'none') {
+                    pieContainer.style.display = 'none';
+                    radarContainer.style.display = 'block';
+                    button.textContent = 'Show Pie Chart';
+                } else {
+                    pieContainer.style.display = 'block';
+                    radarContainer.style.display = 'none';
+                    button.textContent = 'Show Radar Chart';
+                }
+            });
+
+            document.getElementById('toggleMusicToneChart').addEventListener('click', function() {
+                const pieContainer = document.getElementById('musicTonePieContainer');
+                const radarContainer = document.getElementById('musicToneRadarContainer');
+                const button = document.getElementById('toggleMusicToneChart');
+                
+                if (pieContainer.style.display !== 'none') {
+                    pieContainer.style.display = 'none';
+                    radarContainer.style.display = 'block';
+                    button.textContent = 'Show Pie Chart';
+                } else {
+                    pieContainer.style.display = 'block';
+                    radarContainer.style.display = 'none';
+                    button.textContent = 'Show Radar Chart';
+                }
+            });
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            populateTable();
+            createMusicTypePieChart();
+            createMusicTypeRadarChart();
+            createMusicTonePieChart();
+            createMusicToneRadarChart();
+            setupToggleButtons();
+        });
+    </script>
+</body>
+</html>
