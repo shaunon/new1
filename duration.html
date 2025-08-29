@@ -22,44 +22,76 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             border-radius: 8px;
         }
-        .section {
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e9ecef;
+        .grid-container {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            gap: 25px;
+            margin-bottom: 25px;
         }
-        .section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
+        .grid-item-main {
+            grid-column: 1 / 2;
+        }
+        .grid-item-side {
+            grid-column: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .section {
+            padding: 20px;
+            background-color: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .grid-item-side .section {
+            flex: 1;
+            margin: 0;
         }
         .section-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 600;
             color: #2c3e50;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
         }
-        .chart-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 30px;
-            margin-top: 20px;
-        }
-        .main-chart-wrapper {
-            width: 100%;
-            height: 450px;
-        }
-        .sub-chart-wrapper {
-            width: 50%;
-            height: 400px;
-        }
-        .chart-title {
-            font-size: 18px;
-            font-weight: 500;
-            color: #34495e;
-            margin-bottom: 15px;
-            text-align: center;
+        .chart-wrapper {
+            height: 380px;
+            position: relative;
         }
         .data-table-container {
-            margin-top: 25px;
+            margin-top: 20px;
+            max-height: 450px;
+            overflow-y: auto;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .table-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .download-btn:hover {
+            background-color: #45a049;
         }
         table {
             width: 100%;
@@ -78,6 +110,25 @@
             font-weight: 600;
             position: sticky;
             top: 0;
+            cursor: pointer;
+            z-index: 1;
+        }
+        .sortable-header {
+            position: relative;
+            padding-right: 25px;
+        }
+        .sort-icon {
+            position: absolute;
+            right: 8px;
+            color: #999;
+        }
+        .sorted-asc .sort-icon {
+            color: #333;
+            content: "↑";
+        }
+        .sorted-desc .sort-icon {
+            color: #333;
+            content: "↓";
         }
         tbody tr:nth-child(even) {
             background-color: #f8f9fa;
@@ -88,42 +139,55 @@
     </style>
 </head>
 <body>
-        <div class="section">
-            <div class="chart-container">
-                 <div class="main-chart-wrapper">
-                    <h3 class="chart-title">Main Chart: Histogram - Video Distribution by Length</h3>
-                    <canvas id="histogramChart"></canvas>
+    <div class="main-container">
+        <div class="grid-container">
+            <div class="grid-item-main">
+                <div class="section">
+                    <h2 class="section-title">Video Distribution by Length</h2>
+                    <button class="download-btn" style="position: absolute; top: 20px; right: 20px;" onclick="downloadChart('histogramChart')">Download Chart</button>
+                    <div class="chart-wrapper">
+                        <canvas id="histogramChart"></canvas>
+                    </div>
                 </div>
             </div>
-            <div class="chart-container">
-                <div class="sub-chart-wrapper">
-                    <h3 class="chart-title">Auxiliary Chart 1: Box Plot - Video Length by Category</h3>
-                    <canvas id="boxplotChart"></canvas>
-                </div>
-                <div class="sub-chart-wrapper">
-                    <h3 class="chart-title">Auxiliary Chart 2: Line Chart - Engagement by Video Length</h3>
-                    <canvas id="engagementChart"></canvas>
+            <div class="grid-item-side">
+                <div class="section">
+                    <h2 class="section-title">Engagement by Video Length</h2>
+                    <button class="download-btn" style="position: absolute; top: 20px; right: 20px;" onclick="downloadChart('engagementChart')">Download Chart</button>
+                    <div class="chart-wrapper">
+                        <canvas id="engagementChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-
+        <div class="grid-container" style="margin-top: 0;">
+            <div class="grid-item-main">
+                <div class="section">
+                    <h2 class="section-title">Video Length by Category</h2>
+                    <button class="download-btn" style="position: absolute; top: 20px; right: 20px;" onclick="downloadChart('boxplotChart')">Download Chart</button>
+                    <div class="chart-wrapper">
+                        <canvas id="boxplotChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-item-side">
+                <!-- 预留空间，保持布局平衡 -->
+            </div>
+        </div>
         <div class="section">
-            <h2 class="section-title">Key Data Table</h2>
+            <h2 class="section-title">Detailed Data Breakdown</h2>
             <div class="data-table-container">
-                <table>
+                <div class="table-header">
+                    <button class="download-btn" onclick="downloadTableAsCSV('data-table')">Download Data</button>
+                </div>
+                <table id="data-table" class="sortable">
                     <thead>
                         <tr>
-                            <th>Video Length Range</th>
-                            <th>Number of Videos</th>
-                            <th>Percentage of Total</th>
-                            <th>Avg. View Duration (s)</th>
-                            <th>Avg. Completion Rate</th>
-                            <th>Avg. Interaction Rate</th>
-                            <th>Audience Retention (First 3s)</th>
-                            <th>Audience Retention (at 50%)</th>
-                            <th>Peak Interaction Time (s)</th>
-                            <th>Skip Rate (%)</th>
-                            <th>Avg. Comments</th>
+                            <th class="sortable-header" onclick="sortTable(0)">Video Length Range <span class="sort-icon">↕</span></th>
+                            <th class="sortable-header" onclick="sortTable(1)">Number of Videos <span class="sort-icon">↕</span></th>
+                            <th class="sortable-header" onclick="sortTable(2)">Percentage of Videos <span class="sort-icon">↕</span></th>
+                            <th class="sortable-header" onclick="sortTable(3)">Average Interaction Rate <span class="sort-icon">↕</span></th>
+                            <th class="sortable-header" onclick="sortTable(4)">Average Comments Number <span class="sort-icon">↕</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,130 +195,70 @@
                             <td>0-15s</td>
                             <td>1,250</td>
                             <td>35.7%</td>
-                            <td>12</td>
-                            <td>85.2%</td>
                             <td>8.5%</td>
-                            <td>95.1%</td>
-                            <td>90.3%</td>
-                            <td>8</td>
-                            <td>4.9%</td>
                             <td>15</td>
                         </tr>
                         <tr>
                             <td>16-30s</td>
                             <td>980</td>
                             <td>28.0%</td>
-                            <td>22</td>
-                            <td>75.6%</td>
                             <td>9.2%</td>
-                            <td>92.5%</td>
-                            <td>81.0%</td>
-                            <td>18</td>
-                            <td>7.5%</td>
                             <td>28</td>
                         </tr>
                         <tr>
                             <td>31-60s</td>
                             <td>720</td>
                             <td>20.6%</td>
-                            <td>41</td>
-                            <td>68.1%</td>
                             <td>10.1%</td>
-                            <td>90.3%</td>
-                            <td>72.5%</td>
-                            <td>25</td>
-                            <td>9.7%</td>
                             <td>45</td>
                         </tr>
                         <tr>
                             <td>1-3min</td>
                             <td>350</td>
                             <td>10.0%</td>
-                            <td>95</td>
-                            <td>55.3%</td>
                             <td>12.5%</td>
-                            <td>88.0%</td>
-                            <td>60.1%</td>
-                            <td>45</td>
-                            <td>12.0%</td>
                             <td>88</td>
                         </tr>
                         <tr>
                             <td>3-5min</td>
                             <td>110</td>
                             <td>3.1%</td>
-                            <td>150</td>
-                            <td>42.8%</td>
                             <td>11.8%</td>
-                            <td>85.6%</td>
-                            <td>48.2%</td>
-                            <td>120</td>
-                            <td>15.4%</td>
                             <td>110</td>
                         </tr>
                         <tr>
                             <td>5-10min</td>
                             <td>65</td>
                             <td>1.9%</td>
-                            <td>240</td>
-                            <td>35.5%</td>
                             <td>9.5%</td>
-                            <td>82.1%</td>
-                            <td>40.5%</td>
-                            <td>180</td>
-                            <td>18.9%</td>
                             <td>95</td>
                         </tr>
                         <tr>
                             <td>10-20min</td>
                             <td>15</td>
                             <td>0.4%</td>
-                            <td>480</td>
-                            <td>28.9%</td>
                             <td>8.2%</td>
-                            <td>78.5%</td>
-                            <td>33.0%</td>
-                            <td>300</td>
-                            <td>22.5%</td>
                             <td>72</td>
                         </tr>
                          <tr>
                             <td>20-30min</td>
                             <td>8</td>
                             <td>0.2%</td>
-                            <td>720</td>
-                            <td>21.0%</td>
                             <td>7.1%</td>
-                            <td>75.0%</td>
-                            <td>25.8%</td>
-                            <td>450</td>
-                            <td>28.0%</td>
                             <td>61</td>
                         </tr>
                         <tr>
                             <td>30-60min</td>
                             <td>3</td>
                             <td>0.1%</td>
-                            <td>950</td>
-                            <td>15.8%</td>
                             <td>6.5%</td>
-                            <td>70.2%</td>
-                            <td>19.3%</td>
-                            <td>600</td>
-                            <td>35.8%</td>
                             <td>55</td>
                         </tr>
                         <tr>
                             <td>>60min</td>
                             <td>1</td>
                             <td>0.03%</td>
-                            <td>1200</td>
-                            <td>9.5%</td>
                             <td>5.3%</td>
-                            <td>65.8%</td>
-                            <td>12.1%</td>
-                            <td>980</td>
-                            <td>45.2%</td>
                             <td>40</td>
                         </tr>
                     </tbody>
@@ -264,6 +268,104 @@
     </div>
 
     <script>
+        // Functions for sorting tables and downloading data
+        function sortTable(columnIndex) {
+            const table = document.getElementById('data-table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const headers = table.querySelectorAll('th.sortable-header');
+            
+            // Determine sort direction
+            const header = headers[columnIndex];
+            const isAscending = !header.classList.contains('sorted-asc');
+            
+            // Reset all headers
+            headers.forEach(h => {
+                h.classList.remove('sorted-asc', 'sorted-desc');
+            });
+            
+            // Set current header sort state
+            if (isAscending) {
+                header.classList.add('sorted-asc');
+            } else {
+                header.classList.add('sorted-desc');
+            }
+            
+            // Sort rows
+            rows.sort((a, b) => {
+                let aValue = a.cells[columnIndex].textContent;
+                let bValue = b.cells[columnIndex].textContent;
+                
+                // Handle percentage values
+                if (aValue.includes('%')) {
+                    aValue = parseFloat(aValue);
+                    bValue = parseFloat(bValue);
+                }
+                // Handle number with commas
+                else if (aValue.includes(',')) {
+                    aValue = parseInt(aValue.replace(/,/g, ''));
+                    bValue = parseInt(bValue.replace(/,/g, ''));
+                }
+                // Handle numeric comparison
+                else if (!isNaN(parseFloat(aValue))) {
+                    aValue = parseFloat(aValue);
+                    bValue = parseFloat(bValue);
+                }
+                
+                if (aValue < bValue) return isAscending ? -1 : 1;
+                if (aValue > bValue) return isAscending ? 1 : -1;
+                return 0;
+            });
+            
+            // Reorder rows in the table
+            rows.forEach(row => tbody.appendChild(row));
+        }
+        
+        function downloadTableAsCSV(tableId) {
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tr');
+            let csv = [];
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = [], cols = rows[i].querySelectorAll('td, th');
+                
+                for (let j = 0; j < cols.length; j++) {
+                    // Clean the text content (remove sort icons)
+                    let text = cols[j].textContent.trim();
+                    text = text.replace('↕', '');
+                    
+                    // Escape quotes and wrap in quotes
+                    row.push('"' + text.replace(/"/g, '""') + '"');
+                }
+                
+                csv.push(row.join(','));
+            }
+            
+            downloadCSV(csv.join('\n'), 'video_duration_data.csv');
+        }
+        
+        function downloadChart(chartId) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            link.download = chartId + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
         document.addEventListener('DOMContentLoaded', function () {
             const videoLengthLabels = ['0-15s', '16-30s', '31-60s', '1-3min', '3-5min', '5-10min', '10-20min', '20-30min', '30-60min', '>60min'];
 
@@ -294,7 +396,12 @@
                         }
                     },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Video Distribution by Length',
+                            font: { size: 18 }
+                        }
                     }
                 }
             });
@@ -304,15 +411,17 @@
             new Chart(boxplotCtx, {
                 type: 'boxplot',
                 data: {
-                    labels: ['Vlog', 'Gaming', 'Tutorial', 'Music', 'News'],
+                    labels: ['Vlog', 'Gaming', 'Tutorial', 'Music', 'News', 'Comedy', 'DIY'],
                     datasets: [{
                         label: 'Video Length Distribution (seconds)',
                         data: [
-                            [60, 120, 180, 240, 300, 450, 600, 900],      // Vlog
-                            [300, 600, 900, 1200, 1800, 2400, 3600],    // Gaming
-                            [180, 300, 450, 600, 750, 900, 1200, 1500], // Tutorial
-                            [120, 150, 180, 210, 240, 270, 300, 330],    // Music
-                            [30, 45, 60, 90, 120, 150, 180]             // News
+                            [60, 120, 180, 240, 300, 450, 600, 900, 100, 150, 200, 250, 350, 500],
+                            [300, 600, 900, 1200, 1800, 2400, 3600, 400, 700, 1000, 1500, 2000, 3000],
+                            [180, 300, 450, 600, 750, 900, 1200, 1500, 250, 400, 550, 700, 850, 1000],
+                            [120, 150, 180, 210, 240, 270, 300, 330, 140, 160, 190, 220, 250, 280],
+                            [30, 45, 60, 90, 120, 150, 180, 40, 50, 70, 100, 130, 160],
+                            [90, 120, 150, 180, 210, 240, 300, 100, 130, 160, 190, 220, 250],
+                            [240, 360, 480, 600, 720, 900, 300, 420, 540, 660, 780, 840]
                         ],
                         backgroundColor: 'rgba(255, 99, 132, 0.6)',
                         borderColor: 'rgba(255, 99, 132, 1)',
@@ -331,7 +440,12 @@
                         }
                     },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Video Length by Category',
+                            font: { size: 18 }
+                        }
                     }
                 }
             });
@@ -344,21 +458,14 @@
                     labels: videoLengthLabels,
                     datasets: [
                         {
-                            label: 'Avg. Completion Rate (%)',
-                            data: [85.2, 75.6, 68.1, 55.3, 42.8, 35.5, 28.9, 21.0, 15.8, 9.5],
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            yAxisID: 'y',
-                            tension: 0.1
-                        },
-                        {
                             label: 'Avg. Interaction Rate (%)',
                             data: [8.5, 9.2, 10.1, 12.5, 11.8, 9.5, 8.2, 7.1, 6.5, 5.3],
                             borderColor: 'rgba(255, 159, 64, 1)',
                             backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                            yAxisID: 'y1',
+                            yAxisID: 'y',
                             tension: 0.1
-                        }
+                        },
+                        // 已移除观众保留率数据集
                     ]
                 },
                 options: {
@@ -372,22 +479,19 @@
                         y: {
                             type: 'linear',
                             position: 'left',
-                            title: { display: true, text: 'Avg. Completion Rate (%)' }
-                        },
-                        y1: {
-                            type: 'linear',
-                            position: 'right',
-                            title: { display: true, text: 'Avg. Interaction Rate (%)' },
-                            grid: {
-                                drawOnChartArea: false
-                            }
+                            title: { display: true, text: 'Rate (%)' }
                         },
                         x: {
                            title: { display: true, text: 'Video Length Range' }
                         }
                     },
                     plugins: {
-                        legend: { position: 'top' }
+                        legend: { position: 'top' },
+                        title: {
+                            display: true,
+                            text: 'Engagement by Video Length',
+                            font: { size: 18 }
+                        }
                     }
                 }
             });
