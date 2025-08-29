@@ -148,6 +148,20 @@
         .toggle-btn:hover {
             background-color: #3a7bc8;
         }
+        .download-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+            margin-left: 10px;
+        }
+        .download-btn:hover {
+            background-color: #218838;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -157,7 +171,10 @@
         <div class="chart-section">
             <h3 class="chart-title">
                 Music Type Distribution
-                <button class="toggle-btn" id="toggleMusicTypeChart">Show Radar Chart</button>
+                <div>
+                    <button class="download-btn" id="downloadMusicTypeChart"><i class="fas fa-download"></i> Download</button>
+                    <button class="toggle-btn" id="toggleMusicTypeChart">Show Radar Chart</button>
+                </div>
             </h3>
             <div class="chart-container" id="musicTypePieContainer">
                 <canvas id="musicTypePieChart"></canvas>
@@ -171,7 +188,10 @@
         <div class="chart-section">
             <h3 class="chart-title">
                 Music Tone Distribution
-                <button class="toggle-btn" id="toggleMusicToneChart">Show Radar Chart</button>
+                <div>
+                    <button class="download-btn" id="downloadMusicToneChart"><i class="fas fa-download"></i> Download</button>
+                    <button class="toggle-btn" id="toggleMusicToneChart">Show Radar Chart</button>
+                </div>
             </h3>
             <div class="chart-container" id="musicTonePieContainer">
                 <canvas id="musicTonePieChart"></canvas>
@@ -183,7 +203,12 @@
 
         <!-- Data Table -->
         <div class="table-section">
-            <h3 class="chart-title">BGM Analysis</h3>
+            <h3 class="chart-title">
+                BGM Analysis
+                <div>
+                    <button class="download-btn" id="downloadBgmTable"><i class="fas fa-download"></i> Download</button>
+                </div>
+            </h3>
             <table>
                 <thead>
                     <tr>
@@ -205,6 +230,55 @@
     </div>
 
     <script>
+        // Function to download chart as image
+        function downloadChart(chartId, filename) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Function to download table as CSV
+        function downloadTableAsCSV(tableId, filename) {
+            const table = document.querySelector(tableId);
+            const rows = table.querySelectorAll('tr');
+            let csv = [];
+            
+            // Get headers
+            const headers = [];
+            const headerCells = rows[0].querySelectorAll('th');
+            headerCells.forEach(cell => {
+                headers.push('"' + cell.textContent.trim() + '"');
+            });
+            csv.push(headers.join(','));
+            
+            // Get data rows
+            for (let i = 1; i < rows.length; i++) {
+                if (rows[i].classList.contains('related-content')) continue; // Skip related content rows
+                
+                const row = rows[i];
+                const cols = row.querySelectorAll('td');
+                const rowData = [];
+                
+                cols.forEach(col => {
+                    rowData.push('"' + col.textContent.trim().replace(/"/g, '""') + '"');
+                });
+                
+                csv.push(rowData.join(','));
+            }
+            
+            // Download CSV file
+            const csvContent = "data:text/csv;charset=utf-8," + csv.join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
         // Function to generate SVG data URL for thumbnails
         function generateSvgThumbnail(text) {
             const encodedText = text.replace(/\s+/g, ' ').trim();
@@ -1273,6 +1347,23 @@
                     radarContainer.style.display = 'none';
                     button.textContent = 'Show Radar Chart';
                 }
+            });
+            
+            // Add event listeners for download buttons
+            document.getElementById('downloadMusicTypeChart').addEventListener('click', function() {
+                const activeContainer = document.getElementById('musicTypePieContainer').style.display !== 'none' 
+                    ? 'musicTypePieChart' : 'musicTypeRadarChart';
+                downloadChart(activeContainer, 'music_type_chart.png');
+            });
+            
+            document.getElementById('downloadMusicToneChart').addEventListener('click', function() {
+                const activeContainer = document.getElementById('musicTonePieContainer').style.display !== 'none' 
+                    ? 'musicTonePieChart' : 'musicToneRadarChart';
+                downloadChart(activeContainer, 'music_tone_chart.png');
+            });
+            
+            document.getElementById('downloadBgmTable').addEventListener('click', function() {
+                downloadTableAsCSV('table', 'bgm_analysis_data.csv');
             });
         }
 
