@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -23,6 +24,7 @@
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: relative;
         }
         .full-width {
             grid-column: 1 / -1;
@@ -34,6 +36,9 @@
             color: #333;
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .chart-container {
             height: 500px;
@@ -45,6 +50,7 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             overflow-x: auto;
+            position: relative;
         }
         table {
             width: 100%;
@@ -63,6 +69,26 @@
             position: sticky;
             top: 0;
             white-space: nowrap;
+            cursor: pointer;
+        }
+        th:hover {
+            background-color: #e9ecef;
+        }
+        th::after {
+            content: '';
+            display: inline-block;
+            width: 0;
+            height: 0;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        th.sort-asc::after {
+            content: '▲';
+            font-size: 0.7rem;
+        }
+        th.sort-desc::after {
+            content: '▼';
+            font-size: 0.7rem;
         }
         tr:hover {
             background-color: #f1f1f1;
@@ -98,48 +124,101 @@
             transform: scale(1.05);
             z-index: 10;
         }
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+        .download-icon {
+            width: 14px;
+            height: 14px;
+            fill: white;
+        }
     </style>
 </head>
 <body>
     <div class="main-container">
         <div class="chart-section full-width">
-            <h3 class="chart-title">Top Creators by Total Views</h3>
+            <h3 class="chart-title">
+                <span>Top Creators by Total Views</span>
+                <button class="download-btn" id="download-leaderboard">
+                    <svg class="download-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
+                    </svg>
+                    Download
+                </button>
+            </h3>
             <div class="chart-container">
                 <canvas id="leaderboardChart"></canvas>
             </div>
         </div>
 
         <div class="chart-section">
-            <h3 class="chart-title">Followers vs. Engagement Rate</h3>
+            <h3 class="chart-title">
+                <span>Followers vs. Engagement Rate</span>
+                <button class="download-btn" id="download-scatter">
+                    <svg class="download-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
+                    </svg>
+                    Download
+                </button>
+            </h3>
             <div class="chart-container">
                 <canvas id="scatterPlot"></canvas>
             </div>
         </div>
 
         <div class="chart-section">
-            <h3 class="chart-title">Creator Influence Map</h3>
+            <h3 class="chart-title">
+                <span>Creator Influence Map</span>
+                <button class="download-btn" id="download-bubble">
+                    <svg class="download-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
+                    </svg>
+                    Download
+                </button>
+            </h3>
             <div class="chart-container">
                 <div id="bubbleChart" class="bubble-container"></div>
             </div>
         </div>
 
         <div class="table-section">
-            <h3 class="chart-title">Top Creator Analysis</h3>
+            <h3 class="chart-title">
+                <span>Top Creator Analysis</span>
+                <button class="download-btn" id="download-table">
+                    <svg class="download-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
+                    </svg>
+                    Download
+                </button>
+            </h3>
             <table>
                 <thead>
                     <tr>
-                        <th>Rank</th>
-                        <th>Creator Name</th>
-                        <th>Creator Type</th>
-                        <th>Followers (M)</th>
-                        <th>Follower Growth (MoM %)</th>
-                        <th>Videos Published</th>
-                        <th>Frequency (Videos/Week)</th>
-                        <th>Total Views (M)</th>
-                        <th>Total Engagement (M)</th>
-                        <th>Engagement Rate (%)</th>
-                        <th>Positive Sentiment (%)</th>
-                        <th>Follower Overlap (%)</th>
+                        <th data-sort="rank">Rank</th>
+                        <th data-sort="name">Creator Name</th>
+                        <th data-sort="type">Creator Type</th>
+                        <th data-sort="followers">Followers (M)</th>
+                        <th data-sort="growth">Follower Growth (MoM %)</th>
+                        <th data-sort="videos">Videos Published</th>
+                        <th data-sort="frequency">Frequency (Videos/Week)</th>
+                        <th data-sort="views">Total Views (M)</th>
+                        <th data-sort="engagement">Total Engagement (M)</th>
+                        <th data-sort="engagementRate">Engagement Rate (%)</th>
+                        <th data-sort="sentiment">Positive Sentiment (%)</th>
+                        <th data-sort="overlap">Follower Overlap (%)</th>
                     </tr>
                 </thead>
                 <tbody id="creator-data-body">
@@ -278,9 +357,9 @@
                                 const type = context.raw.type;
                                 return [
                                     `${name} (${type})`,
-                                    `粉丝量: ${followers}M`,
-                                    `互动率: ${engagementRate}%`,
-                                    `作品数量: ${videos}`
+                                    `Followers: ${followers}M`,
+                                    `Engagement Rate: ${engagementRate}%`,
+                                    `Videos: ${videos}`
                                 ];
                             }
                         }
@@ -291,7 +370,7 @@
                     x: {
                         title: {
                             display: true,
-                            text: '粉丝量 (百万)'
+                            text: 'Followers (Millions)'
                         },
                         min: 0,
                         grid: {
@@ -312,7 +391,7 @@
                     y: {
                         title: {
                             display: true,
-                            text: '互动率 (%)'
+                            text: 'Engagement Rate (%)'
                         },
                         min: 0,
                         grid: {
@@ -350,16 +429,16 @@
                         ctx.textAlign = 'center';
                         
                         // Top right quadrant
-                        ctx.fillText('明星创作者', (xCenter + chartArea.right) / 2, (chartArea.top + yCenter) / 2);
+                        ctx.fillText('Star Creators', (xCenter + chartArea.right) / 2, (chartArea.top + yCenter) / 2);
                         
                         // Top left quadrant
-                        ctx.fillText('潜力创作者', (chartArea.left + xCenter) / 2, (chartArea.top + yCenter) / 2);
+                        ctx.fillText('Potential Creators', (chartArea.left + xCenter) / 2, (chartArea.top + yCenter) / 2);
                         
                         // Bottom right quadrant
-                        ctx.fillText('知名创作者', (xCenter + chartArea.right) / 2, (yCenter + chartArea.bottom) / 2);
+                        ctx.fillText('Established Creators', (xCenter + chartArea.right) / 2, (yCenter + chartArea.bottom) / 2);
                         
                         // Bottom left quadrant
-                        ctx.fillText('新兴创作者', (chartArea.left + xCenter) / 2, (yCenter + chartArea.bottom) / 2);
+                        ctx.fillText('Emerging Creators', (chartArea.left + xCenter) / 2, (yCenter + chartArea.bottom) / 2);
                         
                         ctx.restore();
                     }
@@ -429,6 +508,141 @@
         // Create bubble chart on load and resize
         createBubbleChart();
         window.addEventListener('resize', createBubbleChart);
+
+        // Table Sorting Functionality
+        let currentSort = { column: 'rank', direction: 'asc' };
+        
+        function sortTable(column) {
+            const direction = column === currentSort.column && currentSort.direction === 'asc' ? 'desc' : 'asc';
+            currentSort = { column, direction };
+            
+            // Clear all sort indicators
+            document.querySelectorAll('th').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            // Add sort indicator to current column
+            const th = document.querySelector(`th[data-sort="${column}"]`);
+            th.classList.add(direction === 'asc' ? 'sort-asc' : 'sort-desc');
+            
+            // Sort the data
+            const sortedData = [...creatorData].sort((a, b) => {
+                let valueA = a[column];
+                let valueB = b[column];
+                
+                // Handle string values (for overlap which has % sign)
+                if (typeof valueA === 'string' && valueA.includes('%')) {
+                    valueA = parseFloat(valueA);
+                    valueB = parseFloat(valueB);
+                }
+                
+                if (direction === 'asc') {
+                    return valueA > valueB ? 1 : -1;
+                } else {
+                    return valueA < valueB ? 1 : -1;
+                }
+            });
+            
+            // Repopulate table
+            tableBody.innerHTML = '';
+            sortedData.forEach(c => {
+                const row = `<tr>
+                    <td>${c.rank}</td>
+                    <td>${c.name}</td>
+                    <td>${c.type}</td>
+                    <td>${c.followers.toLocaleString()}</td>
+                    <td>${c.growth.toFixed(1)}%</td>
+                    <td>${c.videos.toLocaleString()}</td>
+                    <td>${c.frequency}</td>
+                    <td>${c.views.toLocaleString()}</td>
+                    <td>${c.engagement.toLocaleString()}</td>
+                    <td>${c.engagementRate.toFixed(1)}</td>
+                    <td>${c.sentiment}</td>
+                    <td>${c.overlap}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+        
+        // Add click event listeners to table headers
+        document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+                sortTable(th.dataset.sort);
+            });
+        });
+        
+        // Initialize table with default sort
+        sortTable('rank');
+        
+        // Download Functionality
+        function downloadCSV(data, filename) {
+            const csvContent = data.map(row => Object.values(row).join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function downloadChart(chartId, filename) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function downloadSVG(svgId, filename) {
+            const svgElement = document.getElementById(svgId);
+            const svgData = new XMLSerializer().serializeToString(svgElement);
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+        }
+        
+        // Add event listeners to download buttons
+        document.getElementById('download-leaderboard').addEventListener('click', () => {
+            downloadChart('leaderboardChart', 'top_creators_by_views.png');
+        });
+        
+        document.getElementById('download-scatter').addEventListener('click', () => {
+            downloadChart('scatterPlot', 'followers_vs_engagement.png');
+        });
+        
+        document.getElementById('download-bubble').addEventListener('click', () => {
+            // For the bubble chart, we'll create a screenshot of the div
+            html2canvas(document.getElementById('bubbleChart')).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'creator_influence_map.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+        
+        document.getElementById('download-table').addEventListener('click', () => {
+            downloadCSV(creatorData, 'top_creator_analysis.csv');
+        });
+        
+        // Polyfill for html2canvas if needed
+        if (typeof html2canvas === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://html2canvas.hertzen.com/dist/html2canvas.min.js';
+            script.onload = () => {
+                console.log('html2canvas loaded');
+            };
+            document.head.appendChild(script);
+        }
     </script>
 </body>
 </html>
