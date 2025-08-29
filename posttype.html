@@ -11,14 +11,25 @@
     <style>
         .data-table th {
             cursor: pointer;
+            position: relative;
+            padding-right: 20px;
+        }
+        .data-table th::after {
+            content: "";
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
         }
         .data-table th.sort-asc::after {
-            content: ' ↑';
-            color: #555;
+            content: "▲";
+            font-size: 10px;
         }
         .data-table th.sort-desc::after {
-            content: ' ↓';
-            color: #555;
+            content: "▼";
+            font-size: 10px;
         }
     </style>
     <style>
@@ -357,6 +368,56 @@
             link.href = URL.createObjectURL(blob);
             link.click();
         }
+        
+        // 表格排序功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const table = document.querySelector('.data-table');
+            const headers = table.querySelectorAll('th');
+            const tableBody = table.querySelector('tbody');
+            const rows = tableBody.querySelectorAll('tr');
+            
+            // 为每个表头添加点击事件
+            headers.forEach(function(header, index) {
+                header.addEventListener('click', function() {
+                    // 移除所有表头的排序类
+                    headers.forEach(h => {
+                        h.classList.remove('sort-asc', 'sort-desc');
+                    });
+                    
+                    // 确定排序方向
+                    const isAscending = !this.classList.contains('sort-asc');
+                    
+                    // 添加适当的排序类
+                    this.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
+                    
+                    // 获取所有行并转换为数组
+                    const rowsArray = Array.from(rows);
+                    
+                    // 根据当前列排序行
+                    rowsArray.sort(function(rowA, rowB) {
+                        const cellA = rowA.querySelectorAll('td')[index].textContent.trim();
+                        const cellB = rowB.querySelectorAll('td')[index].textContent.trim();
+                        
+                        // 检查是否为数字（包括带逗号的数字和百分比）
+                        const numA = parseFloat(cellA.replace(/,/g, '').replace(/%/g, ''));
+                        const numB = parseFloat(cellB.replace(/,/g, '').replace(/%/g, ''));
+                        
+                        if (!isNaN(numA) && !isNaN(numB)) {
+                            return isAscending ? numA - numB : numB - numA;
+                        } else {
+                            return isAscending ? 
+                                cellA.localeCompare(cellB) : 
+                                cellB.localeCompare(cellA);
+                        }
+                    });
+                    
+                    // 将排序后的行重新添加到表格中
+                    rowsArray.forEach(function(row) {
+                        tableBody.appendChild(row);
+                    });
+                });
+            });
+        });
 
         // Donut Chart - Post Type Distribution
         const donutCtx = document.getElementById('donutChart').getContext('2d');
