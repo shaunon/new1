@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>post Ecosystem Analysis</title>
+    <title>Post Type Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <!-- 表格排序样式 -->
     <style>
         .data-table th {
@@ -90,6 +91,19 @@
             max-height: 500px;
             overflow-y: auto;
         }
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .download-btn:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -98,13 +112,25 @@
 
         <div class="chart-row">
             <div class="chart-container main-chart" style="flex: 1.2;">
-                <h2>1. post Type Distribution (Donut Chart)</h2>
+                <h2>Post Type Distribution (Donut Chart)</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div></div>
+                    <button class="download-btn" onclick="downloadChart('donutChart', 'post_type_distribution')">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
                 <div class="chart-box">
                     <canvas id="donutChart"></canvas>
                 </div>
             </div>
             <div class="chart-container" style="flex: 1.8;">
-                <h2>2. Monthly Video Contribution (Stacked Bar Chart)</h2>
+                <h2>Monthly Video Contribution (Stacked Bar Chart)</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div></div>
+                    <button class="download-btn" onclick="downloadChart('stackedBarChart', 'monthly_video_contribution')">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
                 <div class="chart-box">
                     <canvas id="stackedBarChart"></canvas>
                 </div>
@@ -112,30 +138,39 @@
         </div>
 
         <div class="chart-container">
-            <h2>3. post Performance Analysis (Bubble Chart)</h2>
+            <h2>Post Performance Analysis (Bubble Chart)</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div></div>
+                <button class="download-btn" onclick="downloadChart('bubbleChart', 'post_performance_analysis')">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
             <div class="chart-box">
                 <canvas id="bubbleChart"></canvas>
             </div>
         </div>
 
         <div class="chart-container">
-            <h2>4. Detailed Metrics by post Type</h2>
+            <h2>Detailed Metrics by Post Type</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div></div>
+                <button class="download-btn" onclick="downloadTable('data-table', 'detailed_metrics_by_post_type')">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>post Type</th>
-                            <th>Video Count</th>
-                            <th>Video %</th>
+                            <th>Post Type</th>
+                            <th>Number of Posts</th>
+                            <th>Percentage of Posts</th>
                             <th>Total Views</th>
-                            <th>Avg Views/Video</th>
-                            <th>Total Engagement</th>
-                            <th>Engagement Rate</th>
-                            <th>post Count</th>
-                            <th>Total Followers</th>
-                            <th>Avg Followers</th>
-                            <th>View/Follower</th>
-                            <th>Viral Videos %</th>
+                            <th>Average Views/Post</th>
+                            <th>Total Interactions</th>
+                            <th>Average Interaction Rate</th>
+                            <th>Total Creators</th>
+                            <th>Percentage of Top Posts (Views > 1M)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -148,9 +183,6 @@
                             <td>3,400,000</td>
                             <td>4.0%</td>
                             <td>120</td>
-                            <td>12,000,000</td>
-                            <td>100,000</td>
-                            <td>7.08</td>
                             <td>2.8%</td>
                         </tr>
                         <tr>
@@ -162,9 +194,6 @@
                             <td>6,000,000</td>
                             <td>5.0%</td>
                             <td>150</td>
-                            <td>18,000,000</td>
-                            <td>120,000</td>
-                            <td>6.67</td>
                             <td>3.2%</td>
                         </tr>
                         <tr>
@@ -176,9 +205,6 @@
                             <td>10,800,000</td>
                             <td>5.0%</td>
                             <td>180</td>
-                            <td>27,000,000</td>
-                            <td>150,000</td>
-                            <td>8.00</td>
                             <td>4.5%</td>
                         </tr>
                         <tr>
@@ -190,9 +216,6 @@
                             <td>1,500,000</td>
                             <td>4.0%</td>
                             <td>90</td>
-                            <td>6,300,000</td>
-                            <td>70,000</td>
-                            <td>5.95</td>
                             <td>1.8%</td>
                         </tr>
                         <tr>
@@ -204,9 +227,6 @@
                             <td>2,520,000</td>
                             <td>4.0%</td>
                             <td>100</td>
-                            <td>9,000,000</td>
-                            <td>90,000</td>
-                            <td>7.00</td>
                             <td>2.5%</td>
                         </tr>
                         <tr>
@@ -218,9 +238,6 @@
                             <td>4,900,000</td>
                             <td>5.0%</td>
                             <td>140</td>
-                            <td>14,000,000</td>
-                            <td>100,000</td>
-                            <td>7.00</td>
                             <td>3.0%</td>
                         </tr>
                         <tr>
@@ -232,9 +249,6 @@
                             <td>1,000,000</td>
                             <td>4.0%</td>
                             <td>80</td>
-                            <td>5,600,000</td>
-                            <td>70,000</td>
-                            <td>4.46</td>
                             <td>1.2%</td>
                         </tr>
                         <tr>
@@ -246,9 +260,6 @@
                             <td>1,280,000</td>
                             <td>4.0%</td>
                             <td>50</td>
-                            <td>6,000,000</td>
-                            <td>120,000</td>
-                            <td>5.33</td>
                             <td>2.0%</td>
                         </tr>
                         <tr>
@@ -260,9 +271,6 @@
                             <td>3,850,000</td>
                             <td>5.0%</td>
                             <td>110</td>
-                            <td>12,100,000</td>
-                            <td>110,000</td>
-                            <td>6.36</td>
                             <td>2.8%</td>
                         </tr>
                         <tr>
@@ -274,9 +282,6 @@
                             <td>1,470,000</td>
                             <td>3.0%</td>
                             <td>70</td>
-                            <td>7,700,000</td>
-                            <td>110,000</td>
-                            <td>6.36</td>
                             <td>1.5%</td>
                         </tr>
                         <tr>
@@ -288,9 +293,6 @@
                             <td>840,000</td>
                             <td>4.0%</td>
                             <td>60</td>
-                            <td>4,800,000</td>
-                            <td>80,000</td>
-                            <td>4.38</td>
                             <td>1.0%</td>
                         </tr>
                         <tr>
@@ -302,9 +304,6 @@
                             <td>700,000</td>
                             <td>4.0%</td>
                             <td>70</td>
-                            <td>5,600,000</td>
-                            <td>80,000</td>
-                            <td>3.13</td>
                             <td>0.8%</td>
                         </tr>
                         <tr>
@@ -316,9 +315,6 @@
                             <td>500,000</td>
                             <td>4.0%</td>
                             <td>50</td>
-                            <td>3,500,000</td>
-                            <td>70,000</td>
-                            <td>3.57</td>
                             <td>0.5%</td>
                         </tr>
                     </tbody>
@@ -328,7 +324,41 @@
     </div>
 
     <script>
-        // Donut Chart - post Type Distribution
+        // 下载图表功能
+        function downloadChart(chartId, filename) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            link.download = filename + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // 下载表格功能
+        function downloadTable(tableClass, filename) {
+            const table = document.querySelector('.' + tableClass);
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = [], cols = rows[i].querySelectorAll('td, th');
+                
+                for (let j = 0; j < cols.length; j++) {
+                    let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, '').replace(/,/g, ';');
+                    row.push('"' + data + '"');
+                }
+                
+                csv.push(row.join(','));
+            }
+            
+            const csvString = csv.join('\n');
+            const link = document.createElement('a');
+            link.download = filename + '.csv';
+            const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+            link.href = URL.createObjectURL(blob);
+            link.click();
+        }
+
+        // Donut Chart - Post Type Distribution
         const donutCtx = document.getElementById('donutChart').getContext('2d');
         const donutChart = new Chart(donutCtx, {
             type: 'doughnut',
@@ -367,7 +397,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'post Type Distribution (%)',
+                        text: 'Creator Type Distribution (%)',
                         font: {
                             size: 16
                         }
@@ -459,7 +489,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Monthly Video Contribution by post Type',
+                        text: 'Monthly Video Contribution by Creator Type',
                         font: {
                             size: 16
                         }
@@ -475,7 +505,7 @@
             }
         });
 
-        // Bubble Chart - post Performance
+        // Bubble Chart - Creator Performance
         const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
         const bubbleChart = new Chart(bubbleCtx, {
             type: 'bubble',
@@ -619,7 +649,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: 'post Performance Analysis (Bubble size = Total Engagement in 100k)',
+                        text: 'Creator Performance Analysis (Bubble size = Total Engagement in 100k)',
                         font: {
                             size: 16
                         }
