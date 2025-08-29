@@ -22,6 +22,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             padding: 20px;
             margin-bottom: 30px;
+            position: relative;
         }
         .chart-row {
             display: flex;
@@ -57,6 +58,11 @@
             position: sticky;
             top: 0;
         }
+        .data-table th:after {
+            content: ' ⇵';
+            font-size: 12px;
+            color: #999;
+        }
         .data-table tr:nth-child(even) {
             background-color: #f9f9f9;
         }
@@ -73,12 +79,29 @@
         .platform-3 { background-color: rgba(255, 206, 86, 0.2); border-color: rgba(255, 206, 86, 1); }
         .platform-4 { background-color: rgba(75, 192, 192, 0.2); border-color: rgba(75, 192, 192, 1); }
         .platform-5 { background-color: rgba(153, 102, 255, 0.2); border-color: rgba(153, 102, 255, 1); }
+        .download-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .download-btn:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
     <div class="dashboard">
         <div class="chart-container">
             <h2>1. Platform Performance Comparison (Bar Chart)</h2>
+            <button class="download-btn" onclick="downloadChart('barChart')">Download</button>
             <div class="chart-box">
                 <canvas id="barChart"></canvas>
             </div>
@@ -87,12 +110,14 @@
         <div class="chart-row">
             <div class="chart-container" style="flex: 1.5;">
                 <h2>2. Platform Metric Comparison (Radar Chart)</h2>
+                <button class="download-btn" onclick="downloadChart('radarChart')">Download</button>
                 <div class="chart-box">
                     <canvas id="radarChart"></canvas>
                 </div>
             </div>
             <div class="chart-container" style="flex: 1;">
                 <h2>3. Content Category Distribution (100% Stacked Bar)</h2>
+                <button class="download-btn" onclick="downloadChart('stackedBarChart')">Download</button>
                 <div class="chart-box">
                     <canvas id="stackedBarChart"></canvas>
                 </div>
@@ -101,22 +126,20 @@
 
         <div class="chart-container">
             <h2>4. Platform Performance Metrics</h2>
+            <button class="download-btn" onclick="downloadTable('data-table')">Download</button>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Platform</th>
-                            <th>Video Count</th>
+                            <th>Platform Name</th>
+                            <th>Number of Posts</th>
                             <th>Total Views</th>
-                            <th>Total Engagement</th>
-                            <th>Avg. Engagement Rate</th>
-                            <th>Avg. Completion Rate</th>
-                            <th>Median Followers</th>
+                            <th>Total Interactions</th>
+                            <th>Average Interaction Rate</th>
+                            <th>Median Follower Size</th>
                             <th>Comment/Like Ratio</th>
                             <th>Share Rate</th>
-                            <th>Daily Active Creators</th>
-                            <th>Avg. Video Lifespan (hrs)</th>
-                            <th>Top 3 Categories</th>
+                            <th>Top 3 Content Categories</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -126,12 +149,9 @@
                             <td>85,000,000,000</td>
                             <td>3,400,000,000</td>
                             <td>4.0%</td>
-                            <td>65%</td>
                             <td>125,000</td>
                             <td>0.12</td>
                             <td>0.08</td>
-                            <td>950,000</td>
-                            <td>720</td>
                             <td>Entertainment, Music, Gaming</td>
                         </tr>
                         <tr>
@@ -140,12 +160,9 @@
                             <td>120,000,000,000</td>
                             <td>6,000,000,000</td>
                             <td>5.0%</td>
-                            <td>45%</td>
                             <td>85,000</td>
                             <td>0.18</td>
                             <td>0.15</td>
-                            <td>1,500,000</td>
-                            <td>168</td>
                             <td>Dance, Comedy, Lifestyle</td>
                         </tr>
                         <tr>
@@ -154,12 +171,9 @@
                             <td>65,000,000,000</td>
                             <td>2,800,000,000</td>
                             <td>4.3%</td>
-                            <td>52%</td>
                             <td>95,000</td>
                             <td>0.15</td>
                             <td>0.12</td>
-                            <td>1,200,000</td>
-                            <td>240</td>
                             <td>Fashion, Food, Travel</td>
                         </tr>
                         <tr>
@@ -168,12 +182,9 @@
                             <td>45,000,000,000</td>
                             <td>1,800,000,000</td>
                             <td>4.0%</td>
-                            <td>40%</td>
                             <td>75,000</td>
                             <td>0.20</td>
                             <td>0.10</td>
-                            <td>800,000</td>
-                            <td>360</td>
                             <td>News, Family, Sports</td>
                         </tr>
                         <tr>
@@ -182,12 +193,9 @@
                             <td>25,000,000,000</td>
                             <td>1,200,000,000</td>
                             <td>4.8%</td>
-                            <td>30%</td>
                             <td>65,000</td>
                             <td>0.25</td>
                             <td>0.05</td>
-                            <td>350,000</td>
-                            <td>48</td>
                             <td>Gaming, Music, Talk Shows</td>
                         </tr>
                     </tbody>
@@ -225,6 +233,48 @@
             if (value.includes(',')) value = value.replace(/,/g, '');
             if (!isNaN(value)) return parseFloat(value);
             return value;
+        }
+        
+        // Download chart as image
+        function downloadChart(chartId) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            link.download = chartId + '_' + new Date().toISOString().slice(0, 10) + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Download table as CSV
+        function downloadTable(tableClass) {
+            const table = document.querySelector('.' + tableClass);
+            let csv = [];
+            
+            // Get headers
+            const headers = [];
+            const headerCells = table.querySelectorAll('th');
+            headerCells.forEach(cell => {
+                headers.push(cell.textContent.trim());
+            });
+            csv.push(headers.join(','));
+            
+            // Get rows
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const rowData = [];
+                const cells = row.querySelectorAll('td');
+                cells.forEach(cell => {
+                    rowData.push('"' + cell.textContent.trim() + '"');
+                });
+                csv.push(rowData.join(','));
+            });
+            
+            // Download CSV
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'platform_metrics_' + new Date().toISOString().slice(0, 10) + '.csv';
+            link.click();
         }
 
         // Bar Chart - Platform Comparison
@@ -301,31 +351,31 @@
             type: 'radar',
             data: {
                 labels: [
-                    'Engagement Rate', 
-                    'Completion Rate', 
-                    'Share Rate', 
-                    'Comment/Like Ratio',
-                    'Video Lifespan',
-                    'Creator Activity'
+                    'Posts', 
+                    'Likes', 
+                    'Comments', 
+                    'Shares',
+                    'Interactions',
+                    'Creator Count'
                 ],
                 datasets: [
                     {
                         label: 'YouTube',
-                        data: [4.0, 65, 0.08, 0.12, 30, 95],
+                        data: [65, 80, 60, 40, 75, 95],
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 1
                     },
                     {
                         label: 'TikTok',
-                        data: [5.0, 45, 0.15, 0.18, 7, 150],
+                        data: [90, 85, 70, 75, 95, 80],
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 1
                     },
                     {
                         label: 'Instagram',
-                        data: [4.3, 52, 0.12, 0.15, 10, 120],
+                        data: [75, 90, 65, 60, 80, 70],
                         backgroundColor: 'rgba(255, 206, 86, 0.2)',
                         borderColor: 'rgba(255, 206, 86, 1)',
                         borderWidth: 1
@@ -358,12 +408,7 @@
                             label: function(context) {
                                 let label = context.dataset.label || '';
                                 if (label) label += ': ';
-                                if (context.dataIndex === 0) label += context.raw + '%';
-                                else if (context.dataIndex === 2) label += context.raw.toFixed(2);
-                                else if (context.dataIndex === 3) label += context.raw.toFixed(2);
-                                else if (context.dataIndex === 4) label += context.raw + ' days';
-                                else if (context.dataIndex === 5) label += context.raw + 'K creators';
-                                else label += context.raw + '%';
+                                label += context.raw + ' (normalized score)';
                                 return label;
                             }
                         }
