@@ -68,6 +68,38 @@
             border-radius: 2px;
         }
         
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .download-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+        
         .chart-container {
             height: 450px;
             margin-bottom: 20px;
@@ -147,6 +179,18 @@
              text-transform: uppercase;
              letter-spacing: 0.5px;
              border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+             cursor: pointer;
+             user-select: none;
+         }
+         
+         th.sort-asc::after {
+             content: " ↑";
+             font-size: 0.8em;
+         }
+         
+         th.sort-desc::after {
+             content: " ↓";
+             font-size: 0.8em;
          }
          
          td {
@@ -786,7 +830,17 @@
     
     <div class="main-container">
         <div class="chart-section full-width">
-            <h3 class="chart-title">Brand Share of Voice Over Time</h3>
+            <div class="chart-header">
+                <h3 class="chart-title">Brand Share of Voice Over Time</h3>
+                <button class="download-btn" onclick="downloadChart('stackedBarChart', 'Brand_Share_of_Voice_Over_Time')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download
+                </button>
+            </div>
             <div class="chart-controls">
                 <div class="control-group">
                     <label>Time Period:</label>
@@ -804,7 +858,17 @@
         </div>
 
         <div class="chart-section">
-            <h3 class="chart-title">Brand Mentions Trend</h3>
+            <div class="chart-header">
+                <h3 class="chart-title">Brand Mentions Trend</h3>
+                <button class="download-btn" onclick="downloadChart('lineChart', 'Brand_Mentions_Trend')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download
+                </button>
+            </div>
             <div class="chart-controls">
                 <div class="control-group">
                     <label>Metric:</label>
@@ -855,7 +919,17 @@
         </div>
 
         <div class="chart-section">
-            <h3 class="chart-title">Brand Sentiment Analysis</h3>
+            <div class="chart-header">
+                <h3 class="chart-title">Brand Sentiment Analysis</h3>
+                <button class="download-btn" onclick="downloadChart('donutChart', 'Brand_Sentiment_Analysis')">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download
+                </button>
+            </div>
             <div class="chart-container">
                 <canvas id="donutChart"></canvas>
             </div>
@@ -1929,6 +2003,90 @@
                 { name: "创作者E", followers: "780K", engagement: "4.1%", posts: "9" }
             ];
         }
+        
+        // 下载图表功能
+        function downloadChart(chartId, filename) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            link.download = filename + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // 表格排序功能
+        function sortTable(n) {
+            let table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.querySelector('.table-container table');
+            switching = true;
+            // 设置排序方向为升序
+            dir = "asc";
+            
+            // 清除所有表头的排序标记
+            const headers = table.querySelectorAll('th');
+            headers.forEach(header => {
+                header.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            // 添加排序标记到当前表头
+            headers[n].classList.add('sort-asc');
+            
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    
+                    if (!x || !y) continue;
+                    
+                    let xContent = x.textContent || x.innerText;
+                    let yContent = y.textContent || y.innerText;
+                    
+                    // 检查是否应该切换行
+                    if (dir == "asc") {
+                        if (isNaN(xContent.replace(/[^0-9.-]/g, '')) ? 
+                            xContent.toLowerCase() > yContent.toLowerCase() : 
+                            parseFloat(xContent.replace(/[^0-9.-]/g, '')) > parseFloat(yContent.replace(/[^0-9.-]/g, ''))) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (isNaN(xContent.replace(/[^0-9.-]/g, '')) ? 
+                            xContent.toLowerCase() < yContent.toLowerCase() : 
+                            parseFloat(xContent.replace(/[^0-9.-]/g, '')) < parseFloat(yContent.replace(/[^0-9.-]/g, ''))) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        headers[n].classList.remove('sort-asc');
+                        headers[n].classList.add('sort-desc');
+                        switching = true;
+                    }
+                }
+            }
+        }
+        
+        // 初始化表格排序事件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为表格头部添加点击事件
+            const tableHeaders = document.querySelectorAll('.table-container table th');
+            tableHeaders.forEach((header, index) => {
+                header.addEventListener('click', function() {
+                    sortTable(index);
+                });
+            });
+        });
     </script>
 </body>
 </html>
