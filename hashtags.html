@@ -156,6 +156,65 @@
         .hashtag-row.active {
             background-color: #e3f2fd;
         }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .chart-title {
+            margin: 0;
+            font-size: 1.3rem;
+            color: #333;
+        }
+        .download-btn {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            color: #555;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        .download-btn:hover {
+            background-color: #e9ecef;
+            border-color: #ccc;
+        }
+        .download-btn i {
+            margin-right: 5px;
+        }
+        .sortable {
+            cursor: pointer;
+            position: relative;
+        }
+        .sortable:hover {
+            background-color: #e9ecef;
+        }
+        .sortable::after {
+            content: "↕";
+            position: absolute;
+            right: 8px;
+            opacity: 0.5;
+        }
+        .sortable.asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+        .sortable.desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+        .controls-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -166,7 +225,12 @@
     <div class="main-container">
         <!-- Word Cloud (Main Visualization) -->
         <div class="chart-section full-width">
-            <h3 class="chart-title">Popular Hashtags Word Cloud</h3>
+            <div class="chart-header">
+                <h3 class="chart-title">Popular Hashtags Word Cloud</h3>
+                <button class="download-btn" id="downloadWordCloud">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
             <div class="word-cloud-container" id="wordCloudContainer">
                 <!-- Word cloud will be rendered here -->
             </div>
@@ -174,8 +238,13 @@
 
         <!-- Trend Line Chart -->
         <div class="chart-section full-width">
-            <h3 class="chart-title">Key Hashtag Trends Over Time</h3>
-            <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+            <div class="chart-header">
+                <h3 class="chart-title">Key Hashtag Trends Over Time</h3>
+                <button class="download-btn" id="downloadTrendChart">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
+            <div class="controls-container">
                 <div class="time-selector">
                     <label for="timeScale">Time Scale:</label>
                     <select id="timeScale" style="padding: 6px; border-radius: 4px; border: 1px solid #ddd; margin-left: 8px;">
@@ -193,16 +262,21 @@
 
         <!-- Data Table -->
         <div class="table-section">
-            <h3 class="chart-title">Trending Hashtags Analysis</h3>
+            <div class="chart-header">
+                <h3 class="chart-title">Trending Hashtags Analysis</h3>
+                <button class="download-btn" id="downloadTable">
+                    <i class="fas fa-download"></i> Download
+                </button>
+            </div>
             <table>
                 <thead>
                     <tr>
-                        <th>Rank</th>
-                        <th>Hashtag</th>
-                        <th>Mentions (M)</th>
-                        <th>Related Videos (K)</th>
-                        <th>Total Views (B)</th>
-                        <th>Avg. Engagement (%)</th>
+                        <th class="sortable" data-sort="rank">Rank</th>
+                        <th class="sortable" data-sort="tag">Hashtag</th>
+                        <th class="sortable" data-sort="usage">Mentions (M)</th>
+                        <th class="sortable" data-sort="videos">Related Videos (K)</th>
+                        <th class="sortable" data-sort="views">Total Views (B)</th>
+                        <th class="sortable" data-sort="engagement">Avg. Engagement (%)</th>
                     </tr>
                 </thead>
                 <tbody id="tags-data-body">
@@ -742,6 +816,145 @@
                 createWordCloud(); // Recreate word cloud on resize
             });
         });
+        // Add download functionality
+        document.getElementById('downloadWordCloud').addEventListener('click', function() {
+            const svgElement = document.querySelector('#wordCloudContainer svg');
+            if (svgElement) {
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const blob = new Blob([svgData], {type: 'image/svg+xml'});
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'hashtag_wordcloud.svg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+        });
+
+        document.getElementById('downloadTrendChart').addEventListener('click', function() {
+            const canvas = document.getElementById('trendLineChart');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'hashtag_trends.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
+
+        document.getElementById('downloadTable').addEventListener('click', function() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Add headers
+            const headers = Array.from(document.querySelectorAll('table thead th')).map(th => th.textContent.trim());
+            csvContent += headers.join(',') + '\n';
+            
+            // Add data rows
+            tagsData.forEach(row => {
+                const rowData = [
+                    row.rank,
+                    row.tag,
+                    row.usage,
+                    row.videos,
+                    row.views,
+                    row.engagement
+                ];
+                csvContent += rowData.join(',') + '\n';
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.href = encodedUri;
+            link.download = 'hashtag_analysis.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Add table sorting functionality
+        document.querySelectorAll('th.sortable').forEach(th => {
+            th.addEventListener('click', function() {
+                const sortBy = this.getAttribute('data-sort');
+                const isAsc = !this.classList.contains('asc');
+                
+                // Reset all headers
+                document.querySelectorAll('th.sortable').forEach(header => {
+                    header.classList.remove('asc', 'desc');
+                });
+                
+                // Set current header sort direction
+                this.classList.add(isAsc ? 'asc' : 'desc');
+                
+                // Sort the data
+                tagsData.sort((a, b) => {
+                    if (isAsc) {
+                        return a[sortBy] > b[sortBy] ? 1 : -1;
+                    } else {
+                        return a[sortBy] < b[sortBy] ? 1 : -1;
+                    }
+                });
+                
+                // Repopulate the table
+                populateTable();
+            });
+        });
+
+        // Function to populate the table with sorted data
+        function populateTable() {
+            const tableBody = document.getElementById('tags-data-body');
+            tableBody.innerHTML = '';
+            
+            tagsData.forEach(t => {
+                // Create main row
+                const row = document.createElement('tr');
+                row.className = 'hashtag-row';
+                row.setAttribute('data-hashtag', t.tag);
+                
+                row.innerHTML = `
+                    <td>${t.rank}</td>
+                    <td><strong>${t.tag}</strong></td>
+                    <td>${t.usage}</td>
+                    <td>${t.videos}</td>
+                    <td>${t.views}</td>
+                    <td>${t.engagement}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Reattach event listeners for rows if needed
+            attachRowEventListeners();
+        }
+
+        // Function to reattach event listeners to rows after sorting
+        function attachRowEventListeners() {
+            document.querySelectorAll('.hashtag-row').forEach(row => {
+                row.addEventListener('click', function() {
+                    const hashtag = this.getAttribute('data-hashtag');
+                    // Your existing row click handler code here
+                });
+            });
+        }
+
+        // Time scale change handler for the trend chart
+        document.getElementById('timeScale').addEventListener('change', function() {
+            const timeScale = this.value;
+            // Update the chart based on the selected time scale
+            updateTrendChart(timeScale);
+        });
+
+        // Function to update trend chart based on time scale
+        function updateTrendChart(timeScale) {
+            // This would be implemented based on your existing chart code
+            // For demonstration, we'll just log the change
+            console.log(`Chart time scale changed to: ${timeScale}`);
+            
+            // Here you would update your chart data and redraw the chart
+            // based on the selected time scale
+        }
     </script>
 </body>
 </html>
