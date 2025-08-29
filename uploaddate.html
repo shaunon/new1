@@ -143,12 +143,6 @@
     <div class="chart-container">
         <div class="chart-title">Optimal Publishing Times (Calendar Heatmap)</div>
         <div class="chart-controls">
-            <select class="time-selector" id="heatmapTimeSelector">
-                <option value="day">Daily</option>
-                <option value="week">Weekly</option>
-                <option value="month">Monthly</option>
-                <option value="year">Yearly</option>
-            </select>
             <button class="download-btn" onclick="downloadChart('heatmap-container', 'optimal_publishing_times.png')">Download</button>
         </div>
         <div id="heatmap-container"></div>
@@ -615,7 +609,7 @@
             heatmapChart = new Chart(heatmapCtx, {
                 type: 'bar',
                 data: {
-                    labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                    labels: ['Jun 4, 23', 'Jun 5, 23', 'Jun 6, 23', 'Jun 7, 23', 'Jun 8, 23', 'Jun 9, 23', 'Jun 10, 23'],
                     datasets: heatmapData.data.map((hourData, hour) => ({
                         label: `${hour}:00`,
                         data: hourData,
@@ -679,7 +673,6 @@
             // Add event listeners for time period selectors
             document.getElementById('lineChartTimeSelector').addEventListener('change', updateCharts);
             document.getElementById('areaChartTimeSelector').addEventListener('change', updateCharts);
-            document.getElementById('heatmapTimeSelector').addEventListener('change', updateCharts);
         };
     </script>
 </body>
