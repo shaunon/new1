@@ -3,469 +3,636 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://d3js.org/topojson.v3.min.js"></script>
+    <script src="https://unpkg.com/chartjs-chart-geo@4.2.0/build/index.umd.min.js"></script>
+    <script src="https://unpkg.com/chartjs-chart-treemap@2.3.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
-            max-width: 1900px;
-            margin: 0 auto;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
             padding: 20px;
+            background-color: #f0f2f5;
+            width: 1900px;
         }
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            transition: transform 0.3s;
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
-        .card:hover {
-            transform: translateY(-5px);
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-        .card-header {
-            background-color: #f1f5f9;
-            border-bottom: none;
-            font-weight: bold;
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .chart-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .chart-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .chart-container {
+            height: 500px;
+        }
+        .table-section {
+            grid-column: 1 / -1;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
         }
         table {
             width: 100%;
             border-collapse: collapse;
+            text-align: left;
         }
         th, td {
-            padding: 12px;
-            text-align: left;
+            padding: 12px 15px;
             border-bottom: 1px solid #ddd;
+            font-size: 0.9rem;
         }
         th {
-            background-color: #f1f5f9;
-            font-weight: bold;
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
         }
         tr:hover {
-            background-color: #f5f5f5;
-        }
-        .map-container {
-            position: relative;
-            height: 600px;
-            width: 100%;
-            background-color: #fff;
-        }
-        .country {
-            fill: #e0e0e0;
-            stroke: #fff;
-            stroke-width: 0.5px;
-        }
-        .bubble {
-            stroke: #fff;
-            stroke-width: 1px;
-            opacity: 0.8;
-        }
-        .tooltip {
-            position: absolute;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            pointer-events: none;
-            font-size: 14px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .legend {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-        }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-        .legend-color {
-            width: 15px;
-            height: 15px;
-            margin-right: 5px;
-            border-radius: 50%;
-        }
-        .legend-size {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-        }
-        .legend-bubble {
-            border-radius: 50%;
-            background: rgba(70, 130, 180, 0.6);
-            border: 1px solid #fff;
-            margin-right: 5px;
+            background-color: #f1f1f1;
         }
     </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">Top Creator Countries - Geographic Distribution</div>
-                    <div class="card-body">
-                        <div class="map-container" id="map"></div>
-                    </div>
-                </div>
+    <div class="main-container">
+        <div class="chart-section full-width">
+            <div class="chart-header">
+                <h3 class="chart-title">Global Creator Distribution by Country</h3>
+                <button class="download-btn" onclick="downloadChart('worldMap')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
+            <div class="chart-container">
+                <canvas id="worldMap"></canvas>
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">Global Top 15 Creator Countries Data Overview</div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Rank</th>
-                                        <th>Country</th>
-                                        <th>Number of Creators</th>
-                                        <th>Global Share (%)</th>
-                                        <th>Total Followers (Billions)</th>
-                                        <th>Dominant Category</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="countriesTableBody">
-                                    <!-- Table data will be populated by JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        <div class="chart-section">
+            <div class="chart-header">
+                <h3 class="chart-title">Top 10 Countries by Creator Count</h3>
+                <button class="download-btn" onclick="downloadChart('barChart')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
             </div>
+            <div class="chart-container">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-header">
+                <h3 class="chart-title">Creator Distribution by Continent</h3>
+                <button class="download-btn" onclick="downloadChart('treeMap')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
+            <div class="chart-container">
+                <canvas id="treeMap"></canvas>
+            </div>
+        </div>
+
+        <div class="table-section">
+            <div class="chart-header">
+                <h3 class="chart-title">Top Creator Countries Data</h3>
+                <button class="download-btn" onclick="downloadTable()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Country/Region</th>
+                        <th>Number of Creators</th>
+                        <th>Total Posts</th>
+                        <th>Total Views of Posts</th>
+                        <th>Average Views/Creator</th>
+                        <th>Top 3 Post Categories in the Country</th>
+                        <th>Major Social Media Platforms</th>
+                    </tr>
+                </thead>
+                <tbody id="country-data-body">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // Sample data for top creator countries
+        // Download functionality
+        function downloadChart(chartId) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            link.download = chartId + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadTable() {
+            const table = document.querySelector('table');
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            for (const row of rows) {
+                const cols = row.querySelectorAll('th, td');
+                const rowData = Array.from(cols).map(col => {
+                    // Wrap text in quotes to handle commas in the text
+                    return '"' + col.innerText.replace(/"/g, '""') + '"';
+                });
+                csv.push(rowData.join(','));
+            }
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.download = 'top_creator_countries.csv';
+            link.href = window.URL.createObjectURL(blob);
+            link.click();
+        }
+        
+        // Country data
         const countryData = [
             { 
-                rank: 1,
+                rank: 1, 
                 country: "United States", 
-                creators: 1250000,
-                globalShare: 28.5,
-                totalFollowers: 4.8,
-                dominantCategory: "Entertainment",
-                coordinates: [-95.7129, 37.0902]
+                continent: "North America",
+                creators: 125000, 
+                videos: 3750000, 
+                totalViews: 950000000000, 
+                avgViewsPerCreator: 7600000, 
+                watchTimePerCapita: 42, 
+                mobilePenetration: 85, 
+                topCategories: "Entertainment, Gaming, Education", 
+                exportImportRatio: "2.8", 
+                platforms: "YouTube, TikTok, Instagram" 
             },
             { 
-                rank: 2,
-                country: "China", 
-                creators: 980000,
-                globalShare: 22.3,
-                totalFollowers: 3.9,
-                dominantCategory: "Lifestyle",
-                coordinates: [104.1954, 35.8617]
-            },
-            { 
-                rank: 3,
+                rank: 2, 
                 country: "India", 
-                creators: 750000,
-                globalShare: 17.1,
-                totalFollowers: 3.2,
-                dominantCategory: "Music",
-                coordinates: [78.9629, 20.5937]
+                continent: "Asia",
+                creators: 95000, 
+                videos: 2850000, 
+                totalViews: 720000000000, 
+                avgViewsPerCreator: 7578947, 
+                watchTimePerCapita: 38, 
+                mobilePenetration: 78, 
+                topCategories: "Entertainment, Music, Comedy", 
+                exportImportRatio: "1.2", 
+                platforms: "YouTube, Instagram, MX TakaTak" 
             },
             { 
-                rank: 4,
+                rank: 3, 
                 country: "Brazil", 
-                creators: 320000,
-                globalShare: 7.3,
-                totalFollowers: 1.8,
-                dominantCategory: "Sports",
-                coordinates: [-51.9253, -14.2350]
+                continent: "South America",
+                creators: 68000, 
+                videos: 1700000, 
+                totalViews: 510000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 35, 
+                mobilePenetration: 72, 
+                topCategories: "Entertainment, Lifestyle, Sports", 
+                exportImportRatio: "1.5", 
+                platforms: "YouTube, Instagram, TikTok" 
             },
             { 
-                rank: 5,
+                rank: 4, 
                 country: "United Kingdom", 
-                creators: 280000,
-                globalShare: 6.4,
-                totalFollowers: 1.5,
-                dominantCategory: "Comedy",
-                coordinates: [-3.4360, 55.3781]
+                continent: "Europe",
+                creators: 52000, 
+                videos: 1300000, 
+                totalViews: 390000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 39, 
+                mobilePenetration: 92, 
+                topCategories: "Comedy, Education, Gaming", 
+                exportImportRatio: "2.3", 
+                platforms: "YouTube, TikTok, Instagram" 
             },
             { 
-                rank: 6,
+                rank: 5, 
                 country: "Japan", 
-                creators: 210000,
-                globalShare: 4.8,
-                totalFollowers: 1.2,
-                dominantCategory: "Gaming",
-                coordinates: [138.2529, 36.2048]
+                continent: "Asia",
+                creators: 48000, 
+                videos: 1200000, 
+                totalViews: 360000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 32, 
+                mobilePenetration: 90, 
+                topCategories: "Gaming, Animation, Music", 
+                exportImportRatio: "1.8", 
+                platforms: "YouTube, Twitter, NicoNico" 
             },
             { 
-                rank: 7,
+                rank: 6, 
                 country: "South Korea", 
-                creators: 185000,
-                globalShare: 4.2,
-                totalFollowers: 1.1,
-                dominantCategory: "Beauty",
-                coordinates: [127.7669, 35.9078]
+                continent: "Asia",
+                creators: 42000, 
+                videos: 1050000, 
+                totalViews: 315000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 45, 
+                mobilePenetration: 95, 
+                topCategories: "K-Pop, Beauty, Gaming", 
+                exportImportRatio: "3.2", 
+                platforms: "YouTube, AfreecaTV, Instagram" 
             },
             { 
-                rank: 8,
+                rank: 7, 
                 country: "Indonesia", 
-                creators: 165000,
-                globalShare: 3.8,
-                totalFollowers: 0.95,
-                dominantCategory: "Lifestyle",
-                coordinates: [113.9213, -0.7893]
+                continent: "Asia",
+                creators: 38000, 
+                videos: 950000, 
+                totalViews: 285000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 28, 
+                mobilePenetration: 70, 
+                topCategories: "Entertainment, Lifestyle, Religion", 
+                exportImportRatio: "0.9", 
+                platforms: "YouTube, Instagram, TikTok" 
             },
             { 
-                rank: 9,
+                rank: 8, 
                 country: "Germany", 
-                creators: 145000,
-                globalShare: 3.3,
-                totalFollowers: 0.85,
-                dominantCategory: "Education",
-                coordinates: [10.4515, 51.1657]
+                continent: "Europe",
+                creators: 35000, 
+                videos: 875000, 
+                totalViews: 262500000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 30, 
+                mobilePenetration: 88, 
+                topCategories: "Education, Entertainment, DIY", 
+                exportImportRatio: "1.7", 
+                platforms: "YouTube, Instagram, TikTok" 
             },
             { 
-                rank: 10,
-                country: "France", 
-                creators: 130000,
-                globalShare: 3.0,
-                totalFollowers: 0.78,
-                dominantCategory: "Fashion",
-                coordinates: [2.2137, 46.2276]
-            },
-            { 
-                rank: 11,
-                country: "Canada", 
-                creators: 120000,
-                globalShare: 2.7,
-                totalFollowers: 0.72,
-                dominantCategory: "Education",
-                coordinates: [-106.3468, 56.1304]
-            },
-            { 
-                rank: 12,
-                country: "Russia", 
-                creators: 115000,
-                globalShare: 2.6,
-                totalFollowers: 0.68,
-                dominantCategory: "Entertainment",
-                coordinates: [105.3188, 61.5240]
-            },
-            { 
-                rank: 13,
+                rank: 9, 
                 country: "Mexico", 
-                creators: 105000,
-                globalShare: 2.4,
-                totalFollowers: 0.63,
-                dominantCategory: "Food",
-                coordinates: [-102.5528, 23.6345]
+                continent: "North America",
+                creators: 32000, 
+                videos: 800000, 
+                totalViews: 240000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 32, 
+                mobilePenetration: 65, 
+                topCategories: "Comedy, Music, Lifestyle", 
+                exportImportRatio: "1.1", 
+                platforms: "YouTube, Facebook, TikTok" 
             },
             { 
-                rank: 14,
+                rank: 10, 
+                country: "France", 
+                continent: "Europe",
+                creators: 30000, 
+                videos: 750000, 
+                totalViews: 225000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 29, 
+                mobilePenetration: 85, 
+                topCategories: "Entertainment, Beauty, Gaming", 
+                exportImportRatio: "1.6", 
+                platforms: "YouTube, TikTok, Dailymotion" 
+            },
+            { 
+                rank: 11, 
+                country: "Canada", 
+                continent: "North America",
+                creators: 28000, 
+                videos: 700000, 
+                totalViews: 210000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 36, 
+                mobilePenetration: 90, 
+                topCategories: "Entertainment, Education, Vlogs", 
+                exportImportRatio: "1.9", 
+                platforms: "YouTube, TikTok, Instagram" 
+            },
+            { 
+                rank: 12, 
                 country: "Australia", 
-                creators: 95000,
-                globalShare: 2.2,
-                totalFollowers: 0.57,
-                dominantCategory: "Travel",
-                coordinates: [133.7751, -25.2744]
+                continent: "Oceania",
+                creators: 25000, 
+                videos: 625000, 
+                totalViews: 187500000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 34, 
+                mobilePenetration: 89, 
+                topCategories: "Lifestyle, Comedy, Education", 
+                exportImportRatio: "1.5", 
+                platforms: "YouTube, Instagram, TikTok" 
             },
             { 
-                rank: 15,
+                rank: 13, 
                 country: "Spain", 
-                creators: 85000,
-                globalShare: 1.9,
-                totalFollowers: 0.51,
-                dominantCategory: "Sports",
-                coordinates: [-3.7492, 40.4637]
+                continent: "Europe",
+                creators: 22000, 
+                videos: 550000, 
+                totalViews: 165000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 31, 
+                mobilePenetration: 83, 
+                topCategories: "Entertainment, Gaming, Travel", 
+                exportImportRatio: "1.4", 
+                platforms: "YouTube, Instagram, TikTok" 
+            },
+            { 
+                rank: 14, 
+                country: "Russia", 
+                continent: "Europe",
+                creators: 20000, 
+                videos: 500000, 
+                totalViews: 150000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 27, 
+                mobilePenetration: 80, 
+                topCategories: "Entertainment, Education, Gaming", 
+                exportImportRatio: "0.8", 
+                platforms: "YouTube, VK, RuTube" 
+            },
+            { 
+                rank: 15, 
+                country: "Italy", 
+                continent: "Europe",
+                creators: 18000, 
+                videos: 450000, 
+                totalViews: 135000000000, 
+                avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 28, 
+                mobilePenetration: 82, 
+                topCategories: "Food, Fashion, Entertainment", 
+                exportImportRatio: "1.3", 
+                platforms: "YouTube, Instagram, TikTok" 
             }
         ];
 
-        // Category color mapping
-        const categoryColors = {
-            "Entertainment": "#FF6384",
-            "Lifestyle": "#36A2EB",
-            "Music": "#FFCE56",
-            "Sports": "#4BC0C0",
-            "Comedy": "#9966FF",
-            "Gaming": "#FF9F40",
-            "Beauty": "#F763FF",
-            "Education": "#6384FF",
-            "Fashion": "#63FFAC",
-            "Food": "#FF6363",
-            "Travel": "#63D1FF"
+        // Populate Table
+        const tableBody = document.getElementById('country-data-body');
+        countryData.forEach(c => {
+            const row = `<tr>
+                <td>${c.rank}</td>
+                <td>${c.country}</td>
+                <td>${c.creators.toLocaleString()}</td>
+                <td>${c.videos.toLocaleString()}</td>
+                <td>${(c.totalViews/1000000000).toFixed(1)}B</td>
+                <td>${(c.avgViewsPerCreator/1000000).toFixed(1)}M</td>
+                <td>${c.topCategories}</td>
+                <td>${c.platforms}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+
+        // Bar Chart
+        const top10Countries = countryData.slice(0, 10);
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: top10Countries.map(c => c.country),
+                datasets: [{
+                    label: 'Creator Count',
+                    data: top10Countries.map(c => c.creators),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Creators: ${context.raw.toLocaleString()}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // TreeMap Chart
+        const continentData = {};
+        countryData.forEach(country => {
+            if (!continentData[country.continent]) {
+                continentData[country.continent] = [];
+            }
+            continentData[country.continent].push({
+                country: country.country,
+                value: country.creators
+            });
+        });
+        
+        // Prepare data for treemap
+        const treeMapData = [];
+        for (const continent in continentData) {
+            continentData[continent].forEach(item => {
+                treeMapData.push({
+                    continent: continent,
+                    country: item.country,
+                    value: item.value
+                });
+            });
+        }
+        
+        const treeMapCtx = document.getElementById('treeMap').getContext('2d');
+        
+        // Create a color scale for continents
+        const continentColors = {
+            'North America': 'rgba(255, 99, 132, 0.7)',
+            'South America': 'rgba(255, 159, 64, 0.7)',
+            'Europe': 'rgba(54, 162, 235, 0.7)',
+            'Asia': 'rgba(75, 192, 192, 0.7)',
+            'Africa': 'rgba(153, 102, 255, 0.7)',
+            'Oceania': 'rgba(255, 205, 86, 0.7)'
         };
 
-        // Populate the table
-        function populateTable() {
-            const tableBody = document.getElementById('countriesTableBody');
-            countryData.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.rank}</td>
-                    <td>${item.country}</td>
-                    <td>${item.creators.toLocaleString()}</td>
-                    <td>${item.globalShare.toFixed(1)}%</td>
-                    <td>${item.totalFollowers.toFixed(2)}</td>
-                    <td>
-                        <span style="display: inline-block; width: 12px; height: 12px; background-color: ${categoryColors[item.dominantCategory]}; border-radius: 50%; margin-right: 5px;"></span>
-                        ${item.dominantCategory}
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Create geographic bubble map
-        function createBubbleMap() {
-            const width = document.getElementById('map').clientWidth;
-            const height = document.getElementById('map').clientHeight;
-            
-            // Create SVG
-            const svg = d3.select("#map")
-                .append("svg")
-                .attr("width", width)
-                .attr("height", height);
-            
-            // Create a projection
-            const projection = d3.geoNaturalEarth1()
-                .scale(width / 5.5)
-                .translate([width / 2, height / 2]);
-            
-            // Create a path generator
-            const path = d3.geoPath()
-                .projection(projection);
-            
-            // Create a tooltip
-            const tooltip = d3.select("#map")
-                .append("div")
-                .attr("class", "tooltip")
-                .style("opacity", 0);
-            
-            // Load world map data
-            d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json").then(function(world) {
-                // Draw countries
-                svg.append("g")
-                    .selectAll("path")
-                    .data(topojson.feature(world, world.objects.countries).features)
-                    .enter().append("path")
-                    .attr("class", "country")
-                    .attr("d", path);
-                
-                // Scale for bubble size
-                const bubbleScale = d3.scaleSqrt()
-                    .domain([0, d3.max(countryData, d => d.totalFollowers)])
-                    .range([5, 50]);
-                
-                // Add bubbles
-                svg.selectAll("circle")
-                    .data(countryData)
-                    .enter()
-                    .append("circle")
-                    .attr("class", "bubble")
-                    .attr("cx", d => projection(d.coordinates)[0])
-                    .attr("cy", d => projection(d.coordinates)[1])
-                    .attr("r", d => bubbleScale(d.totalFollowers))
-                    .attr("fill", d => categoryColors[d.dominantCategory])
-                    .on("mouseover", function(event, d) {
-                        tooltip.transition()
-                            .duration(200)
-                            .style("opacity", .9);
-                        tooltip.html(`
-                            <strong>${d.country}</strong><br/>
-                            Rank: ${d.rank}<br/>
-                            Creators: ${d.creators.toLocaleString()}<br/>
-                            Global Share: ${d.globalShare.toFixed(1)}%<br/>
-                            Total Followers: ${d.totalFollowers.toFixed(2)} billion<br/>
-                            Dominant Category: ${d.dominantCategory}
-                        `)
-                            .style("left", (event.pageX + 10) + "px")
-                            .style("top", (event.pageY - 28) + "px");
-                    })
-                    .on("mouseout", function() {
-                        tooltip.transition()
-                            .duration(500)
-                            .style("opacity", 0);
-                    });
-                
-                // Add category legend
-                const legend = svg.append("g")
-                    .attr("class", "legend")
-                    .attr("transform", `translate(${width - 180}, ${height - 200})`);
-                
-                legend.append("rect")
-                    .attr("width", 160)
-                    .attr("height", 180)
-                    .attr("fill", "white")
-                    .attr("opacity", 0.8)
-                    .attr("rx", 5);
-                
-                const categories = [...new Set(countryData.map(d => d.dominantCategory))];
-                
-                categories.forEach((category, i) => {
-                    const legendItem = legend.append("g")
-                        .attr("transform", `translate(10, ${i * 20 + 20})`);
-                    
-                    legendItem.append("circle")
-                        .attr("r", 6)
-                        .attr("fill", categoryColors[category]);
-                    
-                    legendItem.append("text")
-                        .attr("x", 15)
-                        .attr("y", 5)
-                        .text(category)
-                        .style("font-size", "12px");
-                });
-                
-                // Add size legend
-                const sizeLegend = svg.append("g")
-                    .attr("transform", `translate(20, ${height - 80})`);
-                
-                const sizes = [0.5, 2, 4];
-                
-                sizeLegend.append("rect")
-                    .attr("width", 220)
-                    .attr("height", 60)
-                    .attr("fill", "white")
-                    .attr("opacity", 0.8)
-                    .attr("rx", 5);
-                
-                sizeLegend.append("text")
-                    .attr("x", 10)
-                    .attr("y", 20)
-                    .text("Total Followers (Billions)")
-                    .style("font-size", "12px")
-                    .style("font-weight", "bold");
-                
-                sizes.forEach((size, i) => {
-                    sizeLegend.append("circle")
-                        .attr("cx", 30 + i * 60)
-                        .attr("cy", 40)
-                        .attr("r", bubbleScale(size))
-                        .attr("fill", "steelblue")
-                        .attr("opacity", 0.6)
-                        .attr("stroke", "#fff");
-                    
-                    sizeLegend.append("text")
-                        .attr("x", 30 + i * 60)
-                        .attr("y", 40 + bubbleScale(size) + 15)
-                        .attr("text-anchor", "middle")
-                        .text(size.toFixed(1))
-                        .style("font-size", "10px");
-                });
-            });
-        }
-
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', function() {
-            populateTable();
-            createBubbleMap();
+        new Chart(treeMapCtx, {
+            type: 'treemap',
+            data: {
+                datasets: [{
+                    tree: treeMapData,
+                    key: "value",
+                    groups: ['continent', 'country'],
+                    spacing: 2,
+                    backgroundColor: function(ctx) {
+                        if (ctx.type !== 'data') return 'transparent';
+                        const item = ctx.raw;
+                        return item._data ? continentColors[item._data.continent] : 'rgba(201, 203, 207, 0.7)';
+                    },
+                    labels: {
+                        display: true,
+                        align: 'center',
+                        formatter: (ctx) => ctx.raw._data ? ctx.raw._data.country : ''
+                    }
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const item = context[0].raw._data;
+                                return `${item.country} (${item.continent})`;
+                            },
+                            label: function(context) {
+                                const value = context.raw._data.value;
+                                return `Creators: ${value.toLocaleString()}`;
+                            }
+                        }
+                    }
+                }
+            }
         });
+
+        // World Map
+        fetch('https://unpkg.com/world-atlas/countries-110m.json')
+            .then(response => response.json())
+            .then(data => {
+                const countries = ChartGeo.topojson.feature(data, data.objects.countries).features;
+                const worldMapCtx = document.getElementById('worldMap').getContext('2d');
+                
+                new Chart(worldMapCtx, {
+                    type: 'choropleth',
+                    data: {
+                        labels: countries.map(d => d.properties.name),
+                        datasets: [{
+                            label: 'Creators',
+                            data: countries.map(d => {
+                                const country = countryData.find(c => c.country === d.properties.name);
+                                return { feature: d, value: country ? country.creators : 0 };
+                            }),
+                            backgroundColor: function(context) {
+                                const value = context.raw?.value || 0;
+                                // Enhanced color gradient for better heat map visualization
+                                if (value === 0) return 'rgba(220, 220, 220, 0.8)';
+                                if (value < 10000) return 'rgba(255, 235, 132, 0.8)';
+                                if (value < 30000) return 'rgba(255, 170, 0, 0.8)';
+                                if (value < 50000) return 'rgba(255, 97, 0, 0.8)';
+                                if (value < 80000) return 'rgba(255, 0, 0, 0.8)';
+                                return 'rgba(128, 0, 0, 0.9)';
+                            }
+                        }]
+                    },
+                    options: {
+                        showOutline: true,
+                        showGraticule: true,
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    generateLabels: function(chart) {
+                                        return [
+                                            { text: 'No Data', fillStyle: 'rgba(220, 220, 220, 0.8)' },
+                                            { text: '< 10K', fillStyle: 'rgba(255, 235, 132, 0.8)' },
+                                            { text: '10K - 30K', fillStyle: 'rgba(255, 170, 0, 0.8)' },
+                                            { text: '30K - 50K', fillStyle: 'rgba(255, 97, 0, 0.8)' },
+                                            { text: '50K - 80K', fillStyle: 'rgba(255, 0, 0, 0.8)' },
+                                            { text: '> 80K', fillStyle: 'rgba(128, 0, 0, 0.9)' }
+                                        ];
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const item = context.raw;
+                                        if (item && item.value) {
+                                            return `${item.feature.properties.name}: ${item.value.toLocaleString()} creators`;
+                                        }
+                                        return item.feature.properties.name;
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                align: 'center',
+                                color: function(context) {
+                                    const value = context.raw?.value || 0;
+                                    return value > 50000 ? 'white' : 'black';
+                                },
+                                font: {
+                                    weight: 'bold'
+                                },
+                                formatter: function(value) {
+                                    if (value.value > 25000) { // Only show for countries with more than 25k creators
+                                        return `${(value.value / 1000).toFixed(0)}K`;
+                                    }
+                                    return null;
+                                }
+                            }
+                        },
+                        scales: {
+                            xy: {
+                                projection: 'equalEarth'
+                            }
+                        }
+                    }
+                });
+            });
     </script>
 </body>
 </html>
