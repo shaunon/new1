@@ -137,7 +137,14 @@
             <div class="chart-container" style="flex: 1.8;">
                 <h2>Monthly Video Contribution (Stacked Bar Chart)</h2>
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div></div>
+                    <div>
+                        <select id="timeUnitSelector" class="time-selector" style="padding: 6px; border-radius: 4px; border: 1px solid #ddd;">
+                            <option value="day">(Day)</option>
+                            <option value="week">(Week)</option>
+                            <option value="month" selected>(Month)</option>
+                            <option value="year">(Year)</option>
+                        </select>
+                    </div>
                     <button class="download-btn" onclick="downloadChart('stackedBarChart', 'monthly_video_contribution')">
                         <i class="fas fa-download"></i> Download
                     </button>
@@ -484,11 +491,95 @@
             plugins: [ChartDataLabels]
         });
 
-        // Stacked Bar Chart - Monthly Video Contribution
-        const stackedBarCtx = document.getElementById('stackedBarChart').getContext('2d');
-        const stackedBarChart = new Chart(stackedBarCtx, {
-            type: 'bar',
-            data: {
+        // 不同时间维度的数据
+        const timeUnitData = {
+            day: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [
+                    {
+                        label: 'Tech Reviewers',
+                        data: [15, 18, 20, 17, 22, 14, 12],
+                        backgroundColor: '#4e79a7',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Beauty Gurus',
+                        data: [25, 28, 30, 27, 32, 24, 22],
+                        backgroundColor: '#f28e2c',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Gaming Streamers',
+                        data: [35, 38, 40, 37, 42, 34, 32],
+                        backgroundColor: '#e15759',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Fitness Coaches',
+                        data: [10, 12, 14, 11, 15, 9, 8],
+                        backgroundColor: '#76b7b2',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Travel Vloggers',
+                        data: [12, 14, 16, 13, 17, 11, 10],
+                        backgroundColor: '#59a14f',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Food Bloggers',
+                        data: [20, 22, 24, 21, 25, 19, 18],
+                        backgroundColor: '#edc949',
+                        stack: 'Stack 0'
+                    }
+                ],
+                title: 'Daily Video Contribution by Creator Type',
+                xTitle: 'Day'
+            },
+            week: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [
+                    {
+                        label: 'Tech Reviewers',
+                        data: [45, 50, 55, 60],
+                        backgroundColor: '#4e79a7',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Beauty Gurus',
+                        data: [65, 70, 75, 80],
+                        backgroundColor: '#f28e2c',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Gaming Streamers',
+                        data: [95, 100, 105, 110],
+                        backgroundColor: '#e15759',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Fitness Coaches',
+                        data: [25, 30, 35, 40],
+                        backgroundColor: '#76b7b2',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Travel Vloggers',
+                        data: [30, 35, 40, 45],
+                        backgroundColor: '#59a14f',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Food Bloggers',
+                        data: [50, 55, 60, 65],
+                        backgroundColor: '#edc949',
+                        stack: 'Stack 0'
+                    }
+                ],
+                title: 'Weekly Video Contribution by Creator Type',
+                xTitle: 'Week'
+            },
+            month: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
                 datasets: [
                     {
@@ -527,8 +618,61 @@
                         backgroundColor: '#edc949',
                         stack: 'Stack 0'
                     }
-                ]
+                ],
+                title: 'Monthly Video Contribution by Creator Type',
+                xTitle: 'Month'
             },
+            year: {
+                labels: ['2020', '2021', '2022', '2023'],
+                datasets: [
+                    {
+                        label: 'Tech Reviewers',
+                        data: [1200, 1300, 1400, 1500],
+                        backgroundColor: '#4e79a7',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Beauty Gurus',
+                        data: [1800, 1900, 2000, 2100],
+                        backgroundColor: '#f28e2c',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Gaming Streamers',
+                        data: [2700, 2800, 2900, 3000],
+                        backgroundColor: '#e15759',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Fitness Coaches',
+                        data: [750, 800, 850, 900],
+                        backgroundColor: '#76b7b2',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Travel Vloggers',
+                        data: [900, 950, 1000, 1050],
+                        backgroundColor: '#59a14f',
+                        stack: 'Stack 0'
+                    },
+                    {
+                        label: 'Food Bloggers',
+                        data: [1400, 1450, 1500, 1550],
+                        backgroundColor: '#edc949',
+                        stack: 'Stack 0'
+                    }
+                ],
+                title: 'Yearly Video Contribution by Creator Type',
+                xTitle: 'Year'
+            }
+        };
+
+        // Stacked Bar Chart - Video Contribution
+        const stackedBarCtx = document.getElementById('stackedBarChart').getContext('2d');
+        let currentTimeUnit = 'month'; // 默认显示月度数据
+        const stackedBarChart = new Chart(stackedBarCtx, {
+            type: 'bar',
+            data: timeUnitData[currentTimeUnit],
             options: {
                 responsive: true,
                 scales: {
@@ -536,7 +680,7 @@
                         stacked: true,
                         title: {
                             display: true,
-                            text: 'Month'
+                            text: timeUnitData[currentTimeUnit].xTitle
                         }
                     },
                     y: {
@@ -550,7 +694,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Monthly Video Contribution by Creator Type',
+                        text: timeUnitData[currentTimeUnit].title,
                         font: {
                             size: 16
                         }
@@ -564,6 +708,16 @@
                     }
                 }
             }
+        });
+        
+        // 时间维度选择器事件处理
+        document.getElementById('timeUnitSelector').addEventListener('change', function() {
+            currentTimeUnit = this.value;
+            stackedBarChart.data.labels = timeUnitData[currentTimeUnit].labels;
+            stackedBarChart.data.datasets = timeUnitData[currentTimeUnit].datasets;
+            stackedBarChart.options.plugins.title.text = timeUnitData[currentTimeUnit].title;
+            stackedBarChart.options.scales.x.title.text = timeUnitData[currentTimeUnit].xTitle;
+            stackedBarChart.update();
         });
 
         // Bubble Chart - Creator Performance
