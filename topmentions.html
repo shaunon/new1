@@ -46,13 +46,31 @@
             font-size: 18px;
             font-weight: 600;
             color: #1a253c;
-            margin: 0 0 5px 0;
+            margin: 0 0 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .card-subtitle {
-            font-size: 14px;
-            color: #889;
-            margin: 0 0 15px 0;
+        .download-btn {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .download-btn:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+        }
+
+        .download-btn svg {
+            margin-right: 5px;
         }
 
         .chart-container {
@@ -97,6 +115,32 @@
         thead th {
             color: #334;
             font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+
+        thead th:hover {
+            background-color: #e9ecef;
+        }
+
+        thead th::after {
+            content: '';
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+        }
+
+        thead th.sort-asc::after {
+            border-bottom: 5px solid #555;
+        }
+
+        thead th.sort-desc::after {
+            border-top: 5px solid #555;
         }
 
         tbody tr:hover {
@@ -114,42 +158,74 @@
 
     <div class="dashboard-container">
         <div class="card card-full">
-            <h2 class="card-title">Top 10 Most Mentioned Accounts</h2>
-            <p class="card-subtitle">Ranking of the most mentioned accounts across platforms</p>
+            <h2 class="card-title">
+                Top 10 Most Mentioned Accounts
+                <button class="download-btn" id="download-bar-chart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </h2>
             <div class="chart-container">
                 <canvas id="bar-chart-container"></canvas>
             </div>
         </div>
 
         <div class="card card-half">
-            <h2 class="card-title">Multi-dimensional Performance Analysis</h2>
-            <p class="card-subtitle">Comparing mentioned accounts across multiple metrics: mention count, high-play videos, positive sentiment ratio</p>
+            <h2 class="card-title">
+                Multi-dimensional Performance Analysis
+                <button class="download-btn" id="download-radar-chart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </h2>
             <div class="chart-container">
                 <canvas id="radar-chart-container"></canvas>
             </div>
         </div>
 
         <div class="card card-half">
-            <h2 class="card-title">Mention Flow Distribution</h2>
-            <p class="card-subtitle">Visualization of mention flow from creators of different follower levels to mentioned accounts</p>
+            <h2 class="card-title">
+                Mention Flow Distribution
+                <button class="download-btn" id="download-sankey-diagram">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </h2>
             <div class="chart-container" id="sankey-diagram-container"></div>
         </div>
 
         <div class="card card-full">
-            <h2 class="card-title">Detailed Mention Data</h2>
-            <p class="card-subtitle">Comprehensive data table with key metrics for mentioned accounts</p>
+            <h2 class="card-title">
+                Detailed Mention Data
+                <button class="download-btn" id="download-table-data">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </h2>
             <div class="table-container">
-                <table>
+                <table id="mention-data-table">
                     <thead>
                         <tr>
-                            <th>Rank</th>
-                            <th>Mentioned Account</th>
-                            <th>Mention Count</th>
-                            <th>High-play Videos</th>
-                            <th>Total Views</th>
-                            <th>Positive Sentiment (%)</th>
-                            <th>24h Follower Growth</th>
-                            <th>Weighted Influence Score</th>
+                            <th data-sort="rank">Rank</th>
+                            <th data-sort="account">Mentioned Accounts</th>
+                            <th data-sort="mentions">Number of Mentions</th>
+                            <th data-sort="highviews">Number of Highly Viewed posts</th>
+                            <th data-sort="views">Total Views of Related posts</th>
+                            <th data-sort="sentiment">Sentiment of Mentioned Content (Positive %)</th>
+                            <th data-sort="growth">24h Follower Growth</th>
+                            <th data-sort="score">Weighted Influence Score</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -290,170 +366,170 @@
         };
 
         // Bar Chart - Top 10 Most Mentioned Accounts
-        const barCtx = document.getElementById('bar-chart-container').getContext('2d');
-        new Chart(barCtx, {
-            type: 'bar',
-            data: {
-                labels: mentionData.accounts,
-                datasets: [{
-                    label: 'Mention Count',
-                    data: mentionData.mentionCounts,
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Number of Mentions'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Mentioned Accounts'
-                        }
-                    }
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Top 10 Most Mentioned Accounts'
-                    }
-                }
-            }
-        });
-
-        // Extended data for radar chart
-        const radarData = {
-            // Mention rate (normalized)
-            mentionRate: [100, 90, 79, 66],
-            // High-play videos percentage
-            highPlayVideosRate: [94.6, 100, 81.5, 68.5],
-            // Positive sentiment percentage
-            positiveSentiment: [78, 65, 82, 88],
-            // Engagement rate (likes + comments + shares / views) - normalized to 100
-            engagementRate: [85, 72, 93, 100],
-            // Negative sentiment percentage
-            negativeSentiment: [12, 25, 8, 5],
-            // Likes to comments ratio (normalized)
-            likesCommentsRatio: [70, 65, 100, 90]
-        };
-
-        // Radar Chart - Multi-dimensional Performance
-        const radarCtx = document.getElementById('radar-chart-container').getContext('2d');
-        new Chart(radarCtx, {
-            type: 'radar',
-            data: {
-                labels: [
-                    'Mention Rate', 
-                    'High-play Videos Rate', 
-                    'Positive Sentiment (%)', 
-                    'Engagement Rate',
-                    'Negative Sentiment (%)',
-                    'Likes-Comments Ratio'
-                ],
-                datasets: [
-                    {
-                        label: '@FashionBrand',
-                        data: [
-                            radarData.mentionRate[0], 
-                            radarData.highPlayVideosRate[0], 
-                            radarData.positiveSentiment[0],
-                            radarData.engagementRate[0],
-                            radarData.negativeSentiment[0],
-                            radarData.likesCommentsRatio[0]
-                        ],
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        pointBackgroundColor: 'rgba(255, 99, 132, 1)'
-                    },
-                    {
-                        label: '@TechGiant',
-                        data: [
-                            radarData.mentionRate[1], 
-                            radarData.highPlayVideosRate[1], 
-                            radarData.positiveSentiment[1],
-                            radarData.engagementRate[1],
-                            radarData.negativeSentiment[1],
-                            radarData.likesCommentsRatio[1]
-                        ],
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        document.addEventListener('DOMContentLoaded', function() {
+            const barCtx = document.getElementById('bar-chart-container').getContext('2d');
+            const barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: mentionData.accounts,
+                    datasets: [{
+                        label: 'Mention Count',
+                        data: mentionData.mentionCounts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
                         borderColor: 'rgba(54, 162, 235, 1)',
-                        pointBackgroundColor: 'rgba(54, 162, 235, 1)'
-                    },
-                    {
-                        label: '@CelebrityA',
-                        data: [
-                            radarData.mentionRate[2], 
-                            radarData.highPlayVideosRate[2], 
-                            radarData.positiveSentiment[2],
-                            radarData.engagementRate[2],
-                            radarData.negativeSentiment[2],
-                            radarData.likesCommentsRatio[2]
-                        ],
-                        backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                        borderColor: 'rgba(255, 206, 86, 1)',
-                        pointBackgroundColor: 'rgba(255, 206, 86, 1)'
-                    },
-                    {
-                        label: '@MusicArtist',
-                        data: [
-                            radarData.mentionRate[3], 
-                            radarData.highPlayVideosRate[3], 
-                            radarData.positiveSentiment[3],
-                            radarData.engagementRate[3],
-                            radarData.negativeSentiment[3],
-                            radarData.likesCommentsRatio[3]
-                        ],
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        pointBackgroundColor: 'rgba(75, 192, 192, 1)'
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    r: {
-                        angleLines: {
-                            display: true
-                        },
-                        suggestedMin: 0,
-                        suggestedMax: 100,
-                        ticks: {
-                            stepSize: 20
-                        }
-                    }
+                        borderWidth: 1
+                    }]
                 },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Multi-dimensional Performance Comparison'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.raw;
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of Mentions'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Mentioned Accounts'
                             }
                         }
                     },
-                    legend: {
-                        position: 'bottom'
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Top 10 Most Mentioned Accounts'
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        // Sankey Diagram - Mention Flow
-        document.addEventListener('DOMContentLoaded', function() {
+            // Extended data for radar chart
+            const radarData = {
+                // Mention rate (normalized)
+                mentionRate: [100, 90, 79, 66],
+                // High-play videos percentage
+                highPlayVideosRate: [94.6, 100, 81.5, 68.5],
+                // Positive sentiment percentage
+                positiveSentiment: [78, 65, 82, 88],
+                // Engagement rate (likes + comments + shares / views) - normalized to 100
+                engagementRate: [85, 72, 93, 100],
+                // Negative sentiment percentage
+                negativeSentiment: [12, 25, 8, 5],
+                // Likes to comments ratio (normalized)
+                likesCommentsRatio: [70, 65, 100, 90]
+            };
+
+            // Radar Chart - Multi-dimensional Performance
+            const radarCtx = document.getElementById('radar-chart-container').getContext('2d');
+            const radarChart = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Mention Rate', 
+                        'High-play Videos Rate', 
+                        'Positive Sentiment (%)', 
+                        'Engagement Rate',
+                        'Negative Sentiment (%)',
+                        'Likes-Comments Ratio'
+                    ],
+                    datasets: [
+                        {
+                            label: '@FashionBrand',
+                            data: [
+                                radarData.mentionRate[0], 
+                                radarData.highPlayVideosRate[0], 
+                                radarData.positiveSentiment[0],
+                                radarData.engagementRate[0],
+                                radarData.negativeSentiment[0],
+                                radarData.likesCommentsRatio[0]
+                            ],
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            pointBackgroundColor: 'rgba(255, 99, 132, 1)'
+                        },
+                        {
+                            label: '@TechGiant',
+                            data: [
+                                radarData.mentionRate[1], 
+                                radarData.highPlayVideosRate[1], 
+                                radarData.positiveSentiment[1],
+                                radarData.engagementRate[1],
+                                radarData.negativeSentiment[1],
+                                radarData.likesCommentsRatio[1]
+                            ],
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            pointBackgroundColor: 'rgba(54, 162, 235, 1)'
+                        },
+                        {
+                            label: '@CelebrityA',
+                            data: [
+                                radarData.mentionRate[2], 
+                                radarData.highPlayVideosRate[2], 
+                                radarData.positiveSentiment[2],
+                                radarData.engagementRate[2],
+                                radarData.negativeSentiment[2],
+                                radarData.likesCommentsRatio[2]
+                            ],
+                            backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                            borderColor: 'rgba(255, 206, 86, 1)',
+                            pointBackgroundColor: 'rgba(255, 206, 86, 1)'
+                        },
+                        {
+                            label: '@MusicArtist',
+                            data: [
+                                radarData.mentionRate[3], 
+                                radarData.highPlayVideosRate[3], 
+                                radarData.positiveSentiment[3],
+                                radarData.engagementRate[3],
+                                radarData.negativeSentiment[3],
+                                radarData.likesCommentsRatio[3]
+                            ],
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            pointBackgroundColor: 'rgba(75, 192, 192, 1)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: true
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Multi-dimensional Performance Comparison'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw;
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Sankey Diagram - Mention Flow
             // Sankey diagram data
             const sankeyData = {
                 nodes: [
@@ -476,19 +552,16 @@
                     { source: 0, target: 6, value: 420 },
                     { source: 0, target: 7, value: 310 },
                     { source: 0, target: 8, value: 180 },
-                    
                     { source: 1, target: 4, value: 420 },
                     { source: 1, target: 5, value: 390 },
                     { source: 1, target: 6, value: 280 },
                     { source: 1, target: 7, value: 250 },
                     { source: 1, target: 8, value: 320 },
-                    
                     { source: 2, target: 4, value: 280 },
                     { source: 2, target: 5, value: 320 },
                     { source: 2, target: 6, value: 180 },
                     { source: 2, target: 7, value: 150 },
                     { source: 2, target: 8, value: 220 },
-                    
                     { source: 3, target: 4, value: 195 },
                     { source: 3, target: 5, value: 130 },
                     { source: 3, target: 6, value: 100 },
@@ -523,107 +596,186 @@
             const creatorColors = d3.scaleOrdinal()
                 .domain(["Mega Creators (10M+)", "Macro Creators (1M-10M)", "Mid-tier Creators (100K-1M)", "Micro Creators (10K-100K)"])
                 .range(["#4287f5", "#42c5f5", "#42f5e3", "#42f5a7"]);
-                
+
             const brandColors = d3.scaleOrdinal()
                 .domain(["@FashionBrand", "@TechGiant", "@CelebrityA", "@MusicArtist", "@SportsTeam"])
-                .range(["#f54242", "#f59642", "#f5e642", "#c8f542", "#42f56f"]);
-            
-            // Color function for nodes
-            const nodeColor = (d) => {
-                if (d.name.startsWith("@")) {
-                    return brandColors(d.name);
-                } else {
-                    return creatorColors(d.name);
-                }
-            };
-            
-            // Create gradient for links
-            const gradientLinks = (d) => {
-                // Create unique gradient ID
-                const gradientId = `link-gradient-${d.index}`;
-                
-                // Create gradient definition
-                const gradient = svg.append("defs")
-                    .append("linearGradient")
-                    .attr("id", gradientId)
-                    .attr("gradientUnits", "userSpaceOnUse")
-                    .attr("x1", d.source.x1)
-                    .attr("x2", d.target.x0);
-                    
-                gradient.append("stop")
-                    .attr("offset", "0%")
-                    .attr("stop-color", nodeColor(d.source));
-                    
-                gradient.append("stop")
-                    .attr("offset", "100%")
-                    .attr("stop-color", nodeColor(d.target));
-                    
-                return `url(#${gradientId})`;
-            };
+                .range(["#f54242", "#f59642", "#f5d442", "#bcf542", "#42f56f"]);
 
-            // Create node groups
-            const node = svg.append("g")
-                .selectAll(".node")
-                .data(nodes)
-                .join("g")
-                .attr("class", "node")
-                .attr("transform", d => `translate(${d.x0},${d.y0})`);
-
-            // Add rectangles to nodes with enhanced colors
-            node.append("rect")
-                .attr("height", d => d.y1 - d.y0)
-                .attr("width", d => d.x1 - d.x0)
-                .attr("fill", d => nodeColor(d))
-                .attr("stroke", d => d3.rgb(nodeColor(d)).darker(0.5))
-                .attr("stroke-width", 1)
-                .attr("opacity", 0.9)
-                .on("mouseover", function() {
-                    d3.select(this)
-                        .attr("opacity", 1)
-                        .attr("stroke-width", 2);
-                })
-                .on("mouseout", function() {
-                    d3.select(this)
-                        .attr("opacity", 0.9)
-                        .attr("stroke-width", 1);
-                })
-                .append("title")
-                .text(d => `${d.name}\n${d.value}`);
-
-            // Add node labels with improved styling
-            node.append("text")
-                .attr("x", d => d.x0 < width / 2 ? 6 + (d.x1 - d.x0) : -6)
-                .attr("y", d => (d.y1 - d.y0) / 2)
-                .attr("dy", "0.35em")
-                .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
-                .text(d => d.name)
-                .attr("font-size", "11px")
-                .attr("font-weight", "bold")
-                .attr("fill", d => d3.rgb(nodeColor(d)).darker(2));
-
-            // Create link paths with gradients and interactivity
+            // Add links
             const link = svg.append("g")
-                .attr("fill", "none")
-                .selectAll(".link")
+                .selectAll("path")
                 .data(links)
                 .join("path")
-                .attr("class", "link")
                 .attr("d", d3.sankeyLinkHorizontal())
-                .attr("stroke", gradientLinks)
+                .attr("stroke", d => {
+                    return d.source.name.includes("Creator") ? creatorColors(d.source.name) : brandColors(d.target.name);
+                })
                 .attr("stroke-width", d => Math.max(1, d.width))
-                .attr("opacity", 0.7)
+                .attr("stroke-opacity", 0.5)
+                .attr("fill", "none")
+                .style("cursor", "pointer")
                 .on("mouseover", function() {
                     d3.select(this)
-                        .attr("opacity", 0.9)
+                        .attr("stroke-opacity", 0.8)
                         .attr("stroke-width", d => Math.max(1, d.width + 2));
                 })
                 .on("mouseout", function() {
                     d3.select(this)
-                        .attr("opacity", 0.7)
+                        .attr("stroke-opacity", 0.5)
                         .attr("stroke-width", d => Math.max(1, d.width));
+                });
+
+            // Add nodes
+            const node = svg.append("g")
+                .selectAll("rect")
+                .data(nodes)
+                .join("rect")
+                .attr("x", d => d.x0)
+                .attr("y", d => d.y0)
+                .attr("height", d => d.y1 - d.y0)
+                .attr("width", d => d.x1 - d.x0)
+                .attr("fill", d => {
+                    return d.name.includes("Creator") ? creatorColors(d.name) : brandColors(d.name);
                 })
-                .append("title")
-                .text(d => `${d.source.name} → ${d.target.name}\n${d.value}`);
+                .attr("opacity", 0.8)
+                .style("cursor", "pointer")
+                .on("mouseover", function() {
+                    d3.select(this).attr("opacity", 1);
+                })
+                .on("mouseout", function() {
+                    d3.select(this).attr("opacity", 0.8);
+                });
+
+            // Add node labels
+            const nodeLabel = svg.append("g")
+                .selectAll("text")
+                .data(nodes)
+                .join("text")
+                .attr("x", d => d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6)
+                .attr("y", d => (d.y1 + d.y0) / 2)
+                .attr("dy", "0.35em")
+                .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+                .text(d => d.name)
+                .style("font-size", "12px")
+                .style("font-weight", "500")
+                .style("pointer-events", "none");
+
+            // Add link value labels
+            link.append("title")
+                .text(d => `${d.source.name} → ${d.target.name}\n${d.value} mentions`);
+
+            // Add node value labels
+            node.append("title")
+                .text(d => `${d.name}\n${d.value} total mentions`);
+
+            // Download functionality for charts
+            document.getElementById('download-bar-chart').addEventListener('click', function() {
+                const canvas = document.getElementById('bar-chart-container');
+                const link = document.createElement('a');
+                link.download = 'top_mentions_bar_chart.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+
+            document.getElementById('download-radar-chart').addEventListener('click', function() {
+                const canvas = document.getElementById('radar-chart-container');
+                const link = document.createElement('a');
+                link.download = 'mention_performance_radar_chart.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+
+            document.getElementById('download-sankey-diagram').addEventListener('click', function() {
+                const svgElement = document.querySelector('#sankey-diagram-container svg');
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+                const svgUrl = URL.createObjectURL(svgBlob);
+                
+                const link = document.createElement('a');
+                link.download = 'mention_flow_sankey_diagram.svg';
+                link.href = svgUrl;
+                link.click();
+            });
+
+            document.getElementById('download-table-data').addEventListener('click', function() {
+                const table = document.getElementById('mention-data-table');
+                const rows = table.querySelectorAll('tr');
+                
+                let csvContent = "data:text/csv;charset=utf-8,";
+                
+                rows.forEach(function(row) {
+                    const cols = row.querySelectorAll('th, td');
+                    const rowData = Array.from(cols).map(col => `"${col.innerText}"`).join(',');
+                    csvContent += rowData + '\r\n';
+                });
+                
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement('a');
+                link.download = 'detailed_mention_data.csv';
+                link.href = encodedUri;
+                link.click();
+            });
+
+            // Table sorting functionality
+            document.querySelectorAll('#mention-data-table th').forEach(headerCell => {
+                headerCell.addEventListener('click', () => {
+                    const table = headerCell.closest('table');
+                    const headerIndex = Array.prototype.indexOf.call(headerCell.parentElement.children, headerCell);
+                    const currentIsAscending = headerCell.classList.contains('sort-asc');
+                    
+                    // Remove sort classes from all headers
+                    table.querySelectorAll('th').forEach(th => {
+                        th.classList.remove('sort-asc', 'sort-desc');
+                    });
+                    
+                    // Add appropriate sort class to clicked header
+                    headerCell.classList.toggle('sort-desc', currentIsAscending);
+                    headerCell.classList.toggle('sort-asc', !currentIsAscending);
+                    
+                    // Get rows and sort
+                    const tableBody = table.querySelector('tbody');
+                    const rows = Array.from(tableBody.querySelectorAll('tr'));
+                    
+                    // Sort rows
+                    const sortedRows = rows.sort((a, b) => {
+                        const aColText = a.querySelector(`td:nth-child(${headerIndex + 1})`).textContent.trim();
+                        const bColText = b.querySelector(`td:nth-child(${headerIndex + 1})`).textContent.trim();
+                        
+                        // Handle different data types
+                        if (headerCell.dataset.sort === 'rank' || 
+                            headerCell.dataset.sort === 'mentions' || 
+                            headerCell.dataset.sort === 'highviews' || 
+                            headerCell.dataset.sort === 'views' || 
+                            headerCell.dataset.sort === 'score') {
+                            // Parse numbers (remove commas first)
+                            const aValue = parseFloat(aColText.replace(/,/g, ''));
+                            const bValue = parseFloat(bColText.replace(/,/g, ''));
+                            return currentIsAscending ? bValue - aValue : aValue - bValue;
+                        } else if (headerCell.dataset.sort === 'sentiment') {
+                            // Parse percentages
+                            const aValue = parseFloat(aColText);
+                            const bValue = parseFloat(bColText);
+                            return currentIsAscending ? bValue - aValue : aValue - bValue;
+                        } else if (headerCell.dataset.sort === 'growth') {
+                            // Parse growth values (with + sign)
+                            const aValue = parseFloat(aColText.replace(/[+,]/g, ''));
+                            const bValue = parseFloat(bColText.replace(/[+,]/g, ''));
+                            return currentIsAscending ? bValue - aValue : aValue - bValue;
+                        } else {
+                            // Text comparison for strings
+                            return currentIsAscending 
+                                ? bColText.localeCompare(aColText) 
+                                : aColText.localeCompare(bColText);
+                        }
+                    });
+                    
+                    // Remove all existing rows
+                    rows.forEach(row => tableBody.removeChild(row));
+                    
+                    // Add sorted rows
+                    sortedRows.forEach(row => tableBody.appendChild(row));
+                });
+            });
         });
     </script>
 </body>
