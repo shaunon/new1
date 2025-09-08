@@ -224,8 +224,6 @@
                             <th data-sort="highviews">Number of Highly Viewed posts</th>
                             <th data-sort="views">Total Views of Related posts</th>
                             <th data-sort="sentiment">Sentiment of Mentioned Content (Positive %)</th>
-                            <th data-sort="growth">24h Follower Growth</th>
-                            <th data-sort="score">Weighted Influence Score</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -236,8 +234,6 @@
                             <td>87</td>
                             <td>15,780,000</td>
                             <td>78%</td>
-                            <td>+12,500</td>
-                            <td>845.6</td>
                         </tr>
                         <tr>
                             <td>2</td>
@@ -246,8 +242,6 @@
                             <td>92</td>
                             <td>18,450,000</td>
                             <td>65%</td>
-                            <td>+8,700</td>
-                            <td>789.1</td>
                         </tr>
                         <tr>
                             <td>3</td>
@@ -256,8 +250,6 @@
                             <td>75</td>
                             <td>22,300,000</td>
                             <td>82%</td>
-                            <td>+25,400</td>
-                            <td>752.5</td>
                         </tr>
                         <tr>
                             <td>4</td>
@@ -266,8 +258,6 @@
                             <td>68</td>
                             <td>12,450,000</td>
                             <td>71%</td>
-                            <td>+5,200</td>
-                            <td>667.9</td>
                         </tr>
                         <tr>
                             <td>5</td>
@@ -276,8 +266,6 @@
                             <td>63</td>
                             <td>19,800,000</td>
                             <td>88%</td>
-                            <td>+18,900</td>
-                            <td>654.4</td>
                         </tr>
                         <tr>
                             <td>6</td>
@@ -286,8 +274,6 @@
                             <td>52</td>
                             <td>8,950,000</td>
                             <td>75%</td>
-                            <td>+3,800</td>
-                            <td>589.5</td>
                         </tr>
                         <tr>
                             <td>7</td>
@@ -296,8 +282,6 @@
                             <td>58</td>
                             <td>11,200,000</td>
                             <td>79%</td>
-                            <td>+9,500</td>
-                            <td>578.3</td>
                         </tr>
                         <tr>
                             <td>8</td>
@@ -306,8 +290,6 @@
                             <td>45</td>
                             <td>7,850,000</td>
                             <td>81%</td>
-                            <td>+6,200</td>
-                            <td>532.7</td>
                         </tr>
                         <tr>
                             <td>9</td>
@@ -316,8 +298,6 @@
                             <td>49</td>
                             <td>9,350,000</td>
                             <td>68%</td>
-                            <td>+7,800</td>
-                            <td>501.2</td>
                         </tr>
                         <tr>
                             <td>10</td>
@@ -326,8 +306,6 @@
                             <td>38</td>
                             <td>6,750,000</td>
                             <td>85%</td>
-                            <td>+4,100</td>
-                            <td>478.5</td>
                         </tr>
                         <tr>
                             <td>11</td>
@@ -336,8 +314,6 @@
                             <td>42</td>
                             <td>8,250,000</td>
                             <td>72%</td>
-                            <td>+3,500</td>
-                            <td>456.8</td>
                         </tr>
                         <tr>
                             <td>12</td>
@@ -346,8 +322,6 @@
                             <td>35</td>
                             <td>5,950,000</td>
                             <td>77%</td>
-                            <td>+5,800</td>
-                            <td>423.5</td>
                         </tr>
                     </tbody>
                 </table>
@@ -745,8 +719,7 @@
                         if (headerCell.dataset.sort === 'rank' || 
                             headerCell.dataset.sort === 'mentions' || 
                             headerCell.dataset.sort === 'highviews' || 
-                            headerCell.dataset.sort === 'views' || 
-                            headerCell.dataset.sort === 'score') {
+                            headerCell.dataset.sort === 'views') {
                             // Parse numbers (remove commas first)
                             const aValue = parseFloat(aColText.replace(/,/g, ''));
                             const bValue = parseFloat(bColText.replace(/,/g, ''));
@@ -755,11 +728,6 @@
                             // Parse percentages
                             const aValue = parseFloat(aColText);
                             const bValue = parseFloat(bColText);
-                            return currentIsAscending ? bValue - aValue : aValue - bValue;
-                        } else if (headerCell.dataset.sort === 'growth') {
-                            // Parse growth values (with + sign)
-                            const aValue = parseFloat(aColText.replace(/[+,]/g, ''));
-                            const bValue = parseFloat(bColText.replace(/[+,]/g, ''));
                             return currentIsAscending ? bValue - aValue : aValue - bValue;
                         } else {
                             // Text comparison for strings
