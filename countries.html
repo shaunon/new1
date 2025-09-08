@@ -15,6 +15,27 @@
             background-color: #f0f2f5;
             width: 1900px;
         }
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .download-btn:hover {
+            background-color: #45a049;
+        }
         .main-container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -74,39 +95,75 @@
 <body>
     <div class="main-container">
         <div class="chart-section full-width">
-            <h3 class="chart-title">Global Creator Distribution by Country</h3>
+            <div class="chart-header">
+                <h3 class="chart-title">Global Creator Distribution by Country</h3>
+                <button class="download-btn" onclick="downloadChart('worldMap')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
             <div class="chart-container">
                 <canvas id="worldMap"></canvas>
             </div>
         </div>
 
         <div class="chart-section">
-            <h3 class="chart-title">Top 10 Countries by Creator Count</h3>
+            <div class="chart-header">
+                <h3 class="chart-title">Top 10 Countries by Creator Count</h3>
+                <button class="download-btn" onclick="downloadChart('barChart')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
             <div class="chart-container">
                 <canvas id="barChart"></canvas>
             </div>
         </div>
 
         <div class="chart-section">
-            <h3 class="chart-title">Creator Distribution by Continent</h3>
+            <div class="chart-header">
+                <h3 class="chart-title">Creator Distribution by Continent</h3>
+                <button class="download-btn" onclick="downloadChart('treeMap')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
             <div class="chart-container">
                 <canvas id="treeMap"></canvas>
             </div>
         </div>
 
         <div class="table-section">
-            <h3 class="chart-title">Top Creator Countries Data</h3>
+            <div class="chart-header">
+                <h3 class="chart-title">Top Creator Countries Data</h3>
+                <button class="download-btn" onclick="downloadTable()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
             <table>
                 <thead>
                     <tr>
                         <th>Rank</th>
                         <th>Country/Region</th>
-                        <th>Creator Count</th>
-                        <th>Total posts</th>
-                        <th>Total Views</th>
-                        <th>Avg Views</th>
-                        <th>Top 3 Creator Categories</th>
-                        <th>Main Social Platforms</th>
+                        <th>Number of Creators</th>
+                        <th>Total Posts</th>
+                        <th>Total Views of Posts</th>
+                        <th>Average Views</th>
+                        <th>Top 3 Creator Categories in the Country</th>
+                        <th>Major Social Media Platforms</th>
                     </tr>
                 </thead>
                 <tbody id="country-data-body">
@@ -117,6 +174,37 @@
     </div>
 
     <script>
+        // Download functionality
+        function downloadChart(chartId) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            link.download = chartId + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        function downloadTable() {
+            const table = document.querySelector('table');
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            for (const row of rows) {
+                const cols = row.querySelectorAll('th, td');
+                const rowData = Array.from(cols).map(col => {
+                    // Wrap text in quotes to handle commas in the text
+                    return '"' + col.innerText.replace(/"/g, '""') + '"';
+                });
+                csv.push(rowData.join(','));
+            }
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.download = 'top_creator_countries.csv';
+            link.href = window.URL.createObjectURL(blob);
+            link.click();
+        }
+        
         // Country data
         const countryData = [
             { 
@@ -127,7 +215,10 @@
                 videos: 3750000, 
                 totalViews: 950000000000, 
                 avgViewsPerCreator: 7600000, 
+                watchTimePerCapita: 42, 
+                mobilePenetration: 85, 
                 topCategories: "Entertainment, Gaming, Education", 
+                exportImportRatio: "2.8", 
                 platforms: "YouTube, TikTok, Instagram" 
             },
             { 
@@ -138,7 +229,10 @@
                 videos: 2850000, 
                 totalViews: 720000000000, 
                 avgViewsPerCreator: 7578947, 
+                watchTimePerCapita: 38, 
+                mobilePenetration: 78, 
                 topCategories: "Entertainment, Music, Comedy", 
+                exportImportRatio: "1.2", 
                 platforms: "YouTube, Instagram, MX TakaTak" 
             },
             { 
@@ -149,7 +243,10 @@
                 videos: 1700000, 
                 totalViews: 510000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 35, 
+                mobilePenetration: 72, 
                 topCategories: "Entertainment, Lifestyle, Sports", 
+                exportImportRatio: "1.5", 
                 platforms: "YouTube, Instagram, TikTok" 
             },
             { 
@@ -160,7 +257,10 @@
                 videos: 1300000, 
                 totalViews: 390000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 39, 
+                mobilePenetration: 92, 
                 topCategories: "Comedy, Education, Gaming", 
+                exportImportRatio: "2.3", 
                 platforms: "YouTube, TikTok, Instagram" 
             },
             { 
@@ -171,7 +271,10 @@
                 videos: 1200000, 
                 totalViews: 360000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 32, 
+                mobilePenetration: 90, 
                 topCategories: "Gaming, Animation, Music", 
+                exportImportRatio: "1.8", 
                 platforms: "YouTube, Twitter, NicoNico" 
             },
             { 
@@ -182,7 +285,10 @@
                 videos: 1050000, 
                 totalViews: 315000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 45, 
+                mobilePenetration: 95, 
                 topCategories: "K-Pop, Beauty, Gaming", 
+                exportImportRatio: "3.2", 
                 platforms: "YouTube, AfreecaTV, Instagram" 
             },
             { 
@@ -193,7 +299,10 @@
                 videos: 950000, 
                 totalViews: 285000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 28, 
+                mobilePenetration: 70, 
                 topCategories: "Entertainment, Lifestyle, Religion", 
+                exportImportRatio: "0.9", 
                 platforms: "YouTube, Instagram, TikTok" 
             },
             { 
@@ -204,7 +313,10 @@
                 videos: 875000, 
                 totalViews: 262500000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 30, 
+                mobilePenetration: 88, 
                 topCategories: "Education, Entertainment, DIY", 
+                exportImportRatio: "1.7", 
                 platforms: "YouTube, Instagram, TikTok" 
             },
             { 
@@ -215,7 +327,10 @@
                 videos: 800000, 
                 totalViews: 240000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 32, 
+                mobilePenetration: 65, 
                 topCategories: "Comedy, Music, Lifestyle", 
+                exportImportRatio: "1.1", 
                 platforms: "YouTube, Facebook, TikTok" 
             },
             { 
@@ -226,7 +341,10 @@
                 videos: 750000, 
                 totalViews: 225000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 29, 
+                mobilePenetration: 85, 
                 topCategories: "Entertainment, Beauty, Gaming", 
+                exportImportRatio: "1.6", 
                 platforms: "YouTube, TikTok, Dailymotion" 
             },
             { 
@@ -237,7 +355,10 @@
                 videos: 700000, 
                 totalViews: 210000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 36, 
+                mobilePenetration: 90, 
                 topCategories: "Entertainment, Education, Vlogs", 
+                exportImportRatio: "1.9", 
                 platforms: "YouTube, TikTok, Instagram" 
             },
             { 
@@ -248,7 +369,10 @@
                 videos: 625000, 
                 totalViews: 187500000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 34, 
+                mobilePenetration: 89, 
                 topCategories: "Lifestyle, Comedy, Education", 
+                exportImportRatio: "1.5", 
                 platforms: "YouTube, Instagram, TikTok" 
             },
             { 
@@ -259,7 +383,10 @@
                 videos: 550000, 
                 totalViews: 165000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 31, 
+                mobilePenetration: 83, 
                 topCategories: "Entertainment, Gaming, Travel", 
+                exportImportRatio: "1.4", 
                 platforms: "YouTube, Instagram, TikTok" 
             },
             { 
@@ -270,7 +397,10 @@
                 videos: 500000, 
                 totalViews: 150000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 27, 
+                mobilePenetration: 80, 
                 topCategories: "Entertainment, Education, Gaming", 
+                exportImportRatio: "0.8", 
                 platforms: "YouTube, VK, RuTube" 
             },
             { 
@@ -281,7 +411,10 @@
                 videos: 450000, 
                 totalViews: 135000000000, 
                 avgViewsPerCreator: 7500000, 
+                watchTimePerCapita: 28, 
+                mobilePenetration: 82, 
                 topCategories: "Food, Fashion, Entertainment", 
+                exportImportRatio: "1.3", 
                 platforms: "YouTube, Instagram, TikTok" 
             }
         ];
@@ -296,10 +429,7 @@
                 <td>${c.videos.toLocaleString()}</td>
                 <td>${(c.totalViews/1000000000).toFixed(1)}B</td>
                 <td>${(c.avgViewsPerCreator/1000000).toFixed(1)}M</td>
-                <td>${c.watchTimePerCapita}</td>
-                <td>${c.mobilePenetration}%</td>
                 <td>${c.topCategories}</td>
-                <td>${c.exportImportRatio}</td>
                 <td>${c.platforms}</td>
             </tr>`;
             tableBody.innerHTML += row;
@@ -428,11 +558,21 @@
                     data: {
                         labels: countries.map(d => d.properties.name),
                         datasets: [{
-                            label: 'Countries',
+                            label: 'Creators',
                             data: countries.map(d => {
                                 const country = countryData.find(c => c.country === d.properties.name);
                                 return { feature: d, value: country ? country.creators : 0 };
                             }),
+                            backgroundColor: function(context) {
+                                const value = context.raw?.value || 0;
+                                // Enhanced color gradient for better heat map visualization
+                                if (value === 0) return 'rgba(220, 220, 220, 0.8)';
+                                if (value < 10000) return 'rgba(255, 235, 132, 0.8)';
+                                if (value < 30000) return 'rgba(255, 170, 0, 0.8)';
+                                if (value < 50000) return 'rgba(255, 97, 0, 0.8)';
+                                if (value < 80000) return 'rgba(255, 0, 0, 0.8)';
+                                return 'rgba(128, 0, 0, 0.9)';
+                            }
                         }]
                     },
                     options: {
@@ -442,7 +582,20 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                display: false
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    generateLabels: function(chart) {
+                                        return [
+                                            { text: 'No Data', fillStyle: 'rgba(220, 220, 220, 0.8)' },
+                                            { text: '< 10K', fillStyle: 'rgba(255, 235, 132, 0.8)' },
+                                            { text: '10K - 30K', fillStyle: 'rgba(255, 170, 0, 0.8)' },
+                                            { text: '30K - 50K', fillStyle: 'rgba(255, 97, 0, 0.8)' },
+                                            { text: '50K - 80K', fillStyle: 'rgba(255, 0, 0, 0.8)' },
+                                            { text: '> 80K', fillStyle: 'rgba(128, 0, 0, 0.9)' }
+                                        ];
+                                    }
+                                }
                             },
                             tooltip: {
                                 callbacks: {
@@ -457,7 +610,10 @@
                             },
                             datalabels: {
                                 align: 'center',
-                                color: 'white',
+                                color: function(context) {
+                                    const value = context.raw?.value || 0;
+                                    return value > 50000 ? 'white' : 'black';
+                                },
                                 font: {
                                     weight: 'bold'
                                 },
@@ -472,14 +628,6 @@
                         scales: {
                             xy: {
                                 projection: 'equalEarth'
-                            },
-                            color: {
-                                axis: 'x',
-                                quantize: 5,
-                                legend: {
-                                    position: 'bottom-right',
-                                    align: 'bottom'
-                                }
                             }
                         }
                     }
