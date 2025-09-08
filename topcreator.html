@@ -210,15 +210,13 @@
                         <th data-sort="rank">Rank</th>
                         <th data-sort="name">Creator Name</th>
                         <th data-sort="type">Creator Type</th>
-                        <th data-sort="followers">Followers (M)</th>
-                        <th data-sort="growth">Follower Growth (MoM %)</th>
-                        <th data-sort="videos">Videos Published</th>
-                        <th data-sort="frequency">Frequency (Videos/Week)</th>
-                        <th data-sort="views">Total Views (M)</th>
-                        <th data-sort="engagement">Total Engagement (M)</th>
-                        <th data-sort="engagementRate">Engagement Rate (%)</th>
-                        <th data-sort="sentiment">Positive Sentiment (%)</th>
-                        <th data-sort="overlap">Follower Overlap (%)</th>
+                        <th data-sort="followers">Number of Followers</th>
+                        <th data-sort="videos">Number of posts Published</th>
+                        <th data-sort="frequency">Frequency of Releases (posts/Week)</th>
+                        <th data-sort="views">Total Views</th>
+                        <th data-sort="engagement">Total Interactions</th>
+                        <th data-sort="engagementRate">Interaction Rate</th>
+                        <th data-sort="sentiment">Positive Sentiment</th>
                     </tr>
                 </thead>
                 <tbody id="creator-data-body">
@@ -255,14 +253,12 @@
                 <td>${c.name}</td>
                 <td>${c.type}</td>
                 <td>${c.followers.toLocaleString()}</td>
-                <td>${c.growth.toFixed(1)}%</td>
                 <td>${c.videos.toLocaleString()}</td>
                 <td>${c.frequency}</td>
                 <td>${c.views.toLocaleString()}</td>
                 <td>${c.engagement.toLocaleString()}</td>
                 <td>${c.engagementRate.toFixed(1)}</td>
                 <td>${c.sentiment}</td>
-                <td>${c.overlap}</td>
             </tr>`;
             tableBody.innerHTML += row;
         });
@@ -530,7 +526,7 @@
                 let valueA = a[column];
                 let valueB = b[column];
                 
-                // Handle string values (for overlap which has % sign)
+                // Handle string values with % sign
                 if (typeof valueA === 'string' && valueA.includes('%')) {
                     valueA = parseFloat(valueA);
                     valueB = parseFloat(valueB);
@@ -551,14 +547,12 @@
                     <td>${c.name}</td>
                     <td>${c.type}</td>
                     <td>${c.followers.toLocaleString()}</td>
-                    <td>${c.growth.toFixed(1)}%</td>
                     <td>${c.videos.toLocaleString()}</td>
                     <td>${c.frequency}</td>
                     <td>${c.views.toLocaleString()}</td>
                     <td>${c.engagement.toLocaleString()}</td>
                     <td>${c.engagementRate.toFixed(1)}</td>
                     <td>${c.sentiment}</td>
-                    <td>${c.overlap}</td>
                 </tr>`;
                 tableBody.innerHTML += row;
             });
