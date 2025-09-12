@@ -478,7 +478,7 @@
              sidebar.classList.add('active');
              
              // Update sidebar title to show the clicked word
-             sidebarTitle.innerHTML = `${keyword} - Top 5 Works<button class="close-btn" onclick="closeSidebar()">&times;</button>`;
+             sidebarTitle.innerHTML = `${keyword} - Top 5 Posts<button class="close-btn" onclick="closeSidebar()">&times;</button>`;
              
              worksList.innerHTML = works.map(work => `
                  <div class="work-item">
@@ -513,7 +513,7 @@
              sidebar.classList.remove('active');
              
              // Reset sidebar title
-             sidebarTitle.innerHTML = 'Top 5 Works<button class="close-btn" onclick="closeSidebar()">&times;</button>';
+             sidebarTitle.innerHTML = 'Top 5 Posts<button class="close-btn" onclick="closeSidebar()">&times;</button>';
              
              // Remove active class from all words
              document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
