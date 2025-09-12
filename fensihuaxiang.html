@@ -3,558 +3,792 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audience Profile Analysis</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+    <title>Fan Demographics Dashboard - Cedra Ammara</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
-            max-width: 1900px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .dashboard {
+            max-width: 1600px;
             margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
         }
-
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-            transition: transform 0.3s;
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #667eea;
         }
-        .card:hover {
-            transform: translateY(-5px);
-        }
-        .card-header {
-            background-color: #f1f5f9;
-            border-bottom: none;
-            font-weight: bold;
-        }
-        .progress {
-            height: 20px;
+        
+        .dashboard-title {
+            font-size: 2.8em;
+            color: #2c3e50;
             margin-bottom: 10px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .progress-bar {
-            background-color: #6a11cb;
+        
+        .dashboard-subtitle {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+        
+
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+            gap: 35px;
+            margin-bottom: 40px;
+            align-items: start;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e8f0fe;
+            width: 100%;
+            min-height: 580px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+        
+        .chart-title {
+            font-size: 1.6em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+            padding-bottom: 15px;
+            position: relative;
+        }
+        
+        .chart-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 320px;
+            padding: 10px;
+        }
+        
+        .large-chart {
+            grid-column: span 2;
+        }
+        
+        .large-chart .chart-wrapper {
+            height: 420px;
+        }
+        
+        .full-width-chart {
+            grid-column: 1 / -1;
+        }
+        
+        .full-width-chart .chart-wrapper {
+            height: 700px;
+        }
+        
+
+        
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+                gap: 25px;
+            }
+            
+            .dashboard {
+                padding: 30px;
+            }
+            
+            .dashboard-title {
+                font-size: 2.4em;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .large-chart,
+            .full-width-chart {
+                grid-column: span 1;
+            }
+            
+            .dashboard {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .dashboard-title {
+                font-size: 2em;
+            }
+            
+            .chart-container {
+                padding: 20px;
+                min-height: 500px;
+            }
+            
+            .chart-wrapper {
+                height: 280px;
+            }
+            
+            .large-chart .chart-wrapper,
+            .full-width-chart .chart-wrapper {
+                height: 350px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .dashboard {
+                padding: 15px;
+                border-radius: 16px;
+            }
+            
+            .dashboard-title {
+                font-size: 1.8em;
+            }
+            
+            .chart-title {
+                font-size: 1.4em;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Gender Distribution</div>
-                    <div class="card-body">
-                        <canvas id="gendersChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Ethnicity Distribution</div>
-                    <div class="card-body">
-                        <canvas id="ethnicitiesChart"></canvas>
-                    </div>
-                </div>
-            </div>
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Fan Demographics Dashboard</h1>
+            <p class="dashboard-subtitle">Comprehensive Analytics for Cedra Ammara's Audience</p>
         </div>
-
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Language Distribution</div>
-                    <div class="card-body">
-                        <canvas id="languagesChart"></canvas>
-                    </div>
+        
+        <div class="charts-grid">
+            <!-- Audience Credibility -->
+            <div class="chart-container">
+                <div class="chart-title">Audience Credibility & Notability</div>
+                <div class="chart-wrapper">
+                    <canvas id="genderChart"></canvas>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">Country Distribution</div>
-                    <div class="card-body">
-                        <canvas id="countriesChart"></canvas>
-                    </div>
+            
+            <!-- Ethnicity Distribution -->
+            <div class="chart-container">
+                <div class="chart-title">Ethnicity Breakdown</div>
+                <div class="chart-wrapper">
+                    <canvas id="ethnicityChart"></canvas>
                 </div>
             </div>
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">City Distribution (Top 10)</div>
-                    <div class="card-body">
-                        <div id="cities-container">
-                            <!-- City distribution will be loaded dynamically via JavaScript -->
-                        </div>
-                    </div>
+            
+            <!-- Similar Authors By Audiences -->
+            <div class="chart-container">
+                <div class="chart-title">Similar Authors By Audiences</div>
+                <div class="chart-wrapper">
+                    <canvas id="ageChart"></canvas>
                 </div>
             </div>
-        </div>
+            
+            <!-- Language Distribution -->
+            <div class="chart-container full-width-chart">
+                <div class="chart-title">Top Languages</div>
+                <div class="chart-wrapper">
+                    <canvas id="languageChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Geographic World Map -->
+            <div class="chart-container full-width-chart">
+                <div class="chart-title">Geographic Distribution World Map</div>
+                <div class="chart-wrapper">
+                    <div id="geoWorldChart" style="width: 100%; height: 100%;"></div>
+                </div>
+            </div>
+            
+            <!-- Age-Gender Cross Analysis -->
+            <div class="chart-container large-chart">
+                <div class="chart-title">Age & Gender Cross-Analysis</div>
+                <div class="chart-wrapper">
+                    <canvas id="ageGenderChart"></canvas>
+                </div>
+            </div>
+            
 
-        <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">Audience Credibility & Notability</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h5>Audience Credibility</h5>
-                                <div class="progress">
-                                    <div class="progress-bar" id="credibility-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <p id="credibility-text" class="text-center"></p>
-                            </div>
-                            <div class="col-md-6">
-                                <h5>Audience Notability</h5>
-                                <div class="progress">
-                                    <div class="progress-bar" id="notable-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <p id="notable-text" class="text-center"></p>
-                            </div>
-                        </div>
-                    </div>
+            
+            <!-- Brand Affinity -->
+            <div class="chart-container">
+                <div class="chart-title">Brand Affinity</div>
+                <div class="chart-wrapper">
+                    <canvas id="brandChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    
     <script>
-        // Directly embedded audience data
-        const audienceData = {
-            "languages": [
-                {
-                    "code": "ar",
-                    "name": "Arabic",
-                    "weight": 0.720539
-                },
-                {
-                    "code": "en",
-                    "name": "English",
-                    "weight": 0.188034
-                },
-                {
-                    "code": "fr",
-                    "name": "French",
-                    "weight": 0.037037
-                },
-                {
-                    "code": "arz",
-                    "name": "Arabic (Egyptian)",
-                    "weight": 0.010878
-                },
-                {
-                    "code": "tr",
-                    "name": "Turkish",
-                    "weight": 0.007252
-                }
-            ],
-            "ethnicities": [
-                {
-                    "code": "african_american",
-                    "name": "African American",
-                    "weight": 0.025624
-                },
-                {
-                    "code": "white",
-                    "name": "White / Caucasian",
-                    "weight": 0.888296
-                },
-                {
-                    "code": "asian",
-                    "name": "Asian",
-                    "weight": 0.085413
-                },
-                {
-                    "code": "hispanic",
-                    "name": "Hispanic",
-                    "weight": 0.000667
-                }
-            ],
-            "credibility": 0.7238,
-            "notable": 0.0742,
-            "genders": [
-                {
-                    "code": "FEMALE",
-                    "weight": 0.766484
-                },
-                {
-                    "code": "MALE",
-                    "weight": 0.233516
-                }
-            ],
-            "geoCities": [
-                {
-                    "name": "Baghdad",
-                    "weight": 0.046667,
-                    "country": "Iraq"
-                },
-                {
-                    "name": "Jeddah",
-                    "weight": 0.024,
-                    "country": "Saudi Arabia"
-                },
-                {
-                    "name": "Istanbul",
-                    "weight": 0.022667,
-                    "country": "Turkey"
-                },
-                {
-                    "name": "Riyadh",
-                    "weight": 0.019333,
-                    "country": "Saudi Arabia"
-                },
-                {
-                    "name": "Algiers",
-                    "weight": 0.018,
-                    "country": "Algeria"
-                },
-                {
-                    "name": "Casablanca",
-                    "weight": 0.016667,
-                    "country": "Morocco"
-                },
-                {
-                    "name": "Dubai",
-                    "weight": 0.012667,
-                    "country": "United Arab Emirates"
-                },
-                {
-                    "name": "Basra",
-                    "weight": 0.012,
-                    "country": "Iraq"
-                },
-                {
-                    "name": "Mecca",
-                    "weight": 0.010667,
-                    "country": "Saudi Arabia"
-                },
-                {
-                    "name": "Oran",
-                    "weight": 0.01,
-                    "country": "Algeria"
-                }
-            ],
-            "geoCountries": [
-                {
-                    "name": "Iraq",
-                    "code": "IQ",
-                    "weight": 0.109333
-                },
-                {
-                    "name": "Saudi Arabia",
-                    "code": "SA",
-                    "weight": 0.106667
-                },
-                {
-                    "name": "Morocco",
-                    "code": "MA",
-                    "weight": 0.095333
-                },
-                {
-                    "name": "Algeria",
-                    "code": "DZ",
-                    "weight": 0.079333
-                },
-                {
-                    "name": "Tunisia",
-                    "code": "TN",
-                    "weight": 0.063333
-                }
-            ]
-        };
+        // Chart.js default configuration
+        Chart.defaults.font.family = 'Segoe UI';
+        Chart.defaults.color = '#2c3e50';
         
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            renderAudienceData(audienceData);
+        // Color palettes
+        const primaryColors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe'];
+        const gradientColors = [
+            'rgba(102, 126, 234, 0.8)',
+            'rgba(118, 75, 162, 0.8)',
+            'rgba(240, 147, 251, 0.8)',
+            'rgba(245, 87, 108, 0.8)',
+            'rgba(79, 172, 254, 0.8)',
+            'rgba(0, 242, 254, 0.8)'
+        ];
+        
+        // Audience Credibility Chart
+        const genderCtx = document.getElementById('genderChart').getContext('2d');
+        new Chart(genderCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Audience Credibility', 'Audience Notability'],
+                datasets: [{
+                    data: [76.6, 23.4],
+                    backgroundColor: ['#667eea', '#764ba2'],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: { size: 14 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
         });
-
-        // Render audience data
-        function renderAudienceData(audience) {
-            console.log('Rendering audience data:', audience);
-            
-            // Render gender distribution
-            if (audience.genders && audience.genders.length > 0) {
-                renderGendersChart(audience.genders);
-            }
-            
-            // Render ethnicity distribution
-            if (audience.ethnicities && audience.ethnicities.length > 0) {
-                renderEthnicitiesChart(audience.ethnicities);
-            }
-            
-            // Render language distribution
-            if (audience.languages && audience.languages.length > 0) {
-                renderLanguagesChart(audience.languages);
-            }
-            
-            // Render country distribution
-            if (audience.geoCountries && audience.geoCountries.length > 0) {
-                renderCountriesChart(audience.geoCountries);
-            }
-            
-            // Render city distribution
-            if (audience.geoCities && audience.geoCities.length > 0) {
-                renderCitiesDistribution(audience.geoCities);
-            }
-            
-            // Render credibility and notability
-            if (audience.credibility !== undefined && audience.notable !== undefined) {
-                renderCredibilityAndNotable(audience.credibility, audience.notable);
-            }
-        }
-
-        // Format number
-        function formatNumber(num) {
-            if (num >= 1000000) {
-                return (num / 1000000).toFixed(1) + 'M';
-            } else if (num >= 1000) {
-                return (num / 1000).toFixed(1) + 'K';
-            }
-            return num;
-        }
-
-        // Render gender distribution chart
-        function renderGendersChart(genders) {
-            const ctx = document.getElementById('gendersChart').getContext('2d');
-            const labels = genders.map(item => item.code === 'FEMALE' ? 'Female' : item.code === 'MALE' ? 'Male' : item.name);
-            const data = genders.map(item => item.weight * 100);
-            
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                font: {
-                                    size: 14
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + context.raw.toFixed(1) + '%';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Render ethnicity distribution chart
-        function renderEthnicitiesChart(ethnicities) {
-            const ctx = document.getElementById('ethnicitiesChart').getContext('2d');
-            const labels = ethnicities.map(item => item.name);
-            const data = ethnicities.map(item => item.weight * 100);
-            
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: ['#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#3B82F6', '#EF4444'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                font: {
-                                    size: 14
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + context.raw.toFixed(1) + '%';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Render language distribution chart
-        function renderLanguagesChart(languages) {
-            const ctx = document.getElementById('languagesChart').getContext('2d');
-            // Only take top 5 languages
-            const topLanguages = languages.slice(0, 5);
-            const labels = topLanguages.map(item => item.name || item.code);
-            const data = topLanguages.map(item => item.weight * 100);
-            
-            const gradientBg = ctx.createLinearGradient(0, 0, 0, 400);
-            gradientBg.addColorStop(0, '#6a11cb');
-            gradientBg.addColorStop(1, '#2575fc');
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Language Distribution (%)',
-                        data: data,
-                        backgroundColor: gradientBg,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.raw.toFixed(1) + '%';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        },
-                        y: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Render country distribution chart
-        function renderCountriesChart(countries) {
-            const ctx = document.getElementById('countriesChart').getContext('2d');
-            // Only take top 5 countries
-            const topCountries = countries.slice(0, 5);
-            const labels = topCountries.map(item => item.name || item.code);
-            const data = topCountries.map(item => item.weight * 100);
-            
-            const gradientBg = ctx.createLinearGradient(0, 0, 0, 400);
-            gradientBg.addColorStop(0, '#2575fc');
-            gradientBg.addColorStop(1, '#6a11cb');
-            
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Country Distribution (%)',
-                        data: data,
-                        backgroundColor: gradientBg,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.raw.toFixed(1) + '%';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            }
-                        },
-                        y: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Render city distribution
-        function renderCitiesDistribution(cities) {
-            const container = document.getElementById('cities-container');
-            container.innerHTML = '';
-            
-            // Only take top 10 cities
-            const topCities = cities.slice(0, 10);
-            
-            topCities.forEach(city => {
-                const row = document.createElement('div');
-                row.classList.add('mb-3');
-                
-                const cityName = city.name || city.code || 'Unknown City';
-                const countryName = city.country || '';
-                const percentage = (city.weight * 100).toFixed(1);
-                
-                const content = `
-                    <div class="d-flex justify-content-between mb-1">
-                        <span>${cityName}${countryName ? ', ' + countryName : ''}</span>
-                        <span>${percentage}%</span>
-                    </div>
-                    <div class="progress">
-                                <div class="progress-bar bg-gradient" role="progressbar" 
-                                    style="width: ${percentage}%; background: linear-gradient(to right, #6a11cb, #2575fc, #00d2ff);" 
-                                    aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+        
+        // Lookalikes By Audiences - Custom HTML Display
+        const ageChartContainer = document.getElementById('ageChart').parentElement;
+        ageChartContainer.innerHTML = `
+            <div style="padding: 20px;">
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #ff6b6b, #ffa500); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px;">FM</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">@fashionista_maya</div>
+                            <div style="display: flex; gap: 15px; font-size: 14px; color: #666;">
+                                <span>Posts: 1,234</span>
+                                 <span>Shares: 45.6K</span>
+                                 <span>Likes: 234.5K</span>
+                                 <span>Comments: 12.3K</span>
                             </div>
-                `;
-                
-                row.innerHTML = content;
-                container.appendChild(row);
-            });
-        }
+                        </div>
+                        <div style="background: #28a745; color: white; padding: 5px 10px; border-radius: 15px; font-size: 14px; font-weight: bold;">92.5%</div>
+                    </div>
+                    <div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #4ecdc4, #44a08d); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px;">LG</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">@lifestyle_guru_sam</div>
+                            <div style="display: flex; gap: 15px; font-size: 14px; color: #666;">
+                                <span>Posts: 987</span>
+                                 <span>Shares: 38.2K</span>
+                                 <span>Likes: 189.7K</span>
+                                 <span>Comments: 9.8K</span>
+                            </div>
+                        </div>
+                        <div style="background: #17a2b8; color: white; padding: 5px 10px; border-radius: 15px; font-size: 14px; font-weight: bold;">88.3%</div>
+                    </div>
+                    <div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px;">BE</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">@beauty_expert_alex</div>
+                            <div style="display: flex; gap: 15px; font-size: 14px; color: #666;">
+                                <span>Posts: 756</span>
+                                 <span>Shares: 29.1K</span>
+                                 <span>Likes: 156.3K</span>
+                                 <span>Comments: 8.2K</span>
+                            </div>
+                        </div>
+                        <div style="background: #6f42c1; color: white; padding: 5px 10px; border-radius: 15px; font-size: 14px; font-weight: bold;">85.7%</div>
+                    </div>
+                    <div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #f093fb, #f5576c); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px;">FC</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">@fitness_coach_jordan</div>
+                            <div style="display: flex; gap: 15px; font-size: 14px; color: #666;">
+                                <span>Posts: 623</span>
+                                 <span>Shares: 22.7K</span>
+                                 <span>Likes: 134.8K</span>
+                                 <span>Comments: 7.1K</span>
+                            </div>
+                        </div>
+                        <div style="background: #fd7e14; color: white; padding: 5px 10px; border-radius: 15px; font-size: 14px; font-weight: bold;">82.1%</div>
+                    </div>
+                    <div style="display: flex; align-items: center; padding: 15px; background: #f8f9fa; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(45deg, #4facfe, #00f2fe); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 15px;">TB</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">@travel_blogger_casey</div>
+                            <div style="display: flex; gap: 15px; font-size: 14px; color: #666;">
+                                <span>Posts: 445</span>
+                                 <span>Shares: 18.9K</span>
+                                 <span>Likes: 98.4K</span>
+                                 <span>Comments: 5.6K</span>
+                            </div>
+                        </div>
+                        <div style="background: #20c997; color: white; padding: 5px 10px; border-radius: 15px; font-size: 14px; font-weight: bold;">79.4%</div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Language Distribution Chart
+         const languageCtx = document.getElementById('languageChart').getContext('2d');
+         new Chart(languageCtx, {
+             type: 'bar',
+            data: {
+                labels: ['Arabic', 'English', 'French', 'Arabic (Egyptian)', 'Turkish', 'German', 'Persian'],
+                datasets: [{
+                    label: 'Percentage',
+                    data: [72.1, 18.8, 3.7, 1.1, 0.7, 0.7, 0.7],
+                    backgroundColor: gradientColors,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Ethnicity Distribution Chart
+        const ethnicityCtx = document.getElementById('ethnicityChart').getContext('2d');
+        new Chart(ethnicityCtx, {
+            type: 'pie',
+            data: {
+                labels: ['White/Caucasian', 'Asian', 'African American', 'Hispanic'],
+                datasets: [{
+                    data: [88.8, 8.5, 2.6, 0.1],
+                    backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: { size: 12 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.parsed + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Geographic World Map
+        const geoWorldChart = echarts.init(document.getElementById('geoWorldChart'));
+        
+        // Country data for world map with fan counts and percentages
+        const countryData = [
+            {name: 'Iraq', value: 10.9, fanCount: 1825000},
+            {name: 'Saudi Arabia', value: 10.7, fanCount: 1460000},
+            {name: 'Morocco', value: 9.5, fanCount: 1095000},
+            {name: 'Algeria', value: 7.9, fanCount: 730000},
+            {name: 'Tunisia', value: 6.3, fanCount: 584000},
+            {name: 'Egypt', value: 4.2, fanCount: 438000},
+            {name: 'Jordan', value: 3.8, fanCount: 365000},
+            {name: 'Lebanon', value: 3.1, fanCount: 292000},
+            {name: 'Syria', value: 2.9, fanCount: 219000},
+            {name: 'Kuwait', value: 2.5, fanCount: 146000},
+            {name: 'United Arab Emirates', value: 2.0, fanCount: 73000},
+            {name: 'Turkey', value: 1.5, fanCount: 73000}
+        ];
+        
+        // Prepare map data for ECharts world map
+        const mapData = countryData.map(item => ({
+            name: item.name,
+            value: item.value,
+            fanCount: item.fanCount
+        }));
 
-        // Render credibility and notability
-        function renderCredibilityAndNotable(credibility, notable) {
-            const credibilityPercentage = (credibility * 100).toFixed(1);
-            const notablePercentage = (notable * 100).toFixed(1);
-            
-            // Set progress bars
-            document.getElementById('credibility-bar').style.width = credibilityPercentage + '%';
-            document.getElementById('credibility-bar').setAttribute('aria-valuenow', credibilityPercentage);
-            document.getElementById('credibility-text').textContent = credibilityPercentage + '%';
-            document.getElementById('credibility-bar').style.background = 'linear-gradient(to right, #6a11cb, #2575fc)';
-            
-            document.getElementById('notable-bar').style.width = notablePercentage + '%';
-            document.getElementById('notable-bar').setAttribute('aria-valuenow', notablePercentage);
-            document.getElementById('notable-text').textContent = notablePercentage + '%';
-            document.getElementById('notable-bar').style.background = 'linear-gradient(to right, #2575fc, #6a11cb)';
-        }
+        // Geographic coordinates for countries
+         const geoCoordinates = {
+             'Iraq': [44.3661, 33.3152],
+             'Saudi Arabia': [45.0792, 23.8859],
+             'Morocco': [-7.0926, 31.7917],
+             'Algeria': [1.6596, 28.0339],
+             'Tunisia': [9.5375, 33.8869],
+             'Egypt': [30.8025, 26.8206],
+             'Jordan': [36.2384, 30.5852],
+             'Lebanon': [35.8623, 33.8547],
+             'Syria': [38.9968, 34.8021],
+             'Kuwait': [47.4818, 29.3117],
+             'United Arab Emirates': [53.8478, 23.4241],
+             'Turkey': [35.2433, 38.9637]
+         };
+         
+         // Convert country data to scatter plot format
+         const scatterData = countryData.map(item => {
+             const coords = geoCoordinates[item.name];
+             if (coords) {
+                 return {
+                     name: item.name,
+                     value: [coords[0], coords[1], item.fanCount, item.value],
+                     fanCount: item.fanCount,
+                     percentage: item.value
+                 };
+             }
+             return null;
+         }).filter(item => item !== null);
+         
+         const geoWorldOption = {
+             title: {
+                 text: 'GEO SVG Map',
+                 left: 'center',
+                 top: 10,
+                 textStyle: {
+                     color: '#2c3e50',
+                     fontSize: 18,
+                     fontWeight: 'bold'
+                 }
+             },
+             tooltip: {
+                 trigger: 'item',
+                 formatter: function(params) {
+                     if (params.componentType === 'geo') {
+                         const countryInfo = countryData.find(item => item.name === params.name);
+                         if (countryInfo) {
+                             return params.name + '<br/>' +
+                                    'Fan Count: ' + countryInfo.fanCount.toLocaleString() + '<br/>' +
+                                    'Percentage: ' + countryInfo.value + '%';
+                         }
+                     }
+                     return params.name;
+                 }
+             },
+             geo: {
+                 map: 'world',
+                 roam: 'scale',
+                 zoom: 1.2,
+                 center: [0, 20],
+                 scaleLimit: {
+                     min: 0.8,
+                     max: 3
+                 },
+                 itemStyle: {
+                     areaColor: '#e0e0e0',
+                     borderColor: '#404a59'
+                 },
+                 emphasis: {
+                     itemStyle: {
+                         areaColor: '#37a2da'
+                     }
+                 }
+             },
+             visualMap: {
+                 min: 0,
+                 max: 11,
+                 left: 'left',
+                 top: 'bottom',
+                 text: ['High', 'Low'],
+                 calculable: true,
+                 inRange: {
+                     color: ['#50a3ba', '#eac736', '#d94e5d']
+                 }
+             },
+             series: [
+                 {
+                     name: 'Fan Distribution',
+                     type: 'map',
+                     geoIndex: 0,
+                     data: countryData.map(item => ({
+                         name: item.name,
+                         value: item.value,
+                         fanCount: item.fanCount
+                     }))
+                 }
+             ]
+         };
+
+        // Try multiple world map data sources
+         const mapDataSources = [
+             'https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson',
+             'https://cdn.jsdelivr.net/npm/world-atlas@2/world/110m.json',
+             'https://geo.datav.aliyun.com/areas_v3/bound/world.json'
+         ];
+
+         async function loadWorldMap() {
+             for (let i = 0; i < mapDataSources.length; i++) {
+                 try {
+                     console.log(`Trying map source ${i + 1}:`, mapDataSources[i]);
+                     const response = await fetch(mapDataSources[i]);
+                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                     
+                     const mapData = await response.json();
+                     
+                     // Convert GeoJSON to ECharts format if needed
+                     let worldJson = mapData;
+                     if (mapData.type === 'FeatureCollection') {
+                         // Convert GeoJSON to ECharts format
+                         worldJson = {
+                             type: 'FeatureCollection',
+                             features: mapData.features.map(feature => ({
+                                 type: 'Feature',
+                                 properties: {
+                                     name: feature.properties.NAME || feature.properties.name || feature.properties.NAME_EN
+                                 },
+                                 geometry: feature.geometry
+                             }))
+                         };
+                     }
+                     
+                     echarts.registerMap('world', worldJson);
+                     geoWorldChart.setOption(geoWorldOption);
+                     console.log('World map loaded successfully from source:', i + 1);
+                     return;
+                 } catch (error) {
+                     console.warn(`Failed to load map from source ${i + 1}:`, error);
+                     if (i === mapDataSources.length - 1) {
+                         throw new Error('All map sources failed');
+                     }
+                 }
+             }
+         }
+
+         loadWorldMap().catch(error => {
+             console.error('Error loading world map from all sources:', error);
+             // Fallback to simplified visualization if all world map sources fail
+             const fallbackOption = {
+                 title: {
+                     text: 'Geographic Distribution (Map Unavailable)',
+                     left: 'center',
+                     textStyle: {
+                         color: '#2c3e50',
+                         fontSize: 18,
+                         fontWeight: 'bold'
+                     }
+                 },
+                 tooltip: {
+                     trigger: 'axis',
+                     axisPointer: {
+                         type: 'shadow'
+                     },
+                     formatter: function(params) {
+                         const data = params[0];
+                         const country = countryData.find(item => item.name === data.name);
+                         return data.name + '<br/>' +
+                                'Fan Count: ' + (country ? country.fanCount.toLocaleString() : 0) + '<br/>' +
+                                'Percentage: ' + (country ? country.value : 0) + '%';
+                     }
+                 },
+                 grid: {
+                     left: '3%',
+                     right: '4%',
+                     bottom: '3%',
+                     containLabel: true
+                 },
+                 xAxis: {
+                     type: 'category',
+                     data: countryData.map(item => item.name),
+                     axisLabel: {
+                         rotate: 45,
+                         fontSize: 10
+                     }
+                 },
+                 yAxis: {
+                     type: 'value',
+                     name: 'Fan Count',
+                     axisLabel: {
+                         formatter: function(value) {
+                             return (value / 1000000).toFixed(1) + 'M';
+                         }
+                     }
+                 },
+                 series: [
+                     {
+                         name: 'Country Distribution',
+                         type: 'bar',
+                         data: countryData.map(item => item.fanCount),
+                         itemStyle: {
+                             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                 { offset: 0, color: '#83bff6' },
+                                 { offset: 0.5, color: '#188df0' },
+                                 { offset: 1, color: '#188df0' }
+                             ])
+                         }
+                     }
+                 ]
+             };
+             geoWorldChart.setOption(fallbackOption);
+         });
+        
+        // Age-Gender Cross Analysis Chart
+        const ageGenderCtx = document.getElementById('ageGenderChart').getContext('2d');
+        new Chart(ageGenderCtx, {
+            type: 'bar',
+            data: {
+                labels: ['13-17', '18-24', '25-34', '35-44', '45-64'],
+                datasets: [{
+                    label: 'Female',
+                    data: [10.6, 41.9, 23.3, 0.8, 0.1],
+                    backgroundColor: '#667eea',
+                    borderRadius: 6
+                }, {
+                    label: 'Male',
+                    data: [1.5, 8.9, 10.0, 2.4, 0.5],
+                    backgroundColor: '#764ba2',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+        
+
+        
+        // Brand Affinity Chart
+        const brandCtx = document.getElementById('brandChart').getContext('2d');
+        new Chart(brandCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Apple', 'Starbucks', 'Adidas', 'Nike', 'Disney', 'Mercedes'],
+                datasets: [{
+                    label: 'Brand Affinity',
+                    data: [6.2, 5.5, 4.0, 3.8, 3.4, 3.2],
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: '#667eea',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 7,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
