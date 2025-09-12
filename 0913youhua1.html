@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Word Cloud</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            height: 80vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .sidebar {
+            width: 0;
+            background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 0;
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto;
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .sidebar.active {
+            width: 400px;
+            padding: 30px;
+            opacity: 1;
+        }
+
+        .sidebar h2 {
+             color: #495057;
+             margin-bottom: 20px;
+             font-size: 24px;
+             text-align: center;
+             position: relative;
+         }
+
+         .close-btn {
+             position: absolute;
+             right: 0;
+             top: 50%;
+             transform: translateY(-50%);
+             background: #dc3545;
+             color: white;
+             border: none;
+             border-radius: 50%;
+             width: 30px;
+             height: 30px;
+             cursor: pointer;
+             font-size: 16px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             transition: background 0.3s ease;
+         }
+
+         .close-btn:hover {
+             background: #c82333;
+         }
+
+        .work-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .work-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .work-cover {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .work-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 8px;
+        }
+
+        .work-author {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .work-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #868e96;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .wordcloud-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        .wordcloud {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .word {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .word:hover {
+            transform: scale(1.1);
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .word.active {
+            transform: scale(1.2);
+            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .placeholder {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #495057;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+             <h2 id="sidebar-title">Top 5 Works
+                 <button class="close-btn" onclick="closeSidebar()">&times;</button>
+             </h2>
+             <div id="works-list">
+                 <div class="placeholder">
+                     Click on a word in the cloud to see related beauty content
+                 </div>
+             </div>
+         </div>
+        
+        <div class="wordcloud-container">
+            <div class="header">Beauty Word Cloud</div>
+            <div class="wordcloud" id="wordcloud">
+                <!-- Words will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const beautyWords = [
+             { text: 'Makeup', size: 48, color: '#e74c3c' },
+             { text: 'Skincare', size: 44, color: '#3498db' },
+             { text: 'Foundation', size: 36, color: '#9b59b6' },
+             { text: 'Lipstick', size: 40, color: '#e91e63' },
+             { text: 'Eyeshadow', size: 32, color: '#673ab7' },
+             { text: 'Mascara', size: 28, color: '#2196f3' },
+             { text: 'Blush', size: 30, color: '#ff5722' },
+             { text: 'Concealer', size: 26, color: '#795548' },
+             { text: 'Primer', size: 24, color: '#607d8b' },
+             { text: 'Highlighter', size: 34, color: '#ffc107' },
+             { text: 'Contour', size: 28, color: '#8bc34a' },
+             { text: 'Bronzer', size: 26, color: '#ff9800' },
+             { text: 'Eyeliner', size: 30, color: '#4caf50' },
+             { text: 'Serum', size: 32, color: '#00bcd4' },
+             { text: 'Moisturizer', size: 28, color: '#cddc39' },
+             { text: 'Cleanser', size: 26, color: '#ff6b6b' },
+             { text: 'Toner', size: 24, color: '#4ecdc4' },
+             { text: 'Sunscreen', size: 30, color: '#45b7d1' },
+             { text: 'Palette', size: 22, color: '#96ceb4' },
+             { text: 'Brush', size: 20, color: '#ffeaa7' },
+             { text: 'Powder', size: 26, color: '#ff7675' },
+             { text: 'Gloss', size: 24, color: '#fd79a8' },
+             { text: 'Cream', size: 28, color: '#fdcb6e' },
+             { text: 'Lotion', size: 22, color: '#6c5ce7' },
+             { text: 'Essence', size: 24, color: '#a29bfe' },
+             { text: 'Micellar', size: 20, color: '#fd79a8' },
+             { text: 'Exfoliant', size: 18, color: '#00b894' },
+             { text: 'Retinol', size: 22, color: '#00cec9' },
+             { text: 'Vitamin C', size: 24, color: '#55a3ff' },
+             { text: 'Hyaluronic', size: 20, color: '#ff7675' },
+             { text: 'Niacinamide', size: 18, color: '#fd79a8' },
+             { text: 'Peptides', size: 16, color: '#fdcb6e' },
+             { text: 'Collagen', size: 20, color: '#6c5ce7' },
+             { text: 'Antioxidant', size: 18, color: '#a29bfe' },
+             { text: 'SPF', size: 22, color: '#fd79a8' },
+             { text: 'BB Cream', size: 20, color: '#00b894' },
+             { text: 'CC Cream', size: 18, color: '#00cec9' },
+             { text: 'Setting Spray', size: 16, color: '#55a3ff' },
+             { text: 'Fixing Powder', size: 14, color: '#ff7675' },
+             { text: 'Brow Gel', size: 18, color: '#fd79a8' },
+             { text: 'Brow Pencil', size: 16, color: '#fdcb6e' },
+             { text: 'Lip Liner', size: 18, color: '#6c5ce7' },
+             { text: 'Lip Balm', size: 20, color: '#a29bfe' },
+             { text: 'Lip Stain', size: 16, color: '#fd79a8' },
+             { text: 'Lip Tint', size: 18, color: '#00b894' },
+             { text: 'Cheek Tint', size: 16, color: '#00cec9' },
+             { text: 'Face Mask', size: 22, color: '#55a3ff' },
+             { text: 'Sheet Mask', size: 20, color: '#ff7675' },
+             { text: 'Clay Mask', size: 18, color: '#fd79a8' },
+             { text: 'Peel Off', size: 16, color: '#fdcb6e' },
+             { text: 'Eye Cream', size: 20, color: '#6c5ce7' },
+             { text: 'Night Cream', size: 18, color: '#a29bfe' },
+             { text: 'Day Cream', size: 16, color: '#fd79a8' },
+             { text: 'Face Oil', size: 18, color: '#00b894' },
+             { text: 'Facial Mist', size: 16, color: '#00cec9' },
+             { text: 'Micellar Water', size: 14, color: '#55a3ff' },
+             { text: 'Makeup Remover', size: 16, color: '#ff7675' },
+             { text: 'Double Cleanse', size: 14, color: '#fd79a8' },
+             { text: 'Foam Cleanser', size: 16, color: '#fdcb6e' },
+             { text: 'Oil Cleanser', size: 14, color: '#6c5ce7' },
+             { text: 'Gel Cleanser', size: 16, color: '#a29bfe' },
+             { text: 'Scrub', size: 18, color: '#fd79a8' },
+             { text: 'Peeling Gel', size: 14, color: '#00b894' },
+             { text: 'AHA', size: 16, color: '#00cec9' },
+             { text: 'BHA', size: 18, color: '#55a3ff' },
+             { text: 'Glycolic Acid', size: 14, color: '#ff7675' },
+             { text: 'Salicylic Acid', size: 12, color: '#fd79a8' },
+             { text: 'Lactic Acid', size: 14, color: '#fdcb6e' },
+             { text: 'Mandelic Acid', size: 12, color: '#6c5ce7' },
+             { text: 'Azelaic Acid', size: 14, color: '#a29bfe' },
+             { text: 'Kojic Acid', size: 12, color: '#fd79a8' },
+             { text: 'Arbutin', size: 14, color: '#00b894' },
+             { text: 'Tranexamic', size: 12, color: '#00cec9' },
+             { text: 'Ceramides', size: 16, color: '#55a3ff' },
+             { text: 'Squalane', size: 14, color: '#ff7675' },
+             { text: 'Rosehip Oil', size: 12, color: '#fd79a8' },
+             { text: 'Jojoba Oil', size: 14, color: '#fdcb6e' },
+             { text: 'Argan Oil', size: 12, color: '#6c5ce7' },
+             { text: 'Marula Oil', size: 14, color: '#a29bfe' },
+             { text: 'Bakuchiol', size: 12, color: '#fd79a8' },
+             { text: 'Centella', size: 16, color: '#00b894' },
+             { text: 'Snail Mucin', size: 14, color: '#00cec9' },
+             { text: 'Propolis', size: 12, color: '#55a3ff' },
+             { text: 'Honey', size: 14, color: '#ff7675' },
+             { text: 'Aloe Vera', size: 16, color: '#fd79a8' },
+             { text: 'Green Tea', size: 14, color: '#fdcb6e' },
+             { text: 'Chamomile', size: 12, color: '#6c5ce7' },
+             { text: 'Calendula', size: 14, color: '#a29bfe' },
+             { text: 'Rose Water', size: 16, color: '#fd79a8' },
+             { text: 'Witch Hazel', size: 12, color: '#00b894' },
+             { text: 'Tea Tree', size: 14, color: '#00cec9' },
+             { text: 'Eucalyptus', size: 12, color: '#55a3ff' },
+             { text: 'Lavender', size: 16, color: '#ff7675' },
+             { text: 'Peppermint', size: 14, color: '#fd79a8' },
+             { text: 'Cucumber', size: 12, color: '#fdcb6e' },
+             { text: 'Watermelon', size: 14, color: '#6c5ce7' },
+             { text: 'Papaya', size: 12, color: '#a29bfe' },
+             { text: 'Pineapple', size: 14, color: '#fd79a8' },
+             { text: 'Lemon', size: 16, color: '#00b894' },
+             { text: 'Orange', size: 14, color: '#00cec9' },
+             { text: 'Grapefruit', size: 12, color: '#55a3ff' },
+             { text: 'Pomegranate', size: 14, color: '#ff7675' },
+             { text: 'Blueberry', size: 12, color: '#fd79a8' },
+             { text: 'Acai', size: 14, color: '#fdcb6e' },
+             { text: 'Goji Berry', size: 12, color: '#6c5ce7' }
+         ];
+
+        // Generate default works data for any beauty term
+        function generateDefaultWorks(category) {
+            const templates = [
+                { title: `${category} Tutorial for Beginners`, author: 'BeautyExpert_Sarah', likes: '12.5K', comments: '892', shares: '234', views: '156K', cover: `${category} Guide` },
+                { title: `Professional ${category} Tips`, author: 'MakeupPro_Lisa', likes: '8.9K', comments: '567', shares: '189', views: '98K', cover: `Pro ${category}` },
+                { title: `${category} Trends 2024`, author: 'TrendSetter_Emma', likes: '15.2K', comments: '1.2K', shares: '345', views: '203K', cover: `${category} Trends` },
+                { title: `Best ${category} Products Review`, author: 'ReviewQueen_Mia', likes: '7.8K', comments: '445', shares: '156', views: '87K', cover: `${category} Review` },
+                { title: `${category} Transformation`, author: 'GlowUp_Zoe', likes: '11.3K', comments: '789', shares: '267', views: '134K', cover: `${category} Magic` }
+            ];
+            return templates;
+        }
+
+        const worksData = {
+            'Makeup': [
+                { title: 'Everyday Glam Tutorial', author: 'BeautyGuru_Sarah', likes: '12.5K', comments: '892', shares: '234', views: '156K', cover: 'Glam Look' },
+                { title: 'Bold Evening Makeup', author: 'MakeupMaven_Lisa', likes: '8.9K', comments: '567', shares: '189', views: '98K', cover: 'Evening Style' },
+                { title: 'Natural Day Look', author: 'SimpleBeauty_Emma', likes: '15.2K', comments: '1.2K', shares: '345', views: '203K', cover: 'Natural Glow' },
+                { title: 'Smoky Eye Masterclass', author: 'EyeArt_Mia', likes: '7.8K', comments: '445', shares: '156', views: '87K', cover: 'Smoky Eyes' },
+                { title: 'Color Pop Challenge', author: 'RainbowMakeup_Zoe', likes: '11.3K', comments: '789', shares: '267', views: '134K', cover: 'Colorful Art' }
+            ],
+            'Skincare': [
+                { title: 'Morning Skincare Routine', author: 'SkinExpert_Dr.Kim', likes: '18.7K', comments: '1.5K', shares: '456', views: '287K', cover: 'Morning Glow' },
+                { title: 'Anti-Aging Secrets', author: 'YouthfulSkin_Anna', likes: '14.2K', comments: '987', shares: '321', views: '198K', cover: 'Age Defying' },
+                { title: 'Acne Treatment Guide', author: 'ClearSkin_Alex', likes: '9.8K', comments: '678', shares: '234', views: '145K', cover: 'Clear Skin' },
+                { title: 'Hydration Boost Tips', author: 'GlowingSkin_Maya', likes: '12.1K', comments: '834', shares: '289', views: '167K', cover: 'Hydrated Skin' },
+                { title: 'Sensitive Skin Care', author: 'GentleCare_Sophie', likes: '8.5K', comments: '567', shares: '178', views: '112K', cover: 'Gentle Touch' }
+            ],
+            'Foundation': [
+                { title: 'Perfect Foundation Match', author: 'BaseExpert_Chloe', likes: '13.4K', comments: '945', shares: '312', views: '189K', cover: 'Perfect Base' },
+                { title: 'Full Coverage Tutorial', author: 'FlawlessBase_Jade', likes: '10.7K', comments: '723', shares: '245', views: '143K', cover: 'Full Coverage' },
+                { title: 'Natural Finish Guide', author: 'NaturalGlow_Lily', likes: '15.8K', comments: '1.1K', shares: '378', views: '221K', cover: 'Natural Finish' },
+                { title: 'Long-Lasting Base', author: 'AllDayMakeup_Rose', likes: '9.2K', comments: '612', shares: '198', views: '128K', cover: 'Long Lasting' },
+                { title: 'Color Correction Tips', author: 'ColorPro_Violet', likes: '7.9K', comments: '456', shares: '167', views: '98K', cover: 'Color Correct' }
+            ],
+            'Lipstick': [
+                { title: 'Bold Red Lip Tutorial', author: 'RedLip_Queen', likes: '16.3K', comments: '1.3K', shares: '423', views: '245K', cover: 'Bold Red' },
+                { title: 'Nude Lip Perfection', author: 'NudeLips_Grace', likes: '12.8K', comments: '867', shares: '298', views: '178K', cover: 'Nude Perfection' },
+                { title: 'Ombre Lip Technique', author: 'LipArt_Stella', likes: '8.9K', comments: '634', shares: '212', views: '124K', cover: 'Ombre Lips' },
+                { title: 'Glossy Lip Trends', author: 'GlossyLips_Bella', likes: '11.5K', comments: '789', shares: '267', views: '156K', cover: 'Glossy Shine' },
+                { title: 'Matte Lip Mastery', author: 'MatteLips_Luna', likes: '9.7K', comments: '567', shares: '189', views: '134K', cover: 'Matte Finish' }
+            ],
+            'Eyeshadow': [
+                { title: 'Sunset Eye Look', author: 'SunsetEyes_Aurora', likes: '14.6K', comments: '1.0K', shares: '345', views: '201K', cover: 'Sunset Vibes' },
+                { title: 'Neutral Eye Palette', author: 'NeutralEyes_Hazel', likes: '11.2K', comments: '756', shares: '234', views: '167K', cover: 'Neutral Tones' },
+                { title: 'Glitter Eye Magic', author: 'SparkleEyes_Nova', likes: '9.8K', comments: '678', shares: '223', views: '143K', cover: 'Glitter Magic' },
+                { title: 'Cut Crease Tutorial', author: 'CutCrease_Ivy', likes: '8.4K', comments: '523', shares: '178', views: '118K', cover: 'Cut Crease' },
+                { title: 'Colorful Eye Art', author: 'RainbowEyes_Iris', likes: '12.9K', comments: '834', shares: '289', views: '182K', cover: 'Rainbow Eyes' }
+            ]
+        };
+
+        function createWordCloud() {
+            const wordcloud = document.getElementById('wordcloud');
+            const containerWidth = wordcloud.offsetWidth;
+            const containerHeight = wordcloud.offsetHeight;
+            
+            // Sort words by size for better layout
+            const sortedWords = [...beautyWords].sort((a, b) => b.size - a.size);
+            const placedWords = [];
+            
+            sortedWords.forEach((word, index) => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'word';
+                wordElement.textContent = word.text;
+                wordElement.style.fontSize = word.size + 'px';
+                wordElement.style.color = word.color;
+                
+                // Calculate word dimensions
+                wordElement.style.position = 'absolute';
+                wordElement.style.visibility = 'hidden';
+                wordcloud.appendChild(wordElement);
+                const wordWidth = wordElement.offsetWidth;
+                const wordHeight = wordElement.offsetHeight;
+                wordcloud.removeChild(wordElement);
+                
+                // Find non-overlapping position
+                let x, y, attempts = 0;
+                let positioned = false;
+                
+                while (!positioned && attempts < 100) {
+                    x = Math.random() * (containerWidth - wordWidth - 20) + 10;
+                    y = Math.random() * (containerHeight - wordHeight - 20) + 10;
+                    
+                    let overlapping = false;
+                    for (let placedWord of placedWords) {
+                        if (x < placedWord.x + placedWord.width + 10 &&
+                            x + wordWidth + 10 > placedWord.x &&
+                            y < placedWord.y + placedWord.height + 10 &&
+                            y + wordHeight + 10 > placedWord.y) {
+                            overlapping = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!overlapping) {
+                        positioned = true;
+                        placedWords.push({
+                            x: x,
+                            y: y,
+                            width: wordWidth,
+                            height: wordHeight
+                        });
+                    }
+                    attempts++;
+                }
+                
+                // If couldn't find non-overlapping position, use random
+                if (!positioned) {
+                    x = Math.random() * (containerWidth - wordWidth - 20) + 10;
+                    y = Math.random() * (containerHeight - wordHeight - 20) + 10;
+                }
+                
+                wordElement.style.left = x + 'px';
+                wordElement.style.top = y + 'px';
+                wordElement.style.visibility = 'visible';
+                
+                wordElement.addEventListener('click', () => {
+                     const sidebar = document.querySelector('.sidebar');
+                     const isCurrentlyActive = wordElement.classList.contains('active');
+                     
+                     // Remove active class from all words
+                     document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
+                     
+                     // If clicking the same word, close sidebar
+                     if (isCurrentlyActive) {
+                         closeSidebar();
+                     } else {
+                         // Add active class to clicked word and show works
+                         wordElement.classList.add('active');
+                         showWorks(word.text);
+                     }
+                 });
+                
+                wordcloud.appendChild(wordElement);
+            });
+        }
+
+        function showWorks(keyword) {
+             const sidebar = document.querySelector('.sidebar');
+             const sidebarTitle = document.getElementById('sidebar-title');
+             const worksList = document.getElementById('works-list');
+             
+             // Use predefined data if available, otherwise generate default data
+             const works = worksData[keyword] || generateDefaultWorks(keyword);
+             
+             // Show sidebar
+             sidebar.classList.add('active');
+             
+             // Update sidebar title to show the clicked word
+             sidebarTitle.innerHTML = `${keyword} - Top 5 Works<button class="close-btn" onclick="closeSidebar()">&times;</button>`;
+             
+             worksList.innerHTML = works.map(work => `
+                 <div class="work-item">
+                     <div class="work-cover">${work.cover}</div>
+                     <div class="work-title">${work.title}</div>
+                     <div class="work-author">@${work.author}</div>
+                     <div class="work-stats">
+                         <div class="stat-item">
+                             <div class="stat-label">Likes</div>
+                             <div class="stat-value">${work.likes}</div>
+                         </div>
+                         <div class="stat-item">
+                             <div class="stat-label">Comments</div>
+                             <div class="stat-value">${work.comments}</div>
+                         </div>
+                         <div class="stat-item">
+                             <div class="stat-label">Shares</div>
+                             <div class="stat-value">${work.shares}</div>
+                         </div>
+                         <div class="stat-item">
+                             <div class="stat-label">Views</div>
+                             <div class="stat-value">${work.views}</div>
+                         </div>
+                     </div>
+                 </div>
+             `).join('');
+         }
+
+        function closeSidebar() {
+             const sidebar = document.querySelector('.sidebar');
+             const sidebarTitle = document.getElementById('sidebar-title');
+             sidebar.classList.remove('active');
+             
+             // Reset sidebar title
+             sidebarTitle.innerHTML = 'Top 5 Works<button class="close-btn" onclick="closeSidebar()">&times;</button>';
+             
+             // Remove active class from all words
+             document.querySelectorAll('.word').forEach(w => w.classList.remove('active'));
+         }
+
+         // Initialize the word cloud when page loads
+         document.addEventListener('DOMContentLoaded', createWordCloud);
+    </script>
+</body>
+</html>
