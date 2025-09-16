@@ -535,6 +535,26 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+// Toggle More Cases Function
+function toggleMoreCases(containerId) {
+    const container = document.getElementById(containerId);
+    const button = document.querySelector(`button[onclick="toggleMoreCases('${containerId}')"]`);
+    const btnText = button.querySelector('.btn-text');
+    const btnArrow = button.querySelector('.btn-arrow');
+    
+    if (container.style.display === 'none' || container.style.display === '') {
+        container.style.display = 'block';
+        button.classList.add('expanded');
+        btnText.textContent = 'Show Less';
+        if (btnArrow) btnArrow.textContent = '↑';
+    } else {
+        container.style.display = 'none';
+        button.classList.remove('expanded');
+        btnText.textContent = 'View All Cases';
+        if (btnArrow) btnArrow.textContent = '↓';
+    }
+}
+
 // Export functions for potential use in other scripts
 window.BasicwareAI = {
     validateEmail: function(email) {

@@ -21,7 +21,6 @@
             <div class="nav-menu" id="navMenu">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="solutions.html" class="nav-link active">Solutions</a>
-                <a href="case-studies.html" class="nav-link">Case Studies</a>
                 <a href="about.html" class="nav-link">About Us</a>
                 <a href="contact.html" class="nav-link">Contact</a>
             </div>
@@ -131,15 +130,127 @@
 
                     <div class="detail-section">
                         <h3>Related Case Studies</h3>
-                        <div class="related-cases">
-                            <a href="case-studies.html#financial-security" class="case-link">
-                                <h4>Financial Institution Data Center Security</h4>
-                                <p>Comprehensive data center security protection solutions for major banks</p>
-                            </a>
-                            <a href="case-studies.html#government-security" class="case-link">
-                                <h4>Government Department Network Security</h4>
-                                <p>Critical infrastructure security protection and monitoring systems for government agencies</p>
-                            </a>
+                        <div class="related-cases-grid">
+                            <!-- Initial visible cases -->
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="financialGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#0F1A30"/>
+                                                <stop offset="100%" style="stop-color:#2563EB"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#financialGrad)"/>
+                                        <rect x="50" y="50" width="80" height="100" fill="rgba(0,245,255,0.3)" rx="8"/>
+                                        <rect x="160" y="70" width="80" height="80" fill="rgba(0,245,255,0.2)" rx="8"/>
+                                        <rect x="270" y="40" width="80" height="120" fill="rgba(0,245,255,0.4)" rx="8"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Data Center Security</div>
+                                    <h4>Financial Institution Data Center Security</h4>
+                                    <p>Comprehensive data center security protection solutions for major banks</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">99.9% Uptime</span>
+                                        <span class="metric-mini">-60% Security Incidents</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="govGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#2563EB"/>
+                                                <stop offset="100%" style="stop-color:#8B5CF6"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#govGrad)"/>
+                                        <circle cx="200" cy="100" r="60" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+                                        <circle cx="200" cy="100" r="30" fill="rgba(255,255,255,0.3)"/>
+                                        <path d="M120 100 L280 100 M200 40 L200 160" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Network Security</div>
+                                    <h4>Government Department Network Security</h4>
+                                    <p>Critical infrastructure security protection and monitoring systems for government agencies</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">100% Compliance</span>
+                                        <span class="metric-mini">-75% Response Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- View All Cases Button -->
+                        <div class="view-all-section-mini">
+                            <button class="view-all-btn-mini" onclick="toggleMoreCases('datacenter-cases')">
+                                <span class="btn-text">View All Cases</span>
+                                <span class="btn-arrow">↓</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden additional cases -->
+                        <div class="more-cases-container" id="datacenter-cases" style="display: none;">
+                            <div class="related-cases-grid">
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="bankGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#8B5CF6"/>
+                                                    <stop offset="100%" style="stop-color:#00F5FF"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#bankGrad)"/>
+                                            <circle cx="100" cy="100" r="30" fill="rgba(255,255,255,0.2)"/>
+                                            <circle cx="300" cy="80" r="20" fill="rgba(255,255,255,0.3)"/>
+                                            <path d="M50 150 Q200 50 350 150" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Banking Security</div>
+                                        <h4>International Bank Security Platform</h4>
+                                        <p>Multi-layered security architecture for global banking operations</p>
+                                        <div class="case-results-mini">
+                                            <span class="metric-mini">+40% Fraud Detection</span>
+                                            <span class="metric-mini">-50% False Positives</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="healthGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#2563EB"/>
+                                                    <stop offset="100%" style="stop-color:#00F5FF"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#healthGrad)"/>
+                                            <rect x="80" y="120" width="20" height="60" fill="rgba(255,255,255,0.3)" rx="2"/>
+                                            <rect x="120" y="100" width="20" height="80" fill="rgba(255,255,255,0.4)" rx="2"/>
+                                            <rect x="160" y="80" width="20" height="100" fill="rgba(255,255,255,0.3)" rx="2"/>
+                                            <rect x="200" y="90" width="20" height="90" fill="rgba(255,255,255,0.5)" rx="2"/>
+                                            <rect x="240" y="110" width="20" height="70" fill="rgba(255,255,255,0.3)" rx="2"/>
+                                            <rect x="280" y="130" width="20" height="50" fill="rgba(255,255,255,0.4)" rx="2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Healthcare Security</div>
+                                        <h4>Healthcare Data Protection System</h4>
+                                        <p>HIPAA-compliant security solutions for medical institutions</p>
+                                        <div class="case-results-mini">
+                                            <span class="metric-mini">100% HIPAA Compliance</span>
+                                            <span class="metric-mini">-80% Data Breach Risk</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -214,15 +325,119 @@
 
                     <div class="detail-section">
                         <h3>Related Case Studies</h3>
-                        <div class="related-cases">
-                            <a href="case-studies.html#education-cloud" class="case-link">
-                                <h4>Educational Institution Cloud Security</h4>
-                                <p>Comprehensive security protection solutions for university hybrid cloud environments</p>
-                            </a>
-                            <a href="case-studies.html#enterprise-cloud" class="case-link">
-                                <h4>Enterprise Multi-Cloud Security Platform</h4>
-                                <p>Unified security management and protection system for multinational enterprise multi-cloud environments</p>
-                            </a>
+                        <div class="related-cases-grid">
+                            <!-- Initial visible cases -->
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="eduGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#8B5CF6"/>
+                                                <stop offset="100%" style="stop-color:#00F5FF"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#eduGrad)"/>
+                                        <circle cx="100" cy="100" r="30" fill="rgba(255,255,255,0.2)"/>
+                                        <circle cx="300" cy="80" r="20" fill="rgba(255,255,255,0.3)"/>
+                                        <path d="M50 150 Q200 50 350 150" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Cloud Security</div>
+                                    <h4>Educational Institution Cloud Security</h4>
+                                    <p>Comprehensive security protection solutions for university hybrid cloud environments</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">+95% Threat Detection</span>
+                                        <span class="metric-mini">-70% Security Incidents</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="enterpriseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#2563EB"/>
+                                                <stop offset="100%" style="stop-color:#8B5CF6"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#enterpriseGrad)"/>
+                                        <rect x="80" y="120" width="20" height="60" fill="rgba(255,255,255,0.3)" rx="2"/>
+                                        <rect x="120" y="100" width="20" height="80" fill="rgba(255,255,255,0.4)" rx="2"/>
+                                        <rect x="160" y="80" width="20" height="100" fill="rgba(255,255,255,0.3)" rx="2"/>
+                                        <rect x="200" y="90" width="20" height="90" fill="rgba(255,255,255,0.5)" rx="2"/>
+                                        <rect x="240" y="110" width="20" height="70" fill="rgba(255,255,255,0.3)" rx="2"/>
+                                        <rect x="280" y="130" width="20" height="50" fill="rgba(255,255,255,0.4)" rx="2"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Multi-Cloud Security</div>
+                                    <h4>Enterprise Multi-Cloud Security Platform</h4>
+                                    <p>Unified security management and protection system for multinational enterprise multi-cloud environments</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">+85% Visibility</span>
+                                        <span class="metric-mini">-60% Management Overhead</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- View All Cases Button -->
+                        <div class="view-all-section-mini">
+                            <button class="view-all-btn-mini" onclick="toggleMoreCases('cloud-cases')">
+                                <span class="btn-text">View All Cases</span>
+                                <span class="btn-arrow">↓</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden additional cases -->
+                        <div class="more-cases-container" id="cloud-cases" style="display: none;">
+                            <div class="related-cases-grid">
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="awsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#0F1A30"/>
+                                                    <stop offset="100%" style="stop-color:#2563EB"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#awsGrad)"/>
+                                            <circle cx="200" cy="100" r="60" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+                                            <circle cx="200" cy="100" r="30" fill="rgba(255,255,255,0.3)"/>
+                                            <path d="M120 100 L280 100 M200 40 L200 160" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">AWS Security</div>
+                                        <h4>AWS Infrastructure Security</h4>
+                                        <p>Comprehensive AWS cloud security implementation for enterprise workloads</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="azureGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#2563EB"/>
+                                                    <stop offset="100%" style="stop-color:#00F5FF"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#azureGrad)"/>
+                                            <rect x="50" y="50" width="80" height="100" fill="rgba(0,245,255,0.3)" rx="8"/>
+                                            <rect x="160" y="70" width="80" height="80" fill="rgba(0,245,255,0.2)" rx="8"/>
+                                            <rect x="270" y="40" width="80" height="120" fill="rgba(0,245,255,0.4)" rx="8"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Azure Security</div>
+                                        <h4>Microsoft Azure Security Center</h4>
+                                        <p>Advanced threat protection and compliance management for Azure environments</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -296,15 +511,117 @@
 
                     <div class="detail-section">
                         <h3>Related Case Studies</h3>
-                        <div class="related-cases">
-                            <a href="case-studies.html#threat-detection" class="case-link">
-                                <h4>Advanced Threat Detection System</h4>
-                                <p>AI-powered threat detection and response for financial institutions</p>
-                            </a>
-                            <a href="case-studies.html#incident-response" class="case-link">
-                                <h4>Automated Incident Response Platform</h4>
-                                <p>Real-time threat response and remediation for enterprise networks</p>
-                            </a>
+                        <div class="related-cases-grid">
+                            <!-- Initial visible cases -->
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="threatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#DC2626"/>
+                                                <stop offset="100%" style="stop-color:#F59E0B"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#threatGrad)"/>
+                                        <circle cx="200" cy="100" r="40" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
+                                        <polygon points="200,80 220,120 180,120" fill="rgba(255,255,255,0.8)"/>
+                                        <circle cx="200" cy="130" r="3" fill="rgba(255,255,255,0.8)"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Threat Detection</div>
+                                    <h4>Advanced Threat Detection System</h4>
+                                    <p>AI-powered threat detection and response for financial institutions</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">+98% Threat Detection</span>
+                                        <span class="metric-mini">-90% False Positives</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="responseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#059669"/>
+                                                <stop offset="100%" style="stop-color:#0891B2"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#responseGrad)"/>
+                                        <circle cx="150" cy="100" r="25" fill="rgba(255,255,255,0.3)"/>
+                                        <circle cx="250" cy="100" r="25" fill="rgba(255,255,255,0.3)"/>
+                                        <path d="M175 100 L225 100" stroke="rgba(255,255,255,0.6)" stroke-width="4" marker-end="url(#arrowhead)"/>
+                                        <polygon points="220,95 230,100 220,105" fill="rgba(255,255,255,0.6)"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Incident Response</div>
+                                    <h4>Automated Incident Response Platform</h4>
+                                    <p>Real-time threat response and remediation for enterprise networks</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">-85% Response Time</span>
+                                        <span class="metric-mini">+95% Automation Rate</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- View All Cases Button -->
+                        <div class="view-all-section-mini">
+                            <button class="view-all-btn-mini" onclick="toggleMoreCases('threat-cases')">
+                                <span class="btn-text">View All Cases</span>
+                                <span class="btn-arrow">↓</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden additional cases -->
+                        <div class="more-cases-container" id="threat-cases" style="display: none;">
+                            <div class="related-cases-grid">
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="securityGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#7C3AED"/>
+                                                    <stop offset="100%" style="stop-color:#EC4899"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#securityGrad)"/>
+                                            <rect x="100" y="80" width="200" height="40" fill="rgba(255,255,255,0.3)" rx="20"/>
+                                            <circle cx="130" cy="100" r="8" fill="rgba(255,255,255,0.8)"/>
+                                            <circle cx="200" cy="100" r="8" fill="rgba(255,255,255,0.8)"/>
+                                            <circle cx="270" cy="100" r="8" fill="rgba(255,255,255,0.8)"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Security Operations</div>
+                                        <h4>Security Operations Center</h4>
+                                        <p>24/7 security monitoring and threat intelligence platform</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="complianceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#0F766E"/>
+                                                    <stop offset="100%" style="stop-color:#059669"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#complianceGrad)"/>
+                                            <rect x="150" y="60" width="100" height="80" fill="rgba(255,255,255,0.2)" rx="8"/>
+                                            <path d="M170 100 L190 120 L230 80" stroke="rgba(255,255,255,0.8)" stroke-width="4" fill="none"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Compliance</div>
+                                        <h4>Compliance Management System</h4>
+                                        <p>Automated compliance monitoring and reporting for regulatory requirements</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -334,11 +651,122 @@
                         <li>Vector databases, event-driven pipelines</li>
                         <li>Observability, guardrails, evaluation</li>
                     </ul>
-                    <h3>Related Case Studies</h3>
-                    <ul>
-                        <li><a href="case-studies.html#insurance-details">Insurance Customer Service Agent</a></li>
-                        <li><a href="case-studies.html#epicwin-details">EpicWin Gaming Platform</a></li>
-                    </ul>
+                    <div class="detail-section">
+                        <h3>Related Case Studies</h3>
+                        <div class="related-cases-grid">
+                            <!-- Initial visible cases -->
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="insuranceGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#1E40AF"/>
+                                                <stop offset="100%" style="stop-color:#3B82F6"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#insuranceGrad)"/>
+                                        <circle cx="200" cy="100" r="50" fill="rgba(255,255,255,0.2)"/>
+                                        <circle cx="200" cy="100" r="30" fill="rgba(255,255,255,0.3)"/>
+                                        <circle cx="200" cy="100" r="15" fill="rgba(255,255,255,0.5)"/>
+                                        <path d="M160 100 Q200 60 240 100 Q200 140 160 100" fill="rgba(255,255,255,0.4)"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">AI Agent</div>
+                                    <h4>Insurance Customer Service Agent</h4>
+                                    <p>Intelligent customer service automation for insurance claims and inquiries</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">+80% Query Resolution</span>
+                                        <span class="metric-mini">-65% Response Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="gamingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#7C2D12"/>
+                                                <stop offset="100%" style="stop-color:#DC2626"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#gamingGrad)"/>
+                                        <polygon points="200,50 250,150 150,150" fill="rgba(255,255,255,0.3)"/>
+                                        <circle cx="200" cy="120" r="20" fill="rgba(255,255,255,0.5)"/>
+                                        <rect x="180" y="160" width="40" height="20" fill="rgba(255,255,255,0.4)" rx="10"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Gaming Platform</div>
+                                    <h4>EpicWin Gaming Platform</h4>
+                                    <p>AI-powered gaming experience enhancement and player engagement system</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">+120% Player Engagement</span>
+                                        <span class="metric-mini">+45% Revenue Growth</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- View All Cases Button -->
+                        <div class="view-all-section-mini">
+                            <button class="view-all-btn-mini" onclick="toggleMoreCases('ai-agent-cases')">
+                                <span class="btn-text">View All Cases</span>
+                                <span class="btn-arrow">↓</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden additional cases -->
+                        <div class="more-cases-container" id="ai-agent-cases" style="display: none;">
+                            <div class="related-cases-grid">
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="chatbotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#065F46"/>
+                                                    <stop offset="100%" style="stop-color:#10B981"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#chatbotGrad)"/>
+                                            <rect x="80" y="80" width="240" height="40" fill="rgba(255,255,255,0.3)" rx="20"/>
+                                            <circle cx="120" cy="100" r="12" fill="rgba(255,255,255,0.6)"/>
+                                            <rect x="150" y="90" width="120" height="20" fill="rgba(255,255,255,0.4)" rx="10"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Chatbot</div>
+                                        <h4>Enterprise Chatbot Solution</h4>
+                                        <p>Intelligent conversational AI for enterprise customer support and internal operations</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="automationGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#581C87"/>
+                                                    <stop offset="100%" style="stop-color:#A855F7"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#automationGrad)"/>
+                                            <circle cx="150" cy="100" r="20" fill="rgba(255,255,255,0.3)"/>
+                                            <circle cx="250" cy="100" r="20" fill="rgba(255,255,255,0.3)"/>
+                                            <path d="M170 100 L230 100" stroke="rgba(255,255,255,0.5)" stroke-width="3"/>
+                                            <polygon points="225,95 235,100 225,105" fill="rgba(255,255,255,0.5)"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Process Automation</div>
+                                        <h4>Workflow Automation Agent</h4>
+                                        <p>AI-driven business process automation and workflow optimization platform</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -366,11 +794,125 @@
                         <li>Schema design, embeddings, retrieval indices</li>
                         <li>Role-based access control, encryption at rest/in transit</li>
                     </ul>
-                    <h3>Related Case Studies</h3>
-                    <ul>
-                        <li><a href="case-studies.html#unikl-details">Malaysia Government UniKL Project</a></li>
-                        <li><a href="case-studies.html#insurance-details">Insurance Knowledge Base</a></li>
-                    </ul>
+                    <div class="detail-section">
+                        <h3>Related Case Studies</h3>
+                        <div class="related-cases-grid">
+                            <!-- Initial visible cases -->
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="govGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#1F2937"/>
+                                                <stop offset="100%" style="stop-color:#4B5563"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#govGrad)"/>
+                                        <rect x="100" y="60" width="200" height="80" fill="rgba(255,255,255,0.2)" rx="8"/>
+                                        <rect x="120" y="80" width="160" height="8" fill="rgba(255,255,255,0.4)" rx="4"/>
+                                        <rect x="120" y="100" width="120" height="8" fill="rgba(255,255,255,0.3)" rx="4"/>
+                                        <rect x="120" y="120" width="140" height="8" fill="rgba(255,255,255,0.4)" rx="4"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Government</div>
+                                    <h4>Malaysia Government UniKL Project</h4>
+                                    <p>Large-scale data management and analytics platform for government education initiatives</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">+200% Data Processing</span>
+                                        <span class="metric-mini">-50% Query Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="knowledgeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#0369A1"/>
+                                                <stop offset="100%" style="stop-color:#0EA5E9"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#knowledgeGrad)"/>
+                                        <circle cx="200" cy="100" r="60" fill="rgba(255,255,255,0.2)"/>
+                                        <circle cx="200" cy="100" r="40" fill="rgba(255,255,255,0.3)"/>
+                                        <circle cx="200" cy="100" r="20" fill="rgba(255,255,255,0.4)"/>
+                                        <rect x="190" y="90" width="20" height="20" fill="rgba(255,255,255,0.6)" rx="2"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Knowledge Base</div>
+                                    <h4>Insurance Knowledge Base</h4>
+                                    <p>Comprehensive knowledge management system for insurance products and policies</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">+150% Search Accuracy</span>
+                                        <span class="metric-mini">-70% Training Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- View All Cases Button -->
+                        <div class="view-all-section-mini">
+                            <button class="view-all-btn-mini" onclick="toggleMoreCases('data-storage-cases')">
+                                <span class="btn-text">View All Cases</span>
+                                <span class="btn-arrow">↓</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden additional cases -->
+                        <div class="more-cases-container" id="data-storage-cases" style="display: none;">
+                            <div class="related-cases-grid">
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="analyticsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#7C3AED"/>
+                                                    <stop offset="100%" style="stop-color:#A855F7"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#analyticsGrad)"/>
+                                            <rect x="80" y="120" width="20" height="60" fill="rgba(255,255,255,0.4)" rx="2"/>
+                                            <rect x="120" y="100" width="20" height="80" fill="rgba(255,255,255,0.5)" rx="2"/>
+                                            <rect x="160" y="80" width="20" height="100" fill="rgba(255,255,255,0.6)" rx="2"/>
+                                            <rect x="200" y="90" width="20" height="90" fill="rgba(255,255,255,0.4)" rx="2"/>
+                                            <rect x="240" y="110" width="20" height="70" fill="rgba(255,255,255,0.5)" rx="2"/>
+                                            <rect x="280" y="130" width="20" height="50" fill="rgba(255,255,255,0.4)" rx="2"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Data Analytics</div>
+                                        <h4>Enterprise Data Analytics Platform</h4>
+                                        <p>Real-time data processing and analytics for business intelligence and decision making</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="warehouseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#059669"/>
+                                                    <stop offset="100%" style="stop-color:#10B981"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#warehouseGrad)"/>
+                                            <rect x="120" y="80" width="160" height="40" fill="rgba(255,255,255,0.3)" rx="8"/>
+                                            <rect x="140" y="90" width="120" height="8" fill="rgba(255,255,255,0.5)" rx="4"/>
+                                            <rect x="140" y="102" width="120" height="8" fill="rgba(255,255,255,0.4)" rx="4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Data Warehouse</div>
+                                        <h4>Cloud Data Warehouse Solution</h4>
+                                        <p>Scalable cloud-based data warehousing for enterprise data consolidation and reporting</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -397,10 +939,120 @@
                         <li>Image/video generation APIs</li>
                         <li>Safety, watermarking, compliance controls</li>
                     </ul>
-                    <h3>Related Case Studies</h3>
-                    <ul>
-                        <li><a href="case-studies.html#epicwin-details">EpicWin Marketing Content</a></li>
-                    </ul>
+                    <div class="detail-section">
+                        <h3>Related Case Studies</h3>
+                        <div class="related-cases-grid">
+                            <!-- Initial visible cases -->
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="creativeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#EC4899"/>
+                                                <stop offset="100%" style="stop-color:#F59E0B"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#creativeGrad)"/>
+                                        <circle cx="150" cy="80" r="25" fill="rgba(255,255,255,0.3)"/>
+                                        <rect x="200" y="60" width="80" height="40" fill="rgba(255,255,255,0.4)" rx="8"/>
+                                        <polygon points="120,140 180,120 180,160" fill="rgba(255,255,255,0.3)"/>
+                                        <circle cx="280" cy="140" r="20" fill="rgba(255,255,255,0.2)"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Creative Content</div>
+                                    <h4>EpicWin Marketing Content</h4>
+                                    <p>AI-powered marketing content generation and creative automation for gaming platform</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">+300% Content Output</span>
+                                        <span class="metric-mini">-80% Production Time</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="case-card-mini">
+                                <div class="case-image-mini">
+                                    <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient id="designGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" style="stop-color:#8B5CF6"/>
+                                                <stop offset="100%" style="stop-color:#06B6D4"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <rect width="400" height="200" fill="url(#designGrad)"/>
+                                        <rect x="100" y="70" width="60" height="60" fill="rgba(255,255,255,0.3)" rx="8"/>
+                                        <rect x="180" y="70" width="60" height="60" fill="rgba(255,255,255,0.4)" rx="8"/>
+                                        <rect x="260" y="70" width="60" height="60" fill="rgba(255,255,255,0.2)" rx="8"/>
+                                    </svg>
+                                </div>
+                                <div class="case-content-mini">
+                                    <div class="case-category-mini">Design Automation</div>
+                                    <h4>Brand Asset Generator</h4>
+                                    <p>Automated brand asset creation and design system for consistent visual identity</p>
+                                    <div class="case-results-mini">
+                                        <span class="metric-mini">+500% Asset Creation</span>
+                                        <span class="metric-mini">+95% Brand Consistency</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- View All Cases Button -->
+                        <div class="view-all-section-mini">
+                            <button class="view-all-btn-mini" onclick="toggleMoreCases('creative-cases')">
+                                <span class="btn-text">View All Cases</span>
+                                <span class="btn-arrow">↓</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden additional cases -->
+                        <div class="more-cases-container" id="creative-cases" style="display: none;">
+                            <div class="related-cases-grid">
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="videoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#DC2626"/>
+                                                    <stop offset="100%" style="stop-color:#F59E0B"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#videoGrad)"/>
+                                            <rect x="120" y="80" width="160" height="40" fill="rgba(255,255,255,0.3)" rx="8"/>
+                                            <polygon points="180,95 200,100 180,105" fill="rgba(255,255,255,0.8)"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Video Production</div>
+                                        <h4>AI Video Content Creator</h4>
+                                        <p>Automated video content generation and editing for social media and marketing campaigns</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="case-card-mini">
+                                    <div class="case-image-mini">
+                                        <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                                            <defs>
+                                                <linearGradient id="copyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" style="stop-color:#059669"/>
+                                                    <stop offset="100%" style="stop-color:#0891B2"/>
+                                                </linearGradient>
+                                            </defs>
+                                            <rect width="400" height="200" fill="url(#copyGrad)"/>
+                                            <rect x="80" y="80" width="240" height="8" fill="rgba(255,255,255,0.5)" rx="4"/>
+                                            <rect x="80" y="100" width="200" height="8" fill="rgba(255,255,255,0.4)" rx="4"/>
+                                            <rect x="80" y="120" width="220" height="8" fill="rgba(255,255,255,0.3)" rx="4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="case-content-mini">
+                                        <div class="case-category-mini">Copywriting</div>
+                                        <h4>Smart Copywriting Assistant</h4>
+                                        <p>AI-powered copywriting tool for marketing materials, emails, and content creation</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -445,7 +1097,6 @@
                 <p>Let's discuss how our cybersecurity solutions can protect your business operations and ensure your digital security.</p>
                 <div class="cta-buttons">
                     <a href="contact.html" class="btn btn-primary">Get Started</a>
-                    <a href="case-studies.html" class="btn btn-secondary">View Case Studies</a>
                 </div>
             </div>
         </div>
@@ -472,7 +1123,6 @@
                     <h4>Company</h4>
                     <ul>
                         <li><a href="about.html">About Us</a></li>
-                        <li><a href="case-studies.html">Case Studies</a></li>
                         <li><a href="contact.html">Contact</a></li>
                     </ul>
                 </div>
