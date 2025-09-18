@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Platform Analytics - Follower Tier Distribution</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -95,11 +96,9 @@
                                     <tr>
                                         <th>Platform</th>
                                         <th>Total Creators</th>
-                                        <th>Mega (>10M)</th>
-                                        <th>Macro (1M-10M)</th>
-                                        <th>Mid-tier (100K-1M)</th>
-                                        <th>Micro (10K-100K)</th>
-                                        <th>Nano (<10K)</th>
+                                        <th>Posts</th>
+                                        <th>Engagement</th>
+                                        <th>Engagement rate</th>
                                     </tr>
                                 </thead>
                                 <tbody id="platformTableBody">
@@ -119,6 +118,9 @@
             { 
                 platform: "YouTube", 
                 totalCreators: 1250000,
+                posts: 45000000,
+                engagement: 2800000,
+                engagementRate: "6.2%",
                 mega: 2500,
                 macro: 35000,
                 midTier: 185000,
@@ -128,6 +130,9 @@
             { 
                 platform: "Instagram", 
                 totalCreators: 1850000,
+                posts: 38000000,
+                engagement: 3200000,
+                engagementRate: "8.4%",
                 mega: 1800,
                 macro: 28000,
                 midTier: 220000,
@@ -137,6 +142,9 @@
             { 
                 platform: "TikTok", 
                 totalCreators: 2100000,
+                posts: 52000000,
+                engagement: 4800000,
+                engagementRate: "9.2%",
                 mega: 1200,
                 macro: 18000,
                 midTier: 180000,
@@ -146,6 +154,9 @@
             { 
                 platform: "Twitch", 
                 totalCreators: 450000,
+                posts: 8500000,
+                engagement: 680000,
+                engagementRate: "8.0%",
                 mega: 350,
                 macro: 8500,
                 midTier: 41150,
@@ -155,6 +166,9 @@
             { 
                 platform: "Twitter", 
                 totalCreators: 1600000,
+                posts: 28000000,
+                engagement: 1400000,
+                engagementRate: "5.0%",
                 mega: 1100,
                 macro: 22000,
                 midTier: 177000,
@@ -164,6 +178,9 @@
             { 
                 platform: "Facebook", 
                 totalCreators: 980000,
+                posts: 22000000,
+                engagement: 1100000,
+                engagementRate: "5.0%",
                 mega: 800,
                 macro: 14200,
                 midTier: 115000,
@@ -173,6 +190,9 @@
             { 
                 platform: "LinkedIn", 
                 totalCreators: 420000,
+                posts: 6300000,
+                engagement: 315000,
+                engagementRate: "5.0%",
                 mega: 200,
                 macro: 5000,
                 midTier: 45000,
@@ -182,6 +202,9 @@
             { 
                 platform: "Pinterest", 
                 totalCreators: 380000,
+                posts: 9500000,
+                engagement: 380000,
+                engagementRate: "4.0%",
                 mega: 150,
                 macro: 3500,
                 midTier: 36350,
@@ -191,6 +214,9 @@
             { 
                 platform: "Snapchat", 
                 totalCreators: 520000,
+                posts: 12000000,
+                engagement: 720000,
+                engagementRate: "6.0%",
                 mega: 300,
                 macro: 7000,
                 midTier: 52700,
@@ -200,6 +226,9 @@
             { 
                 platform: "Douyin", 
                 totalCreators: 1750000,
+                posts: 42000000,
+                engagement: 4200000,
+                engagementRate: "10.0%",
                 mega: 1500,
                 macro: 25000,
                 midTier: 173500,
@@ -209,6 +238,9 @@
             { 
                 platform: "Kuaishou", 
                 totalCreators: 1450000,
+                posts: 35000000,
+                engagement: 3150000,
+                engagementRate: "9.0%",
                 mega: 1200,
                 macro: 21000,
                 midTier: 157800,
@@ -218,6 +250,9 @@
             { 
                 platform: "Bilibili", 
                 totalCreators: 850000,
+                posts: 18000000,
+                engagement: 1260000,
+                engagementRate: "7.0%",
                 mega: 600,
                 macro: 12000,
                 midTier: 87400,
@@ -234,29 +269,30 @@
                 row.innerHTML = `
                     <td>${item.platform}</td>
                     <td>${item.totalCreators.toLocaleString()}</td>
-                    <td>${item.mega.toLocaleString()} (${((item.mega / item.totalCreators) * 100).toFixed(1)}%)</td>
-                    <td>${item.macro.toLocaleString()} (${((item.macro / item.totalCreators) * 100).toFixed(1)}%)</td>
-                    <td>${item.midTier.toLocaleString()} (${((item.midTier / item.totalCreators) * 100).toFixed(1)}%)</td>
-                    <td>${item.micro.toLocaleString()} (${((item.micro / item.totalCreators) * 100).toFixed(1)}%)</td>
-                    <td>${item.nano.toLocaleString()} (${((item.nano / item.totalCreators) * 100).toFixed(1)}%)</td>
+                    <td>${item.posts.toLocaleString()}</td>
+                    <td>${item.engagement.toLocaleString()}</td>
+                    <td>${item.engagementRate}</td>
                 `;
                 tableBody.appendChild(row);
             });
         }
 
-        // Create 100% stacked bar chart
+        // Register the datalabels plugin
+        Chart.register(ChartDataLabels);
+
+        // Create stacked bar chart showing creator counts by follower tiers
         function createStackedBarChart() {
             const ctx = document.getElementById('stackedBarChart').getContext('2d');
             
             // Prepare data for the chart
             const platforms = platformData.map(item => item.platform);
             
-            // Calculate percentages for each tier
-            const megaPercentages = platformData.map(item => (item.mega / item.totalCreators) * 100);
-            const macroPercentages = platformData.map(item => (item.macro / item.totalCreators) * 100);
-            const midTierPercentages = platformData.map(item => (item.midTier / item.totalCreators) * 100);
-            const microPercentages = platformData.map(item => (item.micro / item.totalCreators) * 100);
-            const nanoPercentages = platformData.map(item => (item.nano / item.totalCreators) * 100);
+            // Get actual creator counts for each tier
+            const megaCounts = platformData.map(item => item.mega);
+            const macroCounts = platformData.map(item => item.macro);
+            const midTierCounts = platformData.map(item => item.midTier);
+            const microCounts = platformData.map(item => item.micro);
+            const nanoCounts = platformData.map(item => item.nano);
             
             // Create the chart
             const stackedBarChart = new Chart(ctx, {
@@ -266,35 +302,35 @@
                     datasets: [
                         {
                             label: 'Mega (>10M)',
-                            data: megaPercentages,
+                            data: megaCounts,
                             backgroundColor: '#FF6384',
                             borderColor: '#FF6384',
                             borderWidth: 1
                         },
                         {
                             label: 'Macro (1M-10M)',
-                            data: macroPercentages,
+                            data: macroCounts,
                             backgroundColor: '#36A2EB',
                             borderColor: '#36A2EB',
                             borderWidth: 1
                         },
                         {
                             label: 'Mid-tier (100K-1M)',
-                            data: midTierPercentages,
+                            data: midTierCounts,
                             backgroundColor: '#FFCE56',
                             borderColor: '#FFCE56',
                             borderWidth: 1
                         },
                         {
                             label: 'Micro (10K-100K)',
-                            data: microPercentages,
+                            data: microCounts,
                             backgroundColor: '#4BC0C0',
                             borderColor: '#4BC0C0',
                             borderWidth: 1
                         },
                         {
                             label: 'Nano (<10K)',
-                            data: nanoPercentages,
+                            data: nanoCounts,
                             backgroundColor: '#9966FF',
                             borderColor: '#9966FF',
                             borderWidth: 1
@@ -318,13 +354,12 @@
                         },
                         y: {
                             stacked: true,
-                            max: 100,
                             grid: {
                                 color: 'rgba(0, 0, 0, 0.1)'
                             },
                             ticks: {
                                 callback: function(value) {
-                                    return value + '%';
+                                    return value.toLocaleString();
                                 },
                                 font: {
                                     size: 12
@@ -337,8 +372,8 @@
                             callbacks: {
                                 label: function(context) {
                                     const label = context.dataset.label || '';
-                                    const value = context.parsed.y.toFixed(1);
-                                    return `${label}: ${value}%`;
+                                    const value = context.parsed.y.toLocaleString();
+                                    return `${label}: ${value} creators`;
                                 }
                             }
                         },
@@ -354,7 +389,7 @@
                         },
                         datalabels: {
                             display: function(context) {
-                                return context.dataset.data[context.dataIndex] > 5; // Only show labels for segments > 5%
+                                return context.dataset.data[context.dataIndex] > 50000; // Only show labels for segments > 50K creators
                             },
                             color: '#fff',
                             font: {
@@ -362,7 +397,7 @@
                                 size: 11
                             },
                             formatter: function(value) {
-                                return value > 5 ? value.toFixed(1) + '%' : '';
+                                return value > 50000 ? (value / 1000).toFixed(0) + 'K' : '';
                             }
                         }
                     }
