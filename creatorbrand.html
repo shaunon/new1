@@ -63,12 +63,12 @@
                 <thead>
                     <tr>
                         <th>Rank</th>
-                        <th>Brand</th>
-                        <th>Industry</th>
-                        <th>Collaboration Mentions</th>
-                        <th>Unique Creators</th>
-                        <th>Total Campaign Posts</th>
-                        <th>Est. Media Value (EMV) ($)</th>
+                <th>Brand</th>
+                <th>Industry</th>
+                <th>Total Campaign Posts</th>
+                <th>Creators</th>
+                <th>Collaboration Mentions</th>
+                <th>Engagement</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,26 +81,26 @@
     <script>
         // Sample data for brand analysis
         const brandData = [
-            { rank: 1, brand: "Nike", industry: "Sportswear", mentions: 1250, creators: 420, posts: 1850, emv: 3500000 },
-            { rank: 2, brand: "Louis Vuitton", industry: "Luxury", mentions: 980, creators: 180, posts: 1200, emv: 4200000 },
-            { rank: 3, brand: "Adidas", industry: "Sportswear", mentions: 870, creators: 350, posts: 1600, emv: 2800000 },
-            { rank: 4, brand: "Zara", industry: "Fashion", mentions: 760, creators: 290, posts: 1100, emv: 1900000 },
-            { rank: 5, brand: "H&M", industry: "Fashion", mentions: 720, creators: 310, posts: 950, emv: 1700000 },
-            { rank: 6, brand: "Gucci", industry: "Luxury", mentions: 680, creators: 150, posts: 820, emv: 3100000 },
-            { rank: 7, brand: "Sephora", industry: "Beauty", mentions: 650, creators: 280, posts: 1050, emv: 1600000 },
-            { rank: 8, brand: "Fenty Beauty", industry: "Beauty", mentions: 620, creators: 240, posts: 980, emv: 1800000 },
-            { rank: 9, brand: "Samsung", industry: "Technology", mentions: 590, creators: 200, posts: 780, emv: 2200000 },
-            { rank: 10, brand: "Apple", industry: "Technology", mentions: 570, creators: 180, posts: 720, emv: 2500000 },
-            { rank: 11, brand: "Dior", industry: "Luxury", mentions: 540, creators: 130, posts: 680, emv: 2300000 },
-            { rank: 12, brand: "Puma", industry: "Sportswear", mentions: 510, creators: 220, posts: 750, emv: 1400000 },
-            { rank: 13, brand: "Kylie Cosmetics", industry: "Beauty", mentions: 490, creators: 190, posts: 720, emv: 1500000 },
-            { rank: 14, brand: "Amazon", industry: "Retail", mentions: 470, creators: 250, posts: 820, emv: 1900000 },
-            { rank: 15, brand: "Coca-Cola", industry: "Beverages", mentions: 450, creators: 230, posts: 680, emv: 1600000 },
-            { rank: 16, brand: "Chanel", industry: "Luxury", mentions: 430, creators: 110, posts: 520, emv: 2000000 },
-            { rank: 17, brand: "Spotify", industry: "Entertainment", mentions: 410, creators: 190, posts: 580, emv: 1300000 },
-            { rank: 18, brand: "Netflix", industry: "Entertainment", mentions: 390, creators: 170, posts: 550, emv: 1400000 },
-            { rank: 19, brand: "Under Armour", industry: "Sportswear", mentions: 370, creators: 160, posts: 490, emv: 1100000 },
-            { rank: 20, brand: "Lululemon", industry: "Sportswear", mentions: 350, creators: 140, posts: 460, emv: 1200000 }
+            { rank: 1, brand: "Nike", industry: "Sportswear", mentions: 1250, creators: 420, posts: 1850, emv: 3500000, totalEngagement: 6250 },
+            { rank: 2, brand: "Louis Vuitton", industry: "Luxury", mentions: 980, creators: 180, posts: 1200, emv: 4200000, totalEngagement: 4900 },
+            { rank: 3, brand: "Adidas", industry: "Sportswear", mentions: 870, creators: 350, posts: 1600, emv: 2800000, totalEngagement: 4350 },
+            { rank: 4, brand: "Zara", industry: "Fashion", mentions: 760, creators: 290, posts: 1100, emv: 1900000, totalEngagement: 3800 },
+            { rank: 5, brand: "H&M", industry: "Fashion", mentions: 720, creators: 310, posts: 950, emv: 1700000, totalEngagement: 3600 },
+            { rank: 6, brand: "Gucci", industry: "Luxury", mentions: 680, creators: 150, posts: 820, emv: 3100000, totalEngagement: 3400 },
+            { rank: 7, brand: "Sephora", industry: "Beauty", mentions: 650, creators: 280, posts: 1050, emv: 1600000, totalEngagement: 3250 },
+            { rank: 8, brand: "Fenty Beauty", industry: "Beauty", mentions: 620, creators: 240, posts: 980, emv: 1800000, totalEngagement: 3100 },
+            { rank: 9, brand: "Samsung", industry: "Technology", mentions: 590, creators: 200, posts: 780, emv: 2200000, totalEngagement: 2950 },
+            { rank: 10, brand: "Apple", industry: "Technology", mentions: 570, creators: 180, posts: 720, emv: 2500000, totalEngagement: 2850 },
+            { rank: 11, brand: "Dior", industry: "Luxury", mentions: 540, creators: 130, posts: 680, emv: 2300000, totalEngagement: 2700 },
+            { rank: 12, brand: "Puma", industry: "Sportswear", mentions: 510, creators: 220, posts: 750, emv: 1400000, totalEngagement: 2550 },
+            { rank: 13, brand: "Kylie Cosmetics", industry: "Beauty", mentions: 490, creators: 190, posts: 720, emv: 1500000, totalEngagement: 2450 },
+            { rank: 14, brand: "Amazon", industry: "Retail", mentions: 470, creators: 250, posts: 820, emv: 1900000, totalEngagement: 2350 },
+            { rank: 15, brand: "Coca-Cola", industry: "Beverages", mentions: 450, creators: 230, posts: 680, emv: 1600000, totalEngagement: 2250 },
+            { rank: 16, brand: "Chanel", industry: "Luxury", mentions: 430, creators: 110, posts: 520, emv: 2000000, totalEngagement: 2150 },
+            { rank: 17, brand: "Spotify", industry: "Entertainment", mentions: 410, creators: 190, posts: 580, emv: 1300000, totalEngagement: 2050 },
+            { rank: 18, brand: "Netflix", industry: "Entertainment", mentions: 390, creators: 170, posts: 550, emv: 1400000, totalEngagement: 1950 },
+            { rank: 19, brand: "Under Armour", industry: "Sportswear", mentions: 370, creators: 160, posts: 490, emv: 1100000, totalEngagement: 1850 },
+            { rank: 20, brand: "Lululemon", industry: "Sportswear", mentions: 350, creators: 140, posts: 460, emv: 1200000, totalEngagement: 1750 }
         ];
 
         // Populate the table
@@ -111,10 +111,10 @@
                 <td>${item.rank}</td>
                 <td>${item.brand}</td>
                 <td>${item.industry}</td>
-                <td>${item.mentions.toLocaleString()}</td>
-                <td>${item.creators.toLocaleString()}</td>
                 <td>${item.posts.toLocaleString()}</td>
-                <td>$${item.emv.toLocaleString()}</td>
+                <td>${item.creators.toLocaleString()}</td>
+                <td>${item.mentions.toLocaleString()}</td>
+                <td>${item.totalEngagement.toLocaleString()}</td>
             `;
             tableBody.appendChild(row);
         });
@@ -134,14 +134,23 @@
             'Entertainment': 'rgba(83, 102, 255, 0.7)'
         };
 
+        // Calculate engagement rate and total engagement for each brand
+        brandData.forEach(item => {
+            // Calculate engagement rate (simplified formula for demonstration)
+            item.engagementRate = (item.mentions / (item.posts * item.creators)) * 100;
+            // Calculate total engagement (simplified as mentions * 5 for demonstration)
+            item.totalEngagement = item.mentions * 5;
+        });
+        
         // Prepare data for the scatter plot
         const scatterData = brandData.map(item => ({
             x: item.creators,
             y: item.posts,
-            r: Math.sqrt(item.emv) / 100, // Scale bubble size based on EMV
+            r: Math.max(5, item.engagementRate * 2), // Scale bubble size based on engagement rate
             label: item.brand,
             industry: item.industry,
-            emv: item.emv
+            engagementRate: item.engagementRate.toFixed(2),
+            totalEngagement: item.totalEngagement
         }));
 
         // Group data by industry for the chart
@@ -173,9 +182,9 @@
                                 return [
                                     `Brand: ${item.label}`,
                                     `Industry: ${item.industry}`,
-                                    `Unique Creators: ${item.x}`,
+                                    `Creators: ${item.x}`,
                                     `Total Campaign Posts: ${item.y}`,
-                                    `Est. Media Value: $${item.emv.toLocaleString()}`
+                                    `Engagement Rate: ${item.engagementRate}%`
                                 ];
                             }
                         }
@@ -198,7 +207,7 @@
                     x: {
                         title: {
                             display: true,
-                            text: 'Unique Creators',
+                            text: 'Creators',
                             font: {
                                 size: 14,
                                 weight: 'bold'
