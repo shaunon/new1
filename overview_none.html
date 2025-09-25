@@ -224,6 +224,49 @@
             color: #3498db;
         }
         
+        /* Download button styles */
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .download-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .download-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .download-btn:active {
+            background-color: #21618c;
+        }
+        
+        .download-icon {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .visualization-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
         @media (max-width: 768px) {
             .stats-container {
                 grid-template-columns: repeat(2, 1fr);
@@ -244,47 +287,66 @@
 <body>
     <div class="dashboard-container">
         <!-- Data Statistics Cards -->
-        <div class="stats-container">
-            <div class="stat-card">
-                <h2>RESULTS</h2>
-                <div class="stat-value">13K</div>
-                <div class="stat-change positive">
-                    <div class="arrow-up"></div>
-                    10.5% compared to previous
-                </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>DATA STATISTICS</h2>
+                <button class="download-btn" onclick="downloadChart('stats')">
+                    <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download
+                </button>
             </div>
-            
-            <div class="stat-card">
-                <h2>UNIQUE AUTHORS</h2>
-                <div class="stat-value">7.1K</div>
-                <div class="stat-change positive">
-                    <div class="arrow-up"></div>
-                    37.2% compared to previous
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h2>RESULTS</h2>
+                    <div class="stat-value">13K</div>
+                    <div class="stat-change positive">
+                        <div class="arrow-up"></div>
+                        10.5% compared to previous
+                    </div>
                 </div>
-            </div>
-            
-            <div class="stat-card">
-                <h2>ENGAGEMENT</h2>
-                <div class="stat-value">2.5M</div>
-                <div class="stat-change positive">
-                    <div class="arrow-up"></div>
-                    3.1% compared to previous
+                
+                <div class="stat-card">
+                    <h2>UNIQUE AUTHORS</h2>
+                    <div class="stat-value">7.1K</div>
+                    <div class="stat-change positive">
+                        <div class="arrow-up"></div>
+                        37.2% compared to previous
+                    </div>
                 </div>
-            </div>
-            
-            <div class="stat-card">
-                <h2>POTENTIAL REACH</h2>
-                <div class="stat-value">1.6B</div>
-                <div class="stat-change positive">
-                    <div class="arrow-up"></div>
-                    2.5% compared to previous
+                
+                <div class="stat-card">
+                    <h2>ENGAGEMENT</h2>
+                    <div class="stat-value">2.5M</div>
+                    <div class="stat-change positive">
+                        <div class="arrow-up"></div>
+                        3.1% compared to previous
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h2>POTENTIAL REACH</h2>
+                    <div class="stat-value">1.6B</div>
+                    <div class="stat-change positive">
+                        <div class="arrow-up"></div>
+                        2.5% compared to previous
+                    </div>
                 </div>
             </div>
         </div>
         
         <!-- Time Trend Chart -->
         <div class="chart-container">
-            <h2>RESULTS OVER TIME</h2>
+            <div class="chart-header">
+                <h2>RESULTS OVER TIME</h2>
+                <button class="download-btn" onclick="downloadChart('timeChart')">
+                    <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
             <div class="chart-wrapper">
                 <canvas id="timeChart"></canvas>
             </div>
@@ -293,28 +355,60 @@
         <!-- Pie Charts -->
         <div class="pie-charts-container">
             <div class="pie-chart">
-                <h2>SHARE OF SENTIMENT</h2>
+                <div class="chart-header">
+                    <h2>SHARE OF SENTIMENT</h2>
+                    <button class="download-btn" onclick="downloadChart('sentimentChart')">
+                        <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
                 <div class="chart-wrapper">
                     <canvas id="sentimentChart"></canvas>
                 </div>
             </div>
             
             <div class="pie-chart">
-                <h2>SHARE OF COUNTRIES/REGIONS</h2>
+                <div class="chart-header">
+                    <h2>SHARE OF COUNTRIES/REGIONS</h2>
+                    <button class="download-btn" onclick="downloadChart('countriesChart')">
+                        <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
                 <div class="chart-wrapper">
                     <canvas id="countriesChart"></canvas>
                 </div>
             </div>
             
             <div class="pie-chart">
-                <h2>SHARE OF LANGUAGES</h2>
+                <div class="chart-header">
+                    <h2>SHARE OF LANGUAGES</h2>
+                    <button class="download-btn" onclick="downloadChart('languagesChart')">
+                        <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
                 <div class="chart-wrapper">
                     <canvas id="languagesChart"></canvas>
                 </div>
             </div>
             
             <div class="pie-chart">
-                <h2>SHARE OF MEDIA TYPES</h2>
+                <div class="chart-header">
+                    <h2>SHARE OF MEDIA TYPES</h2>
+                    <button class="download-btn" onclick="downloadChart('mediaTypesChart')">
+                        <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
                 <div class="chart-wrapper">
                     <canvas id="mediaTypesChart"></canvas>
                 </div>
@@ -332,6 +426,12 @@
                     <option value="trendList">Trend List</option>
                     <option value="sunburst">Sunburst</option>
                 </select>
+                <button id="downloadBtn" class="download-btn" style="display: none;">
+                    <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download
+                </button>
             </div>
             <div id="wordCloud" class="word-cloud"></div>
             <div id="barChart" class="chart-wrapper" style="display: none;"></div>
@@ -707,125 +807,6 @@
             wordCloudChart.resize();
         }
         
-        // Bar chart - Top Keywords Ranking (Horizontal Layout)
-        const barChart = echarts.init(document.getElementById('barChart'));
-        
-        // Get top 15 keywords sorted by value
-        const topKeywords = themeData
-            .sort((a, b) => b.value - a.value)
-            .slice(0, 15);
-        
-        // Calculate total mentions for percentage calculation
-        const totalMentions = themeData.reduce((sum, item) => sum + item.value, 0);
-        
-        // Prepare data for horizontal bar chart
-        const keywordNames = topKeywords.map(item => item.name);
-        const keywordValues = topKeywords.map(item => item.value);
-        const keywordPercentages = topKeywords.map(item => ((item.value / totalMentions) * 100).toFixed(1));
-        
-        // Color mapping based on sentiment
-        const getColorBySentiment = (sentiment) => {
-            switch(sentiment) {
-                case 'positive': return '#4CAF50';
-                case 'negative': return '#F44336';
-                case 'neutral': return '#FFC107';
-                default: return '#2196F3';
-            }
-        };
-        
-        const barChartOption = {
-            title: {
-                text: '热门词汇排行榜',
-                left: 'center',
-                textStyle: {
-                    fontSize: 16,
-                    fontWeight: 'bold'
-                }
-            },
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                },
-                formatter: function(params) {
-                    const data = params[0];
-                    const keyword = topKeywords[data.dataIndex];
-                    return `
-                        <div style="padding: 10px;">
-                            <strong>${keyword.name}</strong><br/>
-                            提及次数: ${keyword.value}<br/>
-                            占比: ${keywordPercentages[data.dataIndex]}%<br/>
-                            情绪: ${keyword.sentiment}
-                        </div>
-                    `;
-                }
-            },
-            grid: {
-                left: '15%',
-                right: '15%',
-                top: '10%',
-                bottom: '5%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'value',
-                axisLabel: {
-                    formatter: '{value}'
-                },
-                splitLine: {
-                    show: true,
-                    lineStyle: {
-                        color: '#f0f0f0'
-                    }
-                }
-            },
-            yAxis: {
-                type: 'category',
-                data: keywordNames.reverse(), // Reverse to show highest at top
-                axisLabel: {
-                    fontSize: 12,
-                    color: '#333',
-                    interval: 0,
-                    formatter: function(value) {
-                        return value.length > 8 ? value.substring(0, 8) + '...' : value;
-                    }
-                },
-                axisTick: {
-                    show: false
-                },
-                axisLine: {
-                    show: false
-                }
-            },
-            series: [
-                {
-                    type: 'bar',
-                    data: keywordValues.reverse().map((value, index) => {
-                        const originalIndex = topKeywords.length - 1 - index;
-                        return {
-                            value: value,
-                            itemStyle: {
-                                color: getColorBySentiment(topKeywords[originalIndex].sentiment),
-                                borderRadius: [0, 4, 4, 0]
-                            }
-                        };
-                    }),
-                    barWidth: '60%',
-                    label: {
-                        show: true,
-                        position: 'right',
-                        formatter: function(params) {
-                            const originalIndex = topKeywords.length - 1 - params.dataIndex;
-                            return `${keywordPercentages.reverse()[params.dataIndex]}%`;
-                        },
-                        fontSize: 11,
-                        color: '#666',
-                        distance: 5
-                    }
-                }
-            ]
-        };
-        
         // Sunburst chart - display all word cloud data in hierarchical structure
         const sunburstChart = echarts.init(document.getElementById('sunburst'));
         
@@ -885,14 +866,6 @@
         });
         
         const sunburstOption = {
-            title: {
-                text: '全部词云数据层次分析',
-                left: 'center',
-                textStyle: {
-                    fontSize: 16,
-                    fontWeight: 'bold'
-                }
-            },
             series: {
                 type: 'sunburst',
                 data: comprehensiveSunburstData,
@@ -958,14 +931,111 @@
                 formatter: function(params) {
                     const level = params.treePathInfo.length;
                     if (level === 1) {
-                        return `<strong>${params.name}</strong><br/>总提及数: ${params.value}<br/>占比: ${(params.percent).toFixed(1)}%`;
+                        return `<strong>${params.name}</strong><br/>Total Mentions: ${params.value}<br/>Percentage: ${(params.percent).toFixed(1)}%`;
                     } else if (level === 2) {
-                        return `<strong>${params.name}</strong><br/>提及数: ${params.value}<br/>占该情绪比例: ${(params.percent).toFixed(1)}%`;
+                        return `<strong>${params.name}</strong><br/>Mentions: ${params.value}<br/>Sentiment Ratio: ${(params.percent).toFixed(1)}%`;
                     } else {
-                        return `<strong>${params.name}</strong><br/>提及数: ${params.value}`;
+                        return `<strong>${params.name}</strong><br/>Mentions: ${params.value}`;
                     }
                 }
             }
+        };
+        
+        // Bar chart - display top keywords with sentiment-based coloring
+        const barChart = echarts.init(document.getElementById('barChart'));
+        
+        // Process data for bar chart - get top keywords by total value
+        const keywordStats = {};
+        themeData.forEach(item => {
+            if (!keywordStats[item.name]) {
+                keywordStats[item.name] = {
+                    total: 0,
+                    positive: 0,
+                    negative: 0,
+                    neutral: 0
+                };
+            }
+            keywordStats[item.name].total += item.value;
+            keywordStats[item.name][item.sentiment] += item.value;
+        });
+        
+        // Convert to array and sort by total value, take top 15
+        const topKeywords = Object.entries(keywordStats)
+            .map(([name, stats]) => ({
+                name,
+                value: stats.total,
+                positive: stats.positive,
+                negative: stats.negative,
+                neutral: stats.neutral
+            }))
+            .sort((a, b) => b.value - a.value)
+            .slice(0, 15);
+        
+        // Prepare data for horizontal bar chart
+        const barChartData = topKeywords.map(item => {
+            // Determine color based on dominant sentiment
+            let color = '#FFC107'; // default neutral
+            if (item.positive > item.negative && item.positive > item.neutral) {
+                color = '#4CAF50'; // positive
+            } else if (item.negative > item.positive && item.negative > item.neutral) {
+                color = '#F44336'; // negative
+            }
+            
+            return {
+                value: item.value,
+                itemStyle: { color: color }
+            };
+        });
+        
+        const barChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const dataIndex = params[0].dataIndex;
+                    const keyword = topKeywords[dataIndex];
+                    return `<strong>${keyword.name}</strong><br/>
+                            Total Mentions: ${keyword.value}<br/>
+                            Positive: ${keyword.positive}<br/>
+                            Negative: ${keyword.negative}<br/>
+                            Neutral: ${keyword.neutral}`;
+                }
+            },
+            grid: {
+                left: '15%',
+                right: '10%',
+                top: '10%',
+                bottom: '10%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                axisLabel: {
+                    fontSize: 12
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: topKeywords.map(item => item.name),
+                axisLabel: {
+                    fontSize: 11,
+                    interval: 0
+                },
+                inverse: true
+            },
+            series: [{
+                type: 'bar',
+                data: barChartData,
+                barWidth: '60%',
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.3)'
+                    }
+                }
+            }]
         };
         
         // Create theme table
@@ -1104,27 +1174,219 @@
                  } else if (selectedValue === 'trendList') {
                      // Trend list is already created in HTML
                  }
+                 
+                 // Update download button visibility and functionality
+                 updateDownloadButton(selectedValue);
              });
          }
          
          // Initialize all charts when page loads
+        // Download functionality
+        function downloadChart(chartType) {
+            switch(chartType) {
+                case 'wordCloud':
+                    downloadCanvasChart('#wordCloud canvas', 'word-cloud.png');
+                    break;
+                case 'barChart':
+                    downloadCanvasChart(barChart.getDom().querySelector('canvas'), 'bar-chart.png');
+                    break;
+                case 'sunburst':
+                    downloadCanvasChart(sunburstChart.getDom().querySelector('canvas'), 'sunburst-chart.png');
+                    break;
+                case 'table':
+                    downloadTableAsCSV();
+                    break;
+                case 'trendList':
+                    downloadTrendListAsCSV();
+                    break;
+                case 'timeChart':
+                    downloadCanvasChart('#timeChart', 'time-trend-chart.png');
+                    break;
+                case 'sentimentChart':
+                    downloadCanvasChart('#sentimentChart', 'sentiment-chart.png');
+                    break;
+                case 'countriesChart':
+                    downloadCanvasChart('#countriesChart', 'countries-chart.png');
+                    break;
+                case 'languagesChart':
+                    downloadCanvasChart('#languagesChart', 'languages-chart.png');
+                    break;
+                case 'mediaTypesChart':
+                    downloadCanvasChart('#mediaTypesChart', 'media-types-chart.png');
+                    break;
+                case 'stats':
+                    downloadStatsAsImage();
+                    break;
+                default:
+                    console.error('Unknown chart type:', chartType);
+                    return;
+            }
+        }
+        
+        // Helper function to download canvas charts
+        function downloadCanvasChart(canvas, filename) {
+            if (typeof canvas === 'string') {
+                canvas = document.querySelector(canvas);
+            }
+            
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                console.error('Canvas not found');
+            }
+        }
+        
+        // Download table as CSV
+        function downloadTableAsCSV() {
+            const table = document.querySelector('#themeTable table');
+            if (!table) {
+                console.error('Table not found');
+                return;
+            }
+            
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = [];
+                const cols = rows[i].querySelectorAll('td, th');
+                
+                for (let j = 0; j < cols.length; j++) {
+                    // Extract text content and clean it
+                    let cellText = cols[j].textContent.trim();
+                    // Remove special characters like arrows
+                    cellText = cellText.replace(/[▼▲]/g, '');
+                    row.push('"' + cellText + '"');
+                }
+                csv.push(row.join(','));
+            }
+            
+            // Create and download CSV file
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'theme-table.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+        
+        // Download trend list as CSV
+        function downloadTrendListAsCSV() {
+            const trendSections = document.querySelectorAll('#trendList .trend-section');
+            if (trendSections.length === 0) {
+                console.error('Trend list not found');
+                return;
+            }
+            
+            let csv = ['Category,Theme,Value'];
+            
+            trendSections.forEach(section => {
+                const categoryTitle = section.querySelector('h3').textContent;
+                const trendItems = section.querySelectorAll('.trend-list li');
+                
+                trendItems.forEach(item => {
+                    const themeName = item.querySelector('.trend-name').textContent;
+                    const trendValue = item.querySelector('.trend-value').textContent;
+                    csv.push(`"${categoryTitle}","${themeName}","${trendValue}"`);
+                });
+            });
+            
+            // Create and download CSV file
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'trend-list.csv');
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+        
+        // Download stats as image
+        function downloadStatsAsImage() {
+            const statsContainer = document.querySelector('.stats-container');
+            if (!statsContainer) {
+                console.error('Stats container not found');
+                return;
+            }
+            
+            // Use html2canvas library if available, otherwise create a simple CSV
+            if (typeof html2canvas !== 'undefined') {
+                html2canvas(statsContainer).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'data-statistics.png';
+                    link.href = canvas.toDataURL('image/png');
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                });
+            } else {
+                // Fallback: download as CSV
+                const statCards = statsContainer.querySelectorAll('.stat-card');
+                let csv = ['Metric,Value,Change'];
+                
+                statCards.forEach(card => {
+                    const title = card.querySelector('h2').textContent;
+                    const value = card.querySelector('.stat-value').textContent;
+                    const change = card.querySelector('.stat-change').textContent.replace(/\s+/g, ' ').trim();
+                    csv.push(`"${title}","${value}","${change}"`);
+                });
+                
+                const csvContent = csv.join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                
+                if (link.download !== undefined) {
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', 'data-statistics.csv');
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            }
+        }
+        
+        // Update download button visibility and functionality
+        function updateDownloadButton(selectedValue) {
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            // Show download button for all visualization types
+            if (['wordCloud', 'barChart', 'sunburst', 'table', 'trendList'].includes(selectedValue)) {
+                downloadBtn.style.display = 'flex';
+                downloadBtn.onclick = () => downloadChart(selectedValue);
+            } else {
+                downloadBtn.style.display = 'none';
+            }
+        }
+
          window.addEventListener('load', function() {
              // Initialize word cloud
              initWordCloud();
              
-             // Initialize other charts
-             barChart.setOption(barChartOption);
+             // Initialize sunburst chart
              sunburstChart.setOption(sunburstOption);
              
-             // Set default visualization
-             const dropdown = document.getElementById('visualizationDropdown');
-             const wordCloudElement = document.getElementById('wordCloud');
-             if (dropdown) {
-                 dropdown.value = 'wordCloud';
-             }
-             if (wordCloudElement) {
-                 wordCloudElement.style.display = 'block';
-             }
+             // Initialize download button for default view (word cloud)
+             updateDownloadButton('wordCloud');
          });
         
         // Responsive adjustments
