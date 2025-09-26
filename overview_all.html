@@ -24,6 +24,8 @@
         .dashboard-container {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 0 15px;
+            width: 100%;
         }
         
         .header {
@@ -267,19 +269,77 @@
             margin-bottom: 20px;
         }
         
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                padding: 0 10px;
+            }
+            
+            .pie-charts-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .dashboard-container {
+                padding: 0 5px;
+            }
+            
             .stats-container {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
             }
             
             .chart-row, .pie-charts-container {
                 grid-template-columns: 1fr;
             }
+            
+            .chart-container, .pie-chart, .word-cloud-container {
+                padding: 15px;
+            }
+            
+            .visualization-controls {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
         }
         
         @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
             .stats-container {
                 grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .chart-container, .pie-chart, .word-cloud-container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .download-btn {
+                padding: 6px 12px;
+                font-size: 11px;
             }
         }
     </style>
@@ -299,7 +359,7 @@
             </div>
             <div class="stats-container">
                 <div class="stat-card">
-                    <h2>RESULTS</h2>
+                    <h2>POSTS</h2>
                     <div class="stat-value">13K</div>
                     <div class="stat-change positive">
                         <div class="arrow-up"></div>
@@ -339,7 +399,7 @@
         <!-- Time Trend Chart -->
         <div class="chart-container">
             <div class="chart-header">
-                <h2>RESULTS OVER TIME</h2>
+                <h2>POSTS OVER TIME</h2>
                 <button class="download-btn" onclick="downloadChart('timeChart')">
                     <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -584,7 +644,7 @@
             data: {
                 labels: ['2023-12-25', '2024-01-21', '2024-02-18', '2024-03-16', '2024-04-13', '2024-05-11', '2024-06-08', '2024-07-06', '2024-08-03', '2024-08-31', '2024-09-22'],
                 datasets: [{
-                    label: 'Results',
+                    label: 'Posts',
                     data: [0, 0, 0, 0, 0, 0, 1000, 2000, 1000, 2000, 5000],
                     fill: true,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -600,7 +660,7 @@
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Results'
+                            text: 'Posts'
                         },
                         grid: {
                             color: 'rgba(0, 0, 0, 0.05)'
@@ -1077,7 +1137,7 @@
                     <thead>
                         <tr style="background-color: #f5f5f5; border-bottom: 2px solid #ddd;">
                             <th style="padding: 15px 10px; border-right: 1px solid #ddd; font-weight: 600; color: #333;">
-                                Results <span style="font-size: 12px;">▼</span>
+                                Posts <span style="font-size: 12px;">▼</span>
                             </th>
                             <th style="padding: 15px 10px; border-right: 1px solid #ddd; font-weight: 600; color: #333;">
                                 Positive
