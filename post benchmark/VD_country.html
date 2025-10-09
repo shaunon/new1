@@ -105,10 +105,11 @@
         // Define top 10 countries
         const countries = ['United States', 'China', 'India', 'Brazil', 'United Kingdom', 'Japan', 'Germany', 'France', 'South Korea', 'Canada'];
         
-        // Generate sample data for demonstration
+        // Generate sample data for demonstration - organized by countries with duration categories as series
         function generateData() {
             const data = {};
             
+            // Initialize data structure: each country contains data for all duration categories
             countries.forEach(country => {
                 data[country] = {
                     interaction: [],
@@ -119,15 +120,15 @@
                     periodOverPeriod: {}
                 };
                 
-                durationCategories.forEach((_, index) => {
-                    // Generate random values for each metric
+                durationCategories.forEach(duration => {
+                    // Generate random values for each metric for this duration in this country
                     data[country].interaction.push(Math.floor(Math.random() * 1000000) + 100000);
                     data[country].interactionRate.push((Math.random() * 10 + 1).toFixed(2));
                     data[country].views.push(Math.floor(Math.random() * 10000000) + 1000000);
                     data[country].postCount.push(Math.floor(Math.random() * 10000) + 1000);
                 });
                 
-                // Calculate percentages
+                // Calculate percentages for this country
                 const totalInteraction = data[country].interaction.reduce((a, b) => a + b, 0);
                 const totalViews = data[country].views.reduce((a, b) => a + b, 0);
                 const totalPosts = data[country].postCount.reduce((a, b) => a + b, 0);
@@ -166,17 +167,17 @@
             postCount: 'bar'
         };
         
-        // Prepare series data for each chart
+        // Prepare series data for each chart - now organized by duration categories as series
         function prepareSeries(metricName, type) {
-            return countries.map(country => {
+            return durationCategories.map((duration, index) => {
                 return {
-                    name: country,
+                    name: duration,
                     type: type,
                     stack: type === 'bar' ? 'total' : undefined,
                     emphasis: {
                         focus: 'series'
                     },
-                    data: countryData[country][metricName],
+                    data: countries.map(country => countryData[country][metricName][durationCategories.indexOf(duration)]),
                     smooth: type === 'line'
                 };
             });
@@ -192,7 +193,7 @@
                     }
                 },
                 legend: {
-                    data: countries,
+                    data: durationCategories,
                     type: 'scroll',
                     bottom: 0
                 },
@@ -204,7 +205,7 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: durationCategories
+                    data: countries
                 },
                 yAxis: {
                     type: 'value',
@@ -253,8 +254,8 @@
             
             // Header row with duration categories
             html += '<tr><th>Country</th><th>Metric</th>';
-            durationCategories.forEach(category => {
-                html += `<th>${category}</th>`;
+            durationCategories.forEach(duration => {
+                html += `<th>${duration}</th>`;
             });
             html += '<th>Total</th></tr>';
             

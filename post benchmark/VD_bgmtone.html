@@ -479,6 +479,7 @@
         function generateData() {
             const data = {};
             
+            // Organize data by BGM tones, with duration categories as series
             bgmTones.forEach(bgmTone => {
                 data[bgmTone] = {
                     interaction: [],
@@ -554,17 +555,16 @@
         
         // Prepare series data for each chart
         function prepareSeries(metricName, type) {
-            return bgmTones.map(bgmTone => {
+            return durationCategories.map(duration => {
                 return {
-                    name: bgmTone,
+                    name: duration,
                     type: type,
                     stack: type === 'bar' ? 'total' : undefined,
                     emphasis: {
                         focus: 'series'
                     },
-                    data: bgmData[bgmTone][metricName],
-                    smooth: type === 'line',
-                    color: bgmColors[bgmTone]
+                    data: bgmTones.map(bgmTone => bgmData[bgmTone][metricName][durationCategories.indexOf(duration)]),
+                    smooth: type === 'line'
                 };
             });
         }
@@ -595,7 +595,7 @@
                     }
                 },
                 legend: {
-                    data: bgmTones,
+                    data: durationCategories,
                     type: 'scroll',
                     orient: 'horizontal',
                     left: 'center',
@@ -609,7 +609,7 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: durationCategories,
+                    data: bgmTones,
                     axisLabel: {
                         rotate: 45,
                         fontSize: 11
@@ -689,18 +689,18 @@
             let html = '<thead><tr>';
             
             // Create header
-            html += '<th class="bgm-header">BGM Tone</th>';
+            html += '<th class="bgm-header">Duration Category</th>';
             html += '<th class="metric-name">Metric</th>';
-            durationCategories.forEach(duration => {
-                html += `<th>${duration}</th>`;
+            bgmTones.forEach(tone => {
+                html += `<th>${tone}</th>`;
             });
             html += '<th>Total</th>';
             html += '<th>% Change</th>';
             html += '</tr></thead><tbody>';
             
-            // Create rows for each BGM tone
-            bgmTones.forEach((tone, toneIndex) => {
-                const data = bgmData[tone];
+            // Create rows for each duration category
+            durationCategories.forEach((duration, durationIndex) => {
+                const data = durationData[duration];
                 const metrics = ['interaction', 'interactionRate', 'views', 'postCount'];
                 const metricNames = ['Interactions', 'Interaction Rate (%)', 'Views', 'Post Count'];
                 
@@ -708,28 +708,24 @@
                     const isFirstMetric = metricIndex === 0;
                     const rowspan = isFirstMetric ? ` rowspan="${metrics.length}"` : '';
                     const expandableClass = isFirstMetric ? ' expandable-row' : '';
-                    const bgmToneId = `bgmTone-${toneIndex}`;
+                    const durationId = `duration-${durationIndex}`;
                     
-                    html += `<tr class="${expandableClass}" ${isFirstMetric ? `onclick="toggleMusicDetails('${bgmToneId}')"` : ''}>`;
+                    html += `<tr class="${expandableClass}">`;
                     
                     if (isFirstMetric) {
                         html += `<td${rowspan} class="bgm-header">
-                            <span class="expand-icon" id="${bgmToneId}-icon">▶</span>
-                            ${tone}
+                            ${duration}
                         </td>`;
                     }
                     
                     html += `<td class="metric-name">${metricNames[metricIndex]}</td>`;
                     
-                    // Add data for each duration category
+                    // Add data for each BGM tone
                     data[metric].forEach((value, index) => {
-                        const percentage = data.percentages[metric][index];
-                        const change = data.periodOverPeriod[metric][index];
-                        const changeClass = parseFloat(change) >= 0 ? 'positive' : 'negative';
-                        
                         if (metric === 'interactionRate') {
                             html += `<td>${value}%</td>`;
                         } else {
+                            const percentage = data.percentages && data.percentages[metric] ? data.percentages[metric][index] : '0';
                             html += `<td>${parseInt(value).toLocaleString()}<br><small>(${percentage}%)</small></td>`;
                         }
                     });
@@ -741,36 +737,14 @@
                     html += `<td><strong>${total}</strong></td>`;
                     
                     // Add average change
-                    const avgChange = (data.periodOverPeriod[metric].reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / data.periodOverPeriod[metric].length).toFixed(2);
+                    const avgChange = data.periodOverPeriod && data.periodOverPeriod[metric] 
+                        ? (data.periodOverPeriod[metric].reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / data.periodOverPeriod[metric].length).toFixed(2)
+                        : '0.00';
                     const avgChangeClass = parseFloat(avgChange) >= 0 ? 'positive' : 'negative';
                     html += `<td class="${avgChangeClass}">${avgChange}%</td>`;
                     
                     html += '</tr>';
                 });
-                
-                // Add music details row
-                html += `<tr class="music-details" id="${bgmToneId}-details">
-                    <td colspan="${durationCategories.length + 4}">
-                        <div class="music-list">`;
-                
-                musicData[tone].forEach((music, index) => {
-                    html += `
-                        <div class="music-item">
-                            <button class="play-btn" onclick="playMusic('${music.url}', this)" title="Play ${music.title}">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            </button>
-                            <div class="music-info">
-                                <div class="music-title">${music.title}</div>
-                                <div class="music-artist">${music.artist}</div>
-                                <div class="music-stats">${music.uses.toLocaleString()} uses</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                html += `</div></td></tr>`;
             });
             
             html += '</tbody>';
@@ -872,9 +846,9 @@
         
         // Initialize everything when page loads
         window.addEventListener('load', () => {
-            initCharts();
+            initializeCharts();
             setupToggleButtons();
-            createDataTable();
+            populateDataTable();
         });
         
         // Handle window resize

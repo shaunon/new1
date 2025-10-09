@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Analysis Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .visualization-controls {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+        
+        .visualization-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 150px;
+        }
+        
+        .visualization-dropdown:focus {
+            outline: none;
+            border-color: #4169E1;
+        }
+        
+        .stat-card h2 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-change {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .stat-change.positive {
+            color: #4CAF50;
+        }
+        
+        .stat-change.negative {
+            color: #F44336;
+        }
+        
+        .arrow-up {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 8px solid #4CAF50;
+            margin-right: 5px;
+        }
+        
+        .arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 8px solid #F44336;
+            margin-right: 5px;
+        }
+        
+        .chart-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .chart-container h2 {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .chart-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .pie-charts-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .pie-chart {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .pie-chart h2 {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .chart-wrapper {
+            height: 300px;
+        }
+        
+        .word-cloud-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .word-cloud-container h2 {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .word-cloud {
+            height: 400px;
+        }
+        
+        .trend-section {
+            margin-bottom: 30px;
+        }
+        
+        .trend-section h3 {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .trend-list {
+            list-style: none;
+        }
+        
+        .trend-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .trend-name {
+            font-weight: 500;
+        }
+        
+        .trend-value {
+            font-weight: 600;
+        }
+        
+        .trend-section:nth-child(1) .trend-value {
+            color: #4CAF50;
+        }
+        
+        .trend-section:nth-child(2) .trend-value {
+            color: #F44336;
+        }
+        
+        .trend-section:nth-child(3) .trend-value {
+            color: #3498db;
+        }
+        
+        /* Download button styles */
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .download-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .download-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .download-btn:active {
+            background-color: #21618c;
+        }
+        
+        .download-icon {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .visualization-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                padding: 0 10px;
+            }
+            
+            .pie-charts-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .dashboard-container {
+                padding: 0 5px;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .chart-row, .pie-charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container, .pie-chart, .word-cloud-container {
+                padding: 15px;
+            }
+            
+            .visualization-controls {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .chart-container, .pie-chart, .word-cloud-container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            .download-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Data Statistics Cards -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>COUNTRY DATA STATISTICS</h2>
+                <button class="download-btn" onclick="downloadChart('stats')">
+                    <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h2>TOTAL COUNTRIES</h2>
+                    <div class="stat-value">45</div>
+                    <div class="stat-change positive">
+                        <div class="arrow-up"></div>
+                        8.2% compared to previous
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h2>TOP COUNTRY POSTS</h2>
+                    <div class="stat-value">4.2K</div>
+                    <div class="stat-change positive">
+                        <div class="arrow-up"></div>
+                        15.3% compared to previous
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h2>COUNTRY ENGAGEMENT</h2>
+                    <div class="stat-value">890K</div>
+                    <div class="stat-change positive">
+                        <div class="arrow-up"></div>
+                        12.7% compared to previous
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h2>GLOBAL REACH</h2>
+                    <div class="stat-value">2.1M</div>
+                    <div class="stat-change positive">
+                        <div class="arrow-up"></div>
+                        5.8% compared to previous
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Country Distribution Chart -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2>POSTS BY COUNTRY OVER TIME</h2>
+                <button class="download-btn" onclick="downloadChart('countryTimeChart')">
+                    <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="countryTimeChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Pie Charts -->
+        <div class="pie-charts-container">
+            <div class="pie-chart">
+                <div class="chart-header">
+                    <h2>TOP COUNTRIES BY POSTS</h2>
+                    <button class="download-btn" onclick="downloadChart('topCountriesChart')">
+                        <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="topCountriesChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="pie-chart">
+                <div class="chart-header">
+                    <h2>REGIONAL DISTRIBUTION</h2>
+                    <button class="download-btn" onclick="downloadChart('regionalChart')">
+                        <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="regionalChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="pie-chart">
+                <div class="chart-header">
+                    <h2>COUNTRY SENTIMENT</h2>
+                    <button class="download-btn" onclick="downloadChart('countrySentimentChart')">
+                        <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="countrySentimentChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="pie-chart">
+                <div class="chart-header">
+                    <h2>ENGAGEMENT BY REGION</h2>
+                    <button class="download-btn" onclick="downloadChart('engagementChart')">
+                        <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                        </svg>
+                        Download
+                    </button>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="engagementChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Country Keywords Visualization -->
+        <div class="word-cloud-container">
+            <h2>COUNTRY KEYWORDS</h2>
+            <div class="visualization-controls">
+                <select id="visualizationDropdown" class="visualization-dropdown">
+                    <option value="wordCloud">Word Cloud</option>
+                    <option value="sunburst">Sunburst</option>
+                </select>
+                <button id="downloadBtn" class="download-btn" style="display: none;">
+                    <svg class="download-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download
+                </button>
+            </div>
+            <div id="wordCloud" class="word-cloud"></div>
+            <div id="sunburst" class="word-cloud" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Country data
+        const countryData = [
+            { name: 'United States', value: 850, region: 'North America', sentiment: 'positive' },
+            { name: 'China', value: 720, region: 'Asia', sentiment: 'neutral' },
+            { name: 'Japan', value: 680, region: 'Asia', sentiment: 'positive' },
+            { name: 'Germany', value: 520, region: 'Europe', sentiment: 'positive' },
+            { name: 'United Kingdom', value: 480, region: 'Europe', sentiment: 'neutral' },
+            { name: 'France', value: 420, region: 'Europe', sentiment: 'positive' },
+            { name: 'South Korea', value: 380, region: 'Asia', sentiment: 'positive' },
+            { name: 'Canada', value: 350, region: 'North America', sentiment: 'positive' },
+            { name: 'Australia', value: 320, region: 'Oceania', sentiment: 'positive' },
+            { name: 'Brazil', value: 290, region: 'South America', sentiment: 'neutral' },
+            { name: 'India', value: 280, region: 'Asia', sentiment: 'positive' },
+            { name: 'Italy', value: 260, region: 'Europe', sentiment: 'neutral' },
+            { name: 'Spain', value: 240, region: 'Europe', sentiment: 'positive' },
+            { name: 'Netherlands', value: 220, region: 'Europe', sentiment: 'positive' },
+            { name: 'Mexico', value: 200, region: 'North America', sentiment: 'neutral' },
+            { name: 'Singapore', value: 180, region: 'Asia', sentiment: 'positive' },
+            { name: 'Switzerland', value: 160, region: 'Europe', sentiment: 'positive' },
+            { name: 'Sweden', value: 140, region: 'Europe', sentiment: 'positive' },
+            { name: 'Norway', value: 120, region: 'Europe', sentiment: 'positive' },
+            { name: 'Denmark', value: 100, region: 'Europe', sentiment: 'positive' }
+        ];
+
+        // Time series data for country posts
+        const timeLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const timeData = [320, 380, 450, 520, 480, 560, 620, 580, 640, 700, 680, 720];
+
+        // Initialize time chart
+        const timeCtx = document.getElementById('countryTimeChart').getContext('2d');
+        new Chart(timeCtx, {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Posts by Country',
+                    data: timeData,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Top Countries Chart
+        const topCountriesCtx = document.getElementById('topCountriesChart').getContext('2d');
+        const topCountries = countryData.slice(0, 8);
+        new Chart(topCountriesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: topCountries.map(c => c.name),
+                datasets: [{
+                    data: topCountries.map(c => c.value),
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Regional Distribution Chart
+        const regionalData = countryData.reduce((acc, country) => {
+            acc[country.region] = (acc[country.region] || 0) + country.value;
+            return acc;
+        }, {});
+
+        const regionalCtx = document.getElementById('regionalChart').getContext('2d');
+        new Chart(regionalCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(regionalData),
+                datasets: [{
+                    data: Object.values(regionalData),
+                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Country Sentiment Chart
+        const sentimentData = countryData.reduce((acc, country) => {
+            acc[country.sentiment] = (acc[country.sentiment] || 0) + country.value;
+            return acc;
+        }, {});
+
+        const countrySentimentCtx = document.getElementById('countrySentimentChart').getContext('2d');
+        new Chart(countrySentimentCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(sentimentData).map(s => s.charAt(0).toUpperCase() + s.slice(1)),
+                datasets: [{
+                    data: Object.values(sentimentData),
+                    backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Engagement by Region Chart
+        const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+        new Chart(engagementCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(regionalData),
+                datasets: [{
+                    data: Object.values(regionalData).map(v => v * 1.2), // Simulated engagement data
+                    backgroundColor: ['#E74C3C', '#3498DB', '#F39C12', '#27AE60', '#8E44AD']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+
+        // Word Cloud and Sunburst initialization
+        let wordCloudChart;
+        let sunburstChart;
+        let currentVisualization = 'wordCloud';
+
+        function initWordCloud() {
+            wordCloudChart = echarts.init(document.getElementById('wordCloud'));
+            const wordCloudOption = {
+                series: [{
+                    type: 'wordCloud',
+                    shape: 'circle',
+                    left: 'center',
+                    top: 'center',
+                    width: '90%',
+                    height: '90%',
+                    sizeRange: [12, 60],
+                    rotationRange: [-45, 45],
+                    rotationStep: 15,
+                    gridSize: 8,
+                    drawOutOfBound: false,
+                    layoutAnimation: true,
+                    textStyle: {
+                        fontFamily: 'Arial, sans-serif',
+                        fontWeight: 'bold',
+                        color: function () {
+                            return 'rgb(' + [
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160)
+                            ].join(',') + ')';
+                        }
+                    },
+                    emphasis: {
+                        focus: 'self',
+                        textStyle: {
+                            shadowBlur: 10,
+                            shadowColor: '#333'
+                        }
+                    },
+                    data: countryData.map(country => ({
+                        name: country.name,
+                        value: country.value
+                    }))
+                }]
+            };
+            wordCloudChart.setOption(wordCloudOption);
+        }
+
+        function initSunburst() {
+            sunburstChart = echarts.init(document.getElementById('sunburst'));
+            
+            // Group countries by region for sunburst
+            const regionGroups = countryData.reduce((groups, country) => {
+                if (!groups[country.region]) {
+                    groups[country.region] = [];
+                }
+                groups[country.region].push(country);
+                return groups;
+            }, {});
+
+            const sunburstData = Object.keys(regionGroups).map(region => {
+                const countries = regionGroups[region];
+                const totalValue = countries.reduce((sum, country) => sum + country.value, 0);
+                
+                return {
+                    name: `${region} (${countries.length})`,
+                    value: totalValue,
+                    children: countries.map(country => ({
+                        name: country.name,
+                        value: country.value,
+                        itemStyle: {
+                            color: country.sentiment === 'positive' ? '#4CAF50' : 
+                                   country.sentiment === 'negative' ? '#F44336' : '#FFC107'
+                        }
+                    }))
+                };
+            });
+
+            const sunburstOption = {
+                series: {
+                    type: 'sunburst',
+                    data: sunburstData,
+                    radius: [0, '85%'],
+                    center: ['50%', '55%'],
+                    sort: null,
+                    label: {
+                        rotate: 'radial',
+                        fontSize: 10,
+                        minAngle: 5
+                    },
+                    itemStyle: {
+                        borderRadius: 5,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    },
+                    emphasis: {
+                        focus: 'ancestor'
+                    },
+                    levels: [{
+                        r0: '15%',
+                        r: '50%',
+                        itemStyle: {
+                            borderWidth: 2
+                        },
+                        label: {
+                            rotate: 'tangential',
+                            fontSize: 12,
+                            fontWeight: 'bold'
+                        }
+                    }, {
+                        r0: '50%',
+                        r: '85%',
+                        label: {
+                            position: 'outside',
+                            padding: 3,
+                            fontSize: 9
+                        }
+                    }]
+                }
+            };
+            sunburstChart.setOption(sunburstOption);
+        }
+
+        // Visualization switching
+        document.getElementById('visualizationDropdown').addEventListener('change', function(e) {
+            const selectedValue = e.target.value;
+            
+            if (selectedValue === 'wordCloud') {
+                document.getElementById('wordCloud').style.display = 'block';
+                document.getElementById('sunburst').style.display = 'none';
+                currentVisualization = 'wordCloud';
+            } else if (selectedValue === 'sunburst') {
+                document.getElementById('wordCloud').style.display = 'none';
+                document.getElementById('sunburst').style.display = 'block';
+                currentVisualization = 'sunburst';
+                if (!sunburstChart) {
+                    initSunburst();
+                }
+            }
+        });
+
+        // Download function
+        function downloadChart(chartId) {
+            console.log('Downloading chart:', chartId);
+            // Implement download functionality here
+        }
+
+        // Initialize charts when page loads
+        window.addEventListener('load', function() {
+            initWordCloud();
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (wordCloudChart) wordCloudChart.resize();
+            if (sunburstChart) sunburstChart.resize();
+        });
+    </script>
+</body>
+</html>

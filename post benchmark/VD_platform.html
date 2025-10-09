@@ -69,10 +69,11 @@
         // Sample data - replace with actual data
         const platforms = ['TikTok', 'Instagram', 'YouTube', 'Facebook'];
         
-        // Generate sample data for demonstration
+        // Generate sample data for demonstration - organized by platforms with duration categories as series
         function generateData() {
             const data = {};
             
+            // Initialize data structure: each platform contains data for all duration categories
             platforms.forEach(platform => {
                 data[platform] = {
                     interaction: [],
@@ -83,15 +84,15 @@
                     periodOverPeriod: {}
                 };
                 
-                durationCategories.forEach((_, index) => {
-                    // Generate random values for each metric
+                durationCategories.forEach(duration => {
+                    // Generate random values for each metric for this duration in this platform
                     data[platform].interaction.push(Math.floor(Math.random() * 1000000) + 100000);
                     data[platform].interactionRate.push((Math.random() * 10 + 1).toFixed(2));
                     data[platform].views.push(Math.floor(Math.random() * 10000000) + 1000000);
                     data[platform].postCount.push(Math.floor(Math.random() * 10000) + 1000);
                 });
                 
-                // Calculate percentages
+                // Calculate percentages for this platform
                 const totalInteraction = data[platform].interaction.reduce((a, b) => a + b, 0);
                 const totalViews = data[platform].views.reduce((a, b) => a + b, 0);
                 const totalPosts = data[platform].postCount.reduce((a, b) => a + b, 0);
@@ -114,7 +115,7 @@
             return data;
         }
         
-        const data = generateData();
+        const platformData = generateData();
         
         // Initialize ECharts instances
         const interactionChart = echarts.init(document.getElementById('interactionChart'));
@@ -122,17 +123,17 @@
         const viewsChart = echarts.init(document.getElementById('viewsChart'));
         const postCountChart = echarts.init(document.getElementById('postCountChart'));
         
-        // Prepare series data for each chart
+        // Prepare series data for each chart - now organized by duration categories as series
         function prepareSeries(metricName) {
-            return platforms.map(platform => {
+            return durationCategories.map((duration, index) => {
                 return {
-                    name: platform,
+                    name: duration,
                     type: 'bar',
                     stack: 'total',
                     emphasis: {
                         focus: 'series'
                     },
-                    data: data[platform][metricName]
+                    data: platforms.map(platform => platformData[platform][metricName][durationCategories.indexOf(duration)])
                 };
             });
         }
@@ -146,7 +147,7 @@
                 }
             },
             legend: {
-                data: platforms
+                data: durationCategories
             },
             grid: {
                 left: '3%',
@@ -156,7 +157,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: durationCategories
+                data: platforms
             },
             yAxis: {
                 type: 'value',
@@ -173,7 +174,7 @@
                 }
             },
             legend: {
-                data: platforms
+                data: durationCategories
             },
             grid: {
                 left: '3%',
@@ -183,7 +184,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: durationCategories
+                data: platforms
             },
             yAxis: {
                 type: 'value',
@@ -200,7 +201,7 @@
                 }
             },
             legend: {
-                data: platforms
+                data: durationCategories
             },
             grid: {
                 left: '3%',
@@ -210,7 +211,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: durationCategories
+                data: platforms
             },
             yAxis: {
                 type: 'value',
@@ -227,7 +228,7 @@
                 }
             },
             legend: {
-                data: platforms
+                data: durationCategories
             },
             grid: {
                 left: '3%',
@@ -237,7 +238,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: durationCategories
+                data: platforms
             },
             yAxis: {
                 type: 'value',
@@ -259,8 +260,8 @@
             
             // Header row with duration categories
             html += '<tr><th>Platform</th><th>Metric</th>';
-            durationCategories.forEach(category => {
-                html += `<th>${category}</th>`;
+            durationCategories.forEach(duration => {
+                html += `<th>${duration}</th>`;
             });
             html += '<th>Total</th></tr>';
             
@@ -271,22 +272,22 @@
                 
                 // Interaction Volume
                 html += '<tr><td rowspan="3" class="metric-name">Interaction Volume</td><td>Value</td>';
-                const totalInteraction = data[platform].interaction.reduce((a, b) => a + b, 0);
-                data[platform].interaction.forEach(value => {
+                const totalInteraction = platformData[platform].interaction.reduce((a, b) => a + b, 0);
+                platformData[platform].interaction.forEach(value => {
                     html += `<td>${value.toLocaleString()}</td>`;
                 });
                 html += `<td>${totalInteraction.toLocaleString()}</td></tr>`;
                 
                 // Interaction Volume Percentage
                 html += '<tr><td>Percentage (%)</td>';
-                data[platform].percentages.interaction.forEach(value => {
+                platformData[platform].percentages.interaction.forEach(value => {
                     html += `<td>${value}%</td>`;
                 });
                 html += '<td>100%</td></tr>';
                 
                 // Interaction Volume Period-over-Period
                 html += '<tr><td>Period-over-Period (%)</td>';
-                data[platform].periodOverPeriod.interaction.forEach(value => {
+                platformData[platform].periodOverPeriod.interaction.forEach(value => {
                     const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
                     html += `<td class="${cellClass}">${value}%</td>`;
                 });
@@ -294,22 +295,22 @@
                 
                 // Views
                 html += '<tr><td rowspan="3" class="metric-name">Views</td><td>Value</td>';
-                const totalViews = data[platform].views.reduce((a, b) => a + b, 0);
-                data[platform].views.forEach(value => {
+                const totalViews = platformData[platform].views.reduce((a, b) => a + b, 0);
+                platformData[platform].views.forEach(value => {
                     html += `<td>${value.toLocaleString()}</td>`;
                 });
                 html += `<td>${totalViews.toLocaleString()}</td></tr>`;
                 
                 // Views Percentage
                 html += '<tr><td>Percentage (%)</td>';
-                data[platform].percentages.views.forEach(value => {
+                platformData[platform].percentages.views.forEach(value => {
                     html += `<td>${value}%</td>`;
                 });
                 html += '<td>100%</td></tr>';
                 
                 // Views Period-over-Period
                 html += '<tr><td>Period-over-Period (%)</td>';
-                data[platform].periodOverPeriod.views.forEach(value => {
+                platformData[platform].periodOverPeriod.views.forEach(value => {
                     const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
                     html += `<td class="${cellClass}">${value}%</td>`;
                 });
@@ -317,15 +318,15 @@
                 
                 // Interaction Rate
                 html += '<tr><td rowspan="2" class="metric-name">Interaction Rate (%)</td><td>Value</td>';
-                data[platform].interactionRate.forEach(value => {
+                platformData[platform].interactionRate.forEach(value => {
                     html += `<td>${value}%</td>`;
                 });
-                const avgInteractionRate = (data[platform].interactionRate.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / data[platform].interactionRate.length).toFixed(2);
+                const avgInteractionRate = (platformData[platform].interactionRate.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / platformData[platform].interactionRate.length).toFixed(2);
                 html += `<td>${avgInteractionRate}%</td></tr>`;
                 
                 // Interaction Rate Period-over-Period
                 html += '<tr><td>Period-over-Period (%)</td>';
-                data[platform].periodOverPeriod.interactionRate.forEach(value => {
+                platformData[platform].periodOverPeriod.interactionRate.forEach(value => {
                     const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
                     html += `<td class="${cellClass}">${value}%</td>`;
                 });
@@ -333,22 +334,22 @@
                 
                 // Post Count
                 html += '<tr><td rowspan="3" class="metric-name">Post Count</td><td>Value</td>';
-                const totalPosts = data[platform].postCount.reduce((a, b) => a + b, 0);
-                data[platform].postCount.forEach(value => {
+                const totalPosts = platformData[platform].postCount.reduce((a, b) => a + b, 0);
+                platformData[platform].postCount.forEach(value => {
                     html += `<td>${value.toLocaleString()}</td>`;
                 });
                 html += `<td>${totalPosts.toLocaleString()}</td></tr>`;
                 
                 // Post Count Percentage
                 html += '<tr><td>Percentage (%)</td>';
-                data[platform].percentages.postCount.forEach(value => {
+                platformData[platform].percentages.postCount.forEach(value => {
                     html += `<td>${value}%</td>`;
                 });
                 html += '<td>100%</td></tr>';
                 
                 // Post Count Period-over-Period
                 html += '<tr><td>Period-over-Period (%)</td>';
-                data[platform].periodOverPeriod.postCount.forEach(value => {
+                platformData[platform].periodOverPeriod.postCount.forEach(value => {
                     const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
                     html += `<td class="${cellClass}">${value}%</td>`;
                 });

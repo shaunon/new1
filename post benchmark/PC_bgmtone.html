@@ -377,12 +377,12 @@
     </div>
 
     <!-- Data Table -->
-    <div class="chart-section">
+    <div class="chart-section" style="flex-direction: column; align-items: stretch;">
         <div class="chart-header">
             <div class="chart-title">BGM Tone Category Analysis Data</div>
             <span class="chart-download" onclick="downloadTableData()" title="Download Table Data">📊</span>
         </div>
-        <table class="data-table">
+        <table class="data-table" style="margin-top: 0;">
             <thead>
                 <tr>
                     <th class="type-header">BGM Tone</th>
@@ -427,8 +427,11 @@
                 formatter: '{a} <br/>{b}: {c} ({d}%)'
             },
             legend: {
-                top: '5%',
-                left: 'center'
+                type: 'scroll',
+                orient: 'horizontal',
+                top: 'top',
+                left: 'center',
+                data: toneData.tones
             },
             series: [
                 {
@@ -443,11 +446,11 @@
                     labelLine: {
                         show: false
                     },
-                    data: toneData.tones.slice(0, 5).map((tone, index) => ({
+                    data: toneData.tones.map((tone, index) => ({
                         value: toneData.posts[index],
                         name: tone,
                         itemStyle: {
-                            color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'][index]
+                            color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9f43', '#6a89cc', '#b71540'][index]
                         }
                     }))
                 },

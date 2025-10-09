@@ -106,10 +106,11 @@
         // Define top 10 languages
         const languages = ['English', 'Spanish', 'French', 'German', 'Italian', 'Portuguese', 'Russian', 'Japanese', 'Korean', 'Chinese'];
         
-        // Generate sample data for demonstration
+        // Generate sample data for demonstration - organized by languages with duration categories as series
         function generateData() {
             const data = {};
             
+            // Initialize data structure: each language contains data for all duration categories
             languages.forEach(language => {
                 data[language] = {
                     interaction: [],
@@ -120,15 +121,15 @@
                     periodOverPeriod: {}
                 };
                 
-                durationCategories.forEach((_, index) => {
-                    // Generate random values for each metric
+                durationCategories.forEach(duration => {
+                    // Generate random values for each metric for this duration in this language
                     data[language].interaction.push(Math.floor(Math.random() * 1000000) + 100000);
                     data[language].interactionRate.push((Math.random() * 10 + 1).toFixed(2));
                     data[language].views.push(Math.floor(Math.random() * 10000000) + 1000000);
                     data[language].postCount.push(Math.floor(Math.random() * 10000) + 1000);
                 });
                 
-                // Calculate percentages
+                // Calculate percentages for this language
                 const totalInteraction = data[language].interaction.reduce((a, b) => a + b, 0);
                 const totalViews = data[language].views.reduce((a, b) => a + b, 0);
                 const totalPosts = data[language].postCount.reduce((a, b) => a + b, 0);
@@ -167,17 +168,17 @@
             postCount: 'bar'
         };
         
-        // Prepare series data for each chart
+        // Prepare series data for each chart - now organized by duration categories as series
         function prepareSeries(metricName, type) {
-            return languages.map(language => {
+            return durationCategories.map((duration, index) => {
                 return {
-                    name: language,
+                    name: duration,
                     type: type,
                     stack: type === 'bar' ? 'total' : undefined,
                     emphasis: {
                         focus: 'series'
                     },
-                    data: languageData[language][metricName],
+                    data: languages.map(language => languageData[language][metricName][durationCategories.indexOf(duration)]),
                     smooth: type === 'line'
                 };
             });
@@ -193,7 +194,7 @@
                     }
                 },
                 legend: {
-                    data: languages,
+                    data: durationCategories,
                     type: 'scroll',
                     bottom: 0
                 },
@@ -205,7 +206,7 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: durationCategories
+                    data: languages
                 },
                 yAxis: {
                     type: 'value',
@@ -254,8 +255,8 @@
             
             // Header row with duration categories
             html += '<tr><th>Language</th><th>Metric</th>';
-            durationCategories.forEach(category => {
-                html += `<th>${category}</th>`;
+            durationCategories.forEach(duration => {
+                html += `<th>${duration}</th>`;
             });
             html += '<th>Total</th></tr>';
             

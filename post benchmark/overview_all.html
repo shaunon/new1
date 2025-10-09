@@ -481,9 +481,6 @@
             <div class="visualization-controls">
                 <select id="visualizationDropdown" class="visualization-dropdown">
                     <option value="wordCloud">Word Cloud</option>
-                    <option value="barChart">Bar Chart</option>
-                    <option value="table">Table</option>
-                    <option value="trendList">Trend List</option>
                     <option value="sunburst">Sunburst</option>
                 </select>
                 <button id="downloadBtn" class="download-btn" style="display: none;">
@@ -947,7 +944,7 @@
                     }
                 },
                 levels: [
-                    {
+                    
                 {
                         r0: '15%',
                         r: '35%',
@@ -1236,7 +1233,7 @@
              });
          }
          
-         // Initialize all charts when page loads
+        // Initialize all charts when page loads
         // Download functionality
         function downloadChart(chartType) {
             switch(chartType) {
@@ -1437,6 +1434,9 @@
          window.addEventListener('load', function() {
              // Initialize word cloud
              initWordCloud();
+             
+             // Initialize bar chart
+             barChart.setOption(barChartOption);
              
              // Initialize sunburst chart
              sunburstChart.setOption(sunburstOption);

@@ -83,42 +83,38 @@
         function generateData() {
             const data = {};
             
-            sentiments.forEach(sentiment => {
-                data[sentiment] = {
-                    interaction: [],
-                    interactionRate: [],
-                    views: [],
-                    postCount: [],
-                    percentages: {},
-                    periodOverPeriod: {}
-                };
+            durationCategories.forEach(duration => {
+                data[duration] = {};
                 
-                durationCategories.forEach((_, index) => {
-                    // Generate random values for each metric
-                    data[sentiment].interaction.push(Math.floor(Math.random() * 1000000) + 100000);
-                    data[sentiment].interactionRate.push((Math.random() * 10 + 1).toFixed(2));
-                    data[sentiment].views.push(Math.floor(Math.random() * 10000000) + 1000000);
-                    data[sentiment].postCount.push(Math.floor(Math.random() * 10000) + 1000);
+                sentiments.forEach(sentiment => {
+                    data[duration][sentiment] = {
+                        interaction: Math.floor(Math.random() * 1000000) + 100000,
+                        interactionRate: (Math.random() * 10 + 1).toFixed(2),
+                        views: Math.floor(Math.random() * 10000000) + 1000000,
+                        postCount: Math.floor(Math.random() * 10000) + 1000
+                    };
                 });
                 
-                // Calculate percentages
-                const totalInteraction = data[sentiment].interaction.reduce((a, b) => a + b, 0);
-                const totalViews = data[sentiment].views.reduce((a, b) => a + b, 0);
-                const totalPosts = data[sentiment].postCount.reduce((a, b) => a + b, 0);
+                // Calculate percentages for this duration category
+                const totalInteraction = sentiments.reduce((sum, sentiment) => sum + data[duration][sentiment].interaction, 0);
+                const totalViews = sentiments.reduce((sum, sentiment) => sum + data[duration][sentiment].views, 0);
+                const totalPosts = sentiments.reduce((sum, sentiment) => sum + data[duration][sentiment].postCount, 0);
                 
-                data[sentiment].percentages = {
-                    interaction: data[sentiment].interaction.map(val => ((val / totalInteraction) * 100).toFixed(2)),
-                    views: data[sentiment].views.map(val => ((val / totalViews) * 100).toFixed(2)),
-                    postCount: data[sentiment].postCount.map(val => ((val / totalPosts) * 100).toFixed(2))
-                };
-                
-                // Generate period-over-period changes (e.g., month-over-month)
-                data[sentiment].periodOverPeriod = {
-                    interaction: data[sentiment].interaction.map(() => ((Math.random() * 40) - 20).toFixed(2)),
-                    interactionRate: data[sentiment].interactionRate.map(() => ((Math.random() * 40) - 20).toFixed(2)),
-                    views: data[sentiment].views.map(() => ((Math.random() * 40) - 20).toFixed(2)),
-                    postCount: data[sentiment].postCount.map(() => ((Math.random() * 40) - 20).toFixed(2))
-                };
+                sentiments.forEach(sentiment => {
+                    data[duration][sentiment].percentages = {
+                        interaction: ((data[duration][sentiment].interaction / totalInteraction) * 100).toFixed(2),
+                        views: ((data[duration][sentiment].views / totalViews) * 100).toFixed(2),
+                        postCount: ((data[duration][sentiment].postCount / totalPosts) * 100).toFixed(2)
+                    };
+                    
+                    // Generate period-over-period changes
+                    data[duration][sentiment].periodOverPeriod = {
+                        interaction: ((Math.random() * 40) - 20).toFixed(2),
+                        interactionRate: ((Math.random() * 40) - 20).toFixed(2),
+                        views: ((Math.random() * 40) - 20).toFixed(2),
+                        postCount: ((Math.random() * 40) - 20).toFixed(2)
+                    };
+                });
             });
             
             // Generate radar chart data for emotions across video durations
@@ -145,15 +141,18 @@
         
         // Prepare series data for each chart
         function prepareSeries(metricName) {
-            return sentiments.map(sentiment => {
+            return durationCategories.map(duration => {
+                const data = sentiments.map(sentiment => {
+                    return sentimentData[duration][sentiment][metricName];
+                });
                 return {
-                    name: sentiment,
+                    name: duration,
                     type: 'bar',
                     stack: 'total',
                     emphasis: {
                         focus: 'series'
                     },
-                    data: sentimentData[sentiment][metricName]
+                    data: data
                 };
             });
         }
@@ -167,7 +166,7 @@
                 }
             },
             legend: {
-                data: sentiments
+                data: durationCategories
             },
             grid: {
                 left: '3%',
@@ -177,7 +176,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: durationCategories
+                data: sentiments
             },
             yAxis: {
                 type: 'value',
@@ -194,7 +193,7 @@
                 }
             },
             legend: {
-                data: sentiments
+                data: durationCategories
             },
             grid: {
                 left: '3%',
@@ -204,7 +203,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: durationCategories
+                data: sentiments
             },
             yAxis: {
                 type: 'value',
@@ -221,7 +220,7 @@
                 }
             },
             legend: {
-                data: sentiments
+                data: durationCategories
             },
             grid: {
                 left: '3%',
@@ -231,7 +230,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: durationCategories
+                data: sentiments
             },
             yAxis: {
                 type: 'value',
@@ -248,7 +247,7 @@
                 }
             },
             legend: {
-                data: sentiments
+                data: durationCategories
             },
             grid: {
                 left: '3%',
@@ -258,7 +257,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: durationCategories
+                data: sentiments
             },
             yAxis: {
                 type: 'value',
@@ -312,36 +311,40 @@
             const table = document.getElementById('metricsTable');
             let html = '';
             
-            // Header row with duration categories
-            html += '<tr><th>Sentiment</th><th>Metric</th>';
-            durationCategories.forEach(category => {
-                html += `<th>${category}</th>`;
+            // Header row with sentiment categories
+            html += '<tr><th>Duration</th><th>Metric</th>';
+            sentiments.forEach(sentiment => {
+                html += `<th>${sentiment}</th>`;
             });
             html += '<th>Total</th></tr>';
             
-            // Data rows for each sentiment
-            sentiments.forEach(sentiment => {
-                // Sentiment header
-                html += `<tr><td colspan="${durationCategories.length + 3}" class="sentiment-header">${sentiment}</td></tr>`;
+            // Data rows for each duration category
+            durationCategories.forEach(duration => {
+                // Duration header
+                html += `<tr><td colspan="${sentiments.length + 3}" class="sentiment-header">${duration}</td></tr>`;
                 
                 // Interaction Volume
                 html += '<tr><td rowspan="3" class="metric-name">Interaction Volume</td><td>Value</td>';
-                const totalInteraction = sentimentData[sentiment].interaction.reduce((a, b) => a + b, 0);
-                sentimentData[sentiment].interaction.forEach(value => {
+                let totalInteraction = 0;
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].interaction;
+                    totalInteraction += value;
                     html += `<td>${value.toLocaleString()}</td>`;
                 });
                 html += `<td>${totalInteraction.toLocaleString()}</td></tr>`;
                 
                 // Interaction Volume Percentage
                 html += '<tr><td>Percentage (%)</td>';
-                sentimentData[sentiment].percentages.interaction.forEach(value => {
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].percentages.interaction;
                     html += `<td>${value}%</td>`;
                 });
                 html += '<td>100%</td></tr>';
                 
                 // Interaction Volume Period-over-Period
                 html += '<tr><td>Period-over-Period (%)</td>';
-                sentimentData[sentiment].periodOverPeriod.interaction.forEach(value => {
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].periodOverPeriod.interaction;
                     const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
                     html += `<td class="${cellClass}">${value}%</td>`;
                 });
@@ -349,22 +352,26 @@
                 
                 // Views
                 html += '<tr><td rowspan="3" class="metric-name">Views</td><td>Value</td>';
-                const totalViews = sentimentData[sentiment].views.reduce((a, b) => a + b, 0);
-                sentimentData[sentiment].views.forEach(value => {
+                let totalViews = 0;
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].views;
+                    totalViews += value;
                     html += `<td>${value.toLocaleString()}</td>`;
                 });
                 html += `<td>${totalViews.toLocaleString()}</td></tr>`;
                 
                 // Views Percentage
                 html += '<tr><td>Percentage (%)</td>';
-                sentimentData[sentiment].percentages.views.forEach(value => {
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].percentages.views;
                     html += `<td>${value}%</td>`;
                 });
                 html += '<td>100%</td></tr>';
                 
                 // Views Period-over-Period
                 html += '<tr><td>Period-over-Period (%)</td>';
-                sentimentData[sentiment].periodOverPeriod.views.forEach(value => {
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].periodOverPeriod.views;
                     const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
                     html += `<td class="${cellClass}">${value}%</td>`;
                 });
@@ -372,15 +379,19 @@
                 
                 // Interaction Rate
                 html += '<tr><td rowspan="2" class="metric-name">Interaction Rate (%)</td><td>Value</td>';
-                sentimentData[sentiment].interactionRate.forEach(value => {
+                let totalInteractionRate = 0;
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].interactionRate;
+                    totalInteractionRate += parseFloat(value);
                     html += `<td>${value}%</td>`;
                 });
-                const avgInteractionRate = (sentimentData[sentiment].interactionRate.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / sentimentData[sentiment].interactionRate.length).toFixed(2);
+                const avgInteractionRate = (totalInteractionRate / sentiments.length).toFixed(2);
                 html += `<td>${avgInteractionRate}%</td></tr>`;
                 
                 // Interaction Rate Period-over-Period
                 html += '<tr><td>Period-over-Period (%)</td>';
-                sentimentData[sentiment].periodOverPeriod.interactionRate.forEach(value => {
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].periodOverPeriod.interactionRate;
                     const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
                     html += `<td class="${cellClass}">${value}%</td>`;
                 });
@@ -388,22 +399,26 @@
                 
                 // Post Count
                 html += '<tr><td rowspan="3" class="metric-name">Post Count</td><td>Value</td>';
-                const totalPosts = sentimentData[sentiment].postCount.reduce((a, b) => a + b, 0);
-                sentimentData[sentiment].postCount.forEach(value => {
+                let totalPosts = 0;
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].postCount;
+                    totalPosts += value;
                     html += `<td>${value.toLocaleString()}</td>`;
                 });
                 html += `<td>${totalPosts.toLocaleString()}</td></tr>`;
                 
                 // Post Count Percentage
                 html += '<tr><td>Percentage (%)</td>';
-                sentimentData[sentiment].percentages.postCount.forEach(value => {
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].percentages.postCount;
                     html += `<td>${value}%</td>`;
                 });
                 html += '<td>100%</td></tr>';
                 
                 // Post Count Period-over-Period
                 html += '<tr><td>Period-over-Period (%)</td>';
-                sentimentData[sentiment].periodOverPeriod.postCount.forEach(value => {
+                sentiments.forEach(sentiment => {
+                    const value = sentimentData[duration][sentiment].periodOverPeriod.postCount;
                     const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
                     html += `<td class="${cellClass}">${value}%</td>`;
                 });

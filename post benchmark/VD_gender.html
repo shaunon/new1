@@ -305,8 +305,8 @@
         function generateData() {
             const data = {};
             
-            genders.forEach(gender => {
-                data[gender] = {
+            durationCategories.forEach(duration => {
+                data[duration] = {
                     interaction: [],
                     interactionRate: [],
                     views: [],
@@ -315,31 +315,31 @@
                     periodOverPeriod: {}
                 };
                 
-                durationCategories.forEach((_, index) => {
+                genders.forEach((_, index) => {
                     // Generate random values for each metric
-                    data[gender].interaction.push(Math.floor(Math.random() * 800000) + 200000);
-                    data[gender].interactionRate.push((Math.random() * 8 + 2).toFixed(2));
-                    data[gender].views.push(Math.floor(Math.random() * 8000000) + 2000000);
-                    data[gender].postCount.push(Math.floor(Math.random() * 8000) + 2000);
+                    data[duration].interaction.push(Math.floor(Math.random() * 800000) + 200000);
+                    data[duration].interactionRate.push((Math.random() * 8 + 2).toFixed(2));
+                    data[duration].views.push(Math.floor(Math.random() * 8000000) + 2000000);
+                    data[duration].postCount.push(Math.floor(Math.random() * 8000) + 2000);
                 });
                 
                 // Calculate percentages
-                const totalInteraction = data[gender].interaction.reduce((a, b) => a + b, 0);
-                const totalViews = data[gender].views.reduce((a, b) => a + b, 0);
-                const totalPosts = data[gender].postCount.reduce((a, b) => a + b, 0);
+                const totalInteraction = data[duration].interaction.reduce((a, b) => a + b, 0);
+                const totalViews = data[duration].views.reduce((a, b) => a + b, 0);
+                const totalPosts = data[duration].postCount.reduce((a, b) => a + b, 0);
                 
-                data[gender].percentages = {
-                    interaction: data[gender].interaction.map(val => ((val / totalInteraction) * 100).toFixed(2)),
-                    views: data[gender].views.map(val => ((val / totalViews) * 100).toFixed(2)),
-                    postCount: data[gender].postCount.map(val => ((val / totalPosts) * 100).toFixed(2))
+                data[duration].percentages = {
+                    interaction: data[duration].interaction.map(val => ((val / totalInteraction) * 100).toFixed(2)),
+                    views: data[duration].views.map(val => ((val / totalViews) * 100).toFixed(2)),
+                    postCount: data[duration].postCount.map(val => ((val / totalPosts) * 100).toFixed(2))
                 };
                 
                 // Generate period-over-period changes
-                data[gender].periodOverPeriod = {
-                    interaction: data[gender].interaction.map(() => ((Math.random() * 40) - 20).toFixed(2)),
-                    interactionRate: data[gender].interactionRate.map(() => ((Math.random() * 40) - 20).toFixed(2)),
-                    views: data[gender].views.map(() => ((Math.random() * 40) - 20).toFixed(2)),
-                    postCount: data[gender].postCount.map(() => ((Math.random() * 40) - 20).toFixed(2))
+                data[duration].periodOverPeriod = {
+                    interaction: data[duration].interaction.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    interactionRate: data[duration].interactionRate.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    views: data[duration].views.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    postCount: data[duration].postCount.map(() => ((Math.random() * 40) - 20).toFixed(2))
                 };
             });
             
@@ -371,17 +371,16 @@
         
         // Prepare series data for each chart
         function prepareSeries(metricName, type) {
-            return genders.map(gender => {
+            return durationCategories.map(duration => {
                 return {
-                    name: gender,
+                    name: duration,
                     type: type,
                     stack: type === 'bar' ? 'total' : undefined,
                     emphasis: {
                         focus: 'series'
                     },
-                    data: genderData[gender][metricName],
-                    smooth: type === 'line',
-                    color: genderColors[gender]
+                    data: genderData[duration][metricName],
+                    smooth: type === 'line'
                 };
             });
         }
@@ -412,7 +411,7 @@
                     }
                 },
                 legend: {
-                    data: genders,
+                    data: durationCategories,
                     bottom: 0,
                     itemGap: 20
                 },
@@ -424,7 +423,7 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: durationCategories,
+                    data: genders,
                     axisLabel: {
                         rotate: 45,
                         fontSize: 11
