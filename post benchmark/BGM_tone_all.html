@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGM Tone Analysis - Comprehensive Overview</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .chart-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .data-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-card.engagement {
+            border-left-color: #28a745;
+        }
+
+        .data-card.rate {
+            border-left-color: #ffc107;
+        }
+
+        .data-card.views {
+            border-left-color: #dc3545;
+        }
+
+        .data-card-header {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .download-icon {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            transition: color 0.2s ease;
+        }
+
+        .download-icon:hover {
+            color: #007bff;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .metric-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        .metric-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #212529;
+        }
+
+        .metric-change {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .change-positive {
+            color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .change-negative {
+            color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .chart-container {
+            flex: 1;
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .chart-download {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .chart-download:hover {
+            color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        .chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+            padding: 15px 12px;
+            text-align: center;
+        }
+
+        .data-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #edf2f7;
+        }
+
+        @media (max-width: 768px) {
+            .chart-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .data-card {
+                min-width: auto;
+                margin-bottom: 20px;
+            }
+
+            .metric-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Chart 1: Overall BGM Tone Distribution -->
+    <div class="chart-section">
+        <div class="data-card">
+            <div class="data-card-header">
+                BGM Tone Distribution
+                <span class="download-icon" onclick="downloadData('overall-distribution')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Upbeat Posts</div>
+                    <div class="metric-value">892K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 15.2%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Calm Posts</div>
+                    <div class="metric-value">678K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 9.8%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Energetic Posts</div>
+                    <div class="metric-value">587K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.1%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Overall BGM Tone Distribution</div>
+                <span class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</span>
+            </div>
+            <div id="chart1" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 2: BGM Tone Performance Metrics -->
+    <div class="chart-section">
+        <div class="data-card engagement">
+            <div class="data-card-header">
+                Engagement Metrics
+                <span class="download-icon" onclick="downloadData('performance-metrics')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Likes</div>
+                    <div class="metric-value">156M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 18.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Comments</div>
+                    <div class="metric-value">11.2M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 14.8%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Shares</div>
+                    <div class="metric-value">4.1M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 21.3%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">BGM Tone Performance Comparison</div>
+                <span class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</span>
+            </div>
+            <div id="chart2" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Views and Creator Analysis -->
+    <div class="chart-section">
+        <div class="data-card views">
+            <div class="data-card-header">
+                Creator & Views Analysis
+                <span class="download-icon" onclick="downloadData('trend-analysis')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Views</div>
+                    <div class="metric-value">2.8B</div>
+                </div>
+                <div class="metric-change change-positive">↑ 22.7%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Active Creators</div>
+                    <div class="metric-value">89.5K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 16.4%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Avg. Engagement Rate</div>
+                    <div class="metric-value">7.2%</div>
+                </div>
+                <div class="metric-change change-positive">↑ 1.8%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Views and Creator Analysis by BGM Tone</div>
+                <span class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</span>
+            </div>
+            <div id="chart3" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="data-table">
+        <div class="table-header">
+            <div class="table-title">Comprehensive BGM Tone Analysis</div>
+            <span class="chart-download" onclick="downloadTableData()" title="Download Table Data">📥 Download CSV</span>
+        </div>
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>BGM Tone</th>
+                    <th>Posts</th>
+                    <th>Views</th>
+                    <th>Engagement Rate</th>
+                    <th>Avg Duration</th>
+                    <th>Top Platform</th>
+                    <th>Growth Rate</th>
+                </tr>
+            </thead>
+            <tbody id="dataTableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Sample BGM tone data
+        const bgmData = {
+            types: ['Upbeat', 'Calm', 'Energetic', 'Dramatic', 'Romantic', 'Melancholic', 'Mysterious', 'Aggressive'],
+            posts: [892000, 678000, 587000, 456000, 423000, 321000, 214000, 289000],
+            views: [1800000000, 1350000000, 1170000000, 912000000, 846000000, 642000000, 428000000, 578000000],
+            likes: [144000000, 108000000, 93600000, 72960000, 67680000, 51360000, 34240000, 46240000],
+            comments: [10080000, 7560000, 6552000, 5096000, 4722000, 3582000, 2388000, 3220000],
+            shares: [3600000, 2700000, 2340000, 1824000, 1692000, 1284000, 856000, 1156000],
+            creators: [15420, 12350, 11200, 8950, 7800, 6200, 4200, 5100],
+            engagementRate: [8.5, 6.8, 7.2, 5.9, 9.1, 4.2, 5.1, 6.5],
+            avgDuration: [2.8, 4.2, 2.1, 3.5, 3.8, 4.1, 3.2, 2.3],
+            topPlatform: ['TikTok', 'YouTube', 'TikTok', 'YouTube', 'Instagram', 'YouTube', 'Instagram', 'TikTok'],
+            growthRate: [15.2, 9.8, 12.1, 8.3, 11.5, -2.4, 6.7, 10.2]
+        };
+
+        // Chart 1: Distribution Pie Chart
+        const chart1 = echarts.init(document.getElementById('chart1'));
+        const option1 = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c} ({d}%)'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                data: bgmData.types
+            },
+            series: [
+                {
+                    name: 'BGM Tone Distribution',
+                    type: 'pie',
+                    radius: ['50%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: '18',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: bgmData.types.map((type, index) => ({
+                        value: bgmData.posts[index],
+                        name: type
+                    }))
+                }
+            ]
+        };
+        chart1.setOption(option1);
+
+        // Chart 2: Performance Comparison
+        const chart2 = echarts.init(document.getElementById('chart2'));
+        const option2 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['Posts (K)', 'Likes (M)', 'Comments (K)', 'Shares (K)']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: bgmData.types
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Count'
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts (K)',
+                    type: 'bar',
+                    data: bgmData.posts.map(val => Math.round(val / 1000))
+                },
+                {
+                    name: 'Likes (M)',
+                    type: 'bar',
+                    data: bgmData.likes.map(val => Math.round(val / 1000000))
+                },
+                {
+                    name: 'Comments (K)',
+                    type: 'bar',
+                    data: bgmData.comments.map(val => Math.round(val / 1000))
+                },
+                {
+                    name: 'Shares (K)',
+                    type: 'bar',
+                    data: bgmData.shares.map(val => Math.round(val / 1000))
+                }
+            ]
+        };
+        chart2.setOption(option2);
+
+        // Chart 3: Views and Creator Analysis
+        const chart3 = echarts.init(document.getElementById('chart3'));
+        const option3 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['Views (M)', 'Creators']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: bgmData.types
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Views (M)',
+                    position: 'left'
+                },
+                {
+                    type: 'value',
+                    name: 'Creators',
+                    position: 'right'
+                }
+            ],
+            series: [
+                {
+                    name: 'Views (M)',
+                    type: 'bar',
+                    data: bgmData.views.map(val => Math.round(val / 1000000))
+                },
+                {
+                    name: 'Creators',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: bgmData.creators
+                }
+            ]
+        };
+        chart3.setOption(option3);
+
+        // Download functions
+        function downloadChart(chartId) {
+            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
+            const url = chart.getDataURL({
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `bgm-tone-analysis-${chartId}.png`;
+            link.click();
+        }
+
+        function downloadData(type) {
+            let csvContent = '';
+            let filename = '';
+            
+            if (type === 'overall-distribution') {
+                csvContent = 'BGM Tone,Posts,Percentage\n';
+                const total = bgmData.posts.reduce((a, b) => a + b, 0);
+                bgmData.types.forEach((bgmTone, index) => {
+                    const percentage = ((bgmData.posts[index] / total) * 100).toFixed(1);
+                    csvContent += `${bgmTone},${bgmData.posts[index]},${percentage}%\n`;
+                });
+                filename = 'bgm-tone-distribution.csv';
+            } else if (type === 'performance-metrics') {
+                csvContent = 'BGM Tone,Posts,Views,Engagement Rate (%)\n';
+                bgmData.types.forEach((bgmTone, index) => {
+                    csvContent += `${bgmTone},${bgmData.posts[index]},${bgmData.views[index]},${bgmData.engagementRate[index]}\n`;
+                });
+                filename = 'bgm-tone-performance.csv';
+            } else if (type === 'trend-analysis') {
+                csvContent = 'BGM Tone,Views (M),Creators,Engagement Rate (%)\n';
+                bgmData.types.forEach((bgmTone, index) => {
+                    csvContent += `${bgmTone},${Math.round(bgmData.views[index] / 1000000)},${bgmData.creators[index]},${bgmData.engagementRate[index]}\n`;
+                });
+                filename = 'bgm-tone-trends.csv';
+            }
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Populate data table
+        function populateDataTable() {
+            const tableBody = document.getElementById('dataTableBody');
+            let html = '';
+
+            bgmData.types.forEach((bgmTone, index) => {
+                const posts = bgmData.posts[index];
+                const views = bgmData.views[index];
+                const engagementRate = bgmData.engagementRate[index];
+                const avgDuration = bgmData.avgDuration[index];
+                const topPlatform = bgmData.topPlatform[index];
+                const growthRate = bgmData.growthRate[index];
+                
+                html += `
+                    <tr>
+                        <td><strong>${bgmTone}</strong></td>
+                        <td>${posts.toLocaleString()}</td>
+                        <td>${(views / 1000000).toFixed(1)}M</td>
+                        <td>${engagementRate}%</td>
+                        <td>${avgDuration}min</td>
+                        <td>${topPlatform}</td>
+                        <td style="color: ${growthRate >= 0 ? '#28a745' : '#dc3545'}">${growthRate >= 0 ? '+' : ''}${growthRate}%</td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+
+        function downloadTableData() {
+            let csvContent = 'BGM Tone,Posts,Views,Engagement Rate (%),Avg Duration (min),Top Platform,Growth Rate (%)\n';
+            bgmData.types.forEach((bgmTone, index) => {
+                csvContent += `${bgmTone},${bgmData.posts[index]},${bgmData.views[index]},${bgmData.engagementRate[index]},${bgmData.avgDuration[index]},${bgmData.topPlatform[index]},${bgmData.growthRate[index]}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'bgm-tone-comprehensive-analysis.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize data table
+        populateDataTable();
+
+        // Make charts responsive
+        window.addEventListener('resize', function() {
+            chart1.resize();
+            chart2.resize();
+            chart3.resize();
+        });
+    </script>
+</body>
+</html>

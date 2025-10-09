@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis - Overall Overview</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+
+
+        .chart-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .data-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-card.engagement {
+            border-left-color: #28a745;
+        }
+
+        .data-card.rate {
+            border-left-color: #ffc107;
+        }
+
+        .data-card.views {
+            border-left-color: #dc3545;
+        }
+
+        .data-card-header {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .download-icon {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            transition: color 0.2s ease;
+        }
+
+        .download-icon:hover {
+            color: #007bff;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .metric-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        .metric-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #212529;
+        }
+
+        .metric-change {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .change-positive {
+            color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .change-negative {
+            color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .chart-container {
+            flex: 1;
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .chart-download {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .chart-download:hover {
+            color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        .chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+            padding: 15px 12px;
+            text-align: center;
+        }
+
+        .sentiment-header {
+            background: #e3f2fd !important;
+            color: #1976d2 !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .posts-header {
+            background: #f3e5f5 !important;
+            color: #7b1fa2 !important;
+            font-weight: 700;
+            min-width: 80px;
+        }
+
+        .engagement-header {
+            background: #fff3e0 !important;
+            color: #f57c00 !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .views-header {
+            background: #e8f5e8 !important;
+            color: #2e7d32 !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .rate-header {
+            background: #e1f5fe !important;
+            color: #0277bd !important;
+            font-weight: 700;
+            min-width: 120px;
+        }
+
+        .data-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #edf2f7;
+        }
+
+        .tag-header {
+            background-color: #f1f5f9 !important;
+            font-weight: 600;
+        }
+
+        .metric-name {
+            background-color: #e2e8f0;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .positive {
+            color: #38a169;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #e53e3e;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .chart-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .data-card {
+                min-width: auto;
+                margin-bottom: 20px;
+            }
+
+            .metric-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <!-- Chart 1: Posts Count and Engagement -->
+    <div class="chart-section">
+        <div class="data-card">
+            <div class="data-card-header">
+                Posts & Engagement Overview
+                <span class="download-icon" onclick="downloadData('posts-engagement')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Engagement</div>
+                    <div class="metric-value">3.3M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 8.7%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Posts Count vs Engagement by Sentiment</div>
+                <div class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</div>
+            </div>
+            <div id="chart1" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Posts Count and Engagement Rate -->
+    <div class="chart-section">
+        <div class="data-card rate">
+            <div class="data-card-header">
+                Posts & Engagement Rate
+                <span class="download-icon" onclick="downloadData('posts-rate')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Avg Engagement Rate</div>
+                    <div class="metric-value">42.8%</div>
+                </div>
+                <div class="metric-change change-positive">↑ 3.2%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Posts Count vs Engagement Rate by Sentiment</div>
+                <div class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</div>
+            </div>
+            <div id="chart2" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Posts Count and Views -->
+    <div class="chart-section">
+        <div class="data-card views">
+            <div class="data-card-header">
+                Posts & Views Overview
+                <span class="download-icon" onclick="downloadData('posts-views')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Views</div>
+                    <div class="metric-value">7.8M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 15.2%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Posts Count vs Views by Sentiment</div>
+                <div class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</div>
+            </div>
+            <div id="chart3" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Data Table Section -->
+    <div class="data-section">
+        <div class="section-header">
+            <div class="section-title">Overall Sentiment Analysis Data</div>
+            <button class="download-btn" onclick="downloadTableData()" title="Download Table Data">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                </svg>
+                Download CSV
+            </button>
+        </div>
+        <div class="data-table-container">
+            <table class="data-table" id="dataTable">
+                <thead>
+                    <tr>
+                        <th class="sentiment-header">Sentiment Type</th>
+                        <th class="posts-header">Total Posts</th>
+                        <th class="engagement-header">Total Engagement</th>
+                        <th class="views-header">Total Views</th>
+                        <th class="rate-header">Engagement Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Sentiment Data
+        const sentimentData = {
+            categories: ['Positive', 'Neutral', 'Negative'],
+            posts: [35200, 28800, 13000],
+            engagement: [1680000, 1152000, 468000],
+            engagementRate: [47.7, 40.0, 36.0], // Engagement rate in percentage
+            views: [3520000, 2880000, 1400000] // Views data
+        };
+
+        // Initialize charts
+        let chart1 = echarts.init(document.getElementById('chart1'));
+        let chart2 = echarts.init(document.getElementById('chart2'));
+        let chart3 = echarts.init(document.getElementById('chart3'));
+
+        // Chart 1: Posts Count and Engagement
+        const option1 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                },
+                formatter: function(params) {
+                    let result = params[0].name + '<br/>';
+                    params.forEach(function(item) {
+                        if (item.seriesName === 'Posts Count') {
+                            result += item.marker + item.seriesName + ': ' + item.value.toLocaleString() + '<br/>';
+                        } else {
+                            result += item.marker + item.seriesName + ': ' + (item.value / 1000000).toFixed(1) + 'M<br/>';
+                        }
+                    });
+                    return result;
+                }
+            },
+            legend: {
+                data: ['Posts Count', 'Engagement']
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: sentimentData.categories,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Posts Count',
+                    position: 'left',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Engagement',
+                    position: 'right',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts Count',
+                    type: 'bar',
+                    yAxisIndex: 0,
+                    data: sentimentData.posts,
+                    itemStyle: {
+                        color: function(params) {
+                            const colors = ['#28a745', '#6c757d', '#dc3545'];
+                            return colors[params.dataIndex];
+                        }
+                    }
+                },
+                {
+                    name: 'Engagement',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: sentimentData.engagement,
+                    lineStyle: {
+                        color: '#007bff',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#007bff'
+                    }
+                }
+            ]
+        };
+
+        // Chart 2: Posts Count and Engagement Rate
+        const option2 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                },
+                formatter: function(params) {
+                    let result = params[0].name + '<br/>';
+                    params.forEach(function(item) {
+                        if (item.seriesName === 'Posts Count') {
+                            result += item.marker + item.seriesName + ': ' + item.value.toLocaleString() + '<br/>';
+                        } else {
+                            result += item.marker + item.seriesName + ': ' + item.value + '%<br/>';
+                        }
+                    });
+                    return result;
+                }
+            },
+            legend: {
+                data: ['Posts Count', 'Engagement Rate']
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: sentimentData.categories,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Posts Count',
+                    position: 'left',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Engagement Rate (%)',
+                    position: 'right',
+                    min: 0,
+                    max: 60,
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts Count',
+                    type: 'bar',
+                    yAxisIndex: 0,
+                    data: sentimentData.posts,
+                    itemStyle: {
+                        color: function(params) {
+                            const colors = ['#28a745', '#6c757d', '#dc3545'];
+                            return colors[params.dataIndex];
+                        }
+                    }
+                },
+                {
+                    name: 'Engagement Rate',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: sentimentData.engagementRate,
+                    lineStyle: {
+                        color: '#ffc107',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#ffc107'
+                    }
+                }
+            ]
+        };
+
+        // Chart 3: Posts Count and Views
+        const option3 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                },
+                formatter: function(params) {
+                    let result = params[0].name + '<br/>';
+                    params.forEach(function(item) {
+                        if (item.seriesName === 'Posts Count') {
+                            result += item.marker + item.seriesName + ': ' + item.value.toLocaleString() + '<br/>';
+                        } else {
+                            result += item.marker + item.seriesName + ': ' + (item.value / 1000000).toFixed(1) + 'M<br/>';
+                        }
+                    });
+                    return result;
+                }
+            },
+            legend: {
+                data: ['Posts Count', 'Views']
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: sentimentData.categories,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Posts Count',
+                    position: 'left',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Views',
+                    position: 'right',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts Count',
+                    type: 'bar',
+                    yAxisIndex: 0,
+                    data: sentimentData.posts,
+                    itemStyle: {
+                        color: function(params) {
+                            const colors = ['#28a745', '#6c757d', '#dc3545'];
+                            return colors[params.dataIndex];
+                        }
+                    }
+                },
+                {
+                    name: 'Views',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: sentimentData.views,
+                    lineStyle: {
+                        color: '#17a2b8',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#17a2b8'
+                    }
+                }
+            ]
+        };
+
+        // Set options for all charts
+        chart1.setOption(option1);
+        chart2.setOption(option2);
+        chart3.setOption(option3);
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            chart1.resize();
+            chart2.resize();
+            chart3.resize();
+        });
+
+        // Download functions
+        function downloadChart(chartId) {
+            const chart = chartId === 'chart1' ? chart1 : chartId === 'chart2' ? chart2 : chart3;
+            const url = chart.getDataURL({
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `sentiment-analysis-${chartId}.png`;
+            link.click();
+        }
+
+        function downloadData(type) {
+            let csvContent = '';
+            let filename = '';
+            
+            if (type === 'posts-engagement') {
+                csvContent = 'Sentiment,Posts Count,Engagement\n';
+                sentimentData.categories.forEach((category, index) => {
+                    csvContent += `${category},${sentimentData.posts[index]},${sentimentData.engagement[index]}\n`;
+                });
+                filename = 'sentiment-posts-engagement.csv';
+            } else if (type === 'posts-rate') {
+                csvContent = 'Sentiment,Posts Count,Engagement Rate (%)\n';
+                sentimentData.categories.forEach((category, index) => {
+                    csvContent += `${category},${sentimentData.posts[index]},${sentimentData.engagementRate[index]}\n`;
+                });
+                filename = 'sentiment-posts-rate.csv';
+            } else if (type === 'posts-views') {
+                csvContent = 'Sentiment,Posts Count,Views\n';
+                sentimentData.categories.forEach((category, index) => {
+                    csvContent += `${category},${sentimentData.posts[index]},${sentimentData.views[index]}\n`;
+                });
+                filename = 'sentiment-posts-views.csv';
+            }
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Populate data table
+        function populateDataTable() {
+            const tableBody = document.getElementById('dataTableBody');
+            let html = '';
+
+            sentimentData.categories.forEach((category, index) => {
+                const posts = sentimentData.posts[index];
+                const engagement = sentimentData.engagement[index];
+                const views = sentimentData.views[index];
+                const engagementRate = sentimentData.engagementRate[index];
+                
+                html += `
+                    <tr>
+                        <td class="${category === 'Positive' ? 'positive' : category === 'Negative' ? 'negative' : ''}">${category}</td>
+                        <td>${posts.toLocaleString()}</td>
+                        <td>${engagement.toLocaleString()}</td>
+                        <td>${views.toLocaleString()}</td>
+                        <td>${engagementRate}%</td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+
+        function downloadTableData() {
+            let csvContent = 'Sentiment,Posts,Engagement,Views,Engagement Rate (%)\n';
+            sentimentData.categories.forEach((category, index) => {
+                csvContent += `${category},${sentimentData.posts[index]},${sentimentData.engagement[index]},${sentimentData.views[index]},${sentimentData.engagementRate[index]}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'sentiment-analysis-data.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize data table
+        populateDataTable();
+    </script>
+</body>
+</html>

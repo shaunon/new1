@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .chart-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .toggle-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .download-btn {
+            padding: 6px 8px;
+            border: none;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #6c757d;
+            transition: all 0.2s ease;
+        }
+
+        .download-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        .data-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .gender-header {
+            background: #e3f2fd !important;
+            font-weight: 600;
+            color: #1976d2;
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .metric-name {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #424242;
+            text-align: left;
+            padding-left: 12px;
+        }
+
+        .positive {
+            color: #28a745;
+            font-weight: 500;
+        }
+
+        .negative {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .chart {
+                height: 300px;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Interaction Volume Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Interaction Volume by Gender and Video Duration</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="interactionChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('interactionChart')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="interactionChart" class="chart"></div>
+            </div>
+
+            <!-- Interaction Rate Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Interaction Rate by Gender and Video Duration</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="interactionRateChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('interactionRateChart')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="interactionRateChart" class="chart"></div>
+            </div>
+
+            <!-- Views Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Views by Gender and Video Duration</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="viewsChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('viewsChart')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="viewsChart" class="chart"></div>
+            </div>
+
+            <!-- Post Count Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Post Count by Gender and Video Duration</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="postCountChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('postCountChart')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="postCountChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Gender-Based Video Duration Metrics</div>
+                <button class="download-btn" onclick="downloadTable()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table" id="metricsTable">
+                    <!-- Table content will be generated by JavaScript -->
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Define video duration categories
+        const durationCategories = ['0-15s', '15-30s', '30-60s', '1-3min', '3-5min', '5-10min', '10-20min', '20-30min', '30-60min', '>60min'];
+        
+        // Define genders
+        const genders = ['Male', 'Female', 'Non-binary'];
+        
+        // Generate sample data for demonstration
+        function generateData() {
+            const data = {};
+            
+            genders.forEach(gender => {
+                data[gender] = {
+                    interaction: [],
+                    interactionRate: [],
+                    views: [],
+                    postCount: [],
+                    percentages: {},
+                    periodOverPeriod: {}
+                };
+                
+                durationCategories.forEach((_, index) => {
+                    // Generate random values for each metric
+                    data[gender].interaction.push(Math.floor(Math.random() * 800000) + 200000);
+                    data[gender].interactionRate.push((Math.random() * 8 + 2).toFixed(2));
+                    data[gender].views.push(Math.floor(Math.random() * 8000000) + 2000000);
+                    data[gender].postCount.push(Math.floor(Math.random() * 8000) + 2000);
+                });
+                
+                // Calculate percentages
+                const totalInteraction = data[gender].interaction.reduce((a, b) => a + b, 0);
+                const totalViews = data[gender].views.reduce((a, b) => a + b, 0);
+                const totalPosts = data[gender].postCount.reduce((a, b) => a + b, 0);
+                
+                data[gender].percentages = {
+                    interaction: data[gender].interaction.map(val => ((val / totalInteraction) * 100).toFixed(2)),
+                    views: data[gender].views.map(val => ((val / totalViews) * 100).toFixed(2)),
+                    postCount: data[gender].postCount.map(val => ((val / totalPosts) * 100).toFixed(2))
+                };
+                
+                // Generate period-over-period changes
+                data[gender].periodOverPeriod = {
+                    interaction: data[gender].interaction.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    interactionRate: data[gender].interactionRate.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    views: data[gender].views.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    postCount: data[gender].postCount.map(() => ((Math.random() * 40) - 20).toFixed(2))
+                };
+            });
+            
+            return data;
+        }
+        
+        const genderData = generateData();
+        
+        // Initialize ECharts instances
+        const interactionChart = echarts.init(document.getElementById('interactionChart'));
+        const interactionRateChart = echarts.init(document.getElementById('interactionRateChart'));
+        const viewsChart = echarts.init(document.getElementById('viewsChart'));
+        const postCountChart = echarts.init(document.getElementById('postCountChart'));
+        
+        // Chart configuration
+        let chartType = {
+            interaction: 'bar',
+            interactionRate: 'bar',
+            views: 'bar',
+            postCount: 'bar'
+        };
+        
+        // Color palette for genders
+        const genderColors = {
+            'Male': '#4A90E2',
+            'Female': '#E24A90',
+            'Non-binary': '#50C878'
+        };
+        
+        // Prepare series data for each chart
+        function prepareSeries(metricName, type) {
+            return genders.map(gender => {
+                return {
+                    name: gender,
+                    type: type,
+                    stack: type === 'bar' ? 'total' : undefined,
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: genderData[gender][metricName],
+                    smooth: type === 'line',
+                    color: genderColors[gender]
+                };
+            });
+        }
+        
+        // Create chart options with enhanced tooltips
+        function createChartOption(title, metricName, yAxisName, type) {
+            return {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: type === 'bar' ? 'shadow' : 'line'
+                    },
+                    formatter: function(params) {
+                        let result = `<strong>${params[0].axisValue}</strong><br/>`;
+                        let total = 0;
+                        
+                        // Calculate total for percentage
+                        params.forEach(param => {
+                            total += param.value;
+                        });
+                        
+                        params.forEach(param => {
+                            const percentage = total > 0 ? ((param.value / total) * 100).toFixed(1) : 0;
+                            result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()} (${percentage}%)<br/>`;
+                        });
+                        
+                        return result;
+                    }
+                },
+                legend: {
+                    data: genders,
+                    bottom: 0,
+                    itemGap: 20
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: durationCategories,
+                    axisLabel: {
+                        rotate: 45,
+                        fontSize: 11
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: yAxisName,
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                series: prepareSeries(metricName, type)
+            };
+        }
+        
+        // Render charts
+        function renderCharts() {
+            interactionChart.setOption(createChartOption('Interaction Volume by Gender and Video Duration', 'interaction', 'Interaction Volume', chartType.interaction));
+            interactionRateChart.setOption(createChartOption('Interaction Rate by Gender and Video Duration', 'interactionRate', 'Interaction Rate (%)', chartType.interactionRate));
+            viewsChart.setOption(createChartOption('Views by Gender and Video Duration', 'views', 'Views', chartType.views));
+            postCountChart.setOption(createChartOption('Post Count by Gender and Video Duration', 'postCount', 'Post Count', chartType.postCount));
+        }
+        
+        renderCharts();
+        
+        // Toggle chart type
+        function setupToggleButtons(containerId, chartId) {
+            const container = document.getElementById(containerId);
+            const buttons = container.querySelectorAll('.toggle-btn');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const type = this.getAttribute('data-type');
+                    chartType[chartId] = type;
+                    renderCharts();
+                });
+            });
+        }
+        
+        setupToggleButtons('interactionChartToggle', 'interaction');
+        setupToggleButtons('interactionRateChartToggle', 'interactionRate');
+        setupToggleButtons('viewsChartToggle', 'views');
+        setupToggleButtons('postCountChartToggle', 'postCount');
+        
+        // Create data table
+        function createDataTable() {
+            const table = document.getElementById('metricsTable');
+            let html = '';
+            
+            // Header row with duration categories
+            html += '<tr><th>Gender</th><th>Metric</th>';
+            durationCategories.forEach(category => {
+                html += `<th>${category}</th>`;
+            });
+            html += '<th>Total</th></tr>';
+            
+            // Data rows for each gender
+            genders.forEach(gender => {
+                // Gender header
+                html += `<tr><td colspan="${durationCategories.length + 3}" class="gender-header">${gender}</td></tr>`;
+                
+                // Interaction Volume
+                html += '<tr><td rowspan="3" class="metric-name">Interaction Volume</td><td>Value</td>';
+                const totalInteraction = genderData[gender].interaction.reduce((a, b) => a + b, 0);
+                genderData[gender].interaction.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalInteraction.toLocaleString()}</td></tr>`;
+                
+                // Interaction Volume Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                genderData[gender].percentages.interaction.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Interaction Volume Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                genderData[gender].periodOverPeriod.interaction.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Views
+                html += '<tr><td rowspan="3" class="metric-name">Views</td><td>Value</td>';
+                const totalViews = genderData[gender].views.reduce((a, b) => a + b, 0);
+                genderData[gender].views.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalViews.toLocaleString()}</td></tr>`;
+                
+                // Views Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                genderData[gender].percentages.views.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Views Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                genderData[gender].periodOverPeriod.views.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Interaction Rate
+                html += '<tr><td rowspan="2" class="metric-name">Interaction Rate (%)</td><td>Value</td>';
+                genderData[gender].interactionRate.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                const avgInteractionRate = (genderData[gender].interactionRate.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / genderData[gender].interactionRate.length).toFixed(2);
+                html += `<td>${avgInteractionRate}%</td></tr>`;
+                
+                // Interaction Rate Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                genderData[gender].periodOverPeriod.interactionRate.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Post Count
+                html += '<tr><td rowspan="3" class="metric-name">Post Count</td><td>Value</td>';
+                const totalPosts = genderData[gender].postCount.reduce((a, b) => a + b, 0);
+                genderData[gender].postCount.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalPosts.toLocaleString()}</td></tr>`;
+                
+                // Post Count Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                genderData[gender].percentages.postCount.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Post Count Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                genderData[gender].periodOverPeriod.postCount.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+            });
+            
+            table.innerHTML = html;
+        }
+        
+        createDataTable();
+        
+        // Download functionality
+        function downloadChart(chartId) {
+            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
+            if (chart) {
+                const url = chart.getDataURL({
+                    type: 'png',
+                    pixelRatio: 2,
+                    backgroundColor: '#fff'
+                });
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${chartId}_chart.png`;
+                link.click();
+            }
+        }
+        
+        function downloadTable() {
+            const table = document.getElementById('metricsTable');
+            const csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td, th');
+                const csvRow = [];
+                cols.forEach(col => {
+                    csvRow.push('"' + col.textContent.replace(/"/g, '""') + '"');
+                });
+                csv.push(csvRow.join(','));
+            });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'gender_metrics_table.csv';
+            link.click();
+            
+            window.URL.revokeObjectURL(url);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            interactionChart.resize();
+            interactionRateChart.resize();
+            viewsChart.resize();
+            postCountChart.resize();
+        });
+    </script>
+</body>
+</html>

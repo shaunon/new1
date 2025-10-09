@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .chart-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+        }
+
+        .data-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-card.engagement {
+            border-left-color: #28a745;
+        }
+
+        .data-card.rate {
+            border-left-color: #ffc107;
+        }
+
+        .data-card.views {
+            border-left-color: #dc3545;
+        }
+
+        .data-card-header {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .metric-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        .metric-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #212529;
+        }
+
+        .metric-change {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .change-positive {
+            color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .change-negative {
+            color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .chart-container {
+            flex: 1;
+            height: 400px;
+        }
+
+        .chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .chart-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .data-card {
+                min-width: auto;
+                margin-bottom: 20px;
+            }
+
+            .metric-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Chart 1: Posts Count and Engagement -->
+    <div class="chart-section">
+        <div class="data-card">
+            <div class="data-card-header">Posts & Engagement Overview</div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Engagement</div>
+                    <div class="metric-value">3.3M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 8.7%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div id="chart1" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Posts Count and Engagement Rate -->
+    <div class="chart-section">
+        <div class="data-card rate">
+            <div class="data-card-header">Posts & Engagement Rate</div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Avg Engagement Rate</div>
+                    <div class="metric-value">42.0%</div>
+                </div>
+                <div class="metric-change change-negative">↓ 2.3%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div id="chart2" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Posts Count and Views -->
+    <div class="chart-section">
+        <div class="data-card views">
+            <div class="data-card-header">Posts & Views Overview</div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Views</div>
+                    <div class="metric-value">7.8M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 15.2%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div id="chart3" class="chart"></div>
+        </div>
+    </div>
+
+    <script>
+        // Video Duration Data
+        const videoDurationData = {
+            categories: ['0~15s', '15~30s', '30~60s', '1~3min', '3~5min', '5~10min', '10~20min', '20~30min', '30~60min', '>60min'],
+            posts: [15800, 20800, 16100, 11200, 6400, 3900, 2050, 1020, 510, 255],
+            engagement: [790000, 832000, 644000, 448000, 256000, 156000, 82000, 40800, 20400, 10200],
+            engagementRate: [50.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0, 40.0], // Engagement rate in percentage
+            views: [1580000, 2080000, 1610000, 1120000, 640000, 390000, 205000, 102000, 51000, 25500] // Views data
+        };
+
+        // Initialize charts
+        let chart1 = echarts.init(document.getElementById('chart1'));
+        let chart2 = echarts.init(document.getElementById('chart2'));
+        let chart3 = echarts.init(document.getElementById('chart3'));
+
+        // Chart 1: Posts Count and Engagement
+        const option1 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['Posts Count', 'Engagement']
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: videoDurationData.categories,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Posts Count',
+                    position: 'left',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Engagement',
+                    position: 'right',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts Count',
+                    type: 'bar',
+                    yAxisIndex: 0,
+                    data: videoDurationData.posts,
+                    itemStyle: {
+                        color: '#5470c6'
+                    }
+                },
+                {
+                    name: 'Engagement',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: videoDurationData.engagement,
+                    lineStyle: {
+                        color: '#91cc75',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#91cc75'
+                    }
+                }
+            ]
+        };
+
+        // Chart 2: Posts Count and Engagement Rate
+        const option2 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['Posts Count', 'Engagement Rate']
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: videoDurationData.categories,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Posts Count',
+                    position: 'left',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Engagement Rate (%)',
+                    position: 'right',
+                    min: 0,
+                    max: 60,
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts Count',
+                    type: 'bar',
+                    yAxisIndex: 0,
+                    data: videoDurationData.posts,
+                    itemStyle: {
+                        color: '#5470c6'
+                    }
+                },
+                {
+                    name: 'Engagement Rate',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: videoDurationData.engagementRate,
+                    lineStyle: {
+                        color: '#fac858',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#fac858'
+                    }
+                }
+            ]
+        };
+
+        // Chart 3: Posts Count and Views
+        const option3 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['Posts Count', 'Views']
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: videoDurationData.categories,
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Posts Count',
+                    position: 'left',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Views',
+                    position: 'right',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts Count',
+                    type: 'bar',
+                    yAxisIndex: 0,
+                    data: videoDurationData.posts,
+                    itemStyle: {
+                        color: '#5470c6'
+                    }
+                },
+                {
+                    name: 'Views',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: videoDurationData.views,
+                    lineStyle: {
+                        color: '#ee6666',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#ee6666'
+                    }
+                }
+            ]
+        };
+
+        // Set options for all charts
+        chart1.setOption(option1);
+        chart2.setOption(option2);
+        chart3.setOption(option3);
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            chart1.resize();
+            chart2.resize();
+            chart3.resize();
+        });
+    </script>
+</body>
+</html>

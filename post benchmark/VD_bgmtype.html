@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .chart-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .toggle-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .download-btn {
+            padding: 6px 8px;
+            border: none;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #6c757d;
+            transition: all 0.2s ease;
+        }
+
+        .download-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        .data-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .bgm-header {
+            background: #e8f5e8 !important;
+            font-weight: 600;
+            color: #2e7d32;
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .metric-name {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #424242;
+            text-align: left;
+            padding-left: 12px;
+        }
+
+        .positive {
+            color: #28a745;
+            font-weight: 500;
+        }
+
+        .negative {
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        /* Music Section Styles - Updated for integrated display */
+        .expandable-row {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .expandable-row:hover {
+            background-color: #f0f8ff !important;
+        }
+
+        .expand-icon {
+            display: inline-block;
+            margin-right: 8px;
+            transition: transform 0.2s ease;
+            font-size: 12px;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(90deg);
+        }
+
+        .music-details {
+            display: none;
+            background: #f8f9fa;
+            border-left: 3px solid #007bff;
+        }
+
+        .music-details.show {
+            display: table-row;
+        }
+
+        .music-list {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 10px;
+        }
+
+        .music-item {
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            border: 1px solid #e9ecef;
+        }
+
+        .music-item:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .play-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .play-btn:hover {
+            background: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .play-btn.playing {
+            background: #28a745;
+        }
+
+        .music-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .music-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 12px;
+        }
+
+        .music-artist {
+            font-size: 11px;
+            color: #6c757d;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .music-stats {
+            font-size: 10px;
+            color: #28a745;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .chart {
+                height: 300px;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .music-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Interaction Volume Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Interaction Volume by BGM Type and Video Duration</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="interactionChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('interactionChart')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="interactionChart" class="chart"></div>
+            </div>
+
+            <!-- Interaction Rate Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Interaction Rate by BGM Type and Video Duration</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="interactionRateChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('interactionRateChart')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="interactionRateChart" class="chart"></div>
+            </div>
+
+            <!-- Views Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Views by BGM Type and Video Duration</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="viewsChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('viewsChart')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="viewsChart" class="chart"></div>
+            </div>
+
+            <!-- Post Count Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Post Count by BGM Type and Video Duration</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="postCountChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('postCountChart')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="postCountChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <!-- Data Table -->
+        <div class="data-section">
+            <div class="section-header">
+                <h2 class="section-title">BGM Type-Based Video Duration Metrics</h2>
+                <button class="download-btn" onclick="downloadTable()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table" id="metricsTable">
+                    <!-- Table content will be generated by JavaScript -->
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        // Define video duration categories
+        const durationCategories = ['0-15s', '15-30s', '30-60s', '1-3min', '3-5min', '5-10min', '10-20min', '20-30min', '30-60min', '>60min'];
+        
+        // Define BGM types
+        const bgmTypes = ['Pop', 'Electronic', 'Hip-Hop', 'Rock', 'Classical', 'Jazz', 'Country', 'R&B'];
+        
+        // Sample music data for each BGM type
+        const musicData = {
+            'Pop': [
+                { title: 'Blinding Lights', artist: 'The Weeknd', uses: 2500000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Watermelon Sugar', artist: 'Harry Styles', uses: 2200000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Levitating', artist: 'Dua Lipa', uses: 2100000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Good 4 U', artist: 'Olivia Rodrigo', uses: 1900000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Anti-Hero', artist: 'Taylor Swift', uses: 1800000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
+            ],
+            'Electronic': [
+                { title: 'Midnight City', artist: 'M83', uses: 1500000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Strobe', artist: 'Deadmau5', uses: 1300000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Clarity', artist: 'Zedd ft. Foxes', uses: 1200000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Titanium', artist: 'David Guetta ft. Sia', uses: 1100000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Bangarang', artist: 'Skrillex', uses: 1000000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
+            ],
+            'Hip-Hop': [
+                { title: 'God\'s Plan', artist: 'Drake', uses: 1800000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'HUMBLE.', artist: 'Kendrick Lamar', uses: 1600000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Old Town Road', artist: 'Lil Nas X', uses: 1500000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Sicko Mode', artist: 'Travis Scott', uses: 1400000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Industry Baby', artist: 'Lil Nas X & Jack Harlow', uses: 1300000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
+            ],
+            'Rock': [
+                { title: 'Bohemian Rhapsody', artist: 'Queen', uses: 1200000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Sweet Child O\' Mine', artist: 'Guns N\' Roses', uses: 1100000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Don\'t Stop Believin\'', artist: 'Journey', uses: 1000000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Thunderstruck', artist: 'AC/DC', uses: 950000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Smells Like Teen Spirit', artist: 'Nirvana', uses: 900000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
+            ],
+            'Classical': [
+                { title: 'Canon in D', artist: 'Pachelbel', uses: 800000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Für Elise', artist: 'Beethoven', uses: 750000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'The Four Seasons', artist: 'Vivaldi', uses: 700000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Ave Maria', artist: 'Schubert', uses: 650000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Moonlight Sonata', artist: 'Beethoven', uses: 600000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
+            ],
+            'Jazz': [
+                { title: 'Take Five', artist: 'Dave Brubeck', uses: 500000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Fly Me to the Moon', artist: 'Frank Sinatra', uses: 480000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'What a Wonderful World', artist: 'Louis Armstrong', uses: 460000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Summertime', artist: 'Ella Fitzgerald', uses: 440000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Blue Moon', artist: 'Billie Holiday', uses: 420000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
+            ],
+            'Country': [
+                { title: 'Friends in Low Places', artist: 'Garth Brooks', uses: 600000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Sweet Caroline', artist: 'Neil Diamond', uses: 580000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Wagon Wheel', artist: 'Darius Rucker', uses: 560000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Cruise', artist: 'Florida Georgia Line', uses: 540000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Body Like a Back Road', artist: 'Sam Hunt', uses: 520000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
+            ],
+            'R&B': [
+                { title: 'Blurred Lines', artist: 'Robin Thicke', uses: 700000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Uptown Funk', artist: 'Mark Ronson ft. Bruno Mars', uses: 680000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Happy', artist: 'Pharrell Williams', uses: 660000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'Can\'t Stop the Feeling', artist: 'Justin Timberlake', uses: 640000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
+                { title: 'All of Me', artist: 'John Legend', uses: 620000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
+            ]
+        };
+        
+        // Generate sample data for demonstration
+        function generateData() {
+            const data = {};
+            
+            bgmTypes.forEach(bgmType => {
+                data[bgmType] = {
+                    interaction: [],
+                    interactionRate: [],
+                    views: [],
+                    postCount: [],
+                    percentages: {},
+                    periodOverPeriod: {}
+                };
+                
+                durationCategories.forEach((_, index) => {
+                    // Generate random values for each metric
+                    data[bgmType].interaction.push(Math.floor(Math.random() * 600000) + 100000);
+                    data[bgmType].interactionRate.push((Math.random() * 6 + 1).toFixed(2));
+                    data[bgmType].views.push(Math.floor(Math.random() * 6000000) + 1000000);
+                    data[bgmType].postCount.push(Math.floor(Math.random() * 6000) + 1000);
+                });
+                
+                // Calculate percentages
+                const totalInteraction = data[bgmType].interaction.reduce((a, b) => a + b, 0);
+                const totalViews = data[bgmType].views.reduce((a, b) => a + b, 0);
+                const totalPosts = data[bgmType].postCount.reduce((a, b) => a + b, 0);
+                
+                data[bgmType].percentages = {
+                    interaction: data[bgmType].interaction.map(val => ((val / totalInteraction) * 100).toFixed(2)),
+                    views: data[bgmType].views.map(val => ((val / totalViews) * 100).toFixed(2)),
+                    postCount: data[bgmType].postCount.map(val => ((val / totalPosts) * 100).toFixed(2))
+                };
+                
+                // Generate period-over-period changes
+                data[bgmType].periodOverPeriod = {
+                    interaction: data[bgmType].interaction.map(() => ((Math.random() * 30) - 15).toFixed(2)),
+                    interactionRate: data[bgmType].interactionRate.map(() => ((Math.random() * 30) - 15).toFixed(2)),
+                    views: data[bgmType].views.map(() => ((Math.random() * 30) - 15).toFixed(2)),
+                    postCount: data[bgmType].postCount.map(() => ((Math.random() * 30) - 15).toFixed(2))
+                };
+            });
+            
+            return data;
+        }
+        
+        const bgmData = generateData();
+        
+        // Initialize ECharts instances
+        const interactionChart = echarts.init(document.getElementById('interactionChart'));
+        const interactionRateChart = echarts.init(document.getElementById('interactionRateChart'));
+        const viewsChart = echarts.init(document.getElementById('viewsChart'));
+        const postCountChart = echarts.init(document.getElementById('postCountChart'));
+        
+        // Chart configuration
+        let chartType = {
+            interaction: 'bar',
+            interactionRate: 'bar',
+            views: 'bar',
+            postCount: 'bar'
+        };
+        
+        // Color palette for BGM types
+        const bgmColors = {
+            'Pop': '#FF6B6B',
+            'Electronic': '#4ECDC4',
+            'Hip-Hop': '#45B7D1',
+            'Rock': '#96CEB4',
+            'Classical': '#FFEAA7',
+            'Jazz': '#DDA0DD',
+            'Country': '#98D8C8',
+            'R&B': '#F7DC6F'
+        };
+        
+        // Audio management
+        let currentAudio = null;
+        let currentPlayingButton = null;
+        
+        // Prepare series data for each chart
+        function prepareSeries(metricName, type) {
+            return bgmTypes.map(bgmType => {
+                return {
+                    name: bgmType,
+                    type: type,
+                    stack: type === 'bar' ? 'total' : undefined,
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: bgmData[bgmType][metricName],
+                    smooth: type === 'line',
+                    color: bgmColors[bgmType]
+                };
+            });
+        }
+        
+        // Create chart options with enhanced tooltips
+        function createChartOption(title, metricName, yAxisName, type) {
+            return {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: type === 'bar' ? 'shadow' : 'line'
+                    },
+                    formatter: function(params) {
+                        let result = `<strong>${params[0].axisValue}</strong><br/>`;
+                        let total = 0;
+                        
+                        // Calculate total for percentage
+                        params.forEach(param => {
+                            total += param.value;
+                        });
+                        
+                        params.forEach(param => {
+                            const percentage = total > 0 ? ((param.value / total) * 100).toFixed(1) : 0;
+                            result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()} (${percentage}%)<br/>`;
+                        });
+                        
+                        return result;
+                    }
+                },
+                legend: {
+                    data: bgmTypes,
+                    bottom: 0,
+                    itemGap: 15,
+                    type: 'scroll'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: durationCategories,
+                    axisLabel: {
+                        rotate: 45,
+                        fontSize: 11
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: yAxisName,
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                series: prepareSeries(metricName, type)
+            };
+        }
+        
+        // Render charts
+        function renderCharts() {
+            interactionChart.setOption(createChartOption('Interaction Volume by BGM Type and Video Duration', 'interaction', 'Interaction Volume', chartType.interaction));
+            interactionRateChart.setOption(createChartOption('Interaction Rate by BGM Type and Video Duration', 'interactionRate', 'Interaction Rate (%)', chartType.interactionRate));
+            viewsChart.setOption(createChartOption('Views by BGM Type and Video Duration', 'views', 'Views', chartType.views));
+            postCountChart.setOption(createChartOption('Post Count by BGM Type and Video Duration', 'postCount', 'Post Count', chartType.postCount));
+        }
+        
+        renderCharts();
+        
+        // Toggle chart type
+        function setupToggleButtons(containerId, chartId) {
+            const container = document.getElementById(containerId);
+            const buttons = container.querySelectorAll('.toggle-btn');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const type = this.getAttribute('data-type');
+                    chartType[chartId] = type;
+                    renderCharts();
+                });
+            });
+        }
+        
+        setupToggleButtons('interactionChartToggle', 'interaction');
+        setupToggleButtons('interactionRateChartToggle', 'interactionRate');
+        setupToggleButtons('viewsChartToggle', 'views');
+        setupToggleButtons('postCountChartToggle', 'postCount');
+        
+        // Create data table with expandable rows
+        function createDataTable() {
+            const table = document.getElementById('metricsTable');
+            let html = '';
+            
+            // Header row with duration categories
+            html += '<tr><th>BGM Type</th><th>Metric</th>';
+            durationCategories.forEach(category => {
+                html += `<th>${category}</th>`;
+            });
+            html += '<th>Total</th></tr>';
+            
+            // Data rows for each BGM type
+            bgmTypes.forEach(bgmType => {
+                // BGM type header with expand functionality
+                html += `<tr class="expandable-row" onclick="toggleMusicDetails('${bgmType}')">
+                    <td colspan="${durationCategories.length + 3}" class="bgm-header">
+                        <span class="expand-icon" id="icon-${bgmType}">▶</span>${bgmType}
+                    </td>
+                </tr>`;
+                
+                // Interaction Volume
+                html += '<tr><td rowspan="3" class="metric-name">Interaction Volume</td><td>Value</td>';
+                const totalInteraction = bgmData[bgmType].interaction.reduce((a, b) => a + b, 0);
+                bgmData[bgmType].interaction.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalInteraction.toLocaleString()}</td></tr>`;
+                
+                // Interaction Volume Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                bgmData[bgmType].percentages.interaction.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Interaction Volume Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                bgmData[bgmType].periodOverPeriod.interaction.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Views
+                html += '<tr><td rowspan="3" class="metric-name">Views</td><td>Value</td>';
+                const totalViews = bgmData[bgmType].views.reduce((a, b) => a + b, 0);
+                bgmData[bgmType].views.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalViews.toLocaleString()}</td></tr>`;
+                
+                // Views Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                bgmData[bgmType].percentages.views.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Views Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                bgmData[bgmType].periodOverPeriod.views.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Interaction Rate
+                html += '<tr><td rowspan="2" class="metric-name">Interaction Rate (%)</td><td>Value</td>';
+                bgmData[bgmType].interactionRate.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                const avgInteractionRate = (bgmData[bgmType].interactionRate.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / bgmData[bgmType].interactionRate.length).toFixed(2);
+                html += `<td>${avgInteractionRate}%</td></tr>`;
+                
+                // Interaction Rate Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                bgmData[bgmType].periodOverPeriod.interactionRate.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Post Count
+                html += '<tr><td rowspan="3" class="metric-name">Post Count</td><td>Value</td>';
+                const totalPosts = bgmData[bgmType].postCount.reduce((a, b) => a + b, 0);
+                bgmData[bgmType].postCount.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalPosts.toLocaleString()}</td></tr>`;
+                
+                // Post Count Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                bgmData[bgmType].percentages.postCount.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Post Count Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                bgmData[bgmType].periodOverPeriod.postCount.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Music details row (initially hidden)
+                html += `<tr class="music-details" id="music-${bgmType}">
+                    <td colspan="${durationCategories.length + 3}">
+                        <div class="music-list">`;
+                
+                musicData[bgmType].forEach((track, index) => {
+                    html += `
+                        <div class="music-item">
+                            <button class="play-btn" onclick="togglePlay('${bgmType}', ${index}, this)">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </button>
+                            <div class="music-info">
+                                <div class="music-title">${track.title}</div>
+                                <div class="music-artist">${track.artist}</div>
+                                <div class="music-stats">${track.uses.toLocaleString()} uses</div>
+                            </div>
+                        </div>`;
+                });
+                
+                html += `</div></td></tr>`;
+            });
+            
+            table.innerHTML = html;
+        }
+        
+        createDataTable();
+        
+        // Toggle music details in table
+        function toggleMusicDetails(bgmType) {
+            const detailsRow = document.getElementById(`music-${bgmType}`);
+            const icon = document.getElementById(`icon-${bgmType}`);
+            
+            if (detailsRow.classList.contains('show')) {
+                detailsRow.classList.remove('show');
+                icon.textContent = '▶';
+                icon.classList.remove('expanded');
+            } else {
+                detailsRow.classList.add('show');
+                icon.textContent = '▼';
+                icon.classList.add('expanded');
+            }
+        }
+        
+        // Music playback functionality
+        function togglePlay(bgmType, trackIndex, button) {
+            const track = musicData[bgmType][trackIndex];
+            
+            // Stop current audio if playing
+            if (currentAudio && !currentAudio.paused) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                if (currentPlayingButton) {
+                    currentPlayingButton.classList.remove('playing');
+                    currentPlayingButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+                }
+            }
+            
+            // If clicking the same button, just stop
+            if (currentPlayingButton === button) {
+                currentPlayingButton = null;
+                currentAudio = null;
+                return;
+            }
+            
+            // Play new audio
+            currentAudio = new Audio(track.url);
+            currentPlayingButton = button;
+            
+            button.classList.add('playing');
+            button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+            
+            currentAudio.play().catch(e => {
+                console.log('Audio play failed:', e);
+                // Fallback: show playing state for demo purposes
+            });
+            
+            currentAudio.addEventListener('ended', () => {
+                button.classList.remove('playing');
+                button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+                currentPlayingButton = null;
+                currentAudio = null;
+            });
+        }
+        
+        // Download functionality
+        function downloadChart(chartId) {
+            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
+            if (chart) {
+                const url = chart.getDataURL({
+                    type: 'png',
+                    pixelRatio: 2,
+                    backgroundColor: '#fff'
+                });
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${chartId}_chart.png`;
+                link.click();
+            }
+        }
+        
+        function downloadTable() {
+            const table = document.getElementById('metricsTable');
+            const csv = [];
+            const rows = table.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const cols = row.querySelectorAll('td, th');
+                const csvRow = [];
+                cols.forEach(col => {
+                    csvRow.push('"' + col.textContent.replace(/"/g, '""') + '"');
+                });
+                csv.push(csvRow.join(','));
+            });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'bgm_metrics_table.csv';
+            link.click();
+            
+            window.URL.revokeObjectURL(url);
+        }
+        
+        function downloadMusicData() {
+            const csv = ['BGM Type,Rank,Title,Artist,Uses'];
+            
+            bgmTypes.forEach(bgmType => {
+                musicData[bgmType].forEach((track, index) => {
+                    csv.push(`"${bgmType}",${index + 1},"${track.title}","${track.artist}",${track.uses}`);
+                });
+            });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'top_music_tracks.csv';
+            link.click();
+            
+            window.URL.revokeObjectURL(url);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            interactionChart.resize();
+            interactionRateChart.resize();
+            viewsChart.resize();
+            postCountChart.resize();
+        });
+        
+        // Make toggleMusicDetails globally accessible
+        window.toggleMusicDetails = toggleMusicDetails;
+    </script>
+</body>
+</html>

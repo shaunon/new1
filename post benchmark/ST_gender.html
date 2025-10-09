@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis by Gender</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+
+
+        .gender-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .gender-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gender-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #007bff, #28a745);
+        }
+
+        .gender-card.male::before {
+            background: linear-gradient(90deg, #007bff, #0056b3);
+        }
+
+        .gender-card.female::before {
+            background: linear-gradient(90deg, #e91e63, #c2185b);
+        }
+
+        .gender-card.other::before {
+            background: linear-gradient(90deg, #9c27b0, #7b1fa2);
+        }
+
+        .gender-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .gender-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .gender-value.male {
+            color: #007bff;
+        }
+
+        .gender-value.female {
+            color: #e91e63;
+        }
+
+        .gender-value.other {
+            color: #9c27b0;
+        }
+
+        .gender-subtitle {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .chart-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-buttons {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .toggle-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-btn.active {
+            background: #007bff;
+            color: white;
+        }
+
+        .download-btn {
+            padding: 6px 8px;
+            border: none;
+            background: #f8f9fa;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #6c757d;
+            transition: all 0.2s ease;
+        }
+
+        .download-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .chart {
+            width: 100%;
+            height: 400px;
+        }
+
+        .data-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table-container {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .gender-header {
+            background: #e3f2fd !important;
+            color: #1976d2 !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .metric-header {
+            background: #f3e5f5 !important;
+            color: #7b1fa2 !important;
+            font-weight: 700;
+            min-width: 80px;
+        }
+
+        .sentiment-group-header {
+            background: #fff3e0 !important;
+            color: #f57c00 !important;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .positive-header {
+            background: #e8f5e8 !important;
+            color: #2e7d32 !important;
+            font-weight: 600;
+        }
+
+        .neutral-header {
+            background: #f5f5f5 !important;
+            color: #616161 !important;
+            font-weight: 600;
+        }
+
+        .negative-header {
+            background: #ffebee !important;
+            color: #c62828 !important;
+            font-weight: 600;
+        }
+
+        .total-header {
+            background: #e1f5fe !important;
+            color: #0277bd !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .tag-header {
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .metric-name {
+            font-weight: 500;
+            color: #495057;
+            text-align: left;
+            padding-left: 24px;
+        }
+
+        .positive {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .gender-row {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .gender-row:hover {
+            background: #e3f2fd;
+        }
+
+        .expand-icon {
+            transition: transform 0.2s ease;
+            margin-right: 5px;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(90deg);
+        }
+
+        .sentiment-details {
+            display: none;
+            background: #f8f9fa;
+            border-left: 3px solid #007bff;
+        }
+
+        .sentiment-details.show {
+            display: table-row;
+        }
+
+        .sentiment-breakdown {
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .sentiment-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+
+        .sentiment-card.positive {
+            border-color: #28a745;
+        }
+
+        .sentiment-card.neutral {
+            border-color: #6c757d;
+        }
+
+        .sentiment-card.negative {
+            border-color: #dc3545;
+        }
+
+        .sentiment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .sentiment-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .sentiment-label.positive {
+            color: #28a745;
+        }
+
+        .sentiment-label.neutral {
+            color: #6c757d;
+        }
+
+        .sentiment-label.negative {
+            color: #dc3545;
+        }
+
+        .sentiment-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .sentiment-percentage {
+            font-size: 11px;
+            color: #6c757d;
+        }
+
+        .gender-icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .chart {
+                height: 300px;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .sentiment-breakdown {
+                grid-template-columns: 1fr;
+            }
+
+            .gender-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Gender Statistics -->
+        <div class="gender-stats">
+            <div class="gender-card male">
+                <div class="gender-title">👨 Male</div>
+                <div class="gender-value male">52.3K</div>
+                <div class="gender-subtitle">Total posts</div>
+            </div>
+            <div class="gender-card female">
+                <div class="gender-title">👩 Female</div>
+                <div class="gender-value female">48.7K</div>
+                <div class="gender-subtitle">Total posts</div>
+            </div>
+            <div class="gender-card other">
+                <div class="gender-title">🏳️‍⚧️ Other/Non-binary</div>
+                <div class="gender-value other">12.5K</div>
+                <div class="gender-subtitle">Total posts</div>
+            </div>
+            <div class="gender-card">
+                <div class="gender-title">Most Positive</div>
+                <div class="gender-value female">👩 Female</div>
+                <div class="gender-subtitle">68.2% positive sentiment</div>
+            </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Engagement Volume Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Engagement Volume by Gender and Sentiment</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="engagementChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('engagementChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="engagementChart" class="chart"></div>
+            </div>
+
+            <!-- Engagement Rate Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Engagement Rate by Gender and Sentiment</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="engagementRateChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('engagementRateChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="engagementRateChart" class="chart"></div>
+            </div>
+
+            <!-- Posts Count Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Posts Count by Gender and Sentiment</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="postsChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('postsChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="postsChart" class="chart"></div>
+            </div>
+
+            <!-- Views Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Views by Gender and Sentiment</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="viewsChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('viewsChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="viewsChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Gender Sentiment Analysis Data</div>
+                <button class="download-btn" onclick="downloadTableData()" title="Download Table Data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="gender-header">Gender</th>
+                            <th rowspan="2" class="metric-header">Metric Type</th>
+                            <th colspan="3" class="sentiment-group-header">Sentiment Analysis Data</th>
+                            <th rowspan="2" class="total-header">Total</th>
+                        </tr>
+                        <tr>
+                            <th class="positive-header">Positive 😊</th>
+                            <th class="neutral-header">Neutral 😐</th>
+                            <th class="negative-header">Negative 😞</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gender Sentiment Data
+        const genderData = {
+            categories: ['👨 Male', '👩 Female', '🏳️‍⚧️ Other/Non-binary'],
+            sentimentData: {
+                '👨 Male': { positive: 32500, neutral: 15200, negative: 4600, engagement: [1625000, 608000, 138000], views: [3250000, 1520000, 460000] },
+                '👩 Female': { positive: 33200, neutral: 12800, negative: 2700, engagement: [1660000, 512000, 81000], views: [3320000, 1280000, 270000] },
+                '🏳️‍⚧️ Other/Non-binary': { positive: 8200, neutral: 3500, negative: 800, engagement: [410000, 140000, 24000], views: [820000, 350000, 80000] }
+            }
+        };
+
+        // Initialize charts
+        let engagementChart = echarts.init(document.getElementById('engagementChart'));
+        let engagementRateChart = echarts.init(document.getElementById('engagementRateChart'));
+        let postsChart = echarts.init(document.getElementById('postsChart'));
+        let viewsChart = echarts.init(document.getElementById('viewsChart'));
+
+        // Prepare data for charts
+        function prepareChartData() {
+            const positiveData = [];
+            const neutralData = [];
+            const negativeData = [];
+            const engagementPositive = [];
+            const engagementNeutral = [];
+            const engagementNegative = [];
+            const viewsPositive = [];
+            const viewsNeutral = [];
+            const viewsNegative = [];
+            const engagementRatePositive = [];
+            const engagementRateNeutral = [];
+            const engagementRateNegative = [];
+
+            genderData.categories.forEach(category => {
+                const data = genderData.sentimentData[category];
+                positiveData.push(data.positive);
+                neutralData.push(data.neutral);
+                negativeData.push(data.negative);
+                engagementPositive.push(data.engagement[0]);
+                engagementNeutral.push(data.engagement[1]);
+                engagementNegative.push(data.engagement[2]);
+                viewsPositive.push(data.views[0]);
+                viewsNeutral.push(data.views[1]);
+                viewsNegative.push(data.views[2]);
+                
+                // Calculate engagement rates
+                engagementRatePositive.push(((data.engagement[0] / data.views[0]) * 100).toFixed(1));
+                engagementRateNeutral.push(((data.engagement[1] / data.views[1]) * 100).toFixed(1));
+                engagementRateNegative.push(((data.engagement[2] / data.views[2]) * 100).toFixed(1));
+            });
+
+            return {
+                positiveData, neutralData, negativeData,
+                engagementPositive, engagementNeutral, engagementNegative,
+                viewsPositive, viewsNeutral, viewsNegative,
+                engagementRatePositive, engagementRateNeutral, engagementRateNegative
+            };
+        }
+
+        const chartData = prepareChartData();
+
+        // Common chart options
+        const commonOptions = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'cross' }
+            },
+            legend: {
+                data: ['Positive', 'Neutral', 'Negative']
+            },
+            xAxis: {
+                type: 'category',
+                data: genderData.categories,
+                axisLabel: { rotate: 0 }
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: 'Positive',
+                    type: 'bar',
+                    data: [],
+                    itemStyle: { color: '#28a745' }
+                },
+                {
+                    name: 'Neutral',
+                    type: 'bar',
+                    data: [],
+                    itemStyle: { color: '#6c757d' }
+                },
+                {
+                    name: 'Negative',
+                    type: 'bar',
+                    data: [],
+                    itemStyle: { color: '#dc3545' }
+                }
+            ]
+        };
+
+        // Posts Chart
+        const postsOption = { ...commonOptions };
+        postsOption.series[0].data = chartData.positiveData;
+        postsOption.series[1].data = chartData.neutralData;
+        postsOption.series[2].data = chartData.negativeData;
+        postsOption.yAxis.axisLabel = {
+            formatter: function(value) {
+                return value >= 1000 ? (value / 1000).toFixed(1) + 'K' : value;
+            }
+        };
+
+        // Engagement Chart
+        const engagementOption = { ...commonOptions };
+        engagementOption.series[0].data = chartData.engagementPositive;
+        engagementOption.series[1].data = chartData.engagementNeutral;
+        engagementOption.series[2].data = chartData.engagementNegative;
+        engagementOption.yAxis.axisLabel = {
+            formatter: function(value) {
+                return value >= 1000000 ? (value / 1000000).toFixed(1) + 'M' : 
+                       value >= 1000 ? (value / 1000).toFixed(1) + 'K' : value;
+            }
+        };
+
+        // Engagement Rate Chart
+        const engagementRateOption = { ...commonOptions };
+        engagementRateOption.series[0].data = chartData.engagementRatePositive;
+        engagementRateOption.series[1].data = chartData.engagementRateNeutral;
+        engagementRateOption.series[2].data = chartData.engagementRateNegative;
+        engagementRateOption.yAxis.axisLabel = { formatter: '{value}%' };
+
+        // Views Chart
+        const viewsOption = { ...commonOptions };
+        viewsOption.series[0].data = chartData.viewsPositive;
+        viewsOption.series[1].data = chartData.viewsNeutral;
+        viewsOption.series[2].data = chartData.viewsNegative;
+        viewsOption.yAxis.axisLabel = {
+            formatter: function(value) {
+                return value >= 1000000 ? (value / 1000000).toFixed(1) + 'M' : 
+                       value >= 1000 ? (value / 1000).toFixed(1) + 'K' : value;
+            }
+        };
+
+        // Set chart options
+        postsChart.setOption(postsOption);
+        engagementChart.setOption(engagementOption);
+        engagementRateChart.setOption(engagementRateOption);
+        viewsChart.setOption(viewsOption);
+
+        // Populate data table
+        function populateDataTable() {
+            const table = document.getElementById('dataTableBody');
+            let html = "";
+
+            genderData.categories.forEach((category, index) => {
+                const data = genderData.sentimentData[category];
+                const totalPosts = data.positive + data.neutral + data.negative;
+                const totalEngagement = data.engagement[0] + data.engagement[1] + data.engagement[2];
+                const totalViews = data.views[0] + data.views[1] + data.views[2];
+                
+                const positivePercent = ((data.positive / totalPosts) * 100).toFixed(1);
+                const neutralPercent = ((data.neutral / totalPosts) * 100).toFixed(1);
+                const negativePercent = ((data.negative / totalPosts) * 100).toFixed(1);
+                
+                const avgEngagementRate = ((totalEngagement / totalViews) * 100).toFixed(1);
+                const avgViewsPerPost = (totalViews / totalPosts).toFixed(0);
+
+                // Posts row
+                html += `
+                    <tr>
+                        <td rowspan="4" class="tag-header">${category}</td>
+                        <td class="metric-name">Posts</td>
+                        <td class="positive">${data.positive.toLocaleString()}</td>
+                        <td>${data.neutral.toLocaleString()}</td>
+                        <td class="negative">${data.negative.toLocaleString()}</td>
+                        <td>${totalPosts.toLocaleString()}</td>
+                    </tr>
+                `;
+
+                // Percentage row
+                html += `
+                    <tr>
+                        <td class="metric-name">Percentage</td>
+                        <td class="positive">${positivePercent}%</td>
+                        <td>${neutralPercent}%</td>
+                        <td class="negative">${negativePercent}%</td>
+                        <td>100%</td>
+                    </tr>
+                `;
+
+                // Engagement row
+                html += `
+                    <tr>
+                        <td class="metric-name">Engagement</td>
+                        <td class="positive">${data.engagement[0].toLocaleString()}</td>
+                        <td>${data.engagement[1].toLocaleString()}</td>
+                        <td class="negative">${data.engagement[2].toLocaleString()}</td>
+                        <td>${totalEngagement.toLocaleString()}</td>
+                    </tr>
+                `;
+
+                // Views row
+                html += `
+                    <tr>
+                        <td class="metric-name">Views</td>
+                        <td class="positive">${data.views[0].toLocaleString()}</td>
+                        <td>${data.views[1].toLocaleString()}</td>
+                        <td class="negative">${data.views[2].toLocaleString()}</td>
+                        <td>${totalViews.toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+
+            table.innerHTML = html;
+        }
+
+        populateDataTable();
+
+        // Chart type toggle functionality
+        function setupChartToggle(chartId, chart, option) {
+            const toggleContainer = document.getElementById(chartId + 'Toggle');
+            const buttons = toggleContainer.querySelectorAll('.toggle-btn');
+            
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const type = this.dataset.type;
+                    const newOption = { ...option };
+                    newOption.series.forEach(series => {
+                        series.type = type;
+                    });
+                    
+                    chart.setOption(newOption);
+                });
+            });
+        }
+
+        setupChartToggle('engagementChart', engagementChart, engagementOption);
+        setupChartToggle('engagementRateChart', engagementRateChart, engagementRateOption);
+        setupChartToggle('postsChart', postsChart, postsOption);
+        setupChartToggle('viewsChart', viewsChart, viewsOption);
+
+        // Download functions
+        function downloadChart(chartId) {
+            const chartMap = {
+                'engagementChart': engagementChart,
+                'engagementRateChart': engagementRateChart,
+                'postsChart': postsChart,
+                'viewsChart': viewsChart
+            };
+            
+            const chart = chartMap[chartId];
+            const url = chart.getDataURL({
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `gender-sentiment-${chartId}.png`;
+            link.click();
+        }
+
+        function downloadTableData() {
+            let csvContent = 'Gender,Total Posts,Total Engagement,Avg Engagement Rate,Total Views,Positive Posts,Neutral Posts,Negative Posts,Positive %,Neutral %,Negative %\n';
+            
+            genderData.categories.forEach(category => {
+                const data = genderData.sentimentData[category];
+                const totalPosts = data.positive + data.neutral + data.negative;
+                const totalEngagement = data.engagement[0] + data.engagement[1] + data.engagement[2];
+                const totalViews = data.views[0] + data.views[1] + data.views[2];
+                const avgEngagementRate = ((totalEngagement / totalViews) * 100).toFixed(1);
+                
+                const positivePercent = ((data.positive / totalPosts) * 100).toFixed(1);
+                const neutralPercent = ((data.neutral / totalPosts) * 100).toFixed(1);
+                const negativePercent = ((data.negative / totalPosts) * 100).toFixed(1);
+                
+                csvContent += `${category},${totalPosts},${totalEngagement},${avgEngagementRate}%,${totalViews},${data.positive},${data.neutral},${data.negative},${positivePercent}%,${neutralPercent}%,${negativePercent}%\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'gender-sentiment-analysis.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            engagementChart.resize();
+            engagementRateChart.resize();
+            postsChart.resize();
+            viewsChart.resize();
+        });
+    </script>
+</body>
+</html>

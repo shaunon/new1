@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Category Analysis - Overall Overview</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .chart-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .data-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-card.engagement {
+            border-left-color: #28a745;
+        }
+
+        .data-card.rate {
+            border-left-color: #ffc107;
+        }
+
+        .data-card.views {
+            border-left-color: #dc3545;
+        }
+
+        .data-card-header {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .download-icon {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            transition: color 0.2s ease;
+        }
+
+        .download-icon:hover {
+            color: #007bff;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .metric-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        .metric-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #212529;
+        }
+
+        .metric-change {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .change-positive {
+            color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .change-negative {
+            color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .chart-container {
+            flex: 1;
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .chart-download {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .chart-download:hover {
+            color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        .chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+            padding: 15px 12px;
+            text-align: center;
+        }
+
+        .category-header {
+            background: #e3f2fd !important;
+            color: #1976d2 !important;
+            font-weight: 700;
+            min-width: 120px;
+        }
+
+        .posts-header {
+            background: #f3e5f5 !important;
+            color: #7b1fa2 !important;
+            font-weight: 700;
+            min-width: 80px;
+        }
+
+        .engagement-header {
+            background: #fff3e0 !important;
+            color: #f57c00 !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .views-header {
+            background: #e8f5e8 !important;
+            color: #2e7d32 !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .rate-header {
+            background: #e1f5fe !important;
+            color: #0277bd !important;
+            font-weight: 700;
+            min-width: 120px;
+        }
+
+        .data-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #edf2f7;
+        }
+
+        .category-name {
+            background-color: #e2e8f0;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        @media (max-width: 768px) {
+            .chart-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .data-card {
+                min-width: auto;
+                margin-bottom: 20px;
+            }
+
+            .metric-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Chart 1: Posts Count and Engagement by Category -->
+    <div class="chart-section">
+        <div class="data-card">
+            <div class="data-card-header">
+                Posts & Engagement Overview
+                <span class="download-icon" onclick="downloadData('posts-engagement')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Engagement</div>
+                    <div class="metric-value">3.3M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 8.7%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Posts Count vs Engagement by Category</div>
+                <span class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</span>
+            </div>
+            <div id="chart1" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Posts Count and Engagement Rate by Category -->
+    <div class="chart-section">
+        <div class="data-card rate">
+            <div class="data-card-header">
+                Posts & Engagement Rate
+                <span class="download-icon" onclick="downloadData('posts-rate')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Avg Engagement Rate</div>
+                    <div class="metric-value">42.0%</div>
+                </div>
+                <div class="metric-change change-negative">↓ 2.3%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Posts Count vs Engagement Rate by Category</div>
+                <span class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</span>
+            </div>
+            <div id="chart2" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Posts Count and Views by Category -->
+    <div class="chart-section">
+        <div class="data-card views">
+            <div class="data-card-header">
+                Posts & Views Overview
+                <span class="download-icon" onclick="downloadData('posts-views')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Views</div>
+                    <div class="metric-value">7.8M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 15.2%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Posts Count vs Views by Category</div>
+                <span class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</span>
+            </div>
+            <div id="chart3" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th class="category-header">Post Category <span class="download-icon" onclick="downloadTableData()" title="Download Table Data">📥</span></th>
+                <th class="posts-header">Posts</th>
+                <th class="engagement-header">Engagement</th>
+                <th class="views-header">Views</th>
+                <th class="rate-header">Engagement Rate (%)</th>
+            </tr>
+        </thead>
+        <tbody id="dataTableBody">
+            <!-- Data will be populated by JavaScript -->
+        </tbody>
+    </table>
+
+    <script>
+        // Sample data for post categories
+        const categoryData = {
+            categories: ['Entertainment', 'Education', 'Lifestyle', 'Technology', 'Fashion', 'Food', 'Travel', 'Sports', 'Music', 'Gaming'],
+            posts: [15420, 12850, 11200, 9800, 8650, 7200, 6100, 4800, 3900, 2080],
+            engagement: [892000, 745000, 658000, 542000, 478000, 395000, 321000, 267000, 198000, 124000],
+            views: [1850000, 1520000, 1340000, 1180000, 980000, 820000, 650000, 520000, 410000, 280000],
+            engagementRate: [48.2, 58.0, 58.8, 55.3, 55.2, 54.9, 52.6, 55.6, 50.8, 59.6]
+        };
+
+        // Chart 1: Posts Count and Engagement
+        const chart1 = echarts.init(document.getElementById('chart1'));
+        const option1 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['Posts Count', 'Engagement']
+            },
+            xAxis: {
+                type: 'category',
+                data: categoryData.categories,
+                axisLabel: {
+                    rotate: 45
+                }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Posts Count',
+                    position: 'left'
+                },
+                {
+                    type: 'value',
+                    name: 'Engagement',
+                    position: 'right'
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts Count',
+                    type: 'bar',
+                    data: categoryData.posts,
+                    itemStyle: {
+                        color: '#5470c6'
+                    }
+                },
+                {
+                    name: 'Engagement',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: categoryData.engagement,
+                    itemStyle: {
+                        color: '#91cc75'
+                    }
+                }
+            ]
+        };
+        chart1.setOption(option1);
+
+        // Chart 2: Posts Count and Engagement Rate
+        const chart2 = echarts.init(document.getElementById('chart2'));
+        const option2 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['Posts Count', 'Engagement Rate (%)']
+            },
+            xAxis: {
+                type: 'category',
+                data: categoryData.categories,
+                axisLabel: {
+                    rotate: 45
+                }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Posts Count',
+                    position: 'left'
+                },
+                {
+                    type: 'value',
+                    name: 'Engagement Rate (%)',
+                    position: 'right'
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts Count',
+                    type: 'bar',
+                    data: categoryData.posts,
+                    itemStyle: {
+                        color: '#fac858'
+                    }
+                },
+                {
+                    name: 'Engagement Rate (%)',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: categoryData.engagementRate,
+                    itemStyle: {
+                        color: '#ee6666'
+                    }
+                }
+            ]
+        };
+        chart2.setOption(option2);
+
+        // Chart 3: Posts Count and Views
+        const chart3 = echarts.init(document.getElementById('chart3'));
+        const option3 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                }
+            },
+            legend: {
+                data: ['Posts Count', 'Views']
+            },
+            xAxis: {
+                type: 'category',
+                data: categoryData.categories,
+                axisLabel: {
+                    rotate: 45
+                }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Posts Count',
+                    position: 'left'
+                },
+                {
+                    type: 'value',
+                    name: 'Views',
+                    position: 'right'
+                }
+            ],
+            series: [
+                {
+                    name: 'Posts Count',
+                    type: 'bar',
+                    data: categoryData.posts,
+                    itemStyle: {
+                        color: '#73c0de'
+                    }
+                },
+                {
+                    name: 'Views',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: categoryData.views,
+                    itemStyle: {
+                        color: '#3ba272'
+                    }
+                }
+            ]
+        };
+        chart3.setOption(option3);
+
+        // Download chart as image
+        function downloadChart(chartId) {
+            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
+            const url = chart.getDataURL({
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `post-category-analysis-${chartId}.png`;
+            link.click();
+        }
+
+        function downloadData(type) {
+            let csvContent = '';
+            let filename = '';
+            
+            if (type === 'posts-engagement') {
+                csvContent = 'Category,Posts Count,Engagement\n';
+                categoryData.categories.forEach((category, index) => {
+                    csvContent += `${category},${categoryData.posts[index]},${categoryData.engagement[index]}\n`;
+                });
+                filename = 'post-category-posts-engagement.csv';
+            } else if (type === 'posts-rate') {
+                csvContent = 'Category,Posts Count,Engagement Rate (%)\n';
+                categoryData.categories.forEach((category, index) => {
+                    csvContent += `${category},${categoryData.posts[index]},${categoryData.engagementRate[index]}\n`;
+                });
+                filename = 'post-category-posts-rate.csv';
+            } else if (type === 'posts-views') {
+                csvContent = 'Category,Posts Count,Views\n';
+                categoryData.categories.forEach((category, index) => {
+                    csvContent += `${category},${categoryData.posts[index]},${categoryData.views[index]}\n`;
+                });
+                filename = 'post-category-posts-views.csv';
+            }
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Populate data table
+        function populateDataTable() {
+            const tableBody = document.getElementById('dataTableBody');
+            let html = '';
+
+            categoryData.categories.forEach((category, index) => {
+                const posts = categoryData.posts[index];
+                const engagement = categoryData.engagement[index];
+                const views = categoryData.views[index];
+                const engagementRate = categoryData.engagementRate[index];
+                
+                html += `
+                    <tr>
+                        <td class="category-name">${category}</td>
+                        <td>${posts.toLocaleString()}</td>
+                        <td>${engagement.toLocaleString()}</td>
+                        <td>${views.toLocaleString()}</td>
+                        <td>${engagementRate}%</td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+
+        function downloadTableData() {
+            let csvContent = 'Category,Posts,Engagement,Views,Engagement Rate (%)\n';
+            categoryData.categories.forEach((category, index) => {
+                csvContent += `${category},${categoryData.posts[index]},${categoryData.engagement[index]},${categoryData.views[index]},${categoryData.engagementRate[index]}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'post-category-analysis-data.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize data table
+        populateDataTable();
+
+        // Make charts responsive
+        window.addEventListener('resize', function() {
+            chart1.resize();
+            chart2.resize();
+            chart3.resize();
+        });
+    </script>
+</body>
+</html>

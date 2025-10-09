@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .chart-section {
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            height: 500px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn.active {
+            background-color: #28a745;
+        }
+
+        .data-table-container {
+            margin-top: 30px;
+        }
+
+        .table-wrapper {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .hashtag-name {
+            font-weight: 600;
+            color: #007bff;
+        }
+
+        .duration-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 200px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Word Cloud / Sunburst Chart Section -->
+    <div class="chart-section">
+        <h2 style="text-align: center; margin-bottom: 15px; color: #333;">Hashtag Visualization by Video Duration</h2>
+        <div class="control-buttons">
+            <button class="btn active" id="wordcloudBtn">Word Cloud</button>
+            <button class="btn" id="sunburstBtn">Sunburst Chart</button>
+        </div>
+        <div class="chart-container">
+            <div id="visualChart" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Bar and Line Chart Section -->
+    <div class="chart-section">
+        <h2 style="text-align: center; margin-bottom: 15px; color: #333;">Hashtag Performance Metrics</h2>
+        <div class="control-buttons">
+            <label for="metricSelector" style="margin-right: 10px; font-weight: 600;">Select Metric:</label>
+            <select id="metricSelector" class="btn" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 6px;">
+                <option value="engagement">Engagement</option>
+                <option value="views">Views</option>
+                <option value="engagementRate">Engagement Rate</option>
+            </select>
+        </div>
+        <div class="chart-container">
+            <div id="barLineChart" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Data Table Section -->
+    <div class="data-table-container">
+        <h2 style="text-align: center; margin-bottom: 15px; color: #333;">Top Hashtags Data Table</h2>
+        <div class="table-wrapper">
+            <table id="hashtagTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Hashtag</th>
+                        <th>Video Duration</th>
+                        <th>Usage Count</th>
+                        <th>Engagement</th>
+                        <th>Views</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for hashtags by video duration
+        const hashtagData = {
+            '0~15s': [
+                {name: '#fashion', count: 15420, engagement: 892000, views: 2840000},
+                {name: '#style', count: 12800, engagement: 756000, views: 2100000},
+                {name: '#ootd', count: 11200, engagement: 634000, views: 1890000},
+                {name: '#beauty', count: 9800, engagement: 587000, views: 1650000},
+                {name: '#makeup', count: 8900, engagement: 523000, views: 1420000},
+                {name: '#skincare', count: 7600, engagement: 445000, views: 1280000},
+                {name: '#trending', count: 6800, engagement: 398000, views: 1150000},
+                {name: '#viral', count: 6200, engagement: 364000, views: 1050000},
+                {name: '#lifestyle', count: 5800, engagement: 340000, views: 980000},
+                {name: '#love', count: 5400, engagement: 316000, views: 920000},
+                {name: '#selfie', count: 4900, engagement: 287000, views: 830000},
+                {name: '#photooftheday', count: 4500, engagement: 263000, views: 760000},
+                {name: '#instagood', count: 4200, engagement: 246000, views: 710000},
+                {name: '#happy', count: 3800, engagement: 222000, views: 640000},
+                {name: '#smile', count: 3500, engagement: 205000, views: 590000}
+            ],
+            '15~30s': [
+                {name: '#tutorial', count: 18900, engagement: 1120000, views: 3200000},
+                {name: '#howto', count: 16200, engagement: 945000, views: 2800000},
+                {name: '#diy', count: 14800, engagement: 834000, views: 2450000},
+                {name: '#tips', count: 13500, engagement: 756000, views: 2200000},
+                {name: '#hacks', count: 12100, engagement: 689000, views: 1980000},
+                {name: '#recipe', count: 10800, engagement: 612000, views: 1750000},
+                {name: '#cooking', count: 9600, engagement: 548000, views: 1580000},
+                {name: '#fitness', count: 8700, engagement: 495000, views: 1420000},
+                {name: '#workout', count: 7900, engagement: 450000, views: 1290000},
+                {name: '#health', count: 7200, engagement: 410000, views: 1180000},
+                {name: '#nutrition', count: 6500, engagement: 370000, views: 1060000},
+                {name: '#wellness', count: 5900, engagement: 336000, views: 960000},
+                {name: '#exercise', count: 5400, engagement: 307000, views: 880000},
+                {name: '#yoga', count: 4900, engagement: 279000, views: 800000},
+                {name: '#meditation', count: 4500, engagement: 256000, views: 730000}
+            ],
+            '30~60s': [
+                {name: '#dance', count: 22400, engagement: 1340000, views: 3800000},
+                {name: '#music', count: 19800, engagement: 1180000, views: 3350000},
+                {name: '#comedy', count: 17600, engagement: 1050000, views: 2980000},
+                {name: '#funny', count: 15900, engagement: 945000, views: 2680000},
+                {name: '#entertainment', count: 14200, engagement: 845000, views: 2400000},
+                {name: '#challenge', count: 12800, engagement: 756000, views: 2150000},
+                {name: '#trend', count: 11500, engagement: 678000, views: 1930000},
+                {name: '#meme', count: 10400, engagement: 612000, views: 1740000},
+                {name: '#art', count: 9300, engagement: 548000, views: 1560000},
+                {name: '#creative', count: 8500, engagement: 498000, views: 1420000},
+                {name: '#singing', count: 7800, engagement: 458000, views: 1300000},
+                {name: '#performance', count: 7200, engagement: 422000, views: 1200000},
+                {name: '#talent', count: 6600, engagement: 387000, views: 1100000},
+                {name: '#skills', count: 6100, engagement: 358000, views: 1020000},
+                {name: '#amazing', count: 5600, engagement: 328000, views: 930000}
+            ],
+            '1~3min': [
+                {name: '#story', count: 16800, engagement: 1008000, views: 2850000},
+                {name: '#vlog', count: 15200, engagement: 912000, views: 2580000},
+                {name: '#travel', count: 13600, engagement: 816000, views: 2310000},
+                {name: '#adventure', count: 12100, engagement: 726000, views: 2050000},
+                {name: '#explore', count: 10800, engagement: 648000, views: 1830000},
+                {name: '#nature', count: 9600, engagement: 576000, views: 1630000},
+                {name: '#photography', count: 8500, engagement: 510000, views: 1440000},
+                {name: '#motivation', count: 7600, engagement: 456000, views: 1290000},
+                {name: '#inspiration', count: 6900, engagement: 414000, views: 1170000},
+                {name: '#life', count: 6200, engagement: 372000, views: 1050000},
+                {name: '#journey', count: 5700, engagement: 342000, views: 970000},
+                {name: '#experience', count: 5200, engagement: 312000, views: 890000},
+                {name: '#memories', count: 4800, engagement: 288000, views: 820000},
+                {name: '#moments', count: 4400, engagement: 264000, views: 750000},
+                {name: '#discovery', count: 4000, engagement: 240000, views: 680000}
+            ],
+            '3~5min': [
+                {name: '#education', count: 12400, engagement: 744000, views: 2100000},
+                {name: '#learning', count: 11100, engagement: 666000, views: 1880000},
+                {name: '#science', count: 9800, engagement: 588000, views: 1660000},
+                {name: '#technology', count: 8600, engagement: 516000, views: 1460000},
+                {name: '#review', count: 7500, engagement: 450000, views: 1270000},
+                {name: '#unboxing', count: 6700, engagement: 402000, views: 1140000},
+                {name: '#tech', count: 5900, engagement: 354000, views: 1000000},
+                {name: '#gadgets', count: 5200, engagement: 312000, views: 880000},
+                {name: '#innovation', count: 4600, engagement: 276000, views: 780000},
+                {name: '#future', count: 4100, engagement: 246000, views: 690000},
+                {name: '#knowledge', count: 3700, engagement: 222000, views: 630000},
+                {name: '#research', count: 3400, engagement: 204000, views: 580000},
+                {name: '#facts', count: 3100, engagement: 186000, views: 530000},
+                {name: '#study', count: 2800, engagement: 168000, views: 480000},
+                {name: '#academic', count: 2500, engagement: 150000, views: 430000}
+            ],
+            '5~10min': [
+                {name: '#documentary', count: 8900, engagement: 534000, views: 1510000},
+                {name: '#interview', count: 7800, engagement: 468000, views: 1320000},
+                {name: '#podcast', count: 6900, engagement: 414000, views: 1170000},
+                {name: '#discussion', count: 6100, engagement: 366000, views: 1030000},
+                {name: '#analysis', count: 5400, engagement: 324000, views: 920000},
+                {name: '#deep', count: 4800, engagement: 288000, views: 810000},
+                {name: '#detailed', count: 4200, engagement: 252000, views: 710000},
+                {name: '#comprehensive', count: 3700, engagement: 222000, views: 630000},
+                {name: '#thorough', count: 3300, engagement: 198000, views: 560000},
+                {name: '#complete', count: 2900, engagement: 174000, views: 490000},
+                {name: '#informative', count: 2600, engagement: 156000, views: 440000},
+                {name: '#insightful', count: 2300, engagement: 138000, views: 390000},
+                {name: '#thoughtful', count: 2100, engagement: 126000, views: 360000},
+                {name: '#professional', count: 1900, engagement: 114000, views: 320000},
+                {name: '#expert', count: 1700, engagement: 102000, views: 290000}
+            ],
+            '10~20min': [
+                {name: '#longform', count: 5600, engagement: 336000, views: 950000},
+                {name: '#indepth', count: 4900, engagement: 294000, views: 830000},
+                {name: '#masterclass', count: 4300, engagement: 258000, views: 730000},
+                {name: '#course', count: 3800, engagement: 228000, views: 640000},
+                {name: '#training', count: 3300, engagement: 198000, views: 560000},
+                {name: '#workshop', count: 2900, engagement: 174000, views: 490000},
+                {name: '#seminar', count: 2500, engagement: 150000, views: 420000},
+                {name: '#lecture', count: 2200, engagement: 132000, views: 370000},
+                {name: '#presentation', count: 1900, engagement: 114000, views: 320000},
+                {name: '#webinar', count: 1700, engagement: 102000, views: 290000},
+                {name: '#tutorial', count: 1500, engagement: 90000, views: 260000},
+                {name: '#guide', count: 1300, engagement: 78000, views: 230000},
+                {name: '#howto', count: 1200, engagement: 72000, views: 210000},
+                {name: '#stepbystep', count: 1100, engagement: 66000, views: 190000},
+                {name: '#detailed', count: 1000, engagement: 60000, views: 170000}
+            ],
+            '20~30min': [
+                {name: '#extended', count: 3200, engagement: 192000, views: 540000},
+                {name: '#detailed', count: 2800, engagement: 168000, views: 470000},
+                {name: '#comprehensive', count: 2400, engagement: 144000, views: 410000},
+                {name: '#full', count: 2100, engagement: 126000, views: 350000},
+                {name: '#complete', count: 1800, engagement: 108000, views: 300000},
+                {name: '#thorough', count: 1600, engagement: 96000, views: 270000},
+                {name: '#intensive', count: 1400, engagement: 84000, views: 240000},
+                {name: '#deep', count: 1200, engagement: 72000, views: 200000},
+                {name: '#advanced', count: 1100, engagement: 66000, views: 180000},
+                {name: '#expert', count: 900, engagement: 54000, views: 150000},
+                {name: '#professional', count: 800, engagement: 48000, views: 135000},
+                {name: '#specialized', count: 720, engagement: 43200, views: 122000},
+                {name: '#technical', count: 650, engagement: 39000, views: 110000},
+                {name: '#complex', count: 580, engagement: 34800, views: 98000},
+                {name: '#sophisticated', count: 520, engagement: 31200, views: 88000}
+            ],
+            '30~60min': [
+                {name: '#marathon', count: 1800, engagement: 108000, views: 300000},
+                {name: '#session', count: 1500, engagement: 90000, views: 250000},
+                {name: '#livestream', count: 1300, engagement: 78000, views: 220000},
+                {name: '#live', count: 1100, engagement: 66000, views: 190000},
+                {name: '#stream', count: 900, engagement: 54000, views: 160000},
+                {name: '#broadcast', count: 800, engagement: 48000, views: 140000},
+                {name: '#show', count: 700, engagement: 42000, views: 120000},
+                {name: '#program', count: 600, engagement: 36000, views: 100000},
+                {name: '#special', count: 500, engagement: 30000, views: 85000},
+                {name: '#event', count: 450, engagement: 27000, views: 75000},
+                {name: '#conference', count: 400, engagement: 24000, views: 68000},
+                {name: '#meeting', count: 360, engagement: 21600, views: 61000},
+                {name: '#discussion', count: 320, engagement: 19200, views: 54000},
+                {name: '#panel', count: 290, engagement: 17400, views: 49000},
+                {name: '#roundtable', count: 260, engagement: 15600, views: 44000}
+            ],
+            '>60min': [
+                {name: '#movie', count: 900, engagement: 54000, views: 150000},
+                {name: '#film', count: 750, engagement: 45000, views: 125000},
+                {name: '#feature', count: 650, engagement: 39000, views: 110000},
+                {name: '#cinema', count: 550, engagement: 33000, views: 95000},
+                {name: '#documentary', count: 480, engagement: 28800, views: 82000},
+                {name: '#series', count: 420, engagement: 25200, views: 72000},
+                {name: '#episode', count: 380, engagement: 22800, views: 65000},
+                {name: '#production', count: 340, engagement: 20400, views: 58000},
+                {name: '#original', count: 300, engagement: 18000, views: 51000},
+                {name: '#exclusive', count: 270, engagement: 16200, views: 46000},
+                {name: '#premiere', count: 240, engagement: 14400, views: 41000},
+                {name: '#release', count: 220, engagement: 13200, views: 37000},
+                {name: '#launch', count: 200, engagement: 12000, views: 34000},
+                {name: '#debut', count: 180, engagement: 10800, views: 31000},
+                {name: '#showcase', count: 160, engagement: 9600, views: 27000}
+            ]
+        };
+
+        // Generate color palette for different durations
+        const durationColors = {
+            '0~15s': '#FF6B6B',
+            '15~30s': '#4ECDC4',
+            '30~60s': '#45B7D1',
+            '1~3min': '#96CEB4',
+            '3~5min': '#FFEAA7',
+            '5~10min': '#DDA0DD',
+            '10~20min': '#98D8C8',
+            '20~30min': '#F7DC6F',
+            '30~60min': '#BB8FCE',
+            '>60min': '#85C1E9'
+        };
+
+        // Initialize charts
+        let visualChart = echarts.init(document.getElementById('visualChart'));
+        let barLineChart = echarts.init(document.getElementById('barLineChart'));
+
+        // Prepare word cloud data by duration with positioning
+        function prepareWordCloudByDuration() {
+            const cloudData = [];
+            const durations = Object.keys(hashtagData);
+            const gridCols = 3; // 3 columns
+            const gridRows = Math.ceil(durations.length / gridCols);
+            
+            durations.forEach((duration, index) => {
+                const row = Math.floor(index / gridCols);
+                const col = index % gridCols;
+                
+                // Calculate position for each duration group
+                const left = (col * 33) + 5; // 33% width per column with 5% margin
+                const top = (row * 50) + 5;  // 50% height per row with 5% margin
+                const width = 28; // 28% width
+                const height = 40; // 40% height
+                
+                const durationHashtags = hashtagData[duration]
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 15) // Top 15 per duration
+                    .map(item => ({
+                        name: item.name,
+                        value: item.count,
+                        textStyle: {
+                            color: durationColors[duration]
+                        }
+                    }));
+                
+                cloudData.push({
+                    type: 'wordCloud',
+                    left: left + '%',
+                    top: top + '%',
+                    width: width + '%',
+                    height: height + '%',
+                    gridSize: 2,
+                    sizeRange: [8, 24],
+                    rotationRange: [-45, 45],
+                    shape: 'circle',
+                    drawOutOfBound: false,
+                    textStyle: {
+                        fontFamily: 'sans-serif',
+                        fontWeight: 'bold'
+                    },
+                    emphasis: {
+                        textStyle: {
+                            shadowBlur: 5,
+                            shadowColor: '#333'
+                        }
+                    },
+                    data: durationHashtags
+                });
+            });
+            
+            return cloudData;
+        }
+
+        // Prepare data for sunburst chart
+        function prepareSunburstData() {
+            let sunburstData = [];
+            Object.keys(hashtagData).forEach(duration => {
+                let children = hashtagData[duration].slice(0, 10).map(item => ({
+                    name: item.name,
+                    value: item.count,
+                    itemStyle: {
+                        color: durationColors[duration]
+                    }
+                }));
+                
+                sunburstData.push({
+                    name: duration,
+                    children: children,
+                    itemStyle: {
+                        color: durationColors[duration]
+                    }
+                });
+            });
+            return sunburstData;
+        }
+
+        // Toggle between word cloud and sunburst chart
+        let isWordCloud = true;
+        
+        function toggleChart() {
+            isWordCloud = !isWordCloud;
+            const button = document.getElementById('toggleButton');
+            button.textContent = isWordCloud ? 'Switch to Sunburst' : 'Switch to Word Cloud';
+            
+            // Clear the chart first to prevent overlap
+            visualChart.clear();
+            
+            if (isWordCloud) {
+                visualChart.setOption(wordCloudOption, true);
+            } else {
+                visualChart.setOption(sunburstOption, true);
+            }
+        }
+
+        // Word Cloud Chart with duration zones
+        const wordCloudOption = {
+            title: Object.keys(hashtagData).map((duration, index) => {
+                const row = Math.floor(index / 3);
+                const col = index % 3;
+                const left = (col * 33) + 5;
+                const top = (row * 50) + 2;
+                
+                return {
+                    text: duration,
+                    left: left + '%',
+                    top: top + '%',
+                    textStyle: {
+                        color: durationColors[duration],
+                        fontSize: 12,
+                        fontWeight: 'bold'
+                    }
+                };
+            }),
+            tooltip: {
+                formatter: function(params) {
+                    return `${params.name}: ${params.value.toLocaleString()} uses`;
+                }
+            },
+            series: prepareWordCloudByDuration()
+        };
+
+        // Sunburst Chart
+        const sunburstOption = {
+            tooltip: {
+                formatter: function(params) {
+                    return `${params.name}: ${params.value.toLocaleString()} uses`;
+                }
+            },
+            series: {
+                type: 'sunburst',
+                data: prepareSunburstData(),
+                radius: [0, '90%'],
+                itemStyle: {
+                    borderRadius: 7,
+                    borderWidth: 2
+                },
+                label: {
+                    show: true,
+                    rotate: 'radial',
+                    fontSize: 10,
+                    fontWeight: 'bold',
+                    color: '#fff',
+                    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+                    textShadowBlur: 2
+                },
+                emphasis: {
+                    focus: 'ancestor',
+                    label: {
+                        fontSize: 12,
+                        fontWeight: 'bold'
+                    }
+                }
+            }
+        };
+
+        // Prepare data for stacked bar chart (video duration as X-axis, top 5 hashtags as series)
+        function prepareStackedBarData(metric = 'engagement') {
+            // Get all hashtags and calculate totals
+            let allHashtags = [];
+            Object.keys(hashtagData).forEach(duration => {
+                hashtagData[duration].forEach(item => {
+                    let existing = allHashtags.find(h => h.name === item.name);
+                    if (existing) {
+                        existing.totalEngagement += item.engagement;
+                        existing.totalViews += item.views;
+                        existing.totalCount += item.count;
+                    } else {
+                        allHashtags.push({
+                            name: item.name,
+                            totalEngagement: item.engagement,
+                            totalViews: item.views,
+                            totalCount: item.count
+                        });
+                    }
+                });
+            });
+            
+            // Sort by the selected metric and get top 5
+            let sortKey = 'totalEngagement';
+            if (metric === 'views') sortKey = 'totalViews';
+            else if (metric === 'engagementRate') sortKey = 'totalEngagement'; // We'll calculate rate later
+            
+            const top5Hashtags = allHashtags.sort((a, b) => b[sortKey] - a[sortKey]).slice(0, 5);
+            
+            // Prepare data for each hashtag across all durations
+            const seriesData = {};
+            
+            top5Hashtags.forEach(hashtag => {
+                seriesData[hashtag.name] = [];
+                
+                Object.keys(hashtagData).forEach(duration => {
+                    const found = hashtagData[duration].find(item => item.name === hashtag.name);
+                    if (found) {
+                        let value;
+                        if (metric === 'engagement') {
+                            value = found.engagement;
+                        } else if (metric === 'views') {
+                            value = found.views;
+                        } else if (metric === 'engagementRate') {
+                            value = found.views > 0 ? (found.engagement / found.views * 100) : 0;
+                        }
+                        seriesData[hashtag.name].push(value);
+                    } else {
+                        seriesData[hashtag.name].push(0);
+                    }
+                });
+            });
+            
+            return {
+                durations: Object.keys(hashtagData),
+                hashtags: top5Hashtags.map(item => item.name),
+                seriesData: seriesData,
+                metric: metric
+            };
+        }
+
+        // Create chart option based on selected metric
+        function createBarChartOption(metric = 'engagement') {
+            const chartData = ensureCompleteData(prepareStackedBarData(metric));
+            
+            let yAxisName, tooltipSuffix, formatValue;
+            
+            if (metric === 'engagement') {
+                yAxisName = 'Engagement';
+                tooltipSuffix = '';
+                formatValue = function(value) {
+                    if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                    else if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+                    return value;
+                };
+            } else if (metric === 'views') {
+                yAxisName = 'Views';
+                tooltipSuffix = '';
+                formatValue = function(value) {
+                    if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                    else if (value >= 1000) return (value / 1000).toFixed(1) + 'K';
+                    return value;
+                };
+            } else if (metric === 'engagementRate') {
+                yAxisName = 'Engagement Rate (%)';
+                tooltipSuffix = '%';
+                formatValue = function(value) {
+                    return value.toFixed(2) + '%';
+                };
+            }
+            
+            return {
+                title: {
+                    text: '',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 16,
+                        fontWeight: 'bold'
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        params.forEach(param => {
+                            result += param.marker + param.seriesName + ': ' + formatValue(param.value) + '<br/>';
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: chartData.hashtags,
+                    type: 'scroll',
+                    orient: 'horizontal',
+                    top: 40
+                },
+                grid: {
+                    top: 80,
+                    bottom: 80,
+                    left: 80,
+                    right: 50
+                },
+                xAxis: {
+                    type: 'category',
+                    data: chartData.durations,
+                    axisLabel: {
+                        rotate: 45,
+                        interval: 0
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: yAxisName,
+                    axisLabel: {
+                        formatter: formatValue
+                    }
+                },
+                series: chartData.hashtags.map((hashtag, index) => ({
+                    name: hashtag,
+                    type: 'bar',
+                    stack: 'total',
+                    data: chartData.seriesData[hashtag],
+                    itemStyle: {
+                        color: `hsl(${index * 72}, 70%, 60%)`
+                    }
+                }))
+            };
+        }
+
+        let currentMetric = 'engagement';
+        const chartData = prepareStackedBarData(currentMetric);
+        
+        // Ensure all hashtags have data for all durations
+        function ensureCompleteData(chartData) {
+            const durations = Object.keys(hashtagData);
+            chartData.hashtags.forEach(hashtag => {
+                durations.forEach((duration, index) => {
+                    // If data point is missing or zero, find average of neighboring points or use minimum value
+                    if (!chartData.seriesData[hashtag][index] || chartData.seriesData[hashtag][index] === 0) {
+                        let value = 0;
+                        // Try to get average of neighboring points
+                        let count = 0;
+                        if (index > 0 && chartData.seriesData[hashtag][index-1]) {
+                            value += chartData.seriesData[hashtag][index-1];
+                            count++;
+                        }
+                        if (index < durations.length-1 && chartData.seriesData[hashtag][index+1]) {
+                            value += chartData.seriesData[hashtag][index+1];
+                            count++;
+                        }
+                        
+                        // If no neighbors, use minimum value from data
+                        if (count === 0) {
+                            const allValues = Object.values(chartData.seriesData).flatMap(arr => arr.filter(v => v > 0));
+                            const minValue = Math.min(...allValues) * 0.5;
+                            chartData.seriesData[hashtag][index] = minValue;
+                        } else {
+                            chartData.seriesData[hashtag][index] = value / count * 0.7; // 70% of average
+                        }
+                    }
+                });
+            });
+            return chartData;
+        }
+        
+
+        // Set initial chart (word cloud and stacked bar chart)
+        visualChart.setOption(wordCloudOption);
+        barLineChart.setOption(createBarChartOption(currentMetric));
+
+        // Button event handlers
+        document.getElementById('wordcloudBtn').addEventListener('click', function() {
+            // Clear the chart first to prevent overlap
+            visualChart.clear();
+            visualChart.setOption(wordCloudOption, true);
+            document.getElementById('wordcloudBtn').classList.add('active');
+            document.getElementById('sunburstBtn').classList.remove('active');
+        });
+
+        document.getElementById('sunburstBtn').addEventListener('click', function() {
+            // Clear the chart first to prevent overlap
+            visualChart.clear();
+            visualChart.setOption(sunburstOption, true);
+            document.getElementById('sunburstBtn').classList.add('active');
+            document.getElementById('wordcloudBtn').classList.remove('active');
+        });
+
+        // Metric selector event handler
+        document.getElementById('metricSelector').addEventListener('change', function() {
+            currentMetric = this.value;
+            barLineChart.setOption(createBarChartOption(currentMetric), true);
+        });
+
+        // Generate table data (top 100)
+        function generateTableData() {
+            let allHashtags = [];
+            Object.keys(hashtagData).forEach(duration => {
+                hashtagData[duration].forEach(item => {
+                    allHashtags.push({
+                        name: item.name,
+                        duration: duration,
+                        count: item.count,
+                        engagement: item.engagement,
+                        views: item.views
+                    });
+                });
+            });
+            
+            return allHashtags.sort((a, b) => b.count - a.count).slice(0, 100);
+        }
+
+        // Populate table
+        function populateTable() {
+            const tableData = generateTableData();
+            const tbody = document.getElementById('tableBody');
+            
+            tableData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td><span class="hashtag-name">${item.name}</span></td>
+                    <td><span class="duration-badge">${item.duration}</span></td>
+                    <td>${item.count.toLocaleString()}</td>
+                    <td>${item.engagement.toLocaleString()}</td>
+                    <td>${item.views.toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Initialize table
+        populateTable();
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            visualChart.resize();
+            barLineChart.resize();
+        });
+    </script>
+</body>
+</html>

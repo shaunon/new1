@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 500px;
+            margin-bottom: 30px;
+        }
+        .radar-container {
+            width: 100%;
+            height: 600px;
+            margin-bottom: 30px;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .sentiment-header {
+            text-align: center;
+            font-weight: bold;
+            background-color: #e6e6e6;
+        }
+        .metric-name {
+            text-align: left;
+            font-weight: bold;
+        }
+        .positive {
+            color: green;
+        }
+        .negative {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container" id="interactionChart"></div>
+    <div class="chart-container" id="interactionRateChart"></div>
+    <div class="chart-container" id="viewsChart"></div>
+    <div class="chart-container" id="postCountChart"></div>
+    
+    <div class="radar-container" id="emotionRadarChart"></div>
+    
+    <div class="table-container">
+        <table id="metricsTable"></table>
+    </div>
+
+    <script>
+        // Define video duration categories
+        const durationCategories = ['0-15s', '15-30s', '30-60s', '1-3min', '3-5min', '5-10min', '10-20min', '20-30min', '30-60min', '>60min'];
+        
+        // Define sentiment categories
+        const sentiments = ['Positive', 'Negative', 'Neutral'];
+        
+        // Define emotion dimensions for radar chart
+        const emotions = ['Joy', 'Pleasure', 'Sadness', 'Fear', 'Surprise', 'Anger'];
+        
+        // Generate sample data for demonstration
+        function generateData() {
+            const data = {};
+            
+            sentiments.forEach(sentiment => {
+                data[sentiment] = {
+                    interaction: [],
+                    interactionRate: [],
+                    views: [],
+                    postCount: [],
+                    percentages: {},
+                    periodOverPeriod: {}
+                };
+                
+                durationCategories.forEach((_, index) => {
+                    // Generate random values for each metric
+                    data[sentiment].interaction.push(Math.floor(Math.random() * 1000000) + 100000);
+                    data[sentiment].interactionRate.push((Math.random() * 10 + 1).toFixed(2));
+                    data[sentiment].views.push(Math.floor(Math.random() * 10000000) + 1000000);
+                    data[sentiment].postCount.push(Math.floor(Math.random() * 10000) + 1000);
+                });
+                
+                // Calculate percentages
+                const totalInteraction = data[sentiment].interaction.reduce((a, b) => a + b, 0);
+                const totalViews = data[sentiment].views.reduce((a, b) => a + b, 0);
+                const totalPosts = data[sentiment].postCount.reduce((a, b) => a + b, 0);
+                
+                data[sentiment].percentages = {
+                    interaction: data[sentiment].interaction.map(val => ((val / totalInteraction) * 100).toFixed(2)),
+                    views: data[sentiment].views.map(val => ((val / totalViews) * 100).toFixed(2)),
+                    postCount: data[sentiment].postCount.map(val => ((val / totalPosts) * 100).toFixed(2))
+                };
+                
+                // Generate period-over-period changes (e.g., month-over-month)
+                data[sentiment].periodOverPeriod = {
+                    interaction: data[sentiment].interaction.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    interactionRate: data[sentiment].interactionRate.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    views: data[sentiment].views.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    postCount: data[sentiment].postCount.map(() => ((Math.random() * 40) - 20).toFixed(2))
+                };
+            });
+            
+            // Generate radar chart data for emotions across video durations
+            const radarData = {};
+            durationCategories.forEach(duration => {
+                radarData[duration] = [];
+                emotions.forEach(() => {
+                    // Generate random percentage for each emotion dimension
+                    radarData[duration].push(Math.floor(Math.random() * 100));
+                });
+            });
+            
+            return { sentimentData: data, radarData: radarData };
+        }
+        
+        const { sentimentData, radarData } = generateData();
+        
+        // Initialize ECharts instances
+        const interactionChart = echarts.init(document.getElementById('interactionChart'));
+        const interactionRateChart = echarts.init(document.getElementById('interactionRateChart'));
+        const viewsChart = echarts.init(document.getElementById('viewsChart'));
+        const postCountChart = echarts.init(document.getElementById('postCountChart'));
+        const emotionRadarChart = echarts.init(document.getElementById('emotionRadarChart'));
+        
+        // Prepare series data for each chart
+        function prepareSeries(metricName) {
+            return sentiments.map(sentiment => {
+                return {
+                    name: sentiment,
+                    type: 'bar',
+                    stack: 'total',
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: sentimentData[sentiment][metricName]
+                };
+            });
+        }
+        
+        // Chart options
+        const interactionChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: sentiments
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: durationCategories
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Interaction Volume'
+            },
+            series: prepareSeries('interaction')
+        };
+        
+        const interactionRateChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: sentiments
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: durationCategories
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Interaction Rate (%)'
+            },
+            series: prepareSeries('interactionRate')
+        };
+        
+        const viewsChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: sentiments
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: durationCategories
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Views'
+            },
+            series: prepareSeries('views')
+        };
+        
+        const postCountChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: sentiments
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: durationCategories
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Post Count'
+            },
+            series: prepareSeries('postCount')
+        };
+        
+        // Prepare radar chart series
+        const radarSeries = durationCategories.map(duration => {
+            return {
+                name: duration,
+                type: 'radar',
+                data: [
+                    {
+                        value: radarData[duration],
+                        name: duration
+                    }
+                ]
+            };
+        });
+        
+        // Radar chart option
+        const emotionRadarChartOption = {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                type: 'scroll',
+                bottom: 10,
+                data: durationCategories
+            },
+            radar: {
+                indicator: emotions.map(emotion => {
+                    return { name: emotion, max: 100 };
+                }),
+                radius: '65%'
+            },
+            series: radarSeries
+        };
+        
+        // Render charts
+        interactionChart.setOption(interactionChartOption);
+        interactionRateChart.setOption(interactionRateChartOption);
+        viewsChart.setOption(viewsChartOption);
+        postCountChart.setOption(postCountChartOption);
+        emotionRadarChart.setOption(emotionRadarChartOption);
+        
+        // Create data table
+        function createDataTable() {
+            const table = document.getElementById('metricsTable');
+            let html = '';
+            
+            // Header row with duration categories
+            html += '<tr><th>Sentiment</th><th>Metric</th>';
+            durationCategories.forEach(category => {
+                html += `<th>${category}</th>`;
+            });
+            html += '<th>Total</th></tr>';
+            
+            // Data rows for each sentiment
+            sentiments.forEach(sentiment => {
+                // Sentiment header
+                html += `<tr><td colspan="${durationCategories.length + 3}" class="sentiment-header">${sentiment}</td></tr>`;
+                
+                // Interaction Volume
+                html += '<tr><td rowspan="3" class="metric-name">Interaction Volume</td><td>Value</td>';
+                const totalInteraction = sentimentData[sentiment].interaction.reduce((a, b) => a + b, 0);
+                sentimentData[sentiment].interaction.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalInteraction.toLocaleString()}</td></tr>`;
+                
+                // Interaction Volume Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                sentimentData[sentiment].percentages.interaction.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Interaction Volume Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                sentimentData[sentiment].periodOverPeriod.interaction.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Views
+                html += '<tr><td rowspan="3" class="metric-name">Views</td><td>Value</td>';
+                const totalViews = sentimentData[sentiment].views.reduce((a, b) => a + b, 0);
+                sentimentData[sentiment].views.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalViews.toLocaleString()}</td></tr>`;
+                
+                // Views Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                sentimentData[sentiment].percentages.views.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Views Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                sentimentData[sentiment].periodOverPeriod.views.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Interaction Rate
+                html += '<tr><td rowspan="2" class="metric-name">Interaction Rate (%)</td><td>Value</td>';
+                sentimentData[sentiment].interactionRate.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                const avgInteractionRate = (sentimentData[sentiment].interactionRate.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / sentimentData[sentiment].interactionRate.length).toFixed(2);
+                html += `<td>${avgInteractionRate}%</td></tr>`;
+                
+                // Interaction Rate Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                sentimentData[sentiment].periodOverPeriod.interactionRate.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Post Count
+                html += '<tr><td rowspan="3" class="metric-name">Post Count</td><td>Value</td>';
+                const totalPosts = sentimentData[sentiment].postCount.reduce((a, b) => a + b, 0);
+                sentimentData[sentiment].postCount.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalPosts.toLocaleString()}</td></tr>`;
+                
+                // Post Count Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                sentimentData[sentiment].percentages.postCount.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Post Count Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                sentimentData[sentiment].periodOverPeriod.postCount.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+            });
+            
+            table.innerHTML = html;
+        }
+        
+        createDataTable();
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            interactionChart.resize();
+            interactionRateChart.resize();
+            viewsChart.resize();
+            postCountChart.resize();
+            emotionRadarChart.resize();
+        });
+    </script>
+</body>
+</html>

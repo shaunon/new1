@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGM Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .chart-section {
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #f5f5f5;
+        }
+
+        .btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            padding: 6px 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- River Chart / Area Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleTimeChart('river')">River Chart</button>
+                    <button class="btn" onclick="toggleTimeChart('area')">Area Chart</button>
+                </div>
+                <button class="download-btn" onclick="downloadChart('time')">Download</button>
+            </div>
+            <div id="timeChart" class="chart-container"></div>
+        </div>
+
+        <!-- Bar Charts Section -->
+        <div class="grid">
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div></div>
+                    <button class="download-btn" onclick="downloadChart('country')">Download</button>
+                </div>
+                <div id="countryChart" class="chart-container"></div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div></div>
+                    <button class="download-btn" onclick="downloadChart('platform')">Download</button>
+                </div>
+                <div id="platformChart" class="chart-container"></div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div></div>
+                    <button class="download-btn" onclick="downloadChart('sentiment')">Download</button>
+                </div>
+                <div id="sentimentChart" class="chart-container"></div>
+            </div>
+        </div>
+
+        <!-- Word Cloud / Sunburst Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleTopChart('wordcloud')">Word Cloud</button>
+                    <button class="btn" onclick="toggleTopChart('sunburst')">Sunburst Chart</button>
+                </div>
+                <button class="download-btn" onclick="downloadChart('top')">Download</button>
+            </div>
+            <div id="topChart" class="chart-container"></div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div></div>
+                <button class="download-btn" onclick="downloadTableData()">Download CSV</button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>BGM type</th>
+                        <th>Authors</th>
+                        <th>Posts</th>
+                        <th>Engagement</th>
+                        <th>Net Sentiment</th>
+                        <th>Potential Reach</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Sample BGM data
+        const bgmData = {
+            timeData: {
+                dates: ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'],
+                bgmTypes: {
+                    'Pop Music': [1500, 1650, 1400, 1800, 2000, 2200],
+                    'Electronic': [900, 1000, 850, 1100, 1300, 1400],
+                    'Hip Hop': [700, 780, 650, 850, 950, 1050],
+                    'Rock': [500, 550, 480, 600, 680, 750],
+                    'Classical': [300, 320, 280, 350, 400, 420],
+                    'Jazz': [200, 220, 190, 250, 280, 300],
+                    'Upbeat': [1200, 1350, 1100, 1400, 1600, 1800],
+                    'Calm': [800, 900, 750, 950, 1100, 1200],
+                    'Energetic': [600, 650, 580, 720, 800, 850],
+                    'Melancholic': [400, 450, 380, 500, 550, 600]
+                }
+            },
+            countryData: {
+                'Pop Music': [
+                    {name: 'USA', value: 35},
+                    {name: 'UK', value: 20},
+                    {name: 'Canada', value: 15},
+                    {name: 'Australia', value: 12},
+                    {name: 'Others', value: 18}
+                ],
+                'Electronic': [
+                    {name: 'Germany', value: 25},
+                    {name: 'Netherlands', value: 20},
+                    {name: 'UK', value: 18},
+                    {name: 'USA', value: 15},
+                    {name: 'Others', value: 22}
+                ],
+                'Hip Hop': [
+                    {name: 'USA', value: 45},
+                    {name: 'Canada', value: 15},
+                    {name: 'UK', value: 12},
+                    {name: 'France', value: 10},
+                    {name: 'Others', value: 18}
+                ],
+                'Upbeat': [
+                    {name: 'USA', value: 30},
+                    {name: 'Brazil', value: 20},
+                    {name: 'India', value: 15},
+                    {name: 'Mexico', value: 12},
+                    {name: 'Others', value: 23}
+                ]
+            },
+            platformData: {
+                'Pop Music': [
+                    {name: 'TikTok', value: 45},
+                    {name: 'Instagram', value: 30},
+                    {name: 'YouTube', value: 20},
+                    {name: 'Twitter', value: 5}
+                ],
+                'Electronic': [
+                    {name: 'TikTok', value: 50},
+                    {name: 'Instagram', value: 25},
+                    {name: 'YouTube', value: 20},
+                    {name: 'Twitter', value: 5}
+                ],
+                'Hip Hop': [
+                    {name: 'TikTok', value: 55},
+                    {name: 'Instagram', value: 25},
+                    {name: 'YouTube', value: 15},
+                    {name: 'Twitter', value: 5}
+                ],
+                'Upbeat': [
+                    {name: 'TikTok', value: 48},
+                    {name: 'Instagram', value: 28},
+                    {name: 'YouTube', value: 19},
+                    {name: 'Twitter', value: 5}
+                ]
+            },
+            sentimentData: {
+                'Pop Music': [
+                    {name: 'Positive', value: 65},
+                    {name: 'Neutral', value: 25},
+                    {name: 'Negative', value: 10}
+                ],
+                'Electronic': [
+                    {name: 'Positive', value: 60},
+                    {name: 'Neutral', value: 30},
+                    {name: 'Negative', value: 10}
+                ],
+                'Hip Hop': [
+                    {name: 'Positive', value: 55},
+                    {name: 'Neutral', value: 30},
+                    {name: 'Negative', value: 15}
+                ],
+                'Upbeat': [
+                    {name: 'Positive', value: 75},
+                    {name: 'Neutral', value: 20},
+                    {name: 'Negative', value: 5}
+                ]
+            },
+            topData: {
+                tags: [
+                    {name: 'music', value: 150},
+                    {name: 'dance', value: 130},
+                    {name: 'viral', value: 120},
+                    {name: 'trending', value: 110},
+                    {name: 'beat', value: 100},
+                    {name: 'rhythm', value: 95},
+                    {name: 'sound', value: 90},
+                    {name: 'audio', value: 85},
+                    {name: 'melody', value: 80},
+                    {name: 'vibe', value: 75},
+                    {name: 'mood', value: 70},
+                    {name: 'energy', value: 65},
+                    {name: 'party', value: 60},
+                    {name: 'fun', value: 55},
+                    {name: 'cool', value: 50},
+                    {name: 'awesome', value: 48},
+                    {name: 'amazing', value: 46},
+                    {name: 'love', value: 44},
+                    {name: 'like', value: 42},
+                    {name: 'good', value: 40},
+                    {name: 'best', value: 38},
+                    {name: 'nice', value: 36},
+                    {name: 'great', value: 34},
+                    {name: 'perfect', value: 32},
+                    {name: 'beautiful', value: 30},
+                    {name: 'style', value: 28},
+                    {name: 'creative', value: 26},
+                    {name: 'original', value: 24},
+                    {name: 'unique', value: 22},
+                    {name: 'special', value: 20},
+                    {name: 'fresh', value: 18},
+                    {name: 'new', value: 16},
+                    {name: 'hot', value: 14},
+                    {name: 'fire', value: 12},
+                    {name: 'lit', value: 10}
+                ],
+                mentions: [
+                    {name: '@musicproducer', value: 55},
+                    {name: '@dj_official', value: 50},
+                    {name: '@beatmaker', value: 45},
+                    {name: '@artist_music', value: 40},
+                    {name: '@soundcloud', value: 35},
+                    {name: '@spotify', value: 30},
+                    {name: '@applemusic', value: 25},
+                    {name: '@youtube_music', value: 20},
+                    {name: '@musician', value: 18},
+                    {name: '@singer', value: 16},
+                    {name: '@rapper', value: 14},
+                    {name: '@composer', value: 12},
+                    {name: '@songwriter', value: 10},
+                    {name: '@producer', value: 8},
+                    {name: '@mixer', value: 6}
+                ],
+                emojis: [
+                    {name: '🎵', value: 200},
+                    {name: '🎶', value: 180},
+                    {name: '🎤', value: 160},
+                    {name: '🎧', value: 140},
+                    {name: '🔥', value: 120},
+                    {name: '💃', value: 100},
+                    {name: '🕺', value: 90},
+                    {name: '❤️', value: 80},
+                    {name: '😍', value: 70},
+                    {name: '🤩', value: 60},
+                    {name: '✨', value: 50},
+                    {name: '🎉', value: 45},
+                    {name: '👏', value: 40},
+                    {name: '🙌', value: 35},
+                    {name: '💯', value: 30},
+                    {name: '🎸', value: 28},
+                    {name: '🥁', value: 26},
+                    {name: '🎹', value: 24},
+                    {name: '🎺', value: 22},
+                    {name: '🎷', value: 20},
+                    {name: '🎻', value: 18},
+                    {name: '🪕', value: 16},
+                    {name: '🎼', value: 14},
+                    {name: '🎙️', value: 12},
+                    {name: '📻', value: 10},
+                    {name: '🔊', value: 8},
+                    {name: '📢', value: 6},
+                    {name: '🎚️', value: 4},
+                    {name: '🎛️', value: 2}
+                ]
+            },
+            tableData: [
+                {bgmType: 'Pop Music', authors: 18500, posts: 125000, engagement: '8.5M', netSentiment: '+0.55', potentialReach: '180M'},
+                {bgmType: 'Electronic', authors: 12300, posts: 89000, engagement: '5.2M', netSentiment: '+0.50', potentialReach: '120M'},
+                {bgmType: 'Hip Hop', authors: 9800, posts: 67000, engagement: '4.1M', netSentiment: '+0.40', potentialReach: '95M'},
+                {bgmType: 'Rock', authors: 6500, posts: 45000, engagement: '2.8M', netSentiment: '+0.35', potentialReach: '68M'},
+                {bgmType: 'Classical', authors: 3200, posts: 22000, engagement: '1.2M', netSentiment: '+0.45', potentialReach: '35M'},
+                {bgmType: 'Jazz', authors: 2100, posts: 15000, engagement: '800K', netSentiment: '+0.42', potentialReach: '25M'},
+                {bgmType: 'Upbeat', authors: 15600, posts: 98000, engagement: '6.8M', netSentiment: '+0.65', potentialReach: '145M'},
+                {bgmType: 'Calm', authors: 11200, posts: 72000, engagement: '4.5M', netSentiment: '+0.48', potentialReach: '105M'},
+                {bgmType: 'Energetic', authors: 8900, posts: 58000, engagement: '3.9M', netSentiment: '+0.52', potentialReach: '85M'},
+                {bgmType: 'Melancholic', authors: 5400, posts: 35000, engagement: '2.1M', netSentiment: '+0.25', potentialReach: '52M'}
+            ]
+        };
+
+        // Initialize charts
+        let timeChart, countryChart, platformChart, sentimentChart, topChart;
+        let currentTimeChartType = 'river';
+        let currentTopChartType = 'wordcloud';
+
+        function initCharts() {
+            timeChart = echarts.init(document.getElementById('timeChart'));
+            countryChart = echarts.init(document.getElementById('countryChart'));
+            platformChart = echarts.init(document.getElementById('platformChart'));
+            sentimentChart = echarts.init(document.getElementById('sentimentChart'));
+            topChart = echarts.init(document.getElementById('topChart'));
+
+            updateTimeChart();
+            updateBarCharts();
+            updateTopChart();
+            updateDataTable();
+        }
+
+        function updateTimeChart() {
+            timeChart.clear();
+            const option = currentTimeChartType === 'river' ? getRiverChartOption() : getAreaChartOption();
+            timeChart.setOption(option);
+        }
+
+        function getRiverChartOption() {
+            return {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'line',
+                        lineStyle: {
+                            color: 'rgba(0,0,0,0.2)',
+                            width: 1,
+                            type: 'solid'
+                        }
+                    }
+                },
+                legend: {
+                    data: Object.keys(bgmData.timeData.bgmTypes)
+                },
+                singleAxis: {
+                    top: 50,
+                    bottom: 50,
+                    axisTick: {},
+                    axisLabel: {},
+                    type: 'time',
+                    axisPointer: {
+                        animation: true,
+                        label: {
+                            show: true
+                        }
+                    },
+                    splitLine: {
+                        show: true,
+                        lineStyle: {
+                            type: 'dashed',
+                            opacity: 0.2
+                        }
+                    }
+                },
+                series: [{
+                    type: 'themeRiver',
+                    itemStyle: {
+                        emphasis: {
+                            shadowBlur: 20,
+                            shadowColor: 'rgba(0, 0, 0, 0.8)'
+                        }
+                    },
+                    data: Object.keys(bgmData.timeData.bgmTypes).flatMap(bgmType =>
+                        bgmData.timeData.dates.map((date, index) => [
+                            date,
+                            bgmData.timeData.bgmTypes[bgmType][index],
+                            bgmType
+                        ])
+                    )
+                }]
+            };
+        }
+
+        function getAreaChartOption() {
+            const series = Object.keys(bgmData.timeData.bgmTypes).map(bgmType => ({
+                name: bgmType,
+                type: 'line',
+                stack: 'Total',
+                areaStyle: {},
+                emphasis: {
+                    focus: 'series'
+                },
+                data: bgmData.timeData.bgmTypes[bgmType]
+            }));
+
+            return {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#6a7985'
+                        }
+                    }
+                },
+                legend: {
+                    data: Object.keys(bgmData.timeData.bgmTypes)
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: bgmData.timeData.dates
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: series
+            };
+        }
+
+        function updateBarCharts() {
+            // Country Chart
+            const countryOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: Object.keys(bgmData.countryData)
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value'
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['USA', 'UK', 'Germany', 'Canada', 'Brazil', 'Others']
+                },
+                series: Object.keys(bgmData.countryData).map(bgmType => ({
+                    name: bgmType,
+                    type: 'bar',
+                    stack: 'total',
+                    data: bgmData.countryData[bgmType].map(item => item.value)
+                }))
+            };
+            countryChart.setOption(countryOption);
+
+            // Platform Chart
+            const platformOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: Object.keys(bgmData.platformData)
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['TikTok', 'Instagram', 'YouTube', 'Twitter']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: Object.keys(bgmData.platformData).map(bgmType => ({
+                    name: bgmType,
+                    type: 'bar',
+                    data: bgmData.platformData[bgmType].map(item => item.value)
+                }))
+            };
+            platformChart.setOption(platformOption);
+
+            // Sentiment Chart
+            const sentimentOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: Object.keys(bgmData.sentimentData)
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Positive', 'Neutral', 'Negative']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: Object.keys(bgmData.sentimentData).map(bgmType => ({
+                    name: bgmType,
+                    type: 'bar',
+                    data: bgmData.sentimentData[bgmType].map(item => item.value)
+                }))
+            };
+            sentimentChart.setOption(sentimentOption);
+        }
+
+        function updateTopChart() {
+            const option = currentTopChartType === 'wordcloud' ? getWordCloudOption() : getSunburstOption();
+            topChart.setOption(option);
+        }
+
+        function getWordCloudOption() {
+            const allData = [
+                ...bgmData.topData.tags,
+                ...bgmData.topData.mentions,
+                ...bgmData.topData.emojis
+            ].slice(0, 100);
+
+            return {
+                tooltip: {
+                    show: true
+                },
+                series: [{
+                    type: 'wordCloud',
+                    gridSize: 2,
+                    sizeRange: [12, 50],
+                    rotationRange: [-90, 90],
+                    shape: 'pentagon',
+                    width: '100%',
+                    height: '100%',
+                    drawOutOfBound: true,
+                    textStyle: {
+                        fontFamily: 'sans-serif',
+                        fontWeight: 'bold',
+                        color: function () {
+                            return 'rgb(' + [
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160)
+                            ].join(',') + ')';
+                        }
+                    },
+                    emphasis: {
+                        textStyle: {
+                            shadowBlur: 10,
+                            shadowColor: '#333'
+                        }
+                    },
+                    data: allData
+                }]
+            };
+        }
+
+        function getSunburstOption() {
+            const data = [
+                {
+                    name: 'Tags',
+                    children: bgmData.topData.tags.slice(0, 35).map(item => ({
+                        name: item.name,
+                        value: item.value
+                    }))
+                },
+                {
+                    name: 'Mentions',
+                    children: bgmData.topData.mentions.slice(0, 15).map(item => ({
+                        name: item.name,
+                        value: item.value
+                    }))
+                },
+                {
+                    name: 'Emojis',
+                    children: bgmData.topData.emojis.slice(0, 29).map(item => ({
+                        name: item.name,
+                        value: item.value
+                    }))
+                }
+            ];
+
+            return {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c}'
+                },
+                series: {
+                    type: 'sunburst',
+                    data: data,
+                    radius: [0, '90%'],
+                    itemStyle: {
+                        borderRadius: 7,
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: false
+                    }
+                }
+            };
+        }
+
+        function updateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+            
+            bgmData.tableData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.bgmType}</td>
+                    <td>${row.authors.toLocaleString()}</td>
+                    <td>${row.posts.toLocaleString()}</td>
+                    <td>${row.engagement}</td>
+                    <td>${row.netSentiment}</td>
+                    <td>${row.potentialReach}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleTimeChart(type) {
+            currentTimeChartType = type;
+            updateTimeChart();
+            
+            // Update button states
+            const buttons = event.target.parentElement.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function toggleTopChart(type) {
+            currentTopChartType = type;
+            updateTopChart();
+            
+            // Update button states
+            const buttons = event.target.parentElement.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Download functions
+        function downloadChart(chartType) {
+            let chart;
+            let filename;
+            
+            switch(chartType) {
+                case 'time':
+                    chart = timeChart;
+                    filename = `bgm_time_chart_${currentTimeChartType}.png`;
+                    break;
+                case 'country':
+                    chart = countryChart;
+                    filename = 'bgm_country_distribution.png';
+                    break;
+                case 'platform':
+                    chart = platformChart;
+                    filename = 'bgm_platform_distribution.png';
+                    break;
+                case 'sentiment':
+                    chart = sentimentChart;
+                    filename = 'bgm_sentiment_distribution.png';
+                    break;
+                case 'top':
+                    chart = topChart;
+                    filename = `bgm_top_${currentTopChartType}.png`;
+                    break;
+                default:
+                    return;
+            }
+            
+            if (chart) {
+                const url = chart.getDataURL({
+                    pixelRatio: 2,
+                    backgroundColor: '#fff'
+                });
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.click();
+            }
+        }
+
+        function downloadTableData() {
+            const headers = ['BGM type', 'Authors', 'Posts', 'Engagement', 'Net Sentiment', 'Potential Reach'];
+            const csvContent = [
+                headers.join(','),
+                ...bgmData.tableData.map(row => [
+                    row.bgmType,
+                    row.authors,
+                    row.posts,
+                    row.engagement,
+                    row.netSentiment,
+                    row.potentialReach
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'bgm_analysis_data.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', initCharts);
+        window.addEventListener('resize', () => {
+            timeChart?.resize();
+            countryChart?.resize();
+            platformChart?.resize();
+            sentimentChart?.resize();
+            topChart?.resize();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGM Tone Analysis - Hashtag Dimension</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+        }
+
+        .chart-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .data-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #ff6b6b;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-card.engagement {
+            border-left-color: #28a745;
+        }
+
+        .data-card.trending {
+            border-left-color: #ffc107;
+        }
+
+        .data-card.viral {
+            border-left-color: #dc3545;
+        }
+
+        .data-card-header {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .download-icon {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            transition: color 0.2s ease;
+        }
+
+        .download-icon:hover {
+            color: #ff6b6b;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .metric-row:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        .metric-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 2px;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #212529;
+        }
+
+        .hashtag-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .metric-change {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .change-positive {
+            color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .change-negative {
+            color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .chart-container {
+            flex: 1;
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .chart-download {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .chart-download:hover {
+            color: #ff6b6b;
+            background-color: #f8f9fa;
+        }
+
+        .chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            background: white;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            border: 1px solid #dee2e6;
+            vertical-align: middle;
+            padding: 15px 12px;
+            text-align: center;
+        }
+
+        .data-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #edf2f7;
+        }
+
+        .hashtag-cell {
+            text-align: left !important;
+            font-weight: 600;
+            color: #1976d2;
+        }
+
+        @media (max-width: 768px) {
+            .chart-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .data-card {
+                min-width: auto;
+                margin-bottom: 20px;
+            }
+
+            .metric-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Chart 1: Top Hashtags by BGM Tone -->
+    <div class="chart-section">
+        <div class="data-card">
+            <div class="data-card-header">
+                Top Hashtag Metrics
+                <span class="download-icon" onclick="downloadData('top-hashtags')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">#music Posts</div>
+                    <div class="metric-value">1.2M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 18.4%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">#dance Posts</div>
+                    <div class="metric-value">890K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.3%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">#trending Posts</div>
+                    <div class="metric-value">654K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 8.7%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">BGM Tone Distribution by Top Hashtags</div>
+                <span class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</span>
+            </div>
+            <div id="chart1" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Hashtag Engagement by BGM Tone -->
+    <div class="chart-section">
+        <div class="data-card engagement">
+            <div class="data-card-header">
+                Hashtag Engagement
+                <span class="download-icon" onclick="downloadData('hashtag-engagement')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Avg Engagement</div>
+                    <div class="metric-value">5.8%</div>
+                </div>
+                <div class="metric-change change-positive">↑ 1.2%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Top Performer</div>
+                    <div class="metric-value">#viral</div>
+                </div>
+                <div class="metric-change change-positive">↑ 24.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Hashtags</div>
+                    <div class="metric-value">2,847</div>
+                </div>
+                <div class="metric-change change-positive">↑ 15.3%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Hashtag Engagement Rate by BGM Tone</div>
+                <span class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</span>
+            </div>
+            <div id="chart2" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Trending Hashtags Analysis -->
+    <div class="chart-section">
+        <div class="data-card trending">
+            <div class="data-card-header">
+                Trending Analysis
+                <span class="download-icon" onclick="downloadData('trending-hashtags')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Rising Star</div>
+                    <div class="metric-value">#upbeat</div>
+                </div>
+                <div class="metric-change change-positive">↑ 156%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Stable Trend</div>
+                    <div class="metric-value">#chill</div>
+                </div>
+                <div class="metric-change change-positive">↑ 8.4%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Declining</div>
+                    <div class="metric-value">#melancholy</div>
+                </div>
+                <div class="metric-change change-negative">↓ 12.7%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Trending Hashtags Growth (Last 30 Days)</div>
+                <span class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</span>
+            </div>
+            <div id="chart3" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-header">
+        <div class="table-title">Detailed Hashtag Analysis by BGM Tone</div>
+        <span class="download-icon" onclick="downloadTableData()" title="Download Table Data">📥</span>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Hashtag</th>
+                <th>Primary BGM Tone</th>
+                <th>Posts Count</th>
+                <th>Total Views</th>
+                <th>Engagement Rate</th>
+                <th>Growth Rate</th>
+            </tr>
+        </thead>
+        <tbody id="dataTableBody">
+        </tbody>
+    </table>
+
+    <script>
+        // Sample data for hashtag analysis by BGM tone
+        const hashtagData = {
+            hashtags: ['#music', '#dance', '#chill', '#viral', '#upbeat', '#energetic', '#trending', '#fyp', '#sound', '#audio'],
+            primaryBGM: ['Upbeat', 'Energetic', 'Calm', 'Dramatic', 'Upbeat', 'Energetic', 'Upbeat', 'Dramatic', 'Calm', 'Energetic'],
+            posts: [1200000, 890000, 654000, 567000, 445000, 389000, 334000, 298000, 267000, 234000],
+            views: [420000000, 298000000, 187000000, 234000000, 156000000, 178000000, 145000000, 189000000, 123000000, 98000000],
+            engagementRate: [6.2, 7.8, 4.9, 9.1, 5.4, 8.3, 6.7, 7.2, 4.1, 5.8],
+            growthRate: [12.4, 18.7, -2.3, 156.2, 8.4, 156.0, 23.1, 45.6, -5.2, 67.8]
+        };
+
+        // Chart 1: Top Hashtags Distribution
+        const chart1 = echarts.init(document.getElementById('chart1'));
+        const option1 = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: ['Upbeat', 'Energetic', 'Calm', 'Dramatic']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value'
+            },
+            yAxis: {
+                type: 'category',
+                data: hashtagData.hashtags.slice(0, 8)
+            },
+            series: [
+                {
+                    name: 'Posts (K)',
+                    type: 'bar',
+                    data: hashtagData.posts.slice(0, 8).map(val => Math.round(val / 1000)),
+                    itemStyle: {
+                        color: '#ff6b6b'
+                    }
+                }
+            ]
+        };
+        chart1.setOption(option1);
+
+        // Chart 2: Engagement Rate by BGM Tone
+        const chart2 = echarts.init(document.getElementById('chart2'));
+        const bgmTones = ['Upbeat', 'Energetic', 'Calm', 'Dramatic'];
+        const avgEngagement = [6.8, 7.3, 4.5, 8.1];
+        
+        const option2 = {
+            tooltip: {
+                trigger: 'item'
+            },
+            radar: {
+                indicator: bgmTones.map(tone => ({
+                    name: tone,
+                    max: 10
+                }))
+            },
+            series: [{
+                name: 'Engagement Rate',
+                type: 'radar',
+                data: [
+                    {
+                        value: avgEngagement,
+                        name: 'Hashtag Engagement Rate (%)',
+                        itemStyle: {
+                            color: '#ff6b6b'
+                        },
+                        areaStyle: {
+                            color: 'rgba(255, 107, 107, 0.3)'
+                        }
+                    }
+                ]
+            }]
+        };
+        chart2.setOption(option2);
+
+        // Chart 3: Trending Analysis
+        const chart3 = echarts.init(document.getElementById('chart3'));
+        const days = Array.from({length: 30}, (_, i) => `Day ${i + 1}`);
+        const trendingHashtags = {
+            '#upbeat': Array.from({length: 30}, (_, i) => Math.round(100 + i * 5.2 + Math.random() * 20)),
+            '#viral': Array.from({length: 30}, (_, i) => Math.round(200 + i * 3.1 + Math.random() * 15)),
+            '#chill': Array.from({length: 30}, (_, i) => Math.round(150 + i * 0.8 + Math.random() * 10))
+        };
+
+        const option3 = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: Object.keys(trendingHashtags)
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: days.filter((_, i) => i % 5 === 0) // Show every 5th day
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Posts (K)'
+            },
+            series: Object.keys(trendingHashtags).map(hashtag => ({
+                name: hashtag,
+                type: 'line',
+                data: trendingHashtags[hashtag].filter((_, i) => i % 5 === 0),
+                smooth: true
+            }))
+        };
+        chart3.setOption(option3);
+
+        // Download functions
+        function downloadChart(chartId) {
+            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
+            const url = chart.getDataURL({
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `bgm-tone-hashtag-analysis-${chartId}.png`;
+            link.click();
+        }
+
+        function downloadData(type) {
+            let csvContent = '';
+            let filename = '';
+            
+            if (type === 'top-hashtags') {
+                csvContent = 'Hashtag,Primary BGM Tone,Posts,Views\n';
+                hashtagData.hashtags.forEach((hashtag, index) => {
+                    csvContent += `${hashtag},${hashtagData.primaryBGM[index]},${hashtagData.posts[index]},${hashtagData.views[index]}\n`;
+                });
+                filename = 'top-hashtags-bgm-tone-analysis.csv';
+            } else if (type === 'hashtag-engagement') {
+                csvContent = 'Hashtag,Engagement Rate (%)\n';
+                hashtagData.hashtags.forEach((hashtag, index) => {
+                    csvContent += `${hashtag},${hashtagData.engagementRate[index]}\n`;
+                });
+                filename = 'hashtag-engagement-tone-analysis.csv';
+            } else if (type === 'trending-hashtags') {
+                csvContent = 'Hashtag,Growth Rate (%),Posts,Views\n';
+                hashtagData.hashtags.forEach((hashtag, index) => {
+                    csvContent += `${hashtag},${hashtagData.growthRate[index]},${hashtagData.posts[index]},${hashtagData.views[index]}\n`;
+                });
+                filename = 'trending-hashtags-tone-analysis.csv';
+            }
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Populate data table
+        function populateDataTable() {
+            const tableBody = document.getElementById('dataTableBody');
+            let html = '';
+
+            hashtagData.hashtags.forEach((hashtag, index) => {
+                const primaryBGM = hashtagData.primaryBGM[index];
+                const posts = hashtagData.posts[index];
+                const views = hashtagData.views[index];
+                const engagementRate = hashtagData.engagementRate[index];
+                const growthRate = hashtagData.growthRate[index];
+                
+                html += `
+                    <tr>
+                        <td class="hashtag-cell">${hashtag}</td>
+                        <td><strong>${primaryBGM}</strong></td>
+                        <td>${posts.toLocaleString()}</td>
+                        <td>${(views / 1000000).toFixed(1)}M</td>
+                        <td>${engagementRate}%</td>
+                        <td style="color: ${growthRate >= 0 ? '#28a745' : '#dc3545'}">${growthRate >= 0 ? '+' : ''}${growthRate}%</td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+
+        function downloadTableData() {
+            let csvContent = 'Hashtag,Primary BGM Tone,Posts,Views,Engagement Rate (%),Growth Rate (%)\n';
+            hashtagData.hashtags.forEach((hashtag, index) => {
+                csvContent += `${hashtag},${hashtagData.primaryBGM[index]},${hashtagData.posts[index]},${hashtagData.views[index]},${hashtagData.engagementRate[index]},${hashtagData.growthRate[index]}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'hashtag-bgm-tone-comprehensive-analysis.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize data table
+        populateDataTable();
+
+        // Make charts responsive
+        window.addEventListener('resize', function() {
+            chart1.resize();
+            chart2.resize();
+            chart3.resize();
+        });
+    </script>
+</body>
+</html>

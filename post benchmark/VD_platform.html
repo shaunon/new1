@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 500px;
+            margin-bottom: 30px;
+        }
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .platform-header {
+            text-align: center;
+            font-weight: bold;
+            background-color: #e6e6e6;
+        }
+        .metric-name {
+            text-align: left;
+            font-weight: bold;
+        }
+        .positive {
+            color: green;
+        }
+        .negative {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container" id="interactionChart"></div>
+    <div class="chart-container" id="interactionRateChart"></div>
+    <div class="chart-container" id="viewsChart"></div>
+    <div class="chart-container" id="postCountChart"></div>
+    
+    <div class="table-container">
+        <table id="metricsTable"></table>
+    </div>
+
+    <script>
+        // Define video duration categories
+        const durationCategories = ['0-15s', '15-30s', '30-60s', '1-3min', '3-5min', '5-10min', '10-20min', '20-30min', '30-60min', '>60min'];
+        
+        // Sample data - replace with actual data
+        const platforms = ['TikTok', 'Instagram', 'YouTube', 'Facebook'];
+        
+        // Generate sample data for demonstration
+        function generateData() {
+            const data = {};
+            
+            platforms.forEach(platform => {
+                data[platform] = {
+                    interaction: [],
+                    interactionRate: [],
+                    views: [],
+                    postCount: [],
+                    percentages: {},
+                    periodOverPeriod: {}
+                };
+                
+                durationCategories.forEach((_, index) => {
+                    // Generate random values for each metric
+                    data[platform].interaction.push(Math.floor(Math.random() * 1000000) + 100000);
+                    data[platform].interactionRate.push((Math.random() * 10 + 1).toFixed(2));
+                    data[platform].views.push(Math.floor(Math.random() * 10000000) + 1000000);
+                    data[platform].postCount.push(Math.floor(Math.random() * 10000) + 1000);
+                });
+                
+                // Calculate percentages
+                const totalInteraction = data[platform].interaction.reduce((a, b) => a + b, 0);
+                const totalViews = data[platform].views.reduce((a, b) => a + b, 0);
+                const totalPosts = data[platform].postCount.reduce((a, b) => a + b, 0);
+                
+                data[platform].percentages = {
+                    interaction: data[platform].interaction.map(val => ((val / totalInteraction) * 100).toFixed(2)),
+                    views: data[platform].views.map(val => ((val / totalViews) * 100).toFixed(2)),
+                    postCount: data[platform].postCount.map(val => ((val / totalPosts) * 100).toFixed(2))
+                };
+                
+                // Generate period-over-period changes (e.g., month-over-month)
+                data[platform].periodOverPeriod = {
+                    interaction: data[platform].interaction.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    interactionRate: data[platform].interactionRate.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    views: data[platform].views.map(() => ((Math.random() * 40) - 20).toFixed(2)),
+                    postCount: data[platform].postCount.map(() => ((Math.random() * 40) - 20).toFixed(2))
+                };
+            });
+            
+            return data;
+        }
+        
+        const data = generateData();
+        
+        // Initialize ECharts instances
+        const interactionChart = echarts.init(document.getElementById('interactionChart'));
+        const interactionRateChart = echarts.init(document.getElementById('interactionRateChart'));
+        const viewsChart = echarts.init(document.getElementById('viewsChart'));
+        const postCountChart = echarts.init(document.getElementById('postCountChart'));
+        
+        // Prepare series data for each chart
+        function prepareSeries(metricName) {
+            return platforms.map(platform => {
+                return {
+                    name: platform,
+                    type: 'bar',
+                    stack: 'total',
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: data[platform][metricName]
+                };
+            });
+        }
+        
+        // Chart options
+        const interactionChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: platforms
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: durationCategories
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Interaction Volume'
+            },
+            series: prepareSeries('interaction')
+        };
+        
+        const interactionRateChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: platforms
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: durationCategories
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Interaction Rate (%)'
+            },
+            series: prepareSeries('interactionRate')
+        };
+        
+        const viewsChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: platforms
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: durationCategories
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Views'
+            },
+            series: prepareSeries('views')
+        };
+        
+        const postCountChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: platforms
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: durationCategories
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Post Count'
+            },
+            series: prepareSeries('postCount')
+        };
+        
+        // Render charts
+        interactionChart.setOption(interactionChartOption);
+        interactionRateChart.setOption(interactionRateChartOption);
+        viewsChart.setOption(viewsChartOption);
+        postCountChart.setOption(postCountChartOption);
+        
+        // Create data table
+        function createDataTable() {
+            const table = document.getElementById('metricsTable');
+            let html = '';
+            
+            // Header row with duration categories
+            html += '<tr><th>Platform</th><th>Metric</th>';
+            durationCategories.forEach(category => {
+                html += `<th>${category}</th>`;
+            });
+            html += '<th>Total</th></tr>';
+            
+            // Data rows for each platform
+            platforms.forEach(platform => {
+                // Platform header
+                html += `<tr><td colspan="${durationCategories.length + 3}" class="platform-header">${platform}</td></tr>`;
+                
+                // Interaction Volume
+                html += '<tr><td rowspan="3" class="metric-name">Interaction Volume</td><td>Value</td>';
+                const totalInteraction = data[platform].interaction.reduce((a, b) => a + b, 0);
+                data[platform].interaction.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalInteraction.toLocaleString()}</td></tr>`;
+                
+                // Interaction Volume Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                data[platform].percentages.interaction.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Interaction Volume Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                data[platform].periodOverPeriod.interaction.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Views
+                html += '<tr><td rowspan="3" class="metric-name">Views</td><td>Value</td>';
+                const totalViews = data[platform].views.reduce((a, b) => a + b, 0);
+                data[platform].views.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalViews.toLocaleString()}</td></tr>`;
+                
+                // Views Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                data[platform].percentages.views.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Views Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                data[platform].periodOverPeriod.views.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Interaction Rate
+                html += '<tr><td rowspan="2" class="metric-name">Interaction Rate (%)</td><td>Value</td>';
+                data[platform].interactionRate.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                const avgInteractionRate = (data[platform].interactionRate.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / data[platform].interactionRate.length).toFixed(2);
+                html += `<td>${avgInteractionRate}%</td></tr>`;
+                
+                // Interaction Rate Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                data[platform].periodOverPeriod.interactionRate.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+                
+                // Post Count
+                html += '<tr><td rowspan="3" class="metric-name">Post Count</td><td>Value</td>';
+                const totalPosts = data[platform].postCount.reduce((a, b) => a + b, 0);
+                data[platform].postCount.forEach(value => {
+                    html += `<td>${value.toLocaleString()}</td>`;
+                });
+                html += `<td>${totalPosts.toLocaleString()}</td></tr>`;
+                
+                // Post Count Percentage
+                html += '<tr><td>Percentage (%)</td>';
+                data[platform].percentages.postCount.forEach(value => {
+                    html += `<td>${value}%</td>`;
+                });
+                html += '<td>100%</td></tr>';
+                
+                // Post Count Period-over-Period
+                html += '<tr><td>Period-over-Period (%)</td>';
+                data[platform].periodOverPeriod.postCount.forEach(value => {
+                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
+                    html += `<td class="${cellClass}">${value}%</td>`;
+                });
+                html += '<td>-</td></tr>';
+            });
+            
+            table.innerHTML = html;
+        }
+        
+        createDataTable();
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            interactionChart.resize();
+            interactionRateChart.resize();
+            viewsChart.resize();
+            postCountChart.resize();
+        });
+    </script>
+</body>
+</html>

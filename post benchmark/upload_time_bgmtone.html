@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .chart-section {
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #f5f5f5;
+        }
+
+        .btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 500px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Data Table Styles */
+        .data-table-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .data-table-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-table-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .data-table-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .export-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 16px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .data-table .number {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .data-table .percentage {
+            position: relative;
+            font-weight: 500;
+        }
+
+        .data-table .percentage::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            border-radius: 2px;
+            transform: translateY(-50%);
+            z-index: -1;
+        }
+
+        .data-table .high { color: #27ae60; }
+        .data-table .medium { color: #f39c12; }
+        .data-table .low { color: #e74c3c; }
+
+        @media (max-width: 768px) {
+            .data-table-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .data-table {
+                font-size: 12px;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- BGM Tone Upload Time Heatmap -->
+        <div class="chart-section">
+            <div class="chart-controls">
+                <button class="btn active" onclick="showView('hourly')">Hourly Trends</button>
+                <button class="btn" onclick="showView('daily')">Daily Patterns</button>
+                <button class="btn" onclick="showView('tone')">Tone Analysis</button>
+            </div>
+            <div id="bgmToneTimeHeatmap" class="chart-container"></div>
+        </div>
+
+        <!-- Secondary Charts Grid -->
+        <div class="grid">
+            <div class="chart-section">
+                <div id="toneDistribution" class="chart-container"></div>
+            </div>
+            <div class="chart-section">
+                <div id="engagementByTone" class="chart-container"></div>
+            </div>
+        </div>
+
+        <!-- Data Summary Table -->
+        <div class="data-table-section">
+            <div class="data-table-header">
+                <h3 class="data-table-title">BGM Tone Performance Summary</h3>
+                <div class="data-table-controls">
+                    <button class="export-btn" onclick="exportTableData()">Export CSV</button>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>BGM Tone</th>
+                        <th>Posts Count</th>
+                        <th>Peak Time</th>
+                        <th>Avg Engagement</th>
+                        <th>Success Rate</th>
+                        <th>Month-over-Month</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryTableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for BGM tone upload time analysis
+        const bgmToneData = {
+            tones: ['Upbeat', 'Melancholic', 'Aggressive', 'Calm', 'Mysterious', 'Romantic', 'Energetic', 'Dreamy', 'Dark', 'Cheerful'],
+            hours: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+            emotionalCycles: ['Dawn Reflection', 'Morning Energy', 'Midday Focus', 'Afternoon Calm', 'Evening Romance', 'Night Mystery', 'Late Night Intensity', 'Deep Night'],
+            intensityLevels: ['Very Low', 'Low', 'Medium-Low', 'Medium', 'Medium-High', 'High', 'Very High', 'Extreme'],
+            
+            generateHourlyData: function() {
+                const data = [];
+                this.tones.forEach((tone, toneIndex) => {
+                    this.hours.forEach((hour, hourIndex) => {
+                        let baseValue = 30;
+                        
+                        // Tone-specific timing patterns based on emotional psychology
+                        if (tone === 'Upbeat' || tone === 'Cheerful') {
+                            if (hourIndex >= 4 && hourIndex <= 8) baseValue = 85; // Daytime peak
+                        } else if (tone === 'Energetic') {
+                            if (hourIndex >= 6 && hourIndex <= 10) baseValue = 90; // Evening energy
+                        } else if (tone === 'Melancholic') {
+                            if (hourIndex >= 10 && hourIndex <= 11) baseValue = 95; // Late night reflection
+                            if (hourIndex >= 0 && hourIndex <= 2) baseValue = 80; // Very late night
+                        } else if (tone === 'Romantic') {
+                            if (hourIndex >= 8 && hourIndex <= 10) baseValue = 92; // Evening romance
+                        } else if (tone === 'Calm' || tone === 'Dreamy') {
+                            if (hourIndex >= 9 && hourIndex <= 11) baseValue = 88; // Night relaxation
+                        } else if (tone === 'Mysterious' || tone === 'Dark') {
+                            if (hourIndex >= 10 && hourIndex <= 11) baseValue = 93; // Late night mystery
+                            if (hourIndex >= 0 && hourIndex <= 3) baseValue = 85; // Deep night
+                        } else if (tone === 'Aggressive') {
+                            if (hourIndex >= 7 && hourIndex <= 10) baseValue = 87; // Evening intensity
+                        }
+                        
+                        const value = Math.round(baseValue + (Math.random() - 0.5) * 25);
+                        data.push([hourIndex, toneIndex, Math.max(0, value)]);
+                    });
+                });
+                return data;
+            },
+            
+            generateEmotionalData: function() {
+                const data = [];
+                this.tones.forEach((tone, toneIndex) => {
+                    this.emotionalCycles.forEach((cycle, cycleIndex) => {
+                        let baseValue = 40;
+                        
+                        // Tone and emotional cycle correlations
+                        if (tone === 'Upbeat' || tone === 'Cheerful') {
+                            if (cycle === 'Morning Energy' || cycle === 'Midday Focus') baseValue = 90;
+                        } else if (tone === 'Energetic') {
+                            if (cycle === 'Morning Energy' || cycle === 'Late Night Intensity') baseValue = 95;
+                        } else if (tone === 'Melancholic') {
+                            if (cycle === 'Dawn Reflection' || cycle === 'Deep Night') baseValue = 92;
+                        } else if (tone === 'Romantic') {
+                            if (cycle === 'Evening Romance') baseValue = 95;
+                        } else if (tone === 'Calm' || tone === 'Dreamy') {
+                            if (cycle === 'Afternoon Calm' || cycle === 'Deep Night') baseValue = 88;
+                        } else if (tone === 'Mysterious' || tone === 'Dark') {
+                            if (cycle === 'Night Mystery' || cycle === 'Deep Night') baseValue = 93;
+                        } else if (tone === 'Aggressive') {
+                            if (cycle === 'Late Night Intensity') baseValue = 90;
+                        }
+                        
+                        const value = Math.round(baseValue + (Math.random() - 0.5) * 25);
+                        data.push([cycleIndex, toneIndex, Math.max(0, value)]);
+                    });
+                });
+                return data;
+            },
+            
+            generateIntensityData: function() {
+                const data = [];
+                this.tones.forEach((tone, toneIndex) => {
+                    this.intensityLevels.forEach((level, levelIndex) => {
+                        let baseValue = 35;
+                        
+                        // Tone and intensity correlations
+                        if (tone === 'Aggressive' || tone === 'Dark') {
+                            if (level === 'High' || level === 'Very High' || level === 'Extreme') baseValue = 90;
+                        } else if (tone === 'Energetic') {
+                            if (level === 'Medium-High' || level === 'High') baseValue = 88;
+                        } else if (tone === 'Upbeat' || tone === 'Cheerful') {
+                            if (level === 'Medium' || level === 'Medium-High') baseValue = 85;
+                        } else if (tone === 'Calm' || tone === 'Dreamy') {
+                            if (level === 'Very Low' || level === 'Low') baseValue = 90;
+                        } else if (tone === 'Melancholic') {
+                            if (level === 'Low' || level === 'Medium-Low') baseValue = 87;
+                        } else if (tone === 'Romantic') {
+                            if (level === 'Medium-Low' || level === 'Medium') baseValue = 82;
+                        } else if (tone === 'Mysterious') {
+                            if (level === 'Medium' || level === 'Medium-High') baseValue = 84;
+                        }
+                        
+                        const value = Math.round(baseValue + (Math.random() - 0.5) * 25);
+                        data.push([levelIndex, toneIndex, Math.max(0, value)]);
+                    });
+                });
+                return data;
+            }
+        };
+
+        let currentChart;
+        let currentView = 'hourly';
+
+        function initializeCharts() {
+            showView('hourly');
+            initToneDistribution();
+            initEmotionalTrends();
+        }
+
+        function showView(view) {
+            currentView = view;
+            
+            // Update button states
+            document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.btn[onclick="showView('${view}')"]`).classList.add('active');
+            
+            if (currentChart) {
+                currentChart.dispose();
+            }
+            
+            currentChart = echarts.init(document.getElementById('bgmToneTimeHeatmap'));
+            
+            let data, xAxisData, yAxisData, maxValue;
+            
+            switch(view) {
+                case 'hourly':
+                    data = bgmToneData.generateHourlyData();
+                    xAxisData = bgmToneData.hours;
+                    yAxisData = bgmToneData.tones;
+                    maxValue = 100;
+                    break;
+                case 'emotional':
+                    data = bgmToneData.generateEmotionalData();
+                    xAxisData = bgmToneData.emotionalCycles;
+                    yAxisData = bgmToneData.tones;
+                    maxValue = 100;
+                    break;
+                case 'intensity':
+                    data = bgmToneData.generateIntensityData();
+                    xAxisData = bgmToneData.intensityLevels;
+                    yAxisData = bgmToneData.tones;
+                    maxValue = 100;
+                    break;
+            }
+            
+            const option = {
+                tooltip: {
+                    position: 'top',
+                    formatter: function (params) {
+                        return `${xAxisData[params.data[0]]}<br/>${yAxisData[params.data[1]]}<br/>Posts: ${params.data[2]}`;
+                    }
+                },
+                grid: {
+                    height: '70%',
+                    top: '10%',
+                    left: '12%',
+                    right: '10%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: xAxisData,
+                    splitArea: {
+                        show: true
+                    },
+                    axisLabel: {
+                        rotate: view === 'emotional' ? 45 : 0
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: yAxisData,
+                    splitArea: {
+                        show: true
+                    }
+                },
+                visualMap: {
+                    min: 0,
+                    max: maxValue,
+                    calculable: true,
+                    orient: 'horizontal',
+                    left: 'center',
+                    bottom: '5%',
+                    inRange: {
+                        color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027']
+                    }
+                },
+                series: [{
+                    type: 'heatmap',
+                    data: data,
+                    label: {
+                        show: true,
+                        formatter: function(params) {
+                            return params.data[2]; // 仅显示作品数量
+                        }
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }]
+            };
+            
+            currentChart.setOption(option);
+        }
+
+        function initToneDistribution() {
+            const chart = echarts.init(document.getElementById('toneDistribution'));
+            
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    left: 'left'
+                },
+                series: [
+                    {
+                        name: 'BGM Tone Usage',
+                        type: 'pie',
+                        radius: '70%',
+                        data: bgmToneData.tones.map((tone, index) => ({
+                            value: Math.round(50 + Math.random() * 200),
+                            name: tone,
+                            itemStyle: {
+                                color: `hsl(${index * 36}, 65%, 55%)`
+                            }
+                        })),
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            
+            chart.setOption(option);
+        }
+
+        function initEmotionalTrends() {
+            const chart = echarts.init(document.getElementById('emotionalTrends'));
+            
+            const timeLabels = ['Morning', 'Afternoon', 'Evening', 'Night', 'Late Night'];
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: ['Positive Tones', 'Neutral Tones', 'Intense Tones', 'Calm Tones']
+                },
+                xAxis: {
+                    type: 'category',
+                    data: timeLabels
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Usage Intensity'
+                },
+                series: [
+                    {
+                        name: 'Positive Tones',
+                        type: 'line',
+                        smooth: true,
+                        data: [85, 90, 75, 60, 45],
+                        itemStyle: {
+                            color: '#28a745'
+                        },
+                        areaStyle: {
+                            opacity: 0.3
+                        }
+                    },
+                    {
+                        name: 'Neutral Tones',
+                        type: 'line',
+                        smooth: true,
+                        data: [70, 75, 80, 85, 70],
+                        itemStyle: {
+                            color: '#007bff'
+                        },
+                        areaStyle: {
+                            opacity: 0.3
+                        }
+                    },
+                    {
+                        name: 'Intense Tones',
+                        type: 'line',
+                        smooth: true,
+                        data: [40, 50, 70, 85, 95],
+                        itemStyle: {
+                            color: '#dc3545'
+                        },
+                        areaStyle: {
+                            opacity: 0.3
+                        }
+                    },
+                    {
+                        name: 'Calm Tones',
+                        type: 'line',
+                        smooth: true,
+                        data: [60, 65, 75, 90, 85],
+                        itemStyle: {
+                            color: '#6f42c1'
+                        },
+                        areaStyle: {
+                            opacity: 0.3
+                        }
+                    }
+                ]
+            };
+            
+            chart.setOption(option);
+        }
+
+        // Initialize charts when page loads
+        window.addEventListener('load', function() {
+            initializeCharts();
+            populateSummaryTable();
+        });
+        
+        // Data table functions
+        function generateSummaryData() {
+            const tones = ['Upbeat', 'Calm', 'Dramatic', 'Romantic', 'Energetic', 'Melancholic', 'Mysterious', 'Cheerful'];
+            return tones.map(tone => {
+                const baseCount = Math.floor(Math.random() * 450) + 180;
+                const engagement = Math.floor(Math.random() * 32) + 38;
+                const successRate = Math.floor(Math.random() * 42) + 58;
+                
+                let peakTime;
+                if (tone === 'Upbeat') peakTime = '19:00-21:00';
+                else if (tone === 'Calm') peakTime = '21:00-23:00';
+                else if (tone === 'Dramatic') peakTime = '20:00-22:00';
+                else if (tone === 'Romantic') peakTime = '18:00-20:00';
+                else if (tone === 'Energetic') peakTime = '17:00-19:00';
+                else if (tone === 'Melancholic') peakTime = '22:00-00:00';
+                else if (tone === 'Mysterious') peakTime = '21:00-23:00';
+                else peakTime = '16:00-18:00';
+                
+                const trends = ['↗️ Rising', '↘️ Declining', '→ Stable'];
+                const trend = trends[Math.floor(Math.random() * trends.length)];
+                
+                // Generate month-over-month growth rate
+                const growthRate = (Math.random() * 40 - 20).toFixed(1); // -20% to +20%
+                const trendValue = growthRate >= 0 ? `+${growthRate}%` : `${growthRate}%`;
+                
+                return {
+                    tone,
+                    postsCount: baseCount,
+                    peakTime,
+                    avgEngagement: engagement,
+                    successRate,
+                    trend: trendValue
+                };
+            });
+        }
+
+        function populateSummaryTable() {
+            const data = generateSummaryData();
+            const tbody = document.getElementById('summaryTableBody');
+            
+            tbody.innerHTML = data.map(row => {
+                const performanceClass = row.successRate >= 80 ? 'high' : row.successRate >= 65 ? 'medium' : 'low';
+                const trendClass = row.trend.startsWith('+') ? 'high' : row.trend.startsWith('-') ? 'low' : 'medium';
+                
+                return `
+                    <tr>
+                        <td><strong>${row.tone}</strong></td>
+                        <td class="number">${row.postsCount.toLocaleString()}</td>
+                        <td>${row.peakTime}</td>
+                        <td class="number">${row.avgEngagement}%</td>
+                        <td class="percentage ${performanceClass}">${row.successRate}%</td>
+                        <td class="percentage ${trendClass}">${row.trend}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function exportTableData() {
+            const data = generateSummaryData();
+            const headers = ['BGM Tone', 'Posts Count', 'Peak Time', 'Avg Engagement', 'Success Rate', 'Month-over-Month'];
+            
+            let csvContent = headers.join(',') + '\n';
+            csvContent += data.map(row => [
+                row.tone,
+                row.postsCount,
+                row.peakTime,
+                row.avgEngagement + '%',
+                row.successRate + '%',
+                row.trend
+            ].join(',')).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bgm_tone_summary.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (currentChart) {
+                currentChart.resize();
+            }
+            echarts.getInstanceByDom(document.getElementById('toneDistribution'))?.resize();
+            echarts.getInstanceByDom(document.getElementById('emotionalTrends'))?.resize();
+        });
+    </script>
+</body>
+</html>

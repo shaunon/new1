@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .chart-section {
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #f5f5f5;
+        }
+
+        .btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            padding: 6px 12px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- River Chart / Area Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleTimeChart('river')">River Chart</button>
+                    <button class="btn" onclick="toggleTimeChart('area')">Area Chart</button>
+                </div>
+                <button class="download-btn" onclick="downloadChart('time')">Download</button>
+            </div>
+            <div id="timeChart" class="chart-container"></div>
+        </div>
+
+        <!-- Bar Charts Section -->
+        <div class="grid">
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div></div>
+                    <button class="download-btn" onclick="downloadChart('country')">Download</button>
+                </div>
+                <div id="countryChart" class="chart-container"></div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div></div>
+                    <button class="download-btn" onclick="downloadChart('platform')">Download</button>
+                </div>
+                <div id="platformChart" class="chart-container"></div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div></div>
+                    <button class="download-btn" onclick="downloadChart('sentiment')">Download</button>
+                </div>
+                <div id="sentimentChart" class="chart-container"></div>
+            </div>
+        </div>
+
+        <!-- Word Cloud / Sunburst Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleTopChart('wordcloud')">Word Cloud</button>
+                    <button class="btn" onclick="toggleTopChart('sunburst')">Sunburst Chart</button>
+                </div>
+                <button class="download-btn" onclick="downloadChart('top')">Download</button>
+            </div>
+            <div id="topChart" class="chart-container"></div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div></div>
+                <button class="download-btn" onclick="downloadTableData()">Download CSV</button>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Language</th>
+                        <th>Authors</th>
+                        <th>Posts</th>
+                        <th>Engagement</th>
+                        <th>Net Sentiment</th>
+                        <th>Potential Reach</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        const languageData = {
+            timeData: {
+                dates: ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'],
+                languages: {
+                    'English': [1200, 1350, 1100, 1400, 1600, 1800],
+                    'Spanish': [800, 900, 750, 950, 1100, 1200],
+                    'French': [600, 650, 580, 720, 800, 850],
+                    'German': [400, 450, 380, 500, 550, 600],
+                    'Italian': [300, 320, 280, 350, 400, 420],
+                    'Portuguese': [250, 280, 240, 300, 350, 380]
+                }
+            },
+            countryData: {
+                'English': [
+                    {name: 'USA', value: 45},
+                    {name: 'UK', value: 25},
+                    {name: 'Canada', value: 15},
+                    {name: 'Australia', value: 10},
+                    {name: 'Others', value: 5}
+                ],
+                'Spanish': [
+                    {name: 'Spain', value: 35},
+                    {name: 'Mexico', value: 30},
+                    {name: 'Argentina', value: 20},
+                    {name: 'Colombia', value: 10},
+                    {name: 'Others', value: 5}
+                ],
+                'French': [
+                    {name: 'France', value: 60},
+                    {name: 'Canada', value: 20},
+                    {name: 'Belgium', value: 10},
+                    {name: 'Switzerland', value: 7},
+                    {name: 'Others', value: 3}
+                ]
+            },
+            platformData: {
+                'English': [
+                    {name: 'Instagram', value: 40},
+                    {name: 'TikTok', value: 30},
+                    {name: 'YouTube', value: 20},
+                    {name: 'Twitter', value: 10}
+                ],
+                'Spanish': [
+                    {name: 'TikTok', value: 45},
+                    {name: 'Instagram', value: 35},
+                    {name: 'YouTube', value: 15},
+                    {name: 'Twitter', value: 5}
+                ],
+                'French': [
+                    {name: 'Instagram', value: 50},
+                    {name: 'TikTok', value: 25},
+                    {name: 'YouTube', value: 20},
+                    {name: 'Twitter', value: 5}
+                ]
+            },
+            sentimentData: {
+                'English': [
+                    {name: 'Positive', value: 55},
+                    {name: 'Neutral', value: 30},
+                    {name: 'Negative', value: 15}
+                ],
+                'Spanish': [
+                    {name: 'Positive', value: 60},
+                    {name: 'Neutral', value: 25},
+                    {name: 'Negative', value: 15}
+                ],
+                'French': [
+                    {name: 'Positive', value: 50},
+                    {name: 'Neutral', value: 35},
+                    {name: 'Negative', value: 15}
+                ]
+            },
+            topData: {
+                tags: [
+                    {name: 'fashion', value: 120},
+                    {name: 'beauty', value: 100},
+                    {name: 'lifestyle', value: 95},
+                    {name: 'travel', value: 85},
+                    {name: 'food', value: 80},
+                    {name: 'fitness', value: 75},
+                    {name: 'art', value: 70},
+                    {name: 'music', value: 65},
+                    {name: 'photography', value: 60},
+                    {name: 'nature', value: 55},
+                    {name: 'design', value: 50},
+                    {name: 'technology', value: 45},
+                    {name: 'sports', value: 40},
+                    {name: 'culture', value: 35},
+                    {name: 'education', value: 30},
+                    {name: 'business', value: 28},
+                    {name: 'health', value: 26},
+                    {name: 'science', value: 24},
+                    {name: 'entertainment', value: 22},
+                    {name: 'gaming', value: 20},
+                    {name: 'books', value: 18},
+                    {name: 'movies', value: 16},
+                    {name: 'cooking', value: 14},
+                    {name: 'pets', value: 12},
+                    {name: 'family', value: 10},
+                    {name: 'friends', value: 9},
+                    {name: 'love', value: 8},
+                    {name: 'happiness', value: 7},
+                    {name: 'inspiration', value: 6},
+                    {name: 'motivation', value: 5},
+                    {name: 'success', value: 4},
+                    {name: 'goals', value: 3},
+                    {name: 'dreams', value: 2},
+                    {name: 'adventure', value: 1}
+                ],
+                mentions: [
+                    {name: '@influencer1', value: 45},
+                    {name: '@brand_official', value: 40},
+                    {name: '@celebrity', value: 35},
+                    {name: '@photographer', value: 30},
+                    {name: '@artist', value: 25},
+                    {name: '@musician', value: 20},
+                    {name: '@chef', value: 18},
+                    {name: '@athlete', value: 16},
+                    {name: '@designer', value: 14},
+                    {name: '@writer', value: 12},
+                    {name: '@blogger', value: 10},
+                    {name: '@youtuber', value: 8},
+                    {name: '@tiktoker', value: 6},
+                    {name: '@model', value: 4},
+                    {name: '@actor', value: 2}
+                ],
+                emojis: [
+                    {name: '😍', value: 200},
+                    {name: '❤️', value: 180},
+                    {name: '😊', value: 160},
+                    {name: '🔥', value: 140},
+                    {name: '👏', value: 120},
+                    {name: '💕', value: 100},
+                    {name: '✨', value: 90},
+                    {name: '🙌', value: 80},
+                    {name: '💖', value: 70},
+                    {name: '😘', value: 60},
+                    {name: '🌟', value: 50},
+                    {name: '💯', value: 45},
+                    {name: '🎉', value: 40},
+                    {name: '😎', value: 35},
+                    {name: '💪', value: 30},
+                    {name: '🥰', value: 28},
+                    {name: '👌', value: 26},
+                    {name: '🤩', value: 24},
+                    {name: '💝', value: 22},
+                    {name: '🌈', value: 20},
+                    {name: '🎊', value: 18},
+                    {name: '💐', value: 16},
+                    {name: '🌸', value: 14},
+                    {name: '🦋', value: 12},
+                    {name: '🌺', value: 10},
+                    {name: '🍀', value: 8},
+                    {name: '🌙', value: 6},
+                    {name: '⭐', value: 4},
+                    {name: '🌻', value: 2}
+                ]
+            },
+            tableData: [
+                {language: 'English', authors: 15420, posts: 89650, engagement: '4.2M', netSentiment: '+0.42', potentialReach: '125M'},
+                {language: 'Spanish', authors: 8930, posts: 52340, engagement: '2.8M', netSentiment: '+0.38', potentialReach: '78M'},
+                {language: 'French', authors: 6780, posts: 38920, engagement: '1.9M', netSentiment: '+0.35', potentialReach: '56M'},
+                {language: 'German', authors: 4560, posts: 26780, engagement: '1.4M', netSentiment: '+0.31', potentialReach: '42M'},
+                {language: 'Italian', authors: 3240, posts: 19450, engagement: '980K', netSentiment: '+0.29', potentialReach: '31M'},
+                {language: 'Portuguese', authors: 2890, posts: 16720, engagement: '850K', netSentiment: '+0.33', potentialReach: '28M'}
+            ]
+        };
+
+        // Initialize charts
+        let timeChart, countryChart, platformChart, sentimentChart, topChart;
+        let currentTimeChartType = 'river';
+        let currentTopChartType = 'wordcloud';
+
+        function initCharts() {
+            timeChart = echarts.init(document.getElementById('timeChart'));
+            countryChart = echarts.init(document.getElementById('countryChart'));
+            platformChart = echarts.init(document.getElementById('platformChart'));
+            sentimentChart = echarts.init(document.getElementById('sentimentChart'));
+            topChart = echarts.init(document.getElementById('topChart'));
+
+            updateTimeChart();
+            updateBarCharts();
+            updateTopChart();
+            updateDataTable();
+        }
+
+        function updateTimeChart() {
+            // Clear the chart before setting new option to prevent overlapping
+            timeChart.clear();
+            const option = currentTimeChartType === 'river' ? getRiverChartOption() : getAreaChartOption();
+            timeChart.setOption(option);
+        }
+
+        function getRiverChartOption() {
+            const series = Object.keys(languageData.timeData.languages).map(lang => ({
+                name: lang,
+                type: 'themeRiver',
+                data: languageData.timeData.dates.map((date, index) => [
+                    date,
+                    languageData.timeData.languages[lang][index],
+                    lang
+                ])
+            }));
+
+            return {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'line',
+                        lineStyle: {
+                            color: 'rgba(0,0,0,0.2)',
+                            width: 1,
+                            type: 'solid'
+                        }
+                    }
+                },
+                legend: {
+                    data: Object.keys(languageData.timeData.languages)
+                },
+                singleAxis: {
+                    top: 50,
+                    bottom: 50,
+                    axisTick: {},
+                    axisLabel: {},
+                    type: 'time',
+                    axisPointer: {
+                        animation: true,
+                        label: {
+                            show: true
+                        }
+                    },
+                    splitLine: {
+                        show: true,
+                        lineStyle: {
+                            type: 'dashed',
+                            opacity: 0.2
+                        }
+                    }
+                },
+                series: [{
+                    type: 'themeRiver',
+                    itemStyle: {
+                        emphasis: {
+                            shadowBlur: 20,
+                            shadowColor: 'rgba(0, 0, 0, 0.8)'
+                        }
+                    },
+                    data: Object.keys(languageData.timeData.languages).flatMap(lang =>
+                        languageData.timeData.dates.map((date, index) => [
+                            date,
+                            languageData.timeData.languages[lang][index],
+                            lang
+                        ])
+                    )
+                }]
+            };
+        }
+
+        function getAreaChartOption() {
+            const series = Object.keys(languageData.timeData.languages).map(lang => ({
+                name: lang,
+                type: 'line',
+                stack: 'Total',
+                areaStyle: {},
+                emphasis: {
+                    focus: 'series'
+                },
+                data: languageData.timeData.languages[lang]
+            }));
+
+            return {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#6a7985'
+                        }
+                    }
+                },
+                legend: {
+                    data: Object.keys(languageData.timeData.languages)
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: languageData.timeData.dates
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: series
+            };
+        }
+
+        function updateBarCharts() {
+            // Country Chart
+            const countryOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: Object.keys(languageData.countryData)
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value'
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['USA', 'UK', 'Spain', 'France', 'Mexico', 'Canada', 'Others']
+                },
+                series: Object.keys(languageData.countryData).map(lang => ({
+                    name: lang,
+                    type: 'bar',
+                    stack: 'total',
+                    data: languageData.countryData[lang].map(item => item.value)
+                }))
+            };
+            countryChart.setOption(countryOption);
+
+            // Platform Chart
+            const platformOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: Object.keys(languageData.platformData)
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Instagram', 'TikTok', 'YouTube', 'Twitter']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: Object.keys(languageData.platformData).map(lang => ({
+                    name: lang,
+                    type: 'bar',
+                    data: languageData.platformData[lang].map(item => item.value)
+                }))
+            };
+            platformChart.setOption(platformOption);
+
+            // Sentiment Chart
+            const sentimentOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: Object.keys(languageData.sentimentData)
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Positive', 'Neutral', 'Negative']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: Object.keys(languageData.sentimentData).map(lang => ({
+                    name: lang,
+                    type: 'bar',
+                    data: languageData.sentimentData[lang].map(item => item.value)
+                }))
+            };
+            sentimentChart.setOption(sentimentOption);
+        }
+
+        function updateTopChart() {
+            const option = currentTopChartType === 'wordcloud' ? getWordCloudOption() : getSunburstOption();
+            topChart.setOption(option);
+        }
+
+        function getWordCloudOption() {
+            const allData = [
+                ...languageData.topData.tags,
+                ...languageData.topData.mentions,
+                ...languageData.topData.emojis
+            ].slice(0, 100);
+
+            return {
+                tooltip: {},
+                series: [{
+                    type: 'wordCloud',
+                    gridSize: 2,
+                    sizeRange: [12, 50],
+                    rotationRange: [-90, 90],
+                    shape: 'pentagon',
+                    width: '100%',
+                    height: '100%',
+                    drawOutOfBound: true,
+                    textStyle: {
+                        fontFamily: 'sans-serif',
+                        fontWeight: 'bold',
+                        color: function () {
+                            return 'rgb(' + [
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160)
+                            ].join(',') + ')';
+                        }
+                    },
+                    emphasis: {
+                        textStyle: {
+                            shadowBlur: 10,
+                            shadowColor: '#333'
+                        }
+                    },
+                    data: allData
+                }]
+            };
+        }
+
+        function getSunburstOption() {
+            const data = [
+                {
+                    name: 'Tags',
+                    children: languageData.topData.tags.slice(0, 30).map(item => ({
+                        name: item.name,
+                        value: item.value
+                    }))
+                },
+                {
+                    name: 'Mentions',
+                    children: languageData.topData.mentions.slice(0, 15).map(item => ({
+                        name: item.name,
+                        value: item.value
+                    }))
+                },
+                {
+                    name: 'Emojis',
+                    children: languageData.topData.emojis.slice(0, 25).map(item => ({
+                        name: item.name,
+                        value: item.value
+                    }))
+                }
+            ];
+
+            return {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c}'
+                },
+                series: {
+                    type: 'sunburst',
+                    data: data,
+                    radius: [0, '90%'],
+                    itemStyle: {
+                        borderRadius: 7,
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: false
+                    }
+                }
+            };
+        }
+
+        function updateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+            
+            languageData.tableData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.language}</td>
+                    <td>${row.authors.toLocaleString()}</td>
+                    <td>${row.posts.toLocaleString()}</td>
+                    <td>${row.engagement}</td>
+                    <td>${row.netSentiment}</td>
+                    <td>${row.potentialReach}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleTimeChart(type) {
+            currentTimeChartType = type;
+            updateTimeChart();
+            
+            // Update button states
+            document.querySelectorAll('.chart-controls .btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function toggleTopChart(type) {
+            currentTopChartType = type;
+            updateTopChart();
+            
+            // Update button states
+            const buttons = event.target.parentElement.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // Download functions
+        function downloadChart(chartType) {
+            let chart;
+            let filename;
+            
+            switch(chartType) {
+                case 'time':
+                    chart = timeChart;
+                    filename = `language_time_chart_${currentTimeChartType}.png`;
+                    break;
+                case 'country':
+                    chart = countryChart;
+                    filename = 'language_country_distribution.png';
+                    break;
+                case 'platform':
+                    chart = platformChart;
+                    filename = 'language_platform_distribution.png';
+                    break;
+                case 'sentiment':
+                    chart = sentimentChart;
+                    filename = 'language_sentiment_distribution.png';
+                    break;
+                case 'top':
+                    chart = topChart;
+                    filename = `language_top_${currentTopChartType}.png`;
+                    break;
+                default:
+                    return;
+            }
+            
+            if (chart) {
+                const url = chart.getDataURL({
+                    pixelRatio: 2,
+                    backgroundColor: '#fff'
+                });
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                link.click();
+            }
+        }
+
+        function downloadTableData() {
+            const headers = ['Language', 'Authors', 'Posts', 'Engagement', 'Net Sentiment', 'Potential Reach'];
+            const csvContent = [
+                headers.join(','),
+                ...languageData.tableData.map(row => [
+                    row.language,
+                    row.authors,
+                    row.posts,
+                    row.engagement,
+                    row.netSentiment,
+                    row.potentialReach
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'language_analysis_data.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', initCharts);
+        window.addEventListener('resize', () => {
+            timeChart?.resize();
+            countryChart?.resize();
+            platformChart?.resize();
+            sentimentChart?.resize();
+            topChart?.resize();
+        });
+    </script>
+</body>
+</html>
