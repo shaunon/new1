@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Duration</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main Charts Row -->
+        <div class="charts-row">
+            <!-- Grouped Bar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Average Views by Duration</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="metricsToggle">
+                            <button class="toggle-btn active" data-metric="views">Views</button>
+                            <button class="toggle-btn" data-metric="er">Engagement Rate</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('durationBarChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="durationBarChart" class="chart"></div>
+            </div>
+
+            <!-- Step Line Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Completion Rate by Duration</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('completionRateChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="completionRateChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Secondary Charts Grid -->
+        <div class="charts-grid">
+            <!-- Histogram with Density Curve -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Duration Distribution</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('histogramChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="histogramChart" class="chart"></div>
+            </div>
+
+            <!-- Slider Control Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Engagement Rate by Duration (Seconds)</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('sliderChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="sliderControlContainer">
+                    <div id="durationSlider"></div>
+                    <div id="sliderValue">15 seconds</div>
+                </div>
+                <div id="sliderChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Video Duration Performance Data</div>
+                <button class="download-btn" onclick="downloadTableData('dataTable')" title="Download Table Data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Duration</th>
+                            <th>Posts</th>
+                            <th>Avg Views</th>
+                            <th>Avg Views QoQ</th>
+                            <th>Avg ER</th>
+                            <th>Avg ER QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Plan A data -->
+                        <tr>
+                            <td rowspan="5">Plan A</td>
+                            <td>< 15s</td>
+                            <td>45</td>
+                            <td>12,500</td>
+                            <td class="metric-change positive">▲6.8%</td>
+                            <td>14.2%</td>
+                            <td class="metric-change positive">▲5.3%</td>
+                        </tr>
+                        <tr>
+                            <td>15-30s</td>
+                            <td>62</td>
+                            <td>18,200</td>
+                            <td class="metric-change positive">▲8.5%</td>
+                            <td>16.8%</td>
+                            <td class="metric-change positive">▲7.2%</td>
+                        </tr>
+                        <tr>
+                            <td>31-60s</td>
+                            <td>38</td>
+                            <td>15,800</td>
+                            <td class="metric-change positive">▲4.2%</td>
+                            <td>13.5%</td>
+                            <td class="metric-change positive">▲3.8%</td>
+                        </tr>
+                        <tr>
+                            <td>61-120s</td>
+                            <td>25</td>
+                            <td>10,200</td>
+                            <td class="metric-change negative">▼1.9%</td>
+                            <td>9.8%</td>
+                            <td class="metric-change negative">▼2.4%</td>
+                        </tr>
+                        <tr>
+                            <td>> 120s</td>
+                            <td>10</td>
+                            <td>8,500</td>
+                            <td class="metric-change negative">▼3.5%</td>
+                            <td>7.2%</td>
+                            <td class="metric-change negative">▼4.1%</td>
+                        </tr>
+                        <!-- Plan B data -->
+                        <tr>
+                            <td rowspan="5">Plan B</td>
+                            <td>< 15s</td>
+                            <td>42</td>
+                            <td>11,800</td>
+                            <td class="metric-change positive">▲5.2%</td>
+                            <td>13.5%</td>
+                            <td class="metric-change positive">▲4.8%</td>
+                        </tr>
+                        <tr>
+                            <td>15-30s</td>
+                            <td>58</td>
+                            <td>17,500</td>
+                            <td class="metric-change positive">▲7.8%</td>
+                            <td>15.9%</td>
+                            <td class="metric-change positive">▲6.5%</td>
+                        </tr>
+                        <tr>
+                            <td>31-60s</td>
+                            <td>35</td>
+                            <td>14,900</td>
+                            <td class="metric-change positive">▲3.8%</td>
+                            <td>12.8%</td>
+                            <td class="metric-change positive">▲3.2%</td>
+                        </tr>
+                        <tr>
+                            <td>61-120s</td>
+                            <td>22</td>
+                            <td>9,800</td>
+                            <td class="metric-change negative">▼2.3%</td>
+                            <td>9.2%</td>
+                            <td class="metric-change negative">▼2.8%</td>
+                        </tr>
+                        <tr>
+                            <td>> 120s</td>
+                            <td>8</td>
+                            <td>8,100</td>
+                            <td class="metric-change negative">▼4.2%</td>
+                            <td>6.8%</td>
+                            <td class="metric-change negative">▼4.5%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // Initialize charts
+        const durationBarChart = echarts.init(document.getElementById('durationBarChart'));
+        const completionRateChart = echarts.init(document.getElementById('completionRateChart'));
+        const histogramChart = echarts.init(document.getElementById('histogramChart'));
+        const sliderChart = echarts.init(document.getElementById('sliderChart'));
+
+        // Duration Bar Chart
+        const durationCategories = ['< 15s', '15-30s', '31-60s', '61-120s', '> 120s'];
+        
+        const viewsData = {
+            planA: [12500, 18200, 15800, 10200, 8500],
+            planB: [11800, 17500, 14900, 9800, 8100],
+            qoqA: ['▲6.8%', '▲8.5%', '▲4.2%', '▼1.9%', '▼3.5%'],
+            qoqB: ['▲5.2%', '▲7.8%', '▲3.8%', '▼2.3%', '▼4.2%']
+        };
+        
+        const erData = {
+            planA: [14.2, 16.8, 13.5, 9.8, 7.2],
+            planB: [13.5, 15.9, 12.8, 9.2, 6.8],
+            qoqA: ['▲5.3%', '▲7.2%', '▲3.8%', '▼2.4%', '▼4.1%'],
+            qoqB: ['▲4.8%', '▲6.5%', '▲3.2%', '▼2.8%', '▼4.5%']
+        };
+
+        const durationBarOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const duration = params[0].axisValue;
+                    let html = `<div style="font-weight:bold">${duration}</div>`;
+                    
+                    params.forEach(param => {
+                        const isPlanA = param.seriesName === 'Plan A';
+                        const currentMetric = document.querySelector('#metricsToggle .active').getAttribute('data-metric');
+                        const qoq = isPlanA ? 
+                            (currentMetric === 'views' ? viewsData.qoqA[param.dataIndex] : erData.qoqA[param.dataIndex]) : 
+                            (currentMetric === 'views' ? viewsData.qoqB[param.dataIndex] : erData.qoqB[param.dataIndex]);
+                        
+                        const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                        html += `${param.seriesName}: ${formatNumber(param.value)}`;
+                        
+                        if (currentMetric === 'er') {
+                            html += '%';
+                        }
+                        
+                        html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                        html += `</div>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: durationCategories
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Average Views',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: viewsData.planA.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: viewsData.qoqA[index],
+                                color: viewsData.qoqA[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    }),
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: viewsData.planB.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: viewsData.qoqB[index],
+                                color: viewsData.qoqB[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    }),
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    }
+                }
+            ]
+        };
+
+        // Completion Rate Chart
+        const completionRateOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                },
+                formatter: function(params) {
+                    const seconds = params[0].axisValue;
+                    let html = `<div style="font-weight:bold">${seconds} seconds</div>`;
+                    
+                    params.forEach(param => {
+                        const isPlanA = param.seriesName === 'Plan A';
+                        
+                        // Generate random QoQ changes
+                        const qoqValue = isPlanA ? 
+                            (Math.random() > 0.7 ? -Math.random() * 2 : Math.random() * 5) : 
+                            (Math.random() > 0.7 ? -Math.random() * 2 : Math.random() * 4);
+                        
+                        const qoq = qoqValue >= 0 ? `▲${qoqValue.toFixed(1)}%` : `▼${Math.abs(qoqValue).toFixed(1)}%`;
+                        const qoqColor = qoqValue >= 0 ? '#28a745' : '#dc3545';
+                        
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                        html += `${param.seriesName}: ${param.value}%`;
+                        html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                        html += `</div>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: [0, 15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180],
+                name: 'Duration (seconds)',
+                nameLocation: 'middle',
+                nameGap: 30
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Completion Rate (%)',
+                min: 0,
+                max: 100,
+                axisLabel: {
+                    formatter: '{value}%'
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'line',
+                    step: 'middle',
+                    data: [100, 95, 85, 75, 65, 55, 45, 38, 32, 28, 25, 22, 20],
+                    lineStyle: {
+                        width: 3,
+                        color: CHART_COLORS.planA
+                    },
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    },
+                    markLine: {
+                        data: [
+                            {
+                                name: 'QoQ',
+                                type: 'max',
+                                label: {
+                                    formatter: '▲4.5%',
+                                    color: '#28a745'
+                                }
+                            }
+                        ],
+                        lineStyle: {
+                            color: '#28a745'
+                        }
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'line',
+                    step: 'middle',
+                    data: [100, 92, 82, 72, 62, 52, 42, 35, 30, 26, 23, 20, 18],
+                    lineStyle: {
+                        width: 3,
+                        color: CHART_COLORS.planB
+                    },
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    },
+                    markLine: {
+                        data: [
+                            {
+                                name: 'QoQ',
+                                type: 'max',
+                                label: {
+                                    formatter: '▲3.8%',
+                                    color: '#28a745'
+                                }
+                            }
+                        ],
+                        lineStyle: {
+                            color: '#28a745'
+                        }
+                    }
+                }
+            ]
+        };
+
+        // Histogram with Density Curve
+        const generateHistogramData = (plan, offset = 0) => {
+            const data = [];
+            const durations = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 75, 90, 105, 120, 150, 180];
+            
+            // Distribution weights - more videos in the 15-30s range
+            const weights = [3, 5, 8, 12, 15, 18, 15, 12, 10, 8, 6, 5, 4, 3, 2, 2, 1, 1];
+            
+            // QoQ changes - positive for shorter videos, negative for longer ones
+            const qoqChanges = [
+                '▲6.8%', '▲7.2%', '▲8.5%', '▲8.2%', '▲7.8%', '▲7.5%', 
+                '▲6.2%', '▲5.5%', '▲4.8%', '▲4.2%', '▲3.5%', '▲2.8%', 
+                '▲1.5%', '▲0.8%', '▼0.5%', '▼1.9%', '▼2.8%', '▼3.5%'
+            ];
+            
+            durations.forEach((duration, i) => {
+                // Plan B has slightly different distribution
+                const count = plan === 'Plan A' ? 
+                    weights[i] * 5 + Math.round(Math.random() * 10) : 
+                    weights[i] * 4.8 + Math.round(Math.random() * 10) - offset;
+                
+                data.push({
+                    duration: duration,
+                    count: count,
+                    qoq: qoqChanges[i]
+                });
+            });
+            
+            return data;
+        };
+
+        const planAHistData = generateHistogramData('Plan A');
+        const planBHistData = generateHistogramData('Plan B', 2);
+
+        // Calculate density curve points
+        const calculateDensityCurve = (histData) => {
+            const total = histData.reduce((sum, item) => sum + item.count, 0);
+            return histData.map(item => [item.duration, (item.count / total) * 100]);
+        };
+
+        const planADensity = calculateDensityCurve(planAHistData);
+        const planBDensity = calculateDensityCurve(planBHistData);
+
+        const histogramOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross'
+                },
+                formatter: function(params) {
+                    // Find the bar data (histogram)
+                    const barData = params.find(p => p.seriesType === 'bar');
+                    
+                    if (!barData) return '';
+                    
+                    const duration = barData.axisValue;
+                    const isPlanA = barData.seriesName === 'Plan A';
+                    
+                    // Find the corresponding data point in the original data
+                    const originalData = isPlanA ? 
+                        planAHistData.find(d => d.duration === duration) : 
+                        planBHistData.find(d => d.duration === duration);
+                    
+                    const qoq = originalData ? originalData.qoq : '';
+                    const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    let html = `<div style="font-weight:bold">${duration} seconds</div>`;
+                    html += `<div style="margin-top:5px;">`;
+                    html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${barData.color};"></span>`;
+                    html += `${barData.seriesName}: ${barData.value} videos`;
+                    html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                    html += `</div>`;
+                    
+                    // Add density curve data if available
+                    const lineData = params.find(p => p.seriesType === 'line' && p.seriesName.includes(isPlanA ? 'Plan A' : 'Plan B'));
+                    if (lineData) {
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${lineData.color};"></span>`;
+                        html += `Density: ${lineData.value[1].toFixed(1)}%`;
+                        html += `</div>`;
+                    }
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B', 'Plan A Density', 'Plan B Density'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: planAHistData.map(item => item.duration),
+                name: 'Duration (seconds)',
+                nameLocation: 'middle',
+                nameGap: 30
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Video Count',
+                    position: 'left'
+                },
+                {
+                    type: 'value',
+                    name: 'Density (%)',
+                    position: 'right',
+                    axisLabel: {
+                        formatter: '{value}%'
+                    },
+                    max: 20
+                }
+            ],
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: planAHistData.map((item, index) => {
+                        return {
+                            value: item.count,
+                            label: {
+                                show: index % 3 === 0, // Show label on every 3rd bar to avoid clutter
+                                position: 'top',
+                                formatter: item.qoq,
+                                color: item.qoq.includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    }),
+                    itemStyle: {
+                        color: CHART_COLORS.planA,
+                        opacity: 0.7
+                    },
+                    barGap: 0
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: planBHistData.map((item, index) => {
+                        return {
+                            value: item.count,
+                            label: {
+                                show: index % 3 === 1, // Offset from Plan A labels
+                                position: 'top',
+                                formatter: item.qoq,
+                                color: item.qoq.includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    }),
+                    itemStyle: {
+                        color: CHART_COLORS.planB,
+                        opacity: 0.7
+                    },
+                    barGap: 0
+                },
+                {
+                    name: 'Plan A Density',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: planADensity,
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                        width: 3,
+                        color: CHART_COLORS.planA
+                    },
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    }
+                },
+                {
+                    name: 'Plan B Density',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: planBDensity,
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                        width: 3,
+                        color: CHART_COLORS.planB
+                    },
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    }
+                }
+            ]
+        };
+
+        // Slider Chart
+        const sliderChartData = {
+            durations: Array.from({length: 181}, (_, i) => i),
+            planA: Array.from({length: 181}, (_, i) => {
+                // Create a curve that peaks around 15-30s and then declines
+                const x = i / 180;
+                return 18 - Math.pow(x - 0.15, 2) * 40;
+            }),
+            planB: Array.from({length: 181}, (_, i) => {
+                // Similar curve but slightly lower values
+                const x = i / 180;
+                return 17 - Math.pow(x - 0.15, 2) * 40;
+            })
+        };
+
+        const updateSliderChart = (duration) => {
+            const index = Math.min(Math.max(0, duration), 180);
+            const planAValue = sliderChartData.planA[index];
+            const planBValue = sliderChartData.planB[index];
+            
+            // Calculate QoQ changes
+            const planAQoQ = duration <= 60 ? 
+                `▲${(Math.random() * 3 + 4).toFixed(1)}%` : 
+                (duration <= 120 ? `▲${(Math.random() * 2 + 1).toFixed(1)}%` : `▼${(Math.random() * 4).toFixed(1)}%`);
+            
+            const planBQoQ = duration <= 60 ? 
+                `▲${(Math.random() * 2.5 + 3.5).toFixed(1)}%` : 
+                (duration <= 120 ? `▲${(Math.random() * 1.5 + 0.5).toFixed(1)}%` : `▼${(Math.random() * 4.5).toFixed(1)}%`);
+            
+            const sliderOption = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        const isPlanA = params[0].seriesName === 'Plan A';
+                        const qoq = isPlanA ? planAQoQ : planBQoQ;
+                        const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        let html = `<div style="font-weight:bold">${duration} seconds</div>`;
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${params[0].color};"></span>`;
+                        html += `${params[0].seriesName}: ${params[0].value}%`;
+                        html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                        html += `</div>`;
+                        
+                        return html;
+                    }
+                },
+                legend: {
+                    data: ['Plan A', 'Plan B'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['Plan A', 'Plan B']
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Engagement Rate (%)',
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                },
+                series: [
+                    {
+                        name: 'Plan A',
+                        type: 'bar',
+                        data: [{
+                            value: planAValue,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: planAQoQ,
+                                color: planAQoQ.includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        }],
+                        itemStyle: {
+                            color: CHART_COLORS.planA
+                        }
+                    },
+                    {
+                        name: 'Plan B',
+                        type: 'bar',
+                        data: [{
+                            value: planBValue,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: planBQoQ,
+                                color: planBQoQ.includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        }],
+                        itemStyle: {
+                            color: CHART_COLORS.planB
+                        }
+                    }
+                ]
+            };
+            
+            sliderChart.setOption(sliderOption);
+        };
+
+        // Set chart options
+        durationBarChart.setOption(durationBarOption);
+        completionRateChart.setOption(completionRateOption);
+        histogramChart.setOption(histogramOption);
+        
+        // Initialize slider
+        const sliderContainer = document.getElementById('durationSlider');
+        const sliderValueDisplay = document.getElementById('sliderValue');
+        let currentDuration = 15;
+        
+        // Create a simple slider
+        sliderContainer.innerHTML = `
+            <input type="range" min="0" max="180" value="15" class="slider" id="durationSliderInput">
+        `;
+        
+        const slider = document.getElementById('durationSliderInput');
+        
+        slider.addEventListener('input', function() {
+            currentDuration = parseInt(this.value);
+            sliderValueDisplay.textContent = `${currentDuration} seconds`;
+            updateSliderChart(currentDuration);
+        });
+        
+        // Initialize slider chart
+        updateSliderChart(currentDuration);
+
+        // Setup metrics toggle for bar chart
+        document.querySelectorAll('#metricsToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#metricsToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const metric = this.getAttribute('data-metric');
+                
+                if (metric === 'views') {
+                    durationBarOption.series[0].data = viewsData.planA.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: viewsData.qoqA[index],
+                                color: viewsData.qoqA[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    });
+                    
+                    durationBarOption.series[1].data = viewsData.planB.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: viewsData.qoqB[index],
+                                color: viewsData.qoqB[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    });
+                    
+                    durationBarOption.yAxis.name = 'Average Views';
+                    durationBarOption.yAxis.axisLabel.formatter = function(value) {
+                        return formatNumber(value);
+                    };
+                } else {
+                    durationBarOption.series[0].data = erData.planA.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: erData.qoqA[index],
+                                color: erData.qoqA[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    });
+                    
+                    durationBarOption.series[1].data = erData.planB.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: erData.qoqB[index],
+                                color: erData.qoqB[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    });
+                    
+                    durationBarOption.yAxis.name = 'Engagement Rate (%)';
+                    durationBarOption.yAxis.axisLabel.formatter = '{value}%';
+                }
+                
+                durationBarChart.setOption(durationBarOption);
+            });
+        });
+
+        // Resize charts when window is resized
+        window.addEventListener('resize', function() {
+            durationBarChart.resize();
+            completionRateChart.resize();
+            histogramChart.resize();
+            sliderChart.resize();
+        });
+    </script>
+
+    <style>
+        /* Additional styles for slider */
+        #sliderControlContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 0 20px;
+        }
+        
+        #durationSlider {
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        #sliderValue {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+            opacity: 0.7;
+            -webkit-transition: .2s;
+            transition: opacity .2s;
+        }
+        
+        .slider:hover {
+            opacity: 1;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+    </style>
+</body>
+</html>

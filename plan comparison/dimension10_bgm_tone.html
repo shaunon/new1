@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGM Tone</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main Charts Row -->
+        <div class="charts-row">
+            <!-- Grouped Bar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Average Engagement Rate by BGM Tone</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('bgmToneChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="bgmToneChart" class="chart"></div>
+            </div>
+
+            <!-- Emotional Arc Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Emotional Arc by Video Progress</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="toneToggle">
+                            <button class="toggle-btn active" data-tone="upbeat">Upbeat</button>
+                            <button class="toggle-btn" data-tone="emotional">Emotional</button>
+                            <button class="toggle-btn" data-tone="relaxed">Relaxed</button>
+                            <button class="toggle-btn" data-tone="energetic">Energetic</button>
+                            <button class="toggle-btn" data-tone="dramatic">Dramatic</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('emotionalArcChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="emotionalArcChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Secondary Charts Grid -->
+        <div class="charts-grid">
+            <!-- Semi-Circle Pie Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Engagement Rate by BGM Tone</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('semiCircleChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="semiCircleChart" class="chart"></div>
+            </div>
+
+            <!-- Heatmap Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Engagement Rate by Time Slot and Tone</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="heatmapToggle">
+                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
+                            <button class="toggle-btn" data-plan="planB">Plan B</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('heatmapChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="heatmapChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">BGM Tone Performance Data</div>
+                <button class="download-btn" onclick="downloadTableData('dataTable')" title="Download Table Data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>BGM Tone</th>
+                            <th>Posts</th>
+                            <th>Avg Views</th>
+                            <th>Avg Views QoQ</th>
+                            <th>Avg ER</th>
+                            <th>Avg ER QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Plan A data -->
+                        <tr>
+                            <td rowspan="5">Plan A</td>
+                            <td>Upbeat</td>
+                            <td>235</td>
+                            <td>128,500</td>
+                            <td class="metric-change positive">▲7.9%</td>
+                            <td>5.8%</td>
+                            <td class="metric-change positive">▲6.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Emotional</td>
+                            <td>185</td>
+                            <td>115,200</td>
+                            <td class="metric-change positive">▲6.8%</td>
+                            <td>5.5%</td>
+                            <td class="metric-change positive">▲5.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Relaxed</td>
+                            <td>165</td>
+                            <td>105,800</td>
+                            <td class="metric-change positive">▲5.5%</td>
+                            <td>5.2%</td>
+                            <td class="metric-change positive">▲4.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Energetic</td>
+                            <td>142</td>
+                            <td>98,500</td>
+                            <td class="metric-change positive">▲4.2%</td>
+                            <td>4.9%</td>
+                            <td class="metric-change positive">▲3.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Dramatic</td>
+                            <td>113</td>
+                            <td>85,200</td>
+                            <td class="metric-change negative">▼2.6%</td>
+                            <td>4.5%</td>
+                            <td class="metric-change negative">▼1.8%</td>
+                        </tr>
+                        <!-- Plan B data -->
+                        <tr>
+                            <td rowspan="5">Plan B</td>
+                            <td>Upbeat</td>
+                            <td>228</td>
+                            <td>125,800</td>
+                            <td class="metric-change positive">▲7.2%</td>
+                            <td>5.6%</td>
+                            <td class="metric-change positive">▲6.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Emotional</td>
+                            <td>192</td>
+                            <td>112,500</td>
+                            <td class="metric-change positive">▲6.5%</td>
+                            <td>5.3%</td>
+                            <td class="metric-change positive">▲5.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Relaxed</td>
+                            <td>175</td>
+                            <td>103,200</td>
+                            <td class="metric-change positive">▲5.2%</td>
+                            <td>5.0%</td>
+                            <td class="metric-change positive">▲4.3%</td>
+                        </tr>
+                        <tr>
+                            <td>Energetic</td>
+                            <td>138</td>
+                            <td>96,800</td>
+                            <td class="metric-change positive">▲3.8%</td>
+                            <td>4.7%</td>
+                            <td class="metric-change positive">▲3.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Dramatic</td>
+                            <td>108</td>
+                            <td>83,500</td>
+                            <td class="metric-change negative">▼3.2%</td>
+                            <td>4.3%</td>
+                            <td class="metric-change negative">▼2.2%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // Initialize charts
+        const bgmToneChart = echarts.init(document.getElementById('bgmToneChart'));
+        const emotionalArcChart = echarts.init(document.getElementById('emotionalArcChart'));
+        const semiCircleChart = echarts.init(document.getElementById('semiCircleChart'));
+        const heatmapChart = echarts.init(document.getElementById('heatmapChart'));
+
+        // BGM Tone data
+        const bgmTones = ['Upbeat', 'Emotional', 'Relaxed', 'Energetic', 'Dramatic'];
+        const bgmToneData = {
+            planA: {
+                er: [5.8, 5.5, 5.2, 4.9, 4.5],
+                qoq: ['▲6.5%', '▲5.8%', '▲4.7%', '▲3.5%', '▼1.8%'],
+                emotionalArcs: {
+                    upbeat: [3.2, 4.5, 5.8, 6.2, 5.5, 4.8, 4.2, 3.8, 4.5, 5.2],
+                    emotional: [2.5, 3.8, 4.2, 5.5, 6.5, 6.2, 5.5, 4.8, 4.2, 3.5],
+                    relaxed: [4.2, 4.5, 4.8, 5.0, 5.2, 5.0, 4.8, 4.5, 4.2, 4.0],
+                    energetic: [5.0, 5.5, 6.0, 6.2, 5.8, 5.5, 5.2, 5.0, 5.2, 5.5],
+                    dramatic: [2.8, 3.5, 4.2, 5.0, 5.8, 6.5, 5.8, 5.0, 4.2, 3.5]
+                },
+                emotionalArcsQoQ: {
+                    upbeat: '▲6.5%',
+                    emotional: '▲5.8%',
+                    relaxed: '▲4.7%',
+                    energetic: '▲3.5%',
+                    dramatic: '▼1.8%'
+                },
+                heatmap: [
+                    [6.2, 6.0, 5.8, 5.6, 5.4],  // Morning
+                    [5.9, 5.7, 5.5, 5.3, 5.1],  // Afternoon
+                    [6.5, 6.3, 6.1, 5.9, 5.7],  // Evening
+                    [6.0, 5.8, 5.6, 5.4, 5.2]   // Night
+                ],
+                heatmapQoQ: [
+                    ['▲7.2%', '▲6.8%', '▲6.2%', '▲5.5%', '▲4.8%'],
+                    ['▲6.5%', '▲6.0%', '▲5.5%', '▲4.8%', '▲4.2%'],
+                    ['▲8.5%', '▲7.8%', '▲7.2%', '▲6.5%', '▲5.8%'],
+                    ['▲7.0%', '▲6.5%', '▲5.8%', '▲5.2%', '▲4.5%']
+                ]
+            },
+            planB: {
+                er: [5.6, 5.3, 5.0, 4.7, 4.3],
+                qoq: ['▲6.0%', '▲5.5%', '▲4.3%', '▲3.0%', '▼2.2%'],
+                emotionalArcs: {
+                    upbeat: [3.0, 4.2, 5.5, 6.0, 5.3, 4.6, 4.0, 3.6, 4.2, 5.0],
+                    emotional: [2.3, 3.5, 4.0, 5.2, 6.2, 6.0, 5.3, 4.6, 4.0, 3.2],
+                    relaxed: [4.0, 4.3, 4.6, 4.8, 5.0, 4.8, 4.6, 4.3, 4.0, 3.8],
+                    energetic: [4.8, 5.3, 5.8, 6.0, 5.6, 5.3, 5.0, 4.8, 5.0, 5.3],
+                    dramatic: [2.6, 3.3, 4.0, 4.8, 5.6, 6.3, 5.6, 4.8, 4.0, 3.3]
+                },
+                emotionalArcsQoQ: {
+                    upbeat: '▲6.0%',
+                    emotional: '▲5.5%',
+                    relaxed: '▲4.3%',
+                    energetic: '▲3.0%',
+                    dramatic: '▼2.2%'
+                },
+                heatmap: [
+                    [6.0, 5.8, 5.6, 5.4, 5.2],  // Morning
+                    [5.7, 5.5, 5.3, 5.1, 4.9],  // Afternoon
+                    [6.3, 6.1, 5.9, 5.7, 5.5],  // Evening
+                    [5.8, 5.6, 5.4, 5.2, 5.0]   // Night
+                ],
+                heatmapQoQ: [
+                    ['▲6.8%', '▲6.5%', '▲5.8%', '▲5.2%', '▲4.5%'],
+                    ['▲6.2%', '▲5.8%', '▲5.2%', '▲4.5%', '▲3.8%'],
+                    ['▲8.0%', '▲7.5%', '▲6.8%', '▲6.2%', '▲5.5%'],
+                    ['▲6.5%', '▲6.2%', '▲5.5%', '▲4.8%', '▲4.2%']
+                ]
+            }
+        };
+
+        // Grouped Bar Chart Option
+        const bgmToneOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const bgmTone = params[0].axisValue;
+                    let html = `<div style="font-weight:bold">${bgmTone}</div>`;
+                    
+                    params.forEach(param => {
+                        const isPlanA = param.seriesName === 'Plan A';
+                        const qoq = isPlanA ? 
+                            bgmToneData.planA.qoq[param.dataIndex] : 
+                            bgmToneData.planB.qoq[param.dataIndex];
+                        
+                        const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                        html += `${param.seriesName}: ${param.value}%`;
+                        html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                        html += `</div>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: bgmTones
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Engagement Rate (%)',
+                min: 4,
+                max: 6
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: bgmToneData.planA.er.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: bgmToneData.planA.qoq[index],
+                                color: bgmToneData.planA.qoq[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    }),
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: bgmToneData.planB.er.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: bgmToneData.planB.qoq[index],
+                                color: bgmToneData.planB.qoq[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    }),
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    }
+                }
+            ]
+        };
+
+        // Emotional Arc Chart Option
+        const generateEmotionalArcOption = (tone) => {
+            const progress = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%'];
+            const planAData = bgmToneData.planA.emotionalArcs[tone];
+            const planBData = bgmToneData.planB.emotionalArcs[tone];
+            const planAQoQ = bgmToneData.planA.emotionalArcsQoQ[tone];
+            const planBQoQ = bgmToneData.planB.emotionalArcsQoQ[tone];
+            
+            return {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#6a7985'
+                        }
+                    },
+                    formatter: function(params) {
+                        const progress = params[0].axisValue;
+                        let html = `<div style="font-weight:bold">Progress: ${progress}</div>`;
+                        
+                        params.forEach(param => {
+                            const isPlanA = param.seriesName === 'Plan A';
+                            const qoq = isPlanA ? planAQoQ : planBQoQ;
+                            const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                            
+                            html += `<div style="margin-top:5px;">`;
+                            html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                            html += `${param.seriesName}: ${param.value}`;
+                            html += `</div>`;
+                        });
+                        
+                        return html;
+                    }
+                },
+                legend: {
+                    data: ['Plan A', 'Plan B'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: progress
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Emotional Value',
+                    min: 2,
+                    max: 7
+                },
+                series: [
+                    {
+                        name: 'Plan A',
+                        type: 'line',
+                        data: planAData,
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: CHART_COLORS.planA
+                        },
+                        itemStyle: {
+                            color: CHART_COLORS.planA
+                        },
+                        markPoint: {
+                            data: [
+                                { type: 'max', name: 'Max' },
+                                { type: 'min', name: 'Min' }
+                            ]
+                        },
+                        markLine: {
+                            symbol: ['none', 'none'],
+                            label: {
+                                show: true,
+                                position: 'end',
+                                formatter: planAQoQ,
+                                color: planAQoQ.includes('▲') ? '#28a745' : '#dc3545'
+                            },
+                            data: [
+                                { type: 'average', name: 'Avg' }
+                            ]
+                        }
+                    },
+                    {
+                        name: 'Plan B',
+                        type: 'line',
+                        data: planBData,
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: CHART_COLORS.planB
+                        },
+                        itemStyle: {
+                            color: CHART_COLORS.planB
+                        },
+                        markPoint: {
+                            data: [
+                                { type: 'max', name: 'Max' },
+                                { type: 'min', name: 'Min' }
+                            ]
+                        },
+                        markLine: {
+                            symbol: ['none', 'none'],
+                            label: {
+                                show: true,
+                                position: 'start',
+                                formatter: planBQoQ,
+                                color: planBQoQ.includes('▲') ? '#28a745' : '#dc3545'
+                            },
+                            data: [
+                                { type: 'average', name: 'Avg' }
+                            ]
+                        }
+                    }
+                ]
+            };
+        };
+
+        // Semi-Circle Pie Chart Option
+        const semiCircleOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    const isPlanA = params.seriesName === 'Plan A';
+                    const index = params.dataIndex;
+                    const qoq = isPlanA ? 
+                        bgmToneData.planA.qoq[index] : 
+                        bgmToneData.planB.qoq[index];
+                    
+                    const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    return `
+                        <div style="font-weight:bold">${params.name}</div>
+                        <div>${params.seriesName}: ${params.value}%</div>
+                        <div>QoQ: <span style="color:${qoqColor}">${qoq}</span></div>
+                    `;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['25%', '50%'],
+                    startAngle: 180,
+                    endAngle: 0,
+                    label: {
+                        show: true,
+                        formatter: function(params) {
+                            return `${params.name}\n${bgmToneData.planA.qoq[params.dataIndex]}`;
+                        },
+                        position: 'outside'
+                    },
+                    data: bgmToneData.planA.er.map((value, index) => {
+                        return {
+                            value: value,
+                            name: bgmTones[index],
+                            itemStyle: {
+                                color: [
+                                    '#91cc75', '#fac858', '#5470c6', '#ee6666', '#73c0de'
+                                ][index]
+                            }
+                        };
+                    })
+                },
+                {
+                    name: 'Plan B',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['75%', '50%'],
+                    startAngle: 180,
+                    endAngle: 0,
+                    label: {
+                        show: true,
+                        formatter: function(params) {
+                            return `${params.name}\n${bgmToneData.planB.qoq[params.dataIndex]}`;
+                        },
+                        position: 'outside'
+                    },
+                    data: bgmToneData.planB.er.map((value, index) => {
+                        return {
+                            value: value,
+                            name: bgmTones[index],
+                            itemStyle: {
+                                color: [
+                                    '#91cc75', '#fac858', '#5470c6', '#ee6666', '#73c0de'
+                                ][index]
+                            }
+                        };
+                    })
+                }
+            ]
+        };
+
+        // Heatmap Chart Option
+        const generateHeatmapOption = (plan) => {
+            const timeSlots = ['Morning', 'Afternoon', 'Evening', 'Night'];
+            const planData = plan === 'planA' ? bgmToneData.planA : bgmToneData.planB;
+            
+            const data = [];
+            for (let i = 0; i < timeSlots.length; i++) {
+                for (let j = 0; j < bgmTones.length; j++) {
+                    data.push([j, i, planData.heatmap[i][j], planData.heatmapQoQ[i][j]]);
+                }
+            }
+            
+            return {
+                tooltip: {
+                    position: 'top',
+                    formatter: function(params) {
+                        const timeSlot = timeSlots[params.value[1]];
+                        const tone = bgmTones[params.value[0]];
+                        const er = params.value[2];
+                        const qoq = params.value[3];
+                        const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        return `
+                            <div style="font-weight:bold">${timeSlot} - ${tone}</div>
+                            <div>Engagement Rate: ${er}%</div>
+                            <div>QoQ: <span style="color:${qoqColor}">${qoq}</span></div>
+                        `;
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: bgmTones,
+                    splitArea: {
+                        show: true
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: timeSlots,
+                    splitArea: {
+                        show: true
+                    }
+                },
+                visualMap: {
+                    min: 4.5,
+                    max: 6.5,
+                    calculable: true,
+                    orient: 'horizontal',
+                    left: 'center',
+                    bottom: '0%',
+                    inRange: {
+                        color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127']
+                    }
+                },
+                series: [
+                    {
+                        name: 'Engagement Rate',
+                        type: 'heatmap',
+                        data: data,
+                        label: {
+                            show: true,
+                            formatter: function(params) {
+                                return params.value[3];
+                            }
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+        };
+
+        // Set initial chart options
+        bgmToneChart.setOption(bgmToneOption);
+        emotionalArcChart.setOption(generateEmotionalArcOption('upbeat'));
+        semiCircleChart.setOption(semiCircleOption);
+        heatmapChart.setOption(generateHeatmapOption('planA'));
+
+        // Setup tone toggle for emotional arc chart
+        document.querySelectorAll('#toneToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#toneToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tone = this.getAttribute('data-tone');
+                emotionalArcChart.setOption(generateEmotionalArcOption(tone));
+            });
+        });
+
+        // Setup plan toggle for heatmap
+        document.querySelectorAll('#heatmapToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#heatmapToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const plan = this.getAttribute('data-plan');
+                heatmapChart.setOption(generateHeatmapOption(plan));
+            });
+        });
+
+        // Resize charts when window is resized
+        window.addEventListener('resize', function() {
+            bgmToneChart.resize();
+            emotionalArcChart.resize();
+            semiCircleChart.resize();
+            heatmapChart.resize();
+        });
+    </script>
+</body>
+</html>

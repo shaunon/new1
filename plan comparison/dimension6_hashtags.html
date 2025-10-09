@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hashtags</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/extension/dataTool.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main Charts Row -->
+        <div class="charts-row">
+            <!-- Grouped Bar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Top 5 Hashtags Average Engagement</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('hashtagBarChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="hashtagBarChart" class="chart"></div>
+            </div>
+
+            <!-- Word Cloud + Ring Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Hashtag Engagement Cloud</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="cloudToggle">
+                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
+                            <button class="toggle-btn" data-plan="planB">Plan B</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('wordCloudChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="wordCloudChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Secondary Charts Grid -->
+        <div class="charts-grid">
+            <!-- Sankey Diagram -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Hashtag to Category Flow</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('sankeyChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="sankeyChart" class="chart"></div>
+            </div>
+
+            <!-- Quadrant Scatter Plot -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Hashtag Performance Matrix</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('quadrantChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="quadrantChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Hashtag Performance Data</div>
+                <button class="download-btn" onclick="downloadTableData('dataTable')" title="Download Table Data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Hashtag</th>
+                            <th>Frequency</th>
+                            <th>Avg Engagement</th>
+                            <th>Avg Engagement QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Plan A data -->
+                        <tr>
+                            <td rowspan="10">Plan A</td>
+                            <td>#trending</td>
+                            <td>85</td>
+                            <td>24,500</td>
+                            <td class="metric-change positive">▲11.2%</td>
+                        </tr>
+                        <tr>
+                            <td>#viral</td>
+                            <td>72</td>
+                            <td>22,800</td>
+                            <td class="metric-change positive">▲9.8%</td>
+                        </tr>
+                        <tr>
+                            <td>#challenge</td>
+                            <td>68</td>
+                            <td>21,200</td>
+                            <td class="metric-change positive">▲8.5%</td>
+                        </tr>
+                        <tr>
+                            <td>#fashion</td>
+                            <td>54</td>
+                            <td>18,500</td>
+                            <td class="metric-change positive">▲7.2%</td>
+                        </tr>
+                        <tr>
+                            <td>#music</td>
+                            <td>48</td>
+                            <td>17,800</td>
+                            <td class="metric-change positive">▲6.5%</td>
+                        </tr>
+                        <tr>
+                            <td>#dance</td>
+                            <td>42</td>
+                            <td>16,500</td>
+                            <td class="metric-change positive">▲5.8%</td>
+                        </tr>
+                        <tr>
+                            <td>#food</td>
+                            <td>38</td>
+                            <td>15,200</td>
+                            <td class="metric-change positive">▲4.2%</td>
+                        </tr>
+                        <tr>
+                            <td>#travel</td>
+                            <td>32</td>
+                            <td>14,800</td>
+                            <td class="metric-change positive">▲3.5%</td>
+                        </tr>
+                        <tr>
+                            <td>#fitness</td>
+                            <td>28</td>
+                            <td>13,500</td>
+                            <td class="metric-change negative">▼1.2%</td>
+                        </tr>
+                        <tr>
+                            <td>#beauty</td>
+                            <td>25</td>
+                            <td>12,800</td>
+                            <td class="metric-change negative">▼4.5%</td>
+                        </tr>
+                        <!-- Plan B data -->
+                        <tr>
+                            <td rowspan="10">Plan B</td>
+                            <td>#trending</td>
+                            <td>78</td>
+                            <td>22,800</td>
+                            <td class="metric-change positive">▲9.5%</td>
+                        </tr>
+                        <tr>
+                            <td>#viral</td>
+                            <td>65</td>
+                            <td>21,500</td>
+                            <td class="metric-change positive">▲8.2%</td>
+                        </tr>
+                        <tr>
+                            <td>#challenge</td>
+                            <td>62</td>
+                            <td>20,100</td>
+                            <td class="metric-change positive">▲7.8%</td>
+                        </tr>
+                        <tr>
+                            <td>#fashion</td>
+                            <td>50</td>
+                            <td>17,200</td>
+                            <td class="metric-change positive">▲6.5%</td>
+                        </tr>
+                        <tr>
+                            <td>#music</td>
+                            <td>45</td>
+                            <td>16,800</td>
+                            <td class="metric-change positive">▲5.8%</td>
+                        </tr>
+                        <tr>
+                            <td>#dance</td>
+                            <td>40</td>
+                            <td>15,500</td>
+                            <td class="metric-change positive">▲5.2%</td>
+                        </tr>
+                        <tr>
+                            <td>#food</td>
+                            <td>35</td>
+                            <td>14,200</td>
+                            <td class="metric-change positive">▲3.8%</td>
+                        </tr>
+                        <tr>
+                            <td>#travel</td>
+                            <td>30</td>
+                            <td>13,800</td>
+                            <td class="metric-change positive">▲2.5%</td>
+                        </tr>
+                        <tr>
+                            <td>#fitness</td>
+                            <td>26</td>
+                            <td>12,500</td>
+                            <td class="metric-change negative">▼2.2%</td>
+                        </tr>
+                        <tr>
+                            <td>#beauty</td>
+                            <td>22</td>
+                            <td>11,800</td>
+                            <td class="metric-change negative">▼5.2%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // Initialize charts
+        const hashtagBarChart = echarts.init(document.getElementById('hashtagBarChart'));
+        const wordCloudChart = echarts.init(document.getElementById('wordCloudChart'));
+        const sankeyChart = echarts.init(document.getElementById('sankeyChart'));
+        const quadrantChart = echarts.init(document.getElementById('quadrantChart'));
+
+        // Top 5 Hashtags Bar Chart
+        const hashtagBarOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const hashtag = params[0].axisValue;
+                    let html = `<div style="font-weight:bold">${hashtag}</div>`;
+                    
+                    params.forEach(param => {
+                        const isPlanA = param.seriesName === 'Plan A';
+                        const qoq = isPlanA ? 
+                            ['▲11.2%', '▲9.8%', '▲8.5%', '▲7.2%', '▲6.5%'][param.dataIndex] : 
+                            ['▲9.5%', '▲8.2%', '▲7.8%', '▲6.5%', '▲5.8%'][param.dataIndex];
+                        
+                        const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                        html += `${param.seriesName}: ${formatNumber(param.value)}`;
+                        html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                        html += `</div>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['#trending', '#viral', '#challenge', '#fashion', '#music']
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Average Engagement',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: [
+                        {
+                            value: 24500,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲11.2%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 22800,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲9.8%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 21200,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲8.5%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 18500,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲7.2%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 17800,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲6.5%',
+                                color: '#28a745'
+                            }
+                        }
+                    ],
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: [
+                        {
+                            value: 22800,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲9.5%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 21500,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲8.2%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 20100,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲7.8%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 17200,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲6.5%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 16800,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲5.8%',
+                                color: '#28a745'
+                            }
+                        }
+                    ],
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    }
+                }
+            ]
+        };
+
+        // Word Cloud + Ring Chart
+        const generateWordCloudData = (plan) => {
+            const hashtags = [
+                '#trending', '#viral', '#challenge', '#fashion', '#music', 
+                '#dance', '#food', '#travel', '#fitness', '#beauty',
+                '#lifestyle', '#comedy', '#art', '#photography', '#gaming',
+                '#education', '#motivation', '#nature', '#pets', '#sports'
+            ];
+            
+            const engagementBase = plan === 'Plan A' ? 
+                [24500, 22800, 21200, 18500, 17800, 16500, 15200, 14800, 13500, 12800,
+                 12000, 11500, 11000, 10500, 10000, 9500, 9000, 8500, 8000, 7500] :
+                [22800, 21500, 20100, 17200, 16800, 15500, 14200, 13800, 12500, 11800,
+                 11200, 10800, 10300, 9800, 9300, 8800, 8300, 7800, 7300, 6800];
+            
+            const qoqBase = plan === 'Plan A' ?
+                [11.2, 9.8, 8.5, 7.2, 6.5, 5.8, 4.2, 3.5, -1.2, -4.5,
+                 3.2, 2.8, 2.5, 2.2, 1.8, 1.5, 1.2, -0.8, -1.5, -2.2] :
+                [9.5, 8.2, 7.8, 6.5, 5.8, 5.2, 3.8, 2.5, -2.2, -5.2,
+                 2.8, 2.5, 2.2, 1.8, 1.5, 1.2, 0.8, -1.2, -1.8, -2.5];
+            
+            return hashtags.map((tag, index) => {
+                const engagement = engagementBase[index];
+                const qoq = qoqBase[index];
+                
+                return {
+                    name: tag,
+                    value: engagement,
+                    qoq: qoq >= 0 ? `▲${qoq.toFixed(1)}%` : `▼${Math.abs(qoq).toFixed(1)}%`,
+                    textStyle: {
+                        color: qoq >= 0 ? '#28a745' : '#dc3545',
+                        fontWeight: index < 5 ? 'bold' : 'normal'
+                    }
+                };
+            });
+        };
+
+        const planAWordCloudData = generateWordCloudData('Plan A');
+        const planBWordCloudData = generateWordCloudData('Plan B');
+
+        const wordCloudOption = {
+            tooltip: {
+                formatter: function(params) {
+                    const qoqColor = params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    return `
+                        <div style="font-weight:bold">${params.name}</div>
+                        <div>Engagement: ${formatNumber(params.value)}</div>
+                        <div>QoQ: <span style="color:${qoqColor}">${params.data.qoq}</span></div>
+                    `;
+                }
+            },
+            series: [
+                {
+                    type: 'wordCloud',
+                    shape: 'circle',
+                    left: 'center',
+                    top: 'center',
+                    width: '80%',
+                    height: '80%',
+                    right: null,
+                    bottom: null,
+                    sizeRange: [12, 50],
+                    rotationRange: [-45, 45],
+                    rotationStep: 15,
+                    gridSize: 8,
+                    drawOutOfBound: false,
+                    layoutAnimation: true,
+                    textStyle: {
+                        fontFamily: 'sans-serif',
+                        fontWeight: 'bold'
+                    },
+                    emphasis: {
+                        focus: 'self',
+                        textStyle: {
+                            shadowBlur: 10,
+                            shadowColor: '#333'
+                        }
+                    },
+                    data: planAWordCloudData
+                },
+                {
+                    type: 'pie',
+                    radius: ['40%', '45%'],
+                    center: ['50%', '50%'],
+                    silent: true,
+                    label: {
+                        show: false
+                    },
+                    emphasis: {
+                        scale: false
+                    },
+                    data: [
+                        {
+                            value: 1,
+                            itemStyle: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Sankey Diagram
+        const sankeyOption = {
+            tooltip: {
+                trigger: 'item',
+                triggerOn: 'mousemove',
+                formatter: function(params) {
+                    const data = params.data;
+                    const sourceName = data.source;
+                    const targetName = data.target;
+                    const value = data.value;
+                    const qoq = data.qoq;
+                    const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    return `
+                        <div style="font-weight:bold">${sourceName} → ${targetName}</div>
+                        <div>Engagement: ${formatNumber(value)}</div>
+                        <div>QoQ: <span style="color:${qoqColor}">${qoq}</span></div>
+                    `;
+                }
+            },
+            series: [
+                {
+                    type: 'sankey',
+                    left: 50,
+                    top: 20,
+                    right: 150,
+                    bottom: 25,
+                    nodeWidth: 20,
+                    nodeGap: 8,
+                    nodeAlign: 'left',
+                    layoutIterations: 32,
+                    orient: 'horizontal',
+                    emphasis: {
+                        focus: 'adjacency'
+                    },
+                    label: {
+                        position: 'right',
+                        formatter: '{b}'
+                    },
+                    lineStyle: {
+                        color: 'gradient',
+                        curveness: 0.5
+                    },
+                    data: [
+                        { name: '#trending (Plan A)', itemStyle: { color: CHART_COLORS.planA } },
+                        { name: '#viral (Plan A)', itemStyle: { color: CHART_COLORS.planA } },
+                        { name: '#challenge (Plan A)', itemStyle: { color: CHART_COLORS.planA } },
+                        { name: '#fashion (Plan A)', itemStyle: { color: CHART_COLORS.planA } },
+                        { name: '#music (Plan A)', itemStyle: { color: CHART_COLORS.planA } },
+                        { name: '#trending (Plan B)', itemStyle: { color: CHART_COLORS.planB } },
+                        { name: '#viral (Plan B)', itemStyle: { color: CHART_COLORS.planB } },
+                        { name: '#challenge (Plan B)', itemStyle: { color: CHART_COLORS.planB } },
+                        { name: '#fashion (Plan B)', itemStyle: { color: CHART_COLORS.planB } },
+                        { name: '#music (Plan B)', itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Entertainment' },
+                        { name: 'Lifestyle' },
+                        { name: 'Fashion' },
+                        { name: 'Music' },
+                        { name: 'Sports' }
+                    ],
+                    links: [
+                        { source: '#trending (Plan A)', target: 'Entertainment', value: 15000, qoq: '▲11.2%' },
+                        { source: '#trending (Plan A)', target: 'Lifestyle', value: 9500, qoq: '▲10.5%' },
+                        { source: '#viral (Plan A)', target: 'Entertainment', value: 14000, qoq: '▲9.8%' },
+                        { source: '#viral (Plan A)', target: 'Sports', value: 8800, qoq: '▲8.5%' },
+                        { source: '#challenge (Plan A)', target: 'Entertainment', value: 12000, qoq: '▲8.5%' },
+                        { source: '#challenge (Plan A)', target: 'Sports', value: 9200, qoq: '▲7.8%' },
+                        { source: '#fashion (Plan A)', target: 'Fashion', value: 18500, qoq: '▲7.2%' },
+                        { source: '#music (Plan A)', target: 'Music', value: 17800, qoq: '▲6.5%' },
+                        
+                        { source: '#trending (Plan B)', target: 'Entertainment', value: 14000, qoq: '▲9.5%' },
+                        { source: '#trending (Plan B)', target: 'Lifestyle', value: 8800, qoq: '▲8.8%' },
+                        { source: '#viral (Plan B)', target: 'Entertainment', value: 13000, qoq: '▲8.2%' },
+                        { source: '#viral (Plan B)', target: 'Sports', value: 8500, qoq: '▲7.5%' },
+                        { source: '#challenge (Plan B)', target: 'Entertainment', value: 11500, qoq: '▲7.8%' },
+                        { source: '#challenge (Plan B)', target: 'Sports', value: 8600, qoq: '▲7.2%' },
+                        { source: '#fashion (Plan B)', target: 'Fashion', value: 17200, qoq: '▲6.5%' },
+                        { source: '#music (Plan B)', target: 'Music', value: 16800, qoq: '▲5.8%' }
+                    ]
+                }
+            ]
+        };
+
+        // Quadrant Scatter Plot
+        const generateQuadrantData = (plan) => {
+            const hashtags = [
+                '#trending', '#viral', '#challenge', '#fashion', '#music', 
+                '#dance', '#food', '#travel', '#fitness', '#beauty',
+                '#lifestyle', '#comedy', '#art', '#photography', '#gaming'
+            ];
+            
+            const frequencyBase = plan === 'Plan A' ? 
+                [85, 72, 68, 54, 48, 42, 38, 32, 28, 25, 22, 20, 18, 15, 12] :
+                [78, 65, 62, 50, 45, 40, 35, 30, 26, 22, 20, 18, 16, 14, 10];
+            
+            const qoqBase = plan === 'Plan A' ?
+                [11.2, 9.8, 8.5, 7.2, 6.5, 5.8, 4.2, 3.5, -1.2, -4.5, 3.2, 2.8, 2.5, -0.8, -2.2] :
+                [9.5, 8.2, 7.8, 6.5, 5.8, 5.2, 3.8, 2.5, -2.2, -5.2, 2.8, 2.5, 2.2, -1.2, -2.5];
+            
+            const engagementBase = plan === 'Plan A' ? 
+                [24500, 22800, 21200, 18500, 17800, 16500, 15200, 14800, 13500, 12800,
+                 12000, 11500, 11000, 10500, 10000] :
+                [22800, 21500, 20100, 17200, 16800, 15500, 14200, 13800, 12500, 11800,
+                 11200, 10800, 10300, 9800, 9300];
+            
+            return hashtags.map((tag, index) => {
+                const frequency = frequencyBase[index];
+                const qoq = qoqBase[index];
+                const engagement = engagementBase[index];
+                
+                // Determine quadrant
+                let quadrant;
+                if (frequency >= 40 && qoq >= 5) {
+                    quadrant = 'Stars';
+                } else if (frequency >= 40 && qoq < 5) {
+                    quadrant = 'Cash Cows';
+                } else if (frequency < 40 && qoq >= 5) {
+                    quadrant = 'Question Marks';
+                } else {
+                    quadrant = 'Dogs';
+                }
+                
+                return {
+                    name: tag,
+                    value: [frequency, qoq, engagement / 1000, quadrant],
+                    qoqFormatted: qoq >= 0 ? `▲${qoq.toFixed(1)}%` : `▼${Math.abs(qoq).toFixed(1)}%`,
+                    itemStyle: {
+                        color: plan === 'Plan A' ? CHART_COLORS.planA : CHART_COLORS.planB
+                    }
+                };
+            });
+        };
+
+        const planAQuadrantData = generateQuadrantData('Plan A');
+        const planBQuadrantData = generateQuadrantData('Plan B');
+
+        const quadrantOption = {
+            tooltip: {
+                formatter: function(params) {
+                    const data = params.data;
+                    const hashtag = data.name;
+                    const frequency = data.value[0];
+                    const qoq = data.value[1];
+                    const engagement = data.value[2] * 1000;
+                    const quadrant = data.value[3];
+                    const qoqFormatted = data.qoqFormatted;
+                    const qoqColor = qoqFormatted.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    return `
+                        <div style="font-weight:bold">${hashtag} (${params.seriesName})</div>
+                        <div>Frequency: ${frequency}</div>
+                        <div>Engagement: ${formatNumber(engagement)}</div>
+                        <div>QoQ: <span style="color:${qoqColor}">${qoqFormatted}</span></div>
+                        <div>Quadrant: ${quadrant}</div>
+                    `;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                top: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                name: 'Frequency',
+                splitLine: {
+                    lineStyle: {
+                        type: 'dashed'
+                    }
+                },
+                axisLine: {
+                    onZero: false
+                },
+                axisLabel: {
+                    formatter: '{value}'
+                },
+                splitNumber: 5,
+                min: 0,
+                max: 100
+            },
+            yAxis: {
+                type: 'value',
+                name: 'QoQ Change (%)',
+                splitLine: {
+                    lineStyle: {
+                        type: 'dashed'
+                    }
+                },
+                axisLine: {
+                    onZero: false
+                },
+                axisLabel: {
+                    formatter: '{value}%'
+                },
+                min: -6,
+                max: 12
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'scatter',
+                    symbolSize: function(data) {
+                        return Math.sqrt(data[2]) * 2;
+                    },
+                    emphasis: {
+                        focus: 'self',
+                        label: {
+                            show: true,
+                            formatter: function(param) {
+                                return param.data.name;
+                            },
+                            position: 'top'
+                        }
+                    },
+                    data: planAQuadrantData,
+                    markLine: {
+                        lineStyle: {
+                            color: '#333',
+                            type: 'dashed'
+                        },
+                        data: [
+                            { xAxis: 40 },
+                            { yAxis: 5 }
+                        ]
+                    },
+                    markArea: {
+                        silent: true,
+                        itemStyle: {
+                            opacity: 0.1
+                        },
+                        data: [
+                            [
+                                { name: 'Stars', xAxis: 40, yAxis: 5 },
+                                { xAxis: 100, yAxis: 12 }
+                            ],
+                            [
+                                { name: 'Cash Cows', xAxis: 40, yAxis: -6 },
+                                { xAxis: 100, yAxis: 5 }
+                            ],
+                            [
+                                { name: 'Question Marks', xAxis: 0, yAxis: 5 },
+                                { xAxis: 40, yAxis: 12 }
+                            ],
+                            [
+                                { name: 'Dogs', xAxis: 0, yAxis: -6 },
+                                { xAxis: 40, yAxis: 5 }
+                            ]
+                        ]
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'scatter',
+                    symbolSize: function(data) {
+                        return Math.sqrt(data[2]) * 2;
+                    },
+                    emphasis: {
+                        focus: 'self',
+                        label: {
+                            show: true,
+                            formatter: function(param) {
+                                return param.data.name;
+                            },
+                            position: 'top'
+                        }
+                    },
+                    data: planBQuadrantData
+                }
+            ]
+        };
+
+        // Set chart options
+        hashtagBarChart.setOption(hashtagBarOption);
+        wordCloudChart.setOption(wordCloudOption);
+        sankeyChart.setOption(sankeyOption);
+        quadrantChart.setOption(quadrantOption);
+
+        // Setup word cloud toggle
+        document.querySelectorAll('#cloudToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#cloudToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const plan = this.getAttribute('data-plan');
+                
+                if (plan === 'planA') {
+                    wordCloudOption.series[0].data = planAWordCloudData;
+                } else {
+                    wordCloudOption.series[0].data = planBWordCloudData;
+                }
+                
+                wordCloudChart.setOption(wordCloudOption);
+            });
+        });
+
+        // Resize charts when window is resized
+        window.addEventListener('resize', function() {
+            hashtagBarChart.resize();
+            wordCloudChart.resize();
+            sankeyChart.resize();
+            quadrantChart.resize();
+        });
+    </script>
+</body>
+</html>

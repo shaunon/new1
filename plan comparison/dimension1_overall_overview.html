@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overall Overview</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Metric Cards -->
+        <div class="metrics-row">
+            <div class="metric-card">
+                <div class="metric-title">Total Views</div>
+                <div class="metric-value plan-a">12.5M</div>
+                <div class="metric-change positive">▲15.2%</div>
+                <div class="metric-value plan-b">10.8M</div>
+                <div class="metric-change negative">▼2.1%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Total Engagement</div>
+                <div class="metric-value plan-a">1.8M</div>
+                <div class="metric-change positive">▲8.7%</div>
+                <div class="metric-value plan-b">1.5M</div>
+                <div class="metric-change positive">▲3.2%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Average Engagement Rate</div>
+                <div class="metric-value plan-a">14.4%</div>
+                <div class="metric-change positive">▲5.3%</div>
+                <div class="metric-value plan-b">13.9%</div>
+                <div class="metric-change positive">▲1.8%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Total Posts</div>
+                <div class="metric-value plan-a">245</div>
+                <div class="metric-change positive">▲12.4%</div>
+                <div class="metric-value plan-b">218</div>
+                <div class="metric-change negative">▼4.8%</div>
+            </div>
+        </div>
+
+        <!-- Main Charts Row -->
+        <div class="charts-row">
+            <!-- Grouped Bar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Key Metrics Comparison</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="metricsChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('metricsChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="metricsChart" class="chart"></div>
+            </div>
+
+            <!-- Stacked Area Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Daily Views & Engagement Trends</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="trendsChartToggle">
+                            <button class="toggle-btn active" data-type="line">Line</button>
+                            <button class="toggle-btn" data-type="bar">Bar</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('trendsChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="trendsChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Secondary Charts Grid -->
+        <div class="charts-grid">
+            <!-- Waterfall Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Engagement Breakdown</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('engagementBreakdownChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="engagementBreakdownChart" class="chart"></div>
+            </div>
+
+            <!-- Additional Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Daily Engagement Rate Comparison</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('engagementRateChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="engagementRateChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Overall Performance Data</div>
+                <button class="download-btn" onclick="downloadTableData('dataTable')" title="Download Table Data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Metric</th>
+                            <th>Current Value</th>
+                            <th>Previous Value</th>
+                            <th>QoQ Change</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Plan A data -->
+                        <tr>
+                            <td rowspan="4">Plan A</td>
+                            <td>Total Views</td>
+                            <td>12,500,000</td>
+                            <td>10,850,000</td>
+                            <td class="metric-change positive">▲15.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Total Engagement</td>
+                            <td>1,800,000</td>
+                            <td>1,656,000</td>
+                            <td class="metric-change positive">▲8.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Average Engagement Rate</td>
+                            <td>14.4%</td>
+                            <td>13.7%</td>
+                            <td class="metric-change positive">▲5.3%</td>
+                        </tr>
+                        <tr>
+                            <td>Total Posts</td>
+                            <td>245</td>
+                            <td>218</td>
+                            <td class="metric-change positive">▲12.4%</td>
+                        </tr>
+                        <!-- Plan B data -->
+                        <tr>
+                            <td rowspan="4">Plan B</td>
+                            <td>Total Views</td>
+                            <td>10,800,000</td>
+                            <td>11,030,000</td>
+                            <td class="metric-change negative">▼2.1%</td>
+                        </tr>
+                        <tr>
+                            <td>Total Engagement</td>
+                            <td>1,500,000</td>
+                            <td>1,453,000</td>
+                            <td class="metric-change positive">▲3.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Average Engagement Rate</td>
+                            <td>13.9%</td>
+                            <td>13.7%</td>
+                            <td class="metric-change positive">▲1.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Total Posts</td>
+                            <td>218</td>
+                            <td>229</td>
+                            <td class="metric-change negative">▼4.8%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // Initialize charts
+        const metricsChart = echarts.init(document.getElementById('metricsChart'));
+        const trendsChart = echarts.init(document.getElementById('trendsChart'));
+        const engagementBreakdownChart = echarts.init(document.getElementById('engagementBreakdownChart'));
+        const engagementRateChart = echarts.init(document.getElementById('engagementRateChart'));
+
+        // Metrics Chart
+        const metricsChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const param = params[0];
+                    let html = `${param.name}<br/>`;
+                    params.forEach(item => {
+                        const change = item.seriesIndex === 0 ? 
+                            (item.name === 'Views' ? '▲15.2%' : 
+                             item.name === 'Engagement' ? '▲8.7%' : 
+                             item.name === 'Engagement Rate' ? '▲5.3%' : '▲12.4%') :
+                            (item.name === 'Views' ? '▼2.1%' : 
+                             item.name === 'Engagement' ? '▲3.2%' : 
+                             item.name === 'Engagement Rate' ? '▲1.8%' : '▼4.8%');
+                        const color = change.includes('▲') ? '#28a745' : '#dc3545';
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${item.color};"></span>`;
+                        html += `${item.seriesName}: ${formatNumber(item.value)}`;
+                        html += ` <span style="color:${color}">${change}</span><br/>`;
+                    });
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                top: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['Views (M)', 'Engagement (K)', 'Engagement Rate (%)', 'Posts']
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: [12.5, 1800, 14.4, 245],
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const changes = ['▲15.2%', '▲8.7%', '▲5.3%', '▲12.4%'];
+                            return changes[params.dataIndex];
+                        },
+                        color: '#28a745'
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: [10.8, 1500, 13.9, 218],
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const changes = ['▼2.1%', '▲3.2%', '▲1.8%', '▼4.8%'];
+                            return changes[params.dataIndex];
+                        },
+                        color: function(params) {
+                            const changes = ['▼2.1%', '▲3.2%', '▲1.8%', '▼4.8%'];
+                            return changes[params.dataIndex].includes('▲') ? '#28a745' : '#dc3545';
+                        }
+                    }
+                }
+            ]
+        };
+
+        // Trends Chart
+        const dates = ['2023-07-01', '2023-07-02', '2023-07-03', '2023-07-04', '2023-07-05', 
+                       '2023-07-06', '2023-07-07', '2023-07-08', '2023-07-09', '2023-07-10',
+                       '2023-07-11', '2023-07-12', '2023-07-13', '2023-07-14', '2023-07-15'];
+        
+        const viewsA = [820, 932, 901, 934, 1290, 1330, 1320, 1450, 1200, 1100, 1250, 1400, 1350, 1460, 1500];
+        const viewsB = [720, 832, 801, 834, 1090, 1130, 1120, 1250, 1000, 900, 1050, 1200, 1150, 1260, 1300];
+        const engagementA = [120, 132, 101, 134, 290, 230, 220, 250, 200, 190, 250, 240, 350, 260, 300];
+        const engagementB = [100, 112, 91, 114, 250, 200, 190, 220, 170, 160, 220, 210, 300, 230, 270];
+        
+        const trendsChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                },
+                formatter: function(params) {
+                    const date = params[0].axisValue;
+                    let html = `${date}<br/>`;
+                    
+                    // Find previous day index
+                    const dateIndex = dates.indexOf(date);
+                    const prevIndex = dateIndex > 0 ? dateIndex - 1 : null;
+                    
+                    params.forEach(param => {
+                        const color = param.seriesName.includes('Plan A') ? CHART_COLORS.planA : CHART_COLORS.planB;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>`;
+                        html += `${param.seriesName}: ${formatNumber(param.value)}`;
+                        
+                        // Calculate daily change if previous day exists
+                        if (prevIndex !== null) {
+                            const prevValue = param.seriesIndex === 0 ? viewsA[prevIndex] : 
+                                             param.seriesIndex === 1 ? viewsB[prevIndex] :
+                                             param.seriesIndex === 2 ? engagementA[prevIndex] : engagementB[prevIndex];
+                            const change = ((param.value - prevValue) / prevValue * 100).toFixed(1);
+                            const changeSymbol = change >= 0 ? '▲' : '▼';
+                            const changeColor = change >= 0 ? '#28a745' : '#dc3545';
+                            html += ` <span style="color:${changeColor}">${changeSymbol}${Math.abs(change)}%</span>`;
+                        }
+                        
+                        html += '<br/>';
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Views Plan A', 'Views Plan B', 'Engagement Plan A', 'Engagement Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: dates
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Views Plan A',
+                    type: 'line',
+                    stack: 'Total',
+                    areaStyle: {
+                        opacity: 0.3
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: viewsA,
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    }
+                },
+                {
+                    name: 'Views Plan B',
+                    type: 'line',
+                    stack: 'Total',
+                    areaStyle: {
+                        opacity: 0.3
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: viewsB,
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    }
+                },
+                {
+                    name: 'Engagement Plan A',
+                    type: 'line',
+                    stack: 'Total',
+                    areaStyle: {
+                        opacity: 0.3
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: engagementA,
+                    itemStyle: {
+                        color: CHART_COLORS.planA,
+                        borderType: 'dashed',
+                        borderWidth: 2
+                    }
+                },
+                {
+                    name: 'Engagement Plan B',
+                    type: 'line',
+                    stack: 'Total',
+                    areaStyle: {
+                        opacity: 0.3
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: engagementB,
+                    itemStyle: {
+                        color: CHART_COLORS.planB,
+                        borderType: 'dashed',
+                        borderWidth: 2
+                    }
+                }
+            ]
+        };
+
+        // Engagement Breakdown Chart (Waterfall)
+        const engagementBreakdownOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const param = params[0];
+                    let html = `${param.name}<br/>`;
+                    
+                    params.forEach(item => {
+                        const planAChanges = ['▲12.5%', '▲8.2%', '▲5.4%'];
+                        const planBChanges = ['▲3.8%', '▲2.1%', '▲4.2%'];
+                        
+                        const change = item.seriesName === 'Plan A' ? 
+                            planAChanges[['Likes', 'Comments', 'Shares'].indexOf(item.name)] :
+                            planBChanges[['Likes', 'Comments', 'Shares'].indexOf(item.name)];
+                        
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${item.color};"></span>`;
+                        html += `${item.seriesName}: ${formatNumber(item.value)}`;
+                        html += ` <span style="color:#28a745">${change}</span><br/>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['Likes', 'Comments', 'Shares']
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    stack: 'total',
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const changes = ['▲12.5%', '▲8.2%', '▲5.4%'];
+                            return changes[params.dataIndex];
+                        },
+                        color: '#28a745'
+                    },
+                    data: [1200000, 350000, 250000],
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    stack: 'total',
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const changes = ['▲3.8%', '▲2.1%', '▲4.2%'];
+                            return changes[params.dataIndex];
+                        },
+                        color: '#28a745'
+                    },
+                    data: [1000000, 300000, 200000],
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    }
+                }
+            ]
+        };
+
+        // Engagement Rate Chart
+        const engagementRateOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: dates
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '{value}%'
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'line',
+                    data: [14.6, 14.2, 11.2, 13.4, 22.5, 17.3, 16.7, 17.2, 16.7, 17.3, 20.0, 17.1, 25.9, 17.8, 20.0],
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    },
+                    markLine: {
+                        data: [
+                            {
+                                type: 'average',
+                                name: 'Average',
+                                label: {
+                                    formatter: 'Avg: {c}%',
+                                    position: 'end'
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'line',
+                    data: [13.9, 13.5, 11.4, 13.7, 22.9, 17.7, 17.0, 17.6, 17.0, 17.8, 21.0, 17.5, 26.1, 18.3, 20.8],
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    },
+                    markLine: {
+                        data: [
+                            {
+                                type: 'average',
+                                name: 'Average',
+                                label: {
+                                    formatter: 'Avg: {c}%',
+                                    position: 'start'
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        };
+
+        // Set chart options
+        metricsChart.setOption(metricsChartOption);
+        trendsChart.setOption(trendsChartOption);
+        engagementBreakdownChart.setOption(engagementBreakdownOption);
+        engagementRateChart.setOption(engagementRateOption);
+
+        // Setup chart toggles
+        setupChartToggle('metricsChart', metricsChart, metricsChartOption);
+        setupChartToggle('trendsChart', trendsChart, trendsChartOption);
+
+        // Resize charts when window is resized
+        window.addEventListener('resize', function() {
+            metricsChart.resize();
+            trendsChart.resize();
+            engagementBreakdownChart.resize();
+            engagementRateChart.resize();
+        });
+    </script>
+</body>
+</html>

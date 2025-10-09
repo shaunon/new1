@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/map/js/world.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main Charts Row -->
+        <div class="charts-row">
+            <!-- Map or Grouped Bar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Top 5 Countries by Views</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="viewToggle">
+                            <button class="toggle-btn active" data-view="map">Map View</button>
+                            <button class="toggle-btn" data-view="bar">Bar Chart</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('countryViewsChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="countryViewsChart" class="chart"></div>
+            </div>
+
+            <!-- Bubble Map -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Global Views Distribution</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="planToggle">
+                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
+                            <button class="toggle-btn" data-plan="planB">Plan B</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('bubbleMapChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="bubbleMapChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Secondary Charts Grid -->
+        <div class="charts-grid">
+            <!-- Stacked Area Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Daily Views by Top 10 Countries</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="areaToggle">
+                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
+                            <button class="toggle-btn" data-plan="planB">Plan B</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('stackedAreaChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="stackedAreaChart" class="chart"></div>
+            </div>
+
+            <!-- Rank Change Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Country Rank Changes</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('rankChangeChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="rankChangeChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Country Performance Data</div>
+                <button class="download-btn" onclick="downloadTableData('dataTable')" title="Download Table Data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Country</th>
+                            <th>Total Views</th>
+                            <th>Total Views QoQ</th>
+                            <th>Engagement Rate</th>
+                            <th>Engagement Rate QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Plan A data -->
+                        <tr>
+                            <td rowspan="10">Plan A</td>
+                            <td>United States</td>
+                            <td>2,850,000</td>
+                            <td class="metric-change positive">▲9.1%</td>
+                            <td>5.8%</td>
+                            <td class="metric-change positive">▲7.4%</td>
+                        </tr>
+                        <tr>
+                            <td>Brazil</td>
+                            <td>1,950,000</td>
+                            <td class="metric-change positive">▲8.5%</td>
+                            <td>5.5%</td>
+                            <td class="metric-change positive">▲6.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Mexico</td>
+                            <td>1,680,000</td>
+                            <td class="metric-change positive">▲7.8%</td>
+                            <td>5.2%</td>
+                            <td class="metric-change positive">▲6.2%</td>
+                        </tr>
+                        <tr>
+                            <td>India</td>
+                            <td>1,450,000</td>
+                            <td class="metric-change positive">▲6.5%</td>
+                            <td>4.9%</td>
+                            <td class="metric-change positive">▲5.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Indonesia</td>
+                            <td>1,280,000</td>
+                            <td class="metric-change positive">▲5.8%</td>
+                            <td>4.7%</td>
+                            <td class="metric-change positive">▲4.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Japan</td>
+                            <td>980,000</td>
+                            <td class="metric-change positive">▲4.2%</td>
+                            <td>4.5%</td>
+                            <td class="metric-change positive">▲3.5%</td>
+                        </tr>
+                        <tr>
+                            <td>United Kingdom</td>
+                            <td>850,000</td>
+                            <td class="metric-change positive">▲3.8%</td>
+                            <td>4.3%</td>
+                            <td class="metric-change positive">▲2.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Germany</td>
+                            <td>720,000</td>
+                            <td class="metric-change positive">▲2.5%</td>
+                            <td>4.1%</td>
+                            <td class="metric-change positive">▲1.5%</td>
+                        </tr>
+                        <tr>
+                            <td>France</td>
+                            <td>680,000</td>
+                            <td class="metric-change negative">▼1.2%</td>
+                            <td>3.8%</td>
+                            <td class="metric-change negative">▼0.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Canada</td>
+                            <td>580,000</td>
+                            <td class="metric-change negative">▼3.2%</td>
+                            <td>3.5%</td>
+                            <td class="metric-change negative">▼2.5%</td>
+                        </tr>
+                        <!-- Plan B data -->
+                        <tr>
+                            <td rowspan="10">Plan B</td>
+                            <td>United States</td>
+                            <td>2,650,000</td>
+                            <td class="metric-change positive">▲8.2%</td>
+                            <td>5.5%</td>
+                            <td class="metric-change positive">▲6.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Brazil</td>
+                            <td>1,850,000</td>
+                            <td class="metric-change positive">▲7.5%</td>
+                            <td>5.2%</td>
+                            <td class="metric-change positive">▲6.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Mexico</td>
+                            <td>1,580,000</td>
+                            <td class="metric-change positive">▲6.8%</td>
+                            <td>4.9%</td>
+                            <td class="metric-change positive">▲5.5%</td>
+                        </tr>
+                        <tr>
+                            <td>India</td>
+                            <td>1,380,000</td>
+                            <td class="metric-change positive">▲5.5%</td>
+                            <td>4.6%</td>
+                            <td class="metric-change positive">▲4.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Indonesia</td>
+                            <td>1,220,000</td>
+                            <td class="metric-change positive">▲4.8%</td>
+                            <td>4.4%</td>
+                            <td class="metric-change positive">▲4.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Japan</td>
+                            <td>920,000</td>
+                            <td class="metric-change positive">▲3.5%</td>
+                            <td>4.2%</td>
+                            <td class="metric-change positive">▲2.8%</td>
+                        </tr>
+                        <tr>
+                            <td>United Kingdom</td>
+                            <td>780,000</td>
+                            <td class="metric-change positive">▲3.0%</td>
+                            <td>4.0%</td>
+                            <td class="metric-change positive">▲2.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Germany</td>
+                            <td>680,000</td>
+                            <td class="metric-change positive">▲1.8%</td>
+                            <td>3.8%</td>
+                            <td class="metric-change positive">▲1.0%</td>
+                        </tr>
+                        <tr>
+                            <td>France</td>
+                            <td>650,000</td>
+                            <td class="metric-change negative">▼1.8%</td>
+                            <td>3.5%</td>
+                            <td class="metric-change negative">▼1.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Canada</td>
+                            <td>550,000</td>
+                            <td class="metric-change negative">▼3.8%</td>
+                            <td>3.2%</td>
+                            <td class="metric-change negative">▼3.2%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // Initialize charts
+        const countryViewsChart = echarts.init(document.getElementById('countryViewsChart'));
+        const bubbleMapChart = echarts.init(document.getElementById('bubbleMapChart'));
+        const stackedAreaChart = echarts.init(document.getElementById('stackedAreaChart'));
+        const rankChangeChart = echarts.init(document.getElementById('rankChangeChart'));
+
+        // Country data
+        const countryData = {
+            planA: [
+                { name: 'United States', value: 2850000, qoq: '▲9.1%', er: 5.8, erQoq: '▲7.4%', coords: [37.0902, -95.7129] },
+                { name: 'Brazil', value: 1950000, qoq: '▲8.5%', er: 5.5, erQoq: '▲6.8%', coords: [-14.2350, -51.9253] },
+                { name: 'Mexico', value: 1680000, qoq: '▲7.8%', er: 5.2, erQoq: '▲6.2%', coords: [23.6345, -102.5528] },
+                { name: 'India', value: 1450000, qoq: '▲6.5%', er: 4.9, erQoq: '▲5.5%', coords: [20.5937, 78.9629] },
+                { name: 'Indonesia', value: 1280000, qoq: '▲5.8%', er: 4.7, erQoq: '▲4.8%', coords: [-0.7893, 113.9213] },
+                { name: 'Japan', value: 980000, qoq: '▲4.2%', er: 4.5, erQoq: '▲3.5%', coords: [36.2048, 138.2529] },
+                { name: 'United Kingdom', value: 850000, qoq: '▲3.8%', er: 4.3, erQoq: '▲2.8%', coords: [55.3781, -3.4360] },
+                { name: 'Germany', value: 720000, qoq: '▲2.5%', er: 4.1, erQoq: '▲1.5%', coords: [51.1657, 10.4515] },
+                { name: 'France', value: 680000, qoq: '▼1.2%', er: 3.8, erQoq: '▼0.8%', coords: [46.2276, 2.2137] },
+                { name: 'Canada', value: 580000, qoq: '▼3.2%', er: 3.5, erQoq: '▼2.5%', coords: [56.1304, -106.3468] }
+            ],
+            planB: [
+                { name: 'United States', value: 2650000, qoq: '▲8.2%', er: 5.5, erQoq: '▲6.8%', coords: [37.0902, -95.7129] },
+                { name: 'Brazil', value: 1850000, qoq: '▲7.5%', er: 5.2, erQoq: '▲6.0%', coords: [-14.2350, -51.9253] },
+                { name: 'Mexico', value: 1580000, qoq: '▲6.8%', er: 4.9, erQoq: '▲5.5%', coords: [23.6345, -102.5528] },
+                { name: 'India', value: 1380000, qoq: '▲5.5%', er: 4.6, erQoq: '▲4.8%', coords: [20.5937, 78.9629] },
+                { name: 'Indonesia', value: 1220000, qoq: '▲4.8%', er: 4.4, erQoq: '▲4.2%', coords: [-0.7893, 113.9213] },
+                { name: 'Japan', value: 920000, qoq: '▲3.5%', er: 4.2, erQoq: '▲2.8%', coords: [36.2048, 138.2529] },
+                { name: 'United Kingdom', value: 780000, qoq: '▲3.0%', er: 4.0, erQoq: '▲2.2%', coords: [55.3781, -3.4360] },
+                { name: 'Germany', value: 680000, qoq: '▲1.8%', er: 3.8, erQoq: '▲1.0%', coords: [51.1657, 10.4515] },
+                { name: 'France', value: 650000, qoq: '▼1.8%', er: 3.5, erQoq: '▼1.5%', coords: [46.2276, 2.2137] },
+                { name: 'Canada', value: 550000, qoq: '▼3.8%', er: 3.2, erQoq: '▼3.2%', coords: [56.1304, -106.3468] }
+            ]
+        };
+
+        // Map Chart Option
+        const mapOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    const data = params.data || {};
+                    if (!data.value) return params.name;
+                    
+                    const qoqColor = data.qoq && data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    const erQoqColor = data.erQoq && data.erQoq.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    return `
+                        <div style="font-weight:bold">${params.name}</div>
+                        <div>Total Views: ${formatNumber(data.value)}</div>
+                        <div>QoQ: <span style="color:${qoqColor}">${data.qoq}</span></div>
+                        <div>Engagement Rate: ${data.er}%</div>
+                        <div>ER QoQ: <span style="color:${erQoqColor}">${data.erQoq}</span></div>
+                    `;
+                }
+            },
+            visualMap: {
+                left: 'right',
+                min: 500000,
+                max: 3000000,
+                inRange: {
+                    color: ['#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695']
+                },
+                text: ['High', 'Low'],
+                calculable: true
+            },
+            series: [
+                {
+                    name: 'Total Views',
+                    type: 'map',
+                    map: 'world',
+                    roam: true,
+                    emphasis: {
+                        label: {
+                            show: false
+                        }
+                    },
+                    data: countryData.planA.map(item => {
+                        return {
+                            name: item.name,
+                            value: item.value,
+                            qoq: item.qoq,
+                            er: item.er,
+                            erQoq: item.erQoq
+                        };
+                    }),
+                    label: {
+                        show: false
+                    },
+                    itemStyle: {
+                        areaColor: '#f7f7f7',
+                        borderColor: '#ddd'
+                    }
+                }
+            ]
+        };
+
+        // Bar Chart Option
+        const barOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const country = params[0].axisValue;
+                    let html = `<div style="font-weight:bold">${country}</div>`;
+                    
+                    params.forEach(param => {
+                        const isPlanA = param.seriesName === 'Plan A';
+                        const qoq = isPlanA ? 
+                            ['▲9.1%', '▲8.5%', '▲7.8%', '▲6.5%', '▲5.8%'][param.dataIndex] : 
+                            ['▲8.2%', '▲7.5%', '▲6.8%', '▲5.5%', '▲4.8%'][param.dataIndex];
+                        
+                        const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                        html += `${param.seriesName}: ${formatNumber(param.value)}`;
+                        html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                        html += `</div>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['United States', 'Brazil', 'Mexico', 'India', 'Indonesia']
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Total Views',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: [
+                        {
+                            value: 2850000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲9.1%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 1950000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲8.5%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 1680000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲7.8%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 1450000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲6.5%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 1280000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲5.8%',
+                                color: '#28a745'
+                            }
+                        }
+                    ],
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: [
+                        {
+                            value: 2650000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲8.2%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 1850000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲7.5%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 1580000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲6.8%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 1380000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲5.5%',
+                                color: '#28a745'
+                            }
+                        },
+                        {
+                            value: 1220000,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '▲4.8%',
+                                color: '#28a745'
+                            }
+                        }
+                    ],
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    }
+                }
+            ]
+        };
+
+        // Bubble Map Option
+        const generateBubbleMapData = (plan) => {
+            return countryData[plan].map(item => {
+                const qoqValue = parseFloat(item.qoq.replace('▲', '').replace('▼', '').replace('%', ''));
+                const isPositive = item.qoq.includes('▲');
+                
+                return {
+                    name: item.name,
+                    value: [...item.coords, item.value / 100000], // Scale down for better visualization
+                    qoq: item.qoq,
+                    itemStyle: {
+                        color: isPositive ? 
+                            `rgba(40, 167, 69, ${0.5 + qoqValue / 20})` : 
+                            `rgba(220, 53, 69, ${0.5 + qoqValue / 20})`
+                    }
+                };
+            });
+        };
+
+        const bubbleMapOption = {
+            tooltip: {
+                formatter: function(params) {
+                    const qoqColor = params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    return `
+                        <div style="font-weight:bold">${params.name}</div>
+                        <div>Views: ${formatNumber(params.data.value[2] * 100000)}</div>
+                        <div>QoQ: <span style="color:${qoqColor}">${params.data.qoq}</span></div>
+                    `;
+                }
+            },
+            geo: {
+                map: 'world',
+                roam: true,
+                emphasis: {
+                    itemStyle: {
+                        areaColor: '#f4f4f4'
+                    }
+                },
+                itemStyle: {
+                    areaColor: '#f7f7f7',
+                    borderColor: '#ddd'
+                }
+            },
+            series: [
+                {
+                    name: 'Views',
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    data: generateBubbleMapData('planA'),
+                    symbolSize: function(val) {
+                        return Math.sqrt(val[2]) * 5;
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            formatter: '{b}',
+                            position: 'right'
+                        }
+                    }
+                }
+            ]
+        };
+
+        // Stacked Area Chart
+        const generateStackedAreaData = (plan) => {
+            const dates = ['01/01', '01/02', '01/03', '01/04', '01/05', '01/06', '01/07', '01/08', '01/09', '01/10',
+                          '01/11', '01/12', '01/13', '01/14', '01/15', '01/16', '01/17', '01/18', '01/19', '01/20',
+                          '01/21', '01/22', '01/23', '01/24', '01/25', '01/26', '01/27', '01/28', '01/29', '01/30'];
+            
+            const countries = countryData[plan].slice(0, 10).map(item => item.name);
+            
+            const series = countries.map((country, index) => {
+                const baseValue = countryData[plan][index].value / 30;
+                const fluctuation = 0.2;
+                
+                const data = dates.map(() => {
+                    return Math.round(baseValue * (1 + (Math.random() - 0.5) * fluctuation));
+                });
+                
+                return {
+                    name: country,
+                    type: 'line',
+                    stack: 'Total',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: data
+                };
+            });
+            
+            return { dates, series };
+        };
+
+        const { dates: planADates, series: planASeries } = generateStackedAreaData('planA');
+        const { dates: planBDates, series: planBSeries } = generateStackedAreaData('planB');
+
+        const stackedAreaOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                },
+                formatter: function(params) {
+                    const date = params[0].axisValue;
+                    let total = 0;
+                    let html = `<div style="font-weight:bold">${date}</div>`;
+                    
+                    params.forEach(param => {
+                        total += param.value;
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                        html += `${param.seriesName}: ${formatNumber(param.value)}`;
+                        html += `</div>`;
+                    });
+                    
+                    // Calculate QoQ based on the date
+                    const dayIndex = parseInt(date.split('/')[1]) - 1;
+                    const qoq = dayIndex < 15 ? '▲8.2%' : '▲7.5%';
+                    const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    html += `<div style="margin-top:10px;font-weight:bold">Total: ${formatNumber(total)}</div>`;
+                    html += `<div>QoQ: <span style="color:${qoqColor}">${qoq}</span></div>`;
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: countryData.planA.slice(0, 10).map(item => item.name),
+                type: 'scroll',
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: planADates
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Daily Views',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: planASeries
+        };
+
+        // Rank Change Chart
+        const rankChangeOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const country = params[0].data.name;
+                    let html = `<div style="font-weight:bold">${country}</div>`;
+                    
+                    params.forEach(param => {
+                        const data = param.data;
+                        const qoqColor = data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                        html += `${param.seriesName}: Rank ${data.prevRank} → ${data.currRank}`;
+                        html += ` <span style="color:${qoqColor}">${data.qoq}</span>`;
+                        html += `</div>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                min: 0,
+                max: 11,
+                splitLine: {
+                    show: false
+                },
+                axisLabel: {
+                    formatter: function(value) {
+                        if (value === 0) return 'Previous';
+                        if (value === 10) return 'Current';
+                        return '';
+                    }
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: ['United States', 'Brazil', 'Mexico', 'India', 'Indonesia'],
+                inverse: true,
+                axisLine: {
+                    show: false
+                },
+                axisTick: {
+                    show: false
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'pictorialBar',
+                    symbol: 'rect',
+                    symbolSize: [10, 20],
+                    symbolOffset: [0, 0],
+                    z: 12,
+                    data: [
+                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲9.1%', value: 0, itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'Brazil', prevRank: 3, currRank: 2, qoq: '▲8.5%', value: 0, itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'Mexico', prevRank: 2, currRank: 3, qoq: '▲7.8%', value: 0, itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'India', prevRank: 4, currRank: 4, qoq: '▲6.5%', value: 0, itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'Indonesia', prevRank: 5, currRank: 5, qoq: '▲5.8%', value: 0, itemStyle: { color: CHART_COLORS.planA } }
+                    ]
+                },
+                {
+                    name: 'Plan A',
+                    type: 'pictorialBar',
+                    symbol: 'rect',
+                    symbolSize: [10, 20],
+                    symbolOffset: [0, 0],
+                    z: 12,
+                    data: [
+                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲9.1%', value: 10, itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'Brazil', prevRank: 3, currRank: 2, qoq: '▲8.5%', value: 10, itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'Mexico', prevRank: 2, currRank: 3, qoq: '▲7.8%', value: 10, itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'India', prevRank: 4, currRank: 4, qoq: '▲6.5%', value: 10, itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'Indonesia', prevRank: 5, currRank: 5, qoq: '▲5.8%', value: 10, itemStyle: { color: CHART_COLORS.planA } }
+                    ]
+                },
+                {
+                    name: 'Plan A',
+                    type: 'line',
+                    symbol: 'none',
+                    data: [
+                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲9.1%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'Brazil', prevRank: 3, currRank: 2, qoq: '▲8.5%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'Mexico', prevRank: 2, currRank: 3, qoq: '▲7.8%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'India', prevRank: 4, currRank: 4, qoq: '▲6.5%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } },
+                        { name: 'Indonesia', prevRank: 5, currRank: 5, qoq: '▲5.8%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } }
+                    ],
+                    lineStyle: {
+                        color: CHART_COLORS.planA
+                    },
+                    markPoint: {
+                        symbol: 'arrow',
+                        symbolSize: 15,
+                        symbolOffset: [0, 0],
+                        data: [
+                            { coord: [5, 0], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲9.1%', color: '#28a745', position: 'right' } },
+                            { coord: [5, 1], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲8.5%', color: '#28a745', position: 'right' } },
+                            { coord: [5, 2], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲7.8%', color: '#28a745', position: 'right' } },
+                            { coord: [5, 3], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲6.5%', color: '#28a745', position: 'right' } },
+                            { coord: [5, 4], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲5.8%', color: '#28a745', position: 'right' } }
+                        ]
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'pictorialBar',
+                    symbol: 'rect',
+                    symbolSize: [10, 20],
+                    symbolOffset: [0, 0],
+                    z: 12,
+                    data: [
+                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲8.2%', value: 0, itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Brazil', prevRank: 2, currRank: 2, qoq: '▲7.5%', value: 0, itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Mexico', prevRank: 3, currRank: 3, qoq: '▲6.8%', value: 0, itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'India', prevRank: 5, currRank: 4, qoq: '▲5.5%', value: 0, itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Indonesia', prevRank: 4, currRank: 5, qoq: '▲4.8%', value: 0, itemStyle: { color: CHART_COLORS.planB } }
+                    ]
+                },
+                {
+                    name: 'Plan B',
+                    type: 'pictorialBar',
+                    symbol: 'rect',
+                    symbolSize: [10, 20],
+                    symbolOffset: [0, 0],
+                    z: 12,
+                    data: [
+                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲8.2%', value: 10, itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Brazil', prevRank: 2, currRank: 2, qoq: '▲7.5%', value: 10, itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Mexico', prevRank: 3, currRank: 3, qoq: '▲6.8%', value: 10, itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'India', prevRank: 5, currRank: 4, qoq: '▲5.5%', value: 10, itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Indonesia', prevRank: 4, currRank: 5, qoq: '▲4.8%', value: 10, itemStyle: { color: CHART_COLORS.planB } }
+                    ]
+                },
+                {
+                    name: 'Plan B',
+                    type: 'line',
+                    symbol: 'none',
+                    data: [
+                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲8.2%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Brazil', prevRank: 2, currRank: 2, qoq: '▲7.5%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Mexico', prevRank: 3, currRank: 3, qoq: '▲6.8%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'India', prevRank: 5, currRank: 4, qoq: '▲5.5%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } },
+                        { name: 'Indonesia', prevRank: 4, currRank: 5, qoq: '▲4.8%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } }
+                    ],
+                    lineStyle: {
+                        color: CHART_COLORS.planB
+                    },
+                    markPoint: {
+                        symbol: 'arrow',
+                        symbolSize: 15,
+                        symbolOffset: [0, 0],
+                        data: [
+                            { coord: [5, 0], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲8.2%', color: '#28a745', position: 'right' } },
+                            { coord: [5, 1], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲7.5%', color: '#28a745', position: 'right' } },
+                            { coord: [5, 2], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲6.8%', color: '#28a745', position: 'right' } },
+                            { coord: [5, 3], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲5.5%', color: '#28a745', position: 'right' } },
+                            { coord: [5, 4], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲4.8%', color: '#28a745', position: 'right' } }
+                        ]
+                    }
+                }
+            ]
+        };
+
+        // Set initial chart options
+        countryViewsChart.setOption(mapOption);
+        bubbleMapChart.setOption(bubbleMapOption);
+        stackedAreaChart.setOption(stackedAreaOption);
+        rankChangeChart.setOption(rankChangeOption);
+
+        // Setup view toggle
+        document.querySelectorAll('#viewToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#viewToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const view = this.getAttribute('data-view');
+                
+                if (view === 'map') {
+                    countryViewsChart.setOption(mapOption, true);
+                } else {
+                    countryViewsChart.setOption(barOption, true);
+                }
+            });
+        });
+
+        // Setup plan toggle for bubble map
+        document.querySelectorAll('#planToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#planToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const plan = this.getAttribute('data-plan');
+                
+                bubbleMapOption.series[0].data = generateBubbleMapData(plan === 'planA' ? 'planA' : 'planB');
+                bubbleMapChart.setOption(bubbleMapOption);
+            });
+        });
+
+        // Setup area toggle
+        document.querySelectorAll('#areaToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#areaToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const plan = this.getAttribute('data-plan');
+                
+                if (plan === 'planA') {
+                    stackedAreaOption.series = planASeries;
+                } else {
+                    stackedAreaOption.series = planBSeries;
+                }
+                
+                stackedAreaChart.setOption(stackedAreaOption);
+            });
+        });
+
+        // Resize charts when window is resized
+        window.addEventListener('resize', function() {
+            countryViewsChart.resize();
+            bubbleMapChart.resize();
+            stackedAreaChart.resize();
+            rankChangeChart.resize();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGM Type</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main Charts Row -->
+        <div class="charts-row">
+            <!-- Grouped Bar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Average Views by BGM Type</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('bgmViewsChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="bgmViewsChart" class="chart"></div>
+            </div>
+
+            <!-- Radar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Performance Metrics by BGM Type</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="bgmTypeToggle">
+                            <button class="toggle-btn active" data-type="pop">Pop</button>
+                            <button class="toggle-btn" data-type="electronic">Electronic</button>
+                            <button class="toggle-btn" data-type="hiphop">Hip Hop</button>
+                            <button class="toggle-btn" data-type="rock">Rock</button>
+                            <button class="toggle-btn" data-type="classical">Classical</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('radarChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="radarChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Secondary Charts Grid -->
+        <div class="charts-grid">
+            <!-- Treemap Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Views Distribution by BGM Type</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="treeMapToggle">
+                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
+                            <button class="toggle-btn" data-plan="planB">Plan B</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('treeMapChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="treeMapChart" class="chart"></div>
+            </div>
+
+            <!-- Line Chart with Events -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Engagement Rate Trend with Music Chart Updates</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('lineEventChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="lineEventChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">BGM Type Performance Data</div>
+                <button class="download-btn" onclick="downloadTableData('dataTable')" title="Download Table Data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>BGM Type</th>
+                            <th>Posts</th>
+                            <th>Avg Views</th>
+                            <th>Avg Views QoQ</th>
+                            <th>Avg ER</th>
+                            <th>Avg ER QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Plan A data -->
+                        <tr>
+                            <td rowspan="5">Plan A</td>
+                            <td>Pop</td>
+                            <td>245</td>
+                            <td>125,800</td>
+                            <td class="metric-change positive">▲8.4%</td>
+                            <td>5.7%</td>
+                            <td class="metric-change positive">▲7.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Electronic</td>
+                            <td>198</td>
+                            <td>118,500</td>
+                            <td class="metric-change positive">▲7.6%</td>
+                            <td>5.4%</td>
+                            <td class="metric-change positive">▲6.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Hip Hop</td>
+                            <td>176</td>
+                            <td>110,200</td>
+                            <td class="metric-change positive">▲6.8%</td>
+                            <td>5.1%</td>
+                            <td class="metric-change positive">▲5.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Rock</td>
+                            <td>132</td>
+                            <td>95,400</td>
+                            <td class="metric-change positive">▲5.2%</td>
+                            <td>4.8%</td>
+                            <td class="metric-change positive">▲4.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Classical</td>
+                            <td>89</td>
+                            <td>82,600</td>
+                            <td class="metric-change negative">▼2.1%</td>
+                            <td>4.2%</td>
+                            <td class="metric-change negative">▼1.8%</td>
+                        </tr>
+                        <!-- Plan B data -->
+                        <tr>
+                            <td rowspan="5">Plan B</td>
+                            <td>Pop</td>
+                            <td>238</td>
+                            <td>120,400</td>
+                            <td class="metric-change positive">▲7.8%</td>
+                            <td>5.5%</td>
+                            <td class="metric-change positive">▲6.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Electronic</td>
+                            <td>205</td>
+                            <td>115,800</td>
+                            <td class="metric-change positive">▲7.2%</td>
+                            <td>5.2%</td>
+                            <td class="metric-change positive">▲6.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Hip Hop</td>
+                            <td>182</td>
+                            <td>108,500</td>
+                            <td class="metric-change positive">▲6.5%</td>
+                            <td>4.9%</td>
+                            <td class="metric-change positive">▲5.4%</td>
+                        </tr>
+                        <tr>
+                            <td>Rock</td>
+                            <td>125</td>
+                            <td>92,800</td>
+                            <td class="metric-change positive">▲4.8%</td>
+                            <td>4.6%</td>
+                            <td class="metric-change positive">▲4.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Classical</td>
+                            <td>95</td>
+                            <td>85,200</td>
+                            <td class="metric-change negative">▼3.0%</td>
+                            <td>4.0%</td>
+                            <td class="metric-change negative">▼2.5%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // Initialize charts
+        const bgmViewsChart = echarts.init(document.getElementById('bgmViewsChart'));
+        const radarChart = echarts.init(document.getElementById('radarChart'));
+        const treeMapChart = echarts.init(document.getElementById('treeMapChart'));
+        const lineEventChart = echarts.init(document.getElementById('lineEventChart'));
+
+        // BGM Type data
+        const bgmTypes = ['Pop', 'Electronic', 'Hip Hop', 'Rock', 'Classical'];
+        const bgmData = {
+            planA: {
+                views: [125800, 118500, 110200, 95400, 82600],
+                qoq: ['▲8.4%', '▲7.6%', '▲6.8%', '▲5.2%', '▼2.1%'],
+                metrics: {
+                    pop: [5.7, 6.2, 5.9, 5.5, 5.8],
+                    electronic: [5.4, 5.8, 5.6, 5.2, 5.5],
+                    hiphop: [5.1, 5.5, 5.3, 4.9, 5.2],
+                    rock: [4.8, 5.2, 5.0, 4.6, 4.9],
+                    classical: [4.2, 4.6, 4.4, 4.0, 4.3]
+                },
+                metricsQoq: {
+                    pop: ['▲7.2%', '▲8.1%', '▲7.5%', '▲6.8%', '▲7.0%'],
+                    electronic: ['▲6.5%', '▲7.2%', '▲6.8%', '▲6.0%', '▲6.3%'],
+                    hiphop: ['▲5.8%', '▲6.5%', '▲6.0%', '▲5.3%', '▲5.6%'],
+                    rock: ['▲4.5%', '▲5.2%', '▲4.8%', '▲4.0%', '▲4.3%'],
+                    classical: ['▼1.8%', '▼1.2%', '▼1.5%', '▼2.2%', '▼2.0%']
+                }
+            },
+            planB: {
+                views: [120400, 115800, 108500, 92800, 85200],
+                qoq: ['▲7.8%', '▲7.2%', '▲6.5%', '▲4.8%', '▼3.0%'],
+                metrics: {
+                    pop: [5.5, 6.0, 5.7, 5.3, 5.6],
+                    electronic: [5.2, 5.6, 5.4, 5.0, 5.3],
+                    hiphop: [4.9, 5.3, 5.1, 4.7, 5.0],
+                    rock: [4.6, 5.0, 4.8, 4.4, 4.7],
+                    classical: [4.0, 4.4, 4.2, 3.8, 4.1]
+                },
+                metricsQoq: {
+                    pop: ['▲6.7%', '▲7.5%', '▲7.0%', '▲6.2%', '▲6.5%'],
+                    electronic: ['▲6.0%', '▲6.8%', '▲6.3%', '▲5.5%', '▲5.8%'],
+                    hiphop: ['▲5.4%', '▲6.0%', '▲5.6%', '▲4.8%', '▲5.1%'],
+                    rock: ['▲4.0%', '▲4.8%', '▲4.3%', '▲3.5%', '▲3.8%'],
+                    classical: ['▼2.5%', '▼1.8%', '▼2.2%', '▼3.0%', '▼2.8%']
+                }
+            }
+        };
+
+        // Grouped Bar Chart Option
+        const bgmViewsOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const bgmType = params[0].axisValue;
+                    let html = `<div style="font-weight:bold">${bgmType}</div>`;
+                    
+                    params.forEach(param => {
+                        const isPlanA = param.seriesName === 'Plan A';
+                        const qoq = isPlanA ? 
+                            bgmData.planA.qoq[param.dataIndex] : 
+                            bgmData.planB.qoq[param.dataIndex];
+                        
+                        const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                        html += `${param.seriesName}: ${formatNumber(param.value)}`;
+                        html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                        html += `</div>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: bgmTypes
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Average Views',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: bgmData.planA.views.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: bgmData.planA.qoq[index],
+                                color: bgmData.planA.qoq[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    }),
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: bgmData.planB.views.map((value, index) => {
+                        return {
+                            value: value,
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: bgmData.planB.qoq[index],
+                                color: bgmData.planB.qoq[index].includes('▲') ? '#28a745' : '#dc3545'
+                            }
+                        };
+                    }),
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    }
+                }
+            ]
+        };
+
+        // Radar Chart Option
+        const generateRadarOption = (bgmType) => {
+            const metrics = ['Views', 'Engagement', 'Completion', 'Shares', 'Saves'];
+            const planAData = bgmData.planA.metrics[bgmType];
+            const planBData = bgmData.planB.metrics[bgmType];
+            const planAQoQ = bgmData.planA.metricsQoq[bgmType];
+            const planBQoQ = bgmData.planB.metricsQoq[bgmType];
+            
+            return {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        const plan = params.seriesName;
+                        const isPlanA = plan === 'Plan A';
+                        const qoqData = isPlanA ? planAQoQ : planBQoQ;
+                        
+                        let html = `<div style="font-weight:bold">${plan} - ${bgmType.charAt(0).toUpperCase() + bgmType.slice(1)}</div>`;
+                        
+                        params.value.forEach((value, index) => {
+                            if (index < metrics.length) {
+                                const qoq = qoqData[index];
+                                const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                                
+                                html += `<div style="margin-top:5px;">`;
+                                html += `${metrics[index]}: ${value}`;
+                                html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                                html += `</div>`;
+                            }
+                        });
+                        
+                        return html;
+                    }
+                },
+                legend: {
+                    data: ['Plan A', 'Plan B'],
+                    bottom: 0
+                },
+                radar: {
+                    indicator: metrics.map(metric => {
+                        return { name: metric, max: 7 };
+                    }),
+                    radius: '65%'
+                },
+                series: [
+                    {
+                        name: 'Plan A vs Plan B',
+                        type: 'radar',
+                        data: [
+                            {
+                                value: planAData,
+                                name: 'Plan A',
+                                areaStyle: {
+                                    color: 'rgba(64, 158, 255, 0.2)'
+                                },
+                                lineStyle: {
+                                    color: CHART_COLORS.planA
+                                },
+                                itemStyle: {
+                                    color: CHART_COLORS.planA
+                                }
+                            },
+                            {
+                                value: planBData,
+                                name: 'Plan B',
+                                areaStyle: {
+                                    color: 'rgba(245, 108, 108, 0.2)'
+                                },
+                                lineStyle: {
+                                    color: CHART_COLORS.planB
+                                },
+                                itemStyle: {
+                                    color: CHART_COLORS.planB
+                                }
+                            }
+                        ]
+                    }
+                ]
+            };
+        };
+
+        // Treemap Chart Option
+        const generateTreeMapData = (plan) => {
+            const planData = plan === 'planA' ? bgmData.planA : bgmData.planB;
+            
+            return bgmTypes.map((type, index) => {
+                const qoq = planData.qoq[index];
+                const qoqValue = parseFloat(qoq.replace('▲', '').replace('▼', '').replace('%', ''));
+                const isPositive = qoq.includes('▲');
+                
+                return {
+                    name: type,
+                    value: planData.views[index],
+                    qoq: qoq,
+                    itemStyle: {
+                        color: isPositive ? 
+                            `rgba(40, 167, 69, ${0.5 + qoqValue / 20})` : 
+                            `rgba(220, 53, 69, ${0.5 + qoqValue / 20})`
+                    },
+                    label: {
+                        formatter: function(params) {
+                            return `${params.name}\n${qoq}`;
+                        }
+                    }
+                };
+            });
+        };
+
+        const treeMapOption = {
+            tooltip: {
+                formatter: function(params) {
+                    const qoqColor = params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    return `
+                        <div style="font-weight:bold">${params.name}</div>
+                        <div>Views: ${formatNumber(params.value)}</div>
+                        <div>QoQ: <span style="color:${qoqColor}">${params.data.qoq}</span></div>
+                    `;
+                }
+            },
+            series: [
+                {
+                    name: 'BGM Type',
+                    type: 'treemap',
+                    data: generateTreeMapData('planA'),
+                    breadcrumb: {
+                        show: false
+                    },
+                    levels: [
+                        {
+                            itemStyle: {
+                                borderWidth: 2,
+                                borderColor: '#fff',
+                                gapWidth: 2
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // Line Chart with Events Option
+        const lineEventOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                },
+                formatter: function(params) {
+                    const date = params[0].axisValue;
+                    let html = `<div style="font-weight:bold">${date}</div>`;
+                    
+                    params.forEach(param => {
+                        if (param.componentSubType === 'line') {
+                            const isPlanA = param.seriesName.includes('Plan A');
+                            const bgmType = param.seriesName.replace('Plan A - ', '').replace('Plan B - ', '');
+                            const qoqIndex = bgmTypes.findIndex(type => type === bgmType);
+                            const qoq = isPlanA ? 
+                                bgmData.planA.metricsQoq.pop[0] : 
+                                bgmData.planB.metricsQoq.pop[0];
+                            
+                            const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
+                            
+                            html += `<div style="margin-top:5px;">`;
+                            html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                            html += `${param.seriesName}: ${param.value}%`;
+                            html += ` <span style="color:${qoqColor}">${qoq}</span>`;
+                            html += `</div>`;
+                        }
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: [
+                    'Plan A - Pop', 'Plan A - Electronic', 'Plan A - Hip Hop',
+                    'Plan B - Pop', 'Plan B - Electronic', 'Plan B - Hip Hop'
+                ],
+                type: 'scroll',
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['01/01', '01/05', '01/10', '01/15', '01/20', '01/25', '01/30'],
+                axisPointer: {
+                    value: '01/15',
+                    snap: true,
+                    lineStyle: {
+                        color: '#7581BD',
+                        width: 2
+                    },
+                    label: {
+                        show: true,
+                        formatter: function (params) {
+                            return 'Music Chart Update';
+                        },
+                        backgroundColor: '#7581BD'
+                    },
+                    handle: {
+                        show: true,
+                        color: '#7581BD'
+                    }
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Engagement Rate (%)',
+                min: 3.5,
+                max: 6.5
+            },
+            series: [
+                {
+                    name: 'Plan A - Pop',
+                    type: 'line',
+                    data: [5.5, 5.6, 5.7, 5.8, 6.0, 6.1, 6.2],
+                    lineStyle: {
+                        width: 2,
+                        color: CHART_COLORS.planA
+                    },
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    },
+                    markLine: {
+                        symbol: ['none', 'none'],
+                        label: {
+                            show: true,
+                            position: 'end',
+                            formatter: '▲7.2%',
+                            color: '#28a745'
+                        },
+                        data: [
+                            {
+                                xAxis: '01/15',
+                                lineStyle: {
+                                    color: '#7581BD',
+                                    type: 'dashed'
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'Plan A - Electronic',
+                    type: 'line',
+                    data: [5.2, 5.3, 5.4, 5.5, 5.7, 5.8, 5.9],
+                    lineStyle: {
+                        width: 2,
+                        color: '#91cc75'
+                    },
+                    itemStyle: {
+                        color: '#91cc75'
+                    },
+                    markLine: {
+                        symbol: ['none', 'none'],
+                        label: {
+                            show: true,
+                            position: 'end',
+                            formatter: '▲6.5%',
+                            color: '#28a745'
+                        },
+                        data: [
+                            {
+                                xAxis: '01/15',
+                                lineStyle: {
+                                    color: '#7581BD',
+                                    type: 'dashed'
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'Plan A - Hip Hop',
+                    type: 'line',
+                    data: [4.9, 5.0, 5.1, 5.2, 5.4, 5.5, 5.6],
+                    lineStyle: {
+                        width: 2,
+                        color: '#fac858'
+                    },
+                    itemStyle: {
+                        color: '#fac858'
+                    },
+                    markLine: {
+                        symbol: ['none', 'none'],
+                        label: {
+                            show: true,
+                            position: 'end',
+                            formatter: '▲5.8%',
+                            color: '#28a745'
+                        },
+                        data: [
+                            {
+                                xAxis: '01/15',
+                                lineStyle: {
+                                    color: '#7581BD',
+                                    type: 'dashed'
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'Plan B - Pop',
+                    type: 'line',
+                    data: [5.3, 5.4, 5.5, 5.6, 5.8, 5.9, 6.0],
+                    lineStyle: {
+                        width: 2,
+                        color: CHART_COLORS.planB,
+                        type: 'dashed'
+                    },
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    },
+                    markLine: {
+                        symbol: ['none', 'none'],
+                        label: {
+                            show: true,
+                            position: 'start',
+                            formatter: '▲6.7%',
+                            color: '#28a745'
+                        },
+                        data: [
+                            {
+                                xAxis: '01/15',
+                                lineStyle: {
+                                    color: '#7581BD',
+                                    type: 'dashed'
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'Plan B - Electronic',
+                    type: 'line',
+                    data: [5.0, 5.1, 5.2, 5.3, 5.5, 5.6, 5.7],
+                    lineStyle: {
+                        width: 2,
+                        color: '#ee6666',
+                        type: 'dashed'
+                    },
+                    itemStyle: {
+                        color: '#ee6666'
+                    },
+                    markLine: {
+                        symbol: ['none', 'none'],
+                        label: {
+                            show: true,
+                            position: 'start',
+                            formatter: '▲6.0%',
+                            color: '#28a745'
+                        },
+                        data: [
+                            {
+                                xAxis: '01/15',
+                                lineStyle: {
+                                    color: '#7581BD',
+                                    type: 'dashed'
+                                }
+                            }
+                        ]
+                    }
+                },
+                {
+                    name: 'Plan B - Hip Hop',
+                    type: 'line',
+                    data: [4.7, 4.8, 4.9, 5.0, 5.2, 5.3, 5.4],
+                    lineStyle: {
+                        width: 2,
+                        color: '#73c0de',
+                        type: 'dashed'
+                    },
+                    itemStyle: {
+                        color: '#73c0de'
+                    },
+                    markLine: {
+                        symbol: ['none', 'none'],
+                        label: {
+                            show: true,
+                            position: 'start',
+                            formatter: '▲5.4%',
+                            color: '#28a745'
+                        },
+                        data: [
+                            {
+                                xAxis: '01/15',
+                                lineStyle: {
+                                    color: '#7581BD',
+                                    type: 'dashed'
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+        };
+
+        // Set initial chart options
+        bgmViewsChart.setOption(bgmViewsOption);
+        radarChart.setOption(generateRadarOption('pop'));
+        treeMapChart.setOption(treeMapOption);
+        lineEventChart.setOption(lineEventOption);
+
+        // Setup BGM type toggle for radar chart
+        document.querySelectorAll('#bgmTypeToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#bgmTypeToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const bgmType = this.getAttribute('data-type');
+                radarChart.setOption(generateRadarOption(bgmType));
+            });
+        });
+
+        // Setup plan toggle for treemap
+        document.querySelectorAll('#treeMapToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#treeMapToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const plan = this.getAttribute('data-plan');
+                
+                treeMapOption.series[0].data = generateTreeMapData(plan);
+                treeMapChart.setOption(treeMapOption);
+            });
+        });
+
+        // Resize charts when window is resized
+        window.addEventListener('resize', function() {
+            bgmViewsChart.resize();
+            radarChart.resize();
+            treeMapChart.resize();
+            lineEventChart.resize();
+        });
+    </script>
+</body>
+</html>

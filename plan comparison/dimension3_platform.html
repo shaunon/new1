@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform</title>
+    <link rel="stylesheet" href="common.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Main Charts Row -->
+        <div class="charts-row">
+            <!-- Grouped Bar Chart - Total Views -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Total Views by Platform</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="platformViewsChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('platformViewsChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="platformViewsChart" class="chart"></div>
+            </div>
+
+            <!-- Grouped Bar Chart - Engagement Rate -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Overall Engagement Rate by Platform</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="platformERChartToggle">
+                            <button class="toggle-btn active" data-type="bar">Bar</button>
+                            <button class="toggle-btn" data-type="line">Line</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('platformERChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="platformERChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Secondary Charts Grid -->
+        <div class="charts-grid">
+            <!-- Stacked Area Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Daily Views by Platform</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('stackedAreaChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="stackedAreaChart" class="chart"></div>
+            </div>
+
+            <!-- Heatmap Calendar -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Weekly Viewing Patterns by Platform</div>
+                    <div class="chart-controls">
+                        <div class="toggle-buttons" id="heatmapToggle">
+                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
+                            <button class="toggle-btn" data-plan="planB">Plan B</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('heatmapChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="heatmapChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Platform Performance Data</div>
+                <button class="download-btn" onclick="downloadTableData('dataTable')" title="Download Table Data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table" id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Plan</th>
+                            <th>Platform</th>
+                            <th>Total Views</th>
+                            <th>Total Views QoQ</th>
+                            <th>Overall ER</th>
+                            <th>Overall ER QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <!-- Plan A data -->
+                        <tr>
+                            <td rowspan="5">Plan A</td>
+                            <td>TikTok</td>
+                            <td>2,850,000</td>
+                            <td class="metric-change positive">▲9.1%</td>
+                            <td>15.8%</td>
+                            <td class="metric-change positive">▲4.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Instagram</td>
+                            <td>1,950,000</td>
+                            <td class="metric-change positive">▲7.5%</td>
+                            <td>12.4%</td>
+                            <td class="metric-change positive">▲3.8%</td>
+                        </tr>
+                        <tr>
+                            <td>YouTube</td>
+                            <td>1,250,000</td>
+                            <td class="metric-change positive">▲5.2%</td>
+                            <td>10.6%</td>
+                            <td class="metric-change positive">▲2.1%</td>
+                        </tr>
+                        <tr>
+                            <td>Facebook</td>
+                            <td>980,000</td>
+                            <td class="metric-change negative">▼3.2%</td>
+                            <td>8.5%</td>
+                            <td class="metric-change negative">▼1.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Twitter</td>
+                            <td>520,000</td>
+                            <td class="metric-change positive">▲2.8%</td>
+                            <td>7.2%</td>
+                            <td class="metric-change positive">▲1.3%</td>
+                        </tr>
+                        <!-- Plan B data -->
+                        <tr>
+                            <td rowspan="5">Plan B</td>
+                            <td>TikTok</td>
+                            <td>2,650,000</td>
+                            <td class="metric-change positive">▲7.8%</td>
+                            <td>14.5%</td>
+                            <td class="metric-change positive">▲3.6%</td>
+                        </tr>
+                        <tr>
+                            <td>Instagram</td>
+                            <td>1,850,000</td>
+                            <td class="metric-change positive">▲6.2%</td>
+                            <td>11.8%</td>
+                            <td class="metric-change positive">▲3.1%</td>
+                        </tr>
+                        <tr>
+                            <td>YouTube</td>
+                            <td>1,180,000</td>
+                            <td class="metric-change positive">▲4.5%</td>
+                            <td>9.9%</td>
+                            <td class="metric-change positive">▲1.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Facebook</td>
+                            <td>920,000</td>
+                            <td class="metric-change negative">▼4.1%</td>
+                            <td>8.1%</td>
+                            <td class="metric-change negative">▼2.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Twitter</td>
+                            <td>490,000</td>
+                            <td class="metric-change positive">▲2.1%</td>
+                            <td>6.8%</td>
+                            <td class="metric-change positive">▲0.9%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        // Initialize charts
+        const platformViewsChart = echarts.init(document.getElementById('platformViewsChart'));
+        const platformERChart = echarts.init(document.getElementById('platformERChart'));
+        const stackedAreaChart = echarts.init(document.getElementById('stackedAreaChart'));
+        const heatmapChart = echarts.init(document.getElementById('heatmapChart'));
+
+        // Platform Views Chart
+        const platformViewsOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const param = params[0];
+                    let html = `${param.name}<br/>`;
+                    
+                    params.forEach(item => {
+                        const planAChanges = ['▲9.1%', '▲7.5%', '▲5.2%', '▼3.2%', '▲2.8%'];
+                        const planBChanges = ['▲7.8%', '▲6.2%', '▲4.5%', '▼4.1%', '▲2.1%'];
+                        
+                        const change = item.seriesName === 'Plan A' ? 
+                            planAChanges[['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Twitter'].indexOf(item.name)] :
+                            planBChanges[['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Twitter'].indexOf(item.name)];
+                        
+                        const changeColor = change.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${item.color};"></span>`;
+                        html += `${item.seriesName}: ${formatNumber(item.value)}`;
+                        html += ` <span style="color:${changeColor}">${change}</span><br/>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Twitter']
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: [2850000, 1950000, 1250000, 980000, 520000],
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const changes = ['▲9.1%', '▲7.5%', '▲5.2%', '▼3.2%', '▲2.8%'];
+                            return changes[params.dataIndex];
+                        },
+                        color: function(params) {
+                            const changes = ['▲9.1%', '▲7.5%', '▲5.2%', '▼3.2%', '▲2.8%'];
+                            return changes[params.dataIndex].includes('▲') ? '#28a745' : '#dc3545';
+                        }
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: [2650000, 1850000, 1180000, 920000, 490000],
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const changes = ['▲7.8%', '▲6.2%', '▲4.5%', '▼4.1%', '▲2.1%'];
+                            return changes[params.dataIndex];
+                        },
+                        color: function(params) {
+                            const changes = ['▲7.8%', '▲6.2%', '▲4.5%', '▼4.1%', '▲2.1%'];
+                            return changes[params.dataIndex].includes('▲') ? '#28a745' : '#dc3545';
+                        }
+                    }
+                }
+            ]
+        };
+
+        // Platform Engagement Rate Chart
+        const platformEROption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const param = params[0];
+                    let html = `${param.name}<br/>`;
+                    
+                    params.forEach(item => {
+                        const planAChanges = ['▲4.2%', '▲3.8%', '▲2.1%', '▼1.5%', '▲1.3%'];
+                        const planBChanges = ['▲3.6%', '▲3.1%', '▲1.8%', '▼2.2%', '▲0.9%'];
+                        
+                        const change = item.seriesName === 'Plan A' ? 
+                            planAChanges[['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Twitter'].indexOf(item.name)] :
+                            planBChanges[['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Twitter'].indexOf(item.name)];
+                        
+                        const changeColor = change.includes('▲') ? '#28a745' : '#dc3545';
+                        
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${item.color};"></span>`;
+                        html += `${item.seriesName}: ${item.value}%`;
+                        html += ` <span style="color:${changeColor}">${change}</span><br/>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Twitter']
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '{value}%'
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: [15.8, 12.4, 10.6, 8.5, 7.2],
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const changes = ['▲4.2%', '▲3.8%', '▲2.1%', '▼1.5%', '▲1.3%'];
+                            return changes[params.dataIndex];
+                        },
+                        color: function(params) {
+                            const changes = ['▲4.2%', '▲3.8%', '▲2.1%', '▼1.5%', '▲1.3%'];
+                            return changes[params.dataIndex].includes('▲') ? '#28a745' : '#dc3545';
+                        }
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: [14.5, 11.8, 9.9, 8.1, 6.8],
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const changes = ['▲3.6%', '▲3.1%', '▲1.8%', '▼2.2%', '▲0.9%'];
+                            return changes[params.dataIndex];
+                        },
+                        color: function(params) {
+                            const changes = ['▲3.6%', '▲3.1%', '▲1.8%', '▼2.2%', '▲0.9%'];
+                            return changes[params.dataIndex].includes('▲') ? '#28a745' : '#dc3545';
+                        }
+                    }
+                }
+            ]
+        };
+
+        // Stacked Area Chart
+        const stackedAreaOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                },
+                formatter: function(params) {
+                    const date = params[0].axisValue;
+                    let html = `${date}<br/>`;
+                    
+                    // Group by platform
+                    const platforms = ['TikTok', 'Instagram', 'YouTube', 'Facebook', 'Twitter'];
+                    const planA = [];
+                    const planB = [];
+                    
+                    params.forEach(item => {
+                        const platform = item.seriesName.split(' - ')[0];
+                        const plan = item.seriesName.split(' - ')[1];
+                        
+                        if (plan === 'Plan A') {
+                            planA.push(item);
+                        } else {
+                            planB.push(item);
+                        }
+                    });
+                    
+                    // Add Plan A data
+                    html += '<div style="font-weight:bold;margin-top:5px;">Plan A:</div>';
+                    planA.forEach(item => {
+                        const platform = item.seriesName.split(' - ')[0];
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${item.color};"></span>`;
+                        html += `${platform}: ${formatNumber(item.value)}`;
+                        
+                        // Add QoQ change
+                        const change = Math.random() > 0.7 ? `▼${(Math.random() * 3).toFixed(1)}%` : `▲${(Math.random() * 8).toFixed(1)}%`;
+                        const changeColor = change.includes('▲') ? '#28a745' : '#dc3545';
+                        html += ` <span style="color:${changeColor}">${change}</span><br/>`;
+                    });
+                    
+                    // Add Plan B data
+                    html += '<div style="font-weight:bold;margin-top:5px;">Plan B:</div>';
+                    planB.forEach(item => {
+                        const platform = item.seriesName.split(' - ')[0];
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${item.color};"></span>`;
+                        html += `${platform}: ${formatNumber(item.value)}`;
+                        
+                        // Add QoQ change
+                        const change = Math.random() > 0.7 ? `▼${(Math.random() * 3).toFixed(1)}%` : `▲${(Math.random() * 7).toFixed(1)}%`;
+                        const changeColor = change.includes('▲') ? '#28a745' : '#dc3545';
+                        html += ` <span style="color:${changeColor}">${change}</span><br/>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: [
+                    'TikTok - Plan A', 'Instagram - Plan A', 'YouTube - Plan A', 'Facebook - Plan A', 'Twitter - Plan A',
+                    'TikTok - Plan B', 'Instagram - Plan B', 'YouTube - Plan B', 'Facebook - Plan B', 'Twitter - Plan B'
+                ],
+                selected: {
+                    'TikTok - Plan A': true,
+                    'Instagram - Plan A': true,
+                    'YouTube - Plan A': true,
+                    'Facebook - Plan A': true,
+                    'Twitter - Plan A': true,
+                    'TikTok - Plan B': false,
+                    'Instagram - Plan B': false,
+                    'YouTube - Plan B': false,
+                    'Facebook - Plan B': false,
+                    'Twitter - Plan B': false
+                },
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['2023-01-01', '2023-01-02', '2023-01-03', '2023-01-04', '2023-01-05', '2023-01-06', '2023-01-07']
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                // Plan A series
+                {
+                    name: 'TikTok - Plan A',
+                    type: 'line',
+                    stack: 'Plan A',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [120000, 132000, 101000, 134000, 90000, 230000, 210000],
+                    itemStyle: {
+                        color: '#5470c6'
+                    }
+                },
+                {
+                    name: 'Instagram - Plan A',
+                    type: 'line',
+                    stack: 'Plan A',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [82000, 93000, 90000, 93400, 88000, 103000, 131000],
+                    itemStyle: {
+                        color: '#91cc75'
+                    }
+                },
+                {
+                    name: 'YouTube - Plan A',
+                    type: 'line',
+                    stack: 'Plan A',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [52000, 54000, 60000, 64000, 58000, 70000, 75000],
+                    itemStyle: {
+                        color: '#fac858'
+                    }
+                },
+                {
+                    name: 'Facebook - Plan A',
+                    type: 'line',
+                    stack: 'Plan A',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [42000, 44000, 40000, 34000, 38000, 40000, 45000],
+                    itemStyle: {
+                        color: '#ee6666'
+                    }
+                },
+                {
+                    name: 'Twitter - Plan A',
+                    type: 'line',
+                    stack: 'Plan A',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [22000, 24000, 20000, 24000, 28000, 20000, 25000],
+                    itemStyle: {
+                        color: '#73c0de'
+                    }
+                },
+                
+                // Plan B series
+                {
+                    name: 'TikTok - Plan B',
+                    type: 'line',
+                    stack: 'Plan B',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [110000, 122000, 91000, 124000, 85000, 220000, 200000],
+                    itemStyle: {
+                        color: '#5470c6',
+                        opacity: 0.7
+                    }
+                },
+                {
+                    name: 'Instagram - Plan B',
+                    type: 'line',
+                    stack: 'Plan B',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [78000, 88000, 85000, 88400, 83000, 98000, 126000],
+                    itemStyle: {
+                        color: '#91cc75',
+                        opacity: 0.7
+                    }
+                },
+                {
+                    name: 'YouTube - Plan B',
+                    type: 'line',
+                    stack: 'Plan B',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [48000, 50000, 56000, 60000, 54000, 66000, 71000],
+                    itemStyle: {
+                        color: '#fac858',
+                        opacity: 0.7
+                    }
+                },
+                {
+                    name: 'Facebook - Plan B',
+                    type: 'line',
+                    stack: 'Plan B',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [38000, 40000, 36000, 30000, 34000, 36000, 41000],
+                    itemStyle: {
+                        color: '#ee6666',
+                        opacity: 0.7
+                    }
+                },
+                {
+                    name: 'Twitter - Plan B',
+                    type: 'line',
+                    stack: 'Plan B',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: [20000, 22000, 18000, 22000, 26000, 18000, 23000],
+                    itemStyle: {
+                        color: '#73c0de',
+                        opacity: 0.7
+                    }
+                }
+            ]
+        };
+
+        // Heatmap Calendar
+        const generateHeatmapData = (platform, plan, baseValue) => {
+            const data = [];
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const hours = Array.from({length: 24}, (_, i) => i);
+            
+            days.forEach((day, dayIndex) => {
+                hours.forEach((hour) => {
+                    // Generate random value with some patterns
+                    let value = baseValue;
+                    
+                    // Add time-based patterns
+                    if (hour >= 8 && hour <= 22) {
+                        value += Math.random() * 50 + 50;
+                    }
+                    
+                    // Weekend boost
+                    if (dayIndex >= 5) {
+                        value += Math.random() * 30 + 20;
+                    }
+                    
+                    // Prime time boost
+                    if (hour >= 18 && hour <= 21) {
+                        value += Math.random() * 70 + 30;
+                    }
+                    
+                    // Morning boost
+                    if (hour >= 7 && hour <= 9) {
+                        value += Math.random() * 40 + 20;
+                    }
+                    
+                    // Random QoQ change
+                    const qoqChange = Math.random() > 0.7 ? 
+                        `▼${(Math.random() * 3).toFixed(1)}%` : 
+                        `▲${(Math.random() * 8).toFixed(1)}%`;
+                    
+                    data.push([hour, dayIndex, Math.round(value), qoqChange]);
+                });
+            });
+            
+            return data;
+        };
+
+        const heatmapPlanAData = {
+            'TikTok': generateHeatmapData('TikTok', 'Plan A', 100),
+            'Instagram': generateHeatmapData('Instagram', 'Plan A', 80),
+            'YouTube': generateHeatmapData('YouTube', 'Plan A', 60),
+            'Facebook': generateHeatmapData('Facebook', 'Plan A', 40),
+            'Twitter': generateHeatmapData('Twitter', 'Plan A', 30)
+        };
+
+        const heatmapPlanBData = {
+            'TikTok': generateHeatmapData('TikTok', 'Plan B', 90),
+            'Instagram': generateHeatmapData('Instagram', 'Plan B', 75),
+            'YouTube': generateHeatmapData('YouTube', 'Plan B', 55),
+            'Facebook': generateHeatmapData('Facebook', 'Plan B', 35),
+            'Twitter': generateHeatmapData('Twitter', 'Plan B', 25)
+        };
+
+        const heatmapOption = {
+            tooltip: {
+                position: 'top',
+                formatter: function(params) {
+                    const day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][params.value[1]];
+                    const hour = params.value[0];
+                    const views = formatNumber(params.value[2]);
+                    const qoqChange = params.value[3];
+                    const changeColor = qoqChange.includes('▲') ? '#28a745' : '#dc3545';
+                    
+                    return `
+                        <div>${day}, ${hour}:00</div>
+                        <div>Views: ${views}</div>
+                        <div>QoQ: <span style="color:${changeColor}">${qoqChange}</span></div>
+                    `;
+                }
+            },
+            grid: {
+                height: '70%',
+                top: '10%'
+            },
+            xAxis: {
+                type: 'category',
+                data: Array.from({length: 24}, (_, i) => i),
+                splitArea: {
+                    show: true
+                },
+                axisLabel: {
+                    formatter: '{value}:00'
+                }
+            },
+            yAxis: {
+                type: 'category',
+                data: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                splitArea: {
+                    show: true
+                }
+            },
+            visualMap: {
+                min: 0,
+                max: 300,
+                calculable: true,
+                orient: 'horizontal',
+                left: 'center',
+                bottom: '0%',
+                inRange: {
+                    color: ['#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695']
+                }
+            },
+            series: [
+                {
+                    name: 'TikTok - Plan A',
+                    type: 'heatmap',
+                    data: heatmapPlanAData['TikTok'],
+                    label: {
+                        show: true,
+                        formatter: function(params) {
+                            return params.value[3];
+                        },
+                        fontSize: 8,
+                        color: function(params) {
+                            return params.value[3].includes('▲') ? '#28a745' : '#dc3545';
+                        }
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        };
+
+        // Set chart options
+        platformViewsChart.setOption(platformViewsOption);
+        platformERChart.setOption(platformEROption);
+        stackedAreaChart.setOption(stackedAreaOption);
+        heatmapChart.setOption(heatmapOption);
+
+        // Setup chart toggles
+        setupChartToggle('platformViewsChart', platformViewsChart, platformViewsOption);
+        setupChartToggle('platformERChart', platformERChart, platformEROption);
+
+        // Setup heatmap toggle
+        document.querySelectorAll('#heatmapToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#heatmapToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const plan = this.getAttribute('data-plan');
+                const currentPlatform = 'TikTok'; // Default platform
+                
+                if (plan === 'planA') {
+                    heatmapOption.series[0].data = heatmapPlanAData[currentPlatform];
+                    heatmapOption.series[0].name = `${currentPlatform} - Plan A`;
+                } else {
+                    heatmapOption.series[0].data = heatmapPlanBData[currentPlatform];
+                    heatmapOption.series[0].name = `${currentPlatform} - Plan B`;
+                }
+                
+                heatmapChart.setOption(heatmapOption);
+            });
+        });
+
+        // Resize charts when window is resized
+        window.addEventListener('resize', function() {
+            platformViewsChart.resize();
+            platformERChart.resize();
+            stackedAreaChart.resize();
+            heatmapChart.resize();
+        });
+    </script>
+</body>
+</html>
