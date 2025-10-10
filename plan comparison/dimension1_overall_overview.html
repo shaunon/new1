@@ -12,11 +12,11 @@
         <!-- Metric Cards -->
         <div class="metrics-row">
             <div class="metric-card">
-                <div class="metric-title">Total Views</div>
-                <div class="metric-value plan-a">12.5M</div>
-                <div class="metric-change positive">▲15.2%</div>
-                <div class="metric-value plan-b">10.8M</div>
-                <div class="metric-change negative">▼2.1%</div>
+                <div class="metric-title">Total Posts</div>
+                <div class="metric-value plan-a">245</div>
+                <div class="metric-change positive">▲12.4%</div>
+                <div class="metric-value plan-b">218</div>
+                <div class="metric-change negative">▼4.8%</div>
             </div>
             <div class="metric-card">
                 <div class="metric-title">Total Engagement</div>
@@ -33,11 +33,11 @@
                 <div class="metric-change positive">▲1.8%</div>
             </div>
             <div class="metric-card">
-                <div class="metric-title">Total Posts</div>
-                <div class="metric-value plan-a">245</div>
-                <div class="metric-change positive">▲12.4%</div>
-                <div class="metric-value plan-b">218</div>
-                <div class="metric-change negative">▼4.8%</div>
+                <div class="metric-title">Total Views</div>
+                <div class="metric-value plan-a">12.5M</div>
+                <div class="metric-change positive">▲15.2%</div>
+                <div class="metric-value plan-b">10.8M</div>
+                <div class="metric-change negative">▼2.1%</div>
             </div>
         </div>
 
@@ -84,6 +84,21 @@
 
         <!-- Secondary Charts Grid -->
         <div class="charts-grid">
+            <!-- Sentiment Analysis Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Content Sentiment Analysis</div>
+                    <div class="chart-controls">
+                        <button class="download-btn" onclick="downloadChart('sentimentChart')" title="Download Chart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div id="sentimentChart" class="chart"></div>
+            </div>
+
             <!-- Waterfall Chart -->
             <div class="chart-container">
                 <div class="chart-header">
@@ -201,6 +216,7 @@
         // Initialize charts
         const metricsChart = echarts.init(document.getElementById('metricsChart'));
         const trendsChart = echarts.init(document.getElementById('trendsChart'));
+        const sentimentChart = echarts.init(document.getElementById('sentimentChart'));
         const engagementBreakdownChart = echarts.init(document.getElementById('engagementBreakdownChart'));
         const engagementRateChart = echarts.init(document.getElementById('engagementRateChart'));
 
@@ -434,6 +450,91 @@
             ]
         };
 
+        // Sentiment Analysis Chart
+        const sentimentChartOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    const param = params[0];
+                    let html = `${param.name}<br/>`;
+                    
+                    // Calculate totals for percentage calculation
+                    const planATotals = [160, 70, 15]; // Plan A data
+                    const planBTotals = [128, 70, 20]; // Plan B data
+                    const planATotal = planATotals.reduce((a, b) => a + b, 0); // 245
+                    const planBTotal = planBTotals.reduce((a, b) => a + b, 0); // 218
+                    
+                    params.forEach((item, index) => {
+                        const total = item.seriesName === 'Plan A' ? planATotal : planBTotal;
+                        const percentage = ((item.value / total) * 100).toFixed(1);
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${item.color};"></span>`;
+                        html += `${item.seriesName}: ${item.value} posts (${percentage}%)<br/>`;
+                    });
+                    return html;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: 0
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                top: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['Positive', 'Neutral', 'Negative']
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '{value}'
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: [160, 70, 15],
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const planATotal = 245;
+                            const percentage = ((params.value / planATotal) * 100).toFixed(1);
+                            return `${params.value}\n(${percentage}%)`;
+                        }
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: [128, 70, 20],
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const planBTotal = 218;
+                            const percentage = ((params.value / planBTotal) * 100).toFixed(1);
+                            return `${params.value}\n(${percentage}%)`;
+                        }
+                    }
+                }
+            ]
+        };
+
         // Engagement Breakdown Chart (Waterfall)
         const engagementBreakdownOption = {
             tooltip: {
@@ -602,6 +703,7 @@
         // Set chart options
         metricsChart.setOption(metricsChartOption);
         trendsChart.setOption(trendsChartOption);
+        sentimentChart.setOption(sentimentChartOption);
         engagementBreakdownChart.setOption(engagementBreakdownOption);
         engagementRateChart.setOption(engagementRateOption);
 
@@ -613,6 +715,7 @@
         window.addEventListener('resize', function() {
             metricsChart.resize();
             trendsChart.resize();
+            sentimentChart.resize();
             engagementBreakdownChart.resize();
             engagementRateChart.resize();
         });
