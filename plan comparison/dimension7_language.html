@@ -29,23 +29,23 @@
                 <div id="languageBarChart" class="chart"></div>
             </div>
 
-            <!-- Map + Pie Chart -->
+            <!-- Language Distribution Donut Chart -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Global Views Distribution by Language</div>
+                    <div class="chart-title">Language Distribution by Views</div>
                     <div class="chart-controls">
-                        <div class="toggle-buttons" id="mapToggle">
+                        <div class="toggle-buttons" id="donutToggle">
                             <button class="toggle-btn active" data-plan="planA">Plan A</button>
                             <button class="toggle-btn" data-plan="planB">Plan B</button>
                         </div>
-                        <button class="download-btn" onclick="downloadChart('mapPieChart')" title="Download Chart">
+                        <button class="download-btn" onclick="downloadChart('donutChart')" title="Download Chart">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                             </svg>
                         </button>
                     </div>
                 </div>
-                <div id="mapPieChart" class="chart"></div>
+                <div id="donutChart" class="chart"></div>
             </div>
         </div>
 
@@ -66,19 +66,23 @@
                 <div id="stackedBarChart" class="chart"></div>
             </div>
 
-            <!-- Line + Forecast Chart -->
+            <!-- Top 5 Languages Trend Chart -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Engagement Rate Trend with Forecast</div>
+                    <div class="chart-title">Top 5 Languages Engagement Rate Trend</div>
                     <div class="chart-controls">
-                        <button class="download-btn" onclick="downloadChart('forecastChart')" title="Download Chart">
+                        <div class="toggle-buttons" id="trendToggle">
+                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
+                            <button class="toggle-btn" data-plan="planB">Plan B</button>
+                        </div>
+                        <button class="download-btn" onclick="downloadChart('trendChart')" title="Download Chart">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                             </svg>
                         </button>
                     </div>
                 </div>
-                <div id="forecastChart" class="chart"></div>
+                <div id="trendChart" class="chart"></div>
             </div>
         </div>
 
@@ -249,9 +253,9 @@
     <script>
         // Initialize charts
         const languageBarChart = echarts.init(document.getElementById('languageBarChart'));
-        const mapPieChart = echarts.init(document.getElementById('mapPieChart'));
+        const donutChart = echarts.init(document.getElementById('donutChart'));
         const stackedBarChart = echarts.init(document.getElementById('stackedBarChart'));
-        const forecastChart = echarts.init(document.getElementById('forecastChart'));
+        const trendChart = echarts.init(document.getElementById('trendChart'));
 
         // Language Bar Chart
         const languageBarOption = {
@@ -469,24 +473,9 @@
             ]
         };
 
-        // Map + Pie Chart
-        const generateMapPieData = (plan) => {
-            const mapData = [
-                { name: 'United States', value: plan === 'Plan A' ? 125000 : 118000, qoq: plan === 'Plan A' ? '▲6.8%' : '▲5.5%' },
-                { name: 'Mexico', value: plan === 'Plan A' ? 98500 : 92500, qoq: plan === 'Plan A' ? '▲5.2%' : '▲4.8%' },
-                { name: 'Brazil', value: plan === 'Plan A' ? 85200 : 80200, qoq: plan === 'Plan A' ? '▲4.8%' : '▲4.2%' },
-                { name: 'France', value: plan === 'Plan A' ? 72500 : 68500, qoq: plan === 'Plan A' ? '▲3.5%' : '▲3.0%' },
-                { name: 'Germany', value: plan === 'Plan A' ? 68200 : 65200, qoq: plan === 'Plan A' ? '▲2.8%' : '▲2.2%' },
-                { name: 'Italy', value: plan === 'Plan A' ? 62800 : 60800, qoq: plan === 'Plan A' ? '▲1.5%' : '▲1.2%' },
-                { name: 'Japan', value: plan === 'Plan A' ? 58500 : 55500, qoq: plan === 'Plan A' ? '▼0.8%' : '▼1.2%' },
-                { name: 'South Korea', value: plan === 'Plan A' ? 52200 : 48200, qoq: plan === 'Plan A' ? '▼1.5%' : '▼2.0%' },
-                { name: 'United Kingdom', value: plan === 'Plan A' ? 48500 : 45200, qoq: plan === 'Plan A' ? '▲2.5%' : '▲2.0%' },
-                { name: 'Spain', value: plan === 'Plan A' ? 45800 : 42500, qoq: plan === 'Plan A' ? '▲3.2%' : '▲2.8%' },
-                { name: 'Canada', value: plan === 'Plan A' ? 42500 : 40200, qoq: plan === 'Plan A' ? '▲2.8%' : '▲2.5%' },
-                { name: 'Australia', value: plan === 'Plan A' ? 38200 : 36500, qoq: plan === 'Plan A' ? '▲1.8%' : '▲1.5%' }
-            ];
-            
-            const pieData = [
+        // Language Distribution Donut Chart
+        const generateDonutData = (plan) => {
+            return [
                 { name: 'English', value: plan === 'Plan A' ? 45 : 42, qoq: plan === 'Plan A' ? '▲5.7%' : '▲4.8%' },
                 { name: 'Spanish', value: plan === 'Plan A' ? 32 : 30, qoq: plan === 'Plan A' ? '▲4.5%' : '▲3.9%' },
                 { name: 'Portuguese', value: plan === 'Plan A' ? 28 : 26, qoq: plan === 'Plan A' ? '▲3.8%' : '▲3.2%' },
@@ -496,95 +485,58 @@
                 { name: 'Japanese', value: plan === 'Plan A' ? 12 : 11, qoq: plan === 'Plan A' ? '▼1.2%' : '▼1.8%' },
                 { name: 'Korean', value: plan === 'Plan A' ? 9 : 8, qoq: plan === 'Plan A' ? '▼2.1%' : '▼2.5%' }
             ];
-            
-            return { mapData, pieData };
         };
 
-        const { mapData: planAMapData, pieData: planAPieData } = generateMapPieData('Plan A');
-        const { mapData: planBMapData, pieData: planBPieData } = generateMapPieData('Plan B');
+        const planADonutData = generateDonutData('Plan A');
+        const planBDonutData = generateDonutData('Plan B');
 
-        const mapPieOption = {
+        const donutOption = {
             tooltip: {
                 trigger: 'item',
                 formatter: function(params) {
-                    if (params.seriesType === 'map') {
-                        const qoqColor = params.data && params.data.qoq && params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
-                        return `
-                            <div style="font-weight:bold">${params.name}</div>
-                            <div>Views: ${params.data ? formatNumber(params.data.value) : 'N/A'}</div>
-                            <div>QoQ: <span style="color:${qoqColor}">${params.data ? params.data.qoq : 'N/A'}</span></div>
-                        `;
-                    } else {
-                        const qoqColor = params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
-                        return `
-                            <div style="font-weight:bold">${params.name}</div>
-                            <div>Share: ${params.percent.toFixed(1)}%</div>
-                            <div>QoQ: <span style="color:${qoqColor}">${params.data.qoq}</span></div>
-                        `;
-                    }
+                    const qoqColor = params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    return `
+                        <div style="font-weight:bold">${params.name}</div>
+                        <div>Share: ${params.percent.toFixed(1)}%</div>
+                        <div>QoQ: <span style="color:${qoqColor}">${params.data.qoq}</span></div>
+                    `;
                 }
             },
-            grid: [
-                { right: '55%' }
-            ],
-            visualMap: {
-                left: 'right',
-                min: 30000,
-                max: 130000,
-                inRange: {
-                    color: ['#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695']
-                },
-                text: ['High', 'Low'],
-                calculable: true,
-                dimension: 0,
-                seriesIndex: 0
-            },
-            geo: {
-                map: 'world',
-                roam: true,
-                emphasis: {
-                    label: {
-                        show: false
-                    },
-                    itemStyle: {
-                        areaColor: '#eee'
-                    }
-                },
-                itemStyle: {
-                    areaColor: '#f7f7f7',
-                    borderColor: '#ddd'
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                top: 'center',
+                textStyle: {
+                    fontSize: 12
                 }
             },
             series: [
                 {
-                    name: 'Views',
-                    type: 'map',
-                    map: 'world',
-                    roam: true,
-                    emphasis: {
-                        label: {
-                            show: false
-                        }
-                    },
-                    data: planAMapData
-                },
-                {
-                    name: 'Language Share',
+                    name: 'Language Distribution',
                     type: 'pie',
                     radius: ['40%', '70%'],
-                    center: ['80%', '50%'],
+                    center: ['65%', '50%'],
+                    avoidLabelOverlap: false,
                     label: {
-                        show: true,
-                        formatter: '{b}: {d}%'
+                        show: false,
+                        position: 'center'
                     },
                     emphasis: {
-                        itemStyle: {
-                            shadowBlur: 10,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        label: {
+                            show: true,
+                            fontSize: '18',
+                            fontWeight: 'bold'
                         }
                     },
-                    data: planAPieData
+                    labelLine: {
+                        show: false
+                    },
+                    data: planADonutData,
+                    itemStyle: {
+                        borderRadius: 5,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    }
                 }
             ]
         };
@@ -724,209 +676,219 @@
             ]
         };
 
-        // Forecast Chart
-        const forecastOption = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'cross',
-                    label: {
-                        backgroundColor: '#6a7985'
-                    }
-                },
-                formatter: function(params) {
-                    const period = params[0].axisValue;
-                    let html = `<div style="font-weight:bold">${period}</div>`;
-                    
-                    params.forEach(param => {
-                        const isPlanA = param.seriesName === 'Plan A';
-                        const isForecast = ['Q3', 'Q4'].includes(period);
+        // Top 5 Languages Trend Chart Data
+        const generateTrendData = () => {
+            const planATrendData = {
+                English: [4.2, 4.5, 4.8, 5.1, 5.3, 5.5],
+                Spanish: [3.8, 4.0, 4.3, 4.5, 4.7, 4.9],
+                Portuguese: [3.5, 3.7, 4.0, 4.2, 4.4, 4.6],
+                French: [3.2, 3.4, 3.6, 3.8, 4.0, 4.2],
+                German: [2.9, 3.1, 3.3, 3.5, 3.7, 3.9]
+            };
+            
+            const planBTrendData = {
+                English: [4.0, 4.3, 4.6, 4.9, 5.2, 5.6],
+                Spanish: [3.6, 3.8, 4.1, 4.4, 4.8, 5.1],
+                Portuguese: [3.3, 3.5, 3.8, 4.1, 4.5, 4.8],
+                French: [3.0, 3.2, 3.4, 3.7, 4.1, 4.4],
+                German: [2.7, 2.9, 3.1, 3.4, 3.8, 4.1]
+            };
+            
+            return { planATrendData, planBTrendData };
+        };
+        
+        const { planATrendData, planBTrendData } = generateTrendData();
+
+        // Top 5 Languages Trend Chart
+        const createTrendOption = (data) => {
+            return {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#6a7985'
+                        }
+                    },
+                    formatter: function(params) {
+                        const period = params[0].axisValue;
+                        let html = `<div style="font-weight:bold">${period}</div>`;
                         
-                        if (!isForecast) {
-                            const qoq = isPlanA ? 
-                                period === 'Q1' ? '▲5.7%' : '▲4.2%' : 
-                                period === 'Q1' ? '▲4.8%' : '▲3.5%';
-                            
-                            const qoqColor = qoq.includes('▲') ? '#28a745' : '#dc3545';
-                            
+                        params.forEach(param => {
                             html += `<div style="margin-top:5px;">`;
                             html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
                             html += `${param.seriesName}: ${formatPercentage(param.value)}`;
-                            html += ` <span style="color:${qoqColor}">${qoq}</span>`;
                             html += `</div>`;
-                        } else {
-                            html += `<div style="margin-top:5px;">`;
-                            html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
-                            html += `${param.seriesName} (Forecast): ${formatPercentage(param.value)}`;
-                            html += `</div>`;
-                        }
-                    });
-                    
-                    return html;
-                }
-            },
-            legend: {
-                data: ['Plan A', 'Plan B'],
-                bottom: 0
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '15%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                boundaryGap: false,
-                data: ['Q-2', 'Q-1', 'Q1', 'Q2', 'Q3', 'Q4']
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Engagement Rate',
-                axisLabel: {
-                    formatter: '{value}%'
-                }
-            },
-            series: [
-                {
-                    name: 'Plan A',
-                    type: 'line',
-                    smooth: true,
-                    lineStyle: {
-                        width: 3,
-                        color: CHART_COLORS.planA
-                    },
-                    data: [
-                        4.2, 4.5, 
-                        {
-                            value: 4.8,
-                            label: {
-                                show: true,
-                                formatter: '▲5.7%',
-                                color: '#28a745',
-                                position: 'top'
-                            }
-                        },
-                        {
-                            value: 5.0,
-                            label: {
-                                show: true,
-                                formatter: '▲4.2%',
-                                color: '#28a745',
-                                position: 'top'
-                            }
-                        },
-                        5.2, 5.4
-                    ],
-                    markLine: {
-                        silent: true,
-                        lineStyle: {
-                            color: '#333',
-                            type: 'dashed'
-                        },
-                        data: [
-                            {
-                                xAxis: 'Q2',
-                                label: {
-                                    formatter: 'Forecast →',
-                                    position: 'middle'
-                                }
-                            }
-                        ]
-                    },
-                    areaStyle: {
-                        opacity: 0.3,
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            {
-                                offset: 0,
-                                color: CHART_COLORS.planA
-                            },
-                            {
-                                offset: 1,
-                                color: 'rgba(0, 0, 0, 0)'
-                            }
-                        ])
+                        });
+                        
+                        return html;
                     }
                 },
-                {
-                    name: 'Plan B',
-                    type: 'line',
-                    smooth: true,
-                    lineStyle: {
-                        width: 3,
-                        color: CHART_COLORS.planB
-                    },
-                    data: [
-                        3.9, 4.2, 
-                        {
-                            value: 4.5,
-                            label: {
-                                show: true,
-                                formatter: '▲4.8%',
-                                color: '#28a745',
-                                position: 'bottom'
-                            }
-                        },
-                        {
-                            value: 4.7,
-                            label: {
-                                show: true,
-                                formatter: '▲3.5%',
-                                color: '#28a745',
-                                position: 'bottom'
-                            }
-                        },
-                        4.9, 5.0
-                    ],
-                    areaStyle: {
-                        opacity: 0.3,
-                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                            {
-                                offset: 0,
-                                color: CHART_COLORS.planB
-                            },
-                            {
-                                offset: 1,
-                                color: 'rgba(0, 0, 0, 0)'
-                            }
-                        ])
+                legend: {
+                    data: ['English', 'Spanish', 'Portuguese', 'French', 'German'],
+                    bottom: 0
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: ['Q-2', 'Q-1', 'Q1', 'Q2', 'Q3', 'Q4']
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Engagement Rate',
+                    axisLabel: {
+                        formatter: '{value}%'
                     }
-                }
-            ]
+                },
+                series: [
+                    {
+                        name: 'English',
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#3b82f6'
+                        },
+                        data: data.English,
+                        itemStyle: {
+                            color: '#3b82f6'
+                        },
+                        areaStyle: {
+                            opacity: 0.1,
+                            color: '#3b82f6'
+                        }
+                    },
+                    {
+                        name: 'Spanish',
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#ef4444'
+                        },
+                        data: data.Spanish,
+                        itemStyle: {
+                            color: '#ef4444'
+                        },
+                        areaStyle: {
+                            opacity: 0.1,
+                            color: '#ef4444'
+                        }
+                    },
+                    {
+                        name: 'Portuguese',
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#10b981'
+                        },
+                        data: data.Portuguese,
+                        itemStyle: {
+                            color: '#10b981'
+                        },
+                        areaStyle: {
+                            opacity: 0.1,
+                            color: '#10b981'
+                        }
+                    },
+                    {
+                        name: 'French',
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#f59e0b'
+                        },
+                        data: data.French,
+                        itemStyle: {
+                            color: '#f59e0b'
+                        },
+                        areaStyle: {
+                            opacity: 0.1,
+                            color: '#f59e0b'
+                        }
+                    },
+                    {
+                        name: 'German',
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            width: 3,
+                            color: '#8b5cf6'
+                        },
+                        data: data.German,
+                        itemStyle: {
+                            color: '#8b5cf6'
+                        },
+                        areaStyle: {
+                            opacity: 0.1,
+                            color: '#8b5cf6'
+                        }
+                    }
+                ]
+            };
         };
-
+        
+        const trendOption = createTrendOption(planATrendData);
         // Set chart options
         languageBarChart.setOption(languageBarOption);
-        mapPieChart.setOption(mapPieOption);
+        donutChart.setOption(donutOption);
         stackedBarChart.setOption(stackedBarOption);
-        forecastChart.setOption(forecastOption);
+        trendChart.setOption(trendOption);
 
-        // Setup map toggle
-        document.querySelectorAll('#mapToggle .toggle-btn').forEach(btn => {
+        // Setup donut toggle
+        document.querySelectorAll('#donutToggle .toggle-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('#mapToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#donutToggle .toggle-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
                 const plan = this.getAttribute('data-plan');
                 
                 if (plan === 'planA') {
-                    mapPieOption.series[0].data = planAMapData;
-                    mapPieOption.series[1].data = planAPieData;
+                    donutOption.series[0].data = planADonutData;
                 } else {
-                    mapPieOption.series[0].data = planBMapData;
-                    mapPieOption.series[1].data = planBPieData;
+                    donutOption.series[0].data = planBDonutData;
                 }
                 
-                mapPieChart.setOption(mapPieOption);
+                donutChart.setOption(donutOption);
+            });
+        });
+
+        // Setup trend toggle
+        document.querySelectorAll('#trendToggle .toggle-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('#trendToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                const plan = this.getAttribute('data-plan');
+                
+                let newOption;
+                if (plan === 'planA') {
+                    newOption = createTrendOption(planATrendData);
+                } else {
+                    newOption = createTrendOption(planBTrendData);
+                }
+                
+                trendChart.setOption(newOption);
             });
         });
 
         // Resize charts when window is resized
         window.addEventListener('resize', function() {
             languageBarChart.resize();
-            mapPieChart.resize();
+            donutChart.resize();
             stackedBarChart.resize();
-            forecastChart.resize();
+            trendChart.resize();
         });
     </script>
 </body>

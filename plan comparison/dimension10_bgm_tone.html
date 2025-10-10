@@ -29,7 +29,7 @@
             <!-- Emotional Arc Chart -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Emotional Arc by Video Progress</div>
+                    <div class="chart-title">Engagement Trend Over Time</div>
                     <div class="chart-controls">
                         <div class="toggle-buttons" id="toneToggle">
                             <button class="toggle-btn active" data-tone="upbeat">Upbeat</button>
@@ -365,7 +365,7 @@
 
         // Emotional Arc Chart Option
         const generateEmotionalArcOption = (tone) => {
-            const progress = ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%'];
+            const progress = ['2024-01-01', '2024-01-15', '2024-02-01', '2024-02-15', '2024-03-01', '2024-03-15', '2024-04-01', '2024-04-15', '2024-05-01', '2024-05-15'];
             const planAData = bgmToneData.planA.emotionalArcs[tone];
             const planBData = bgmToneData.planB.emotionalArcs[tone];
             const planAQoQ = bgmToneData.planA.emotionalArcsQoQ[tone];
@@ -382,7 +382,7 @@
                     },
                     formatter: function(params) {
                         const progress = params[0].axisValue;
-                        let html = `<div style="font-weight:bold">Progress: ${progress}</div>`;
+                        let html = `<div style="font-weight:bold">Date: ${progress}</div>`;
                         
                         params.forEach(param => {
                             const isPlanA = param.seriesName === 'Plan A';
@@ -411,11 +411,12 @@
                 xAxis: {
                     type: 'category',
                     boundaryGap: false,
-                    data: progress
+                    data: progress,
+                    name: 'Date'
                 },
                 yAxis: {
                     type: 'value',
-                    name: 'Emotional Value',
+                    name: 'Engagement',
                     min: 2,
                     max: 7
                 },

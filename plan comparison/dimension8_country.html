@@ -15,7 +15,7 @@
             <!-- Map or Grouped Bar Chart -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Top 5 Countries by Views</div>
+                    <div class="chart-title">Global Engagements Distribution (Plan A & Plan B Combined)</div>
                     <div class="chart-controls">
                         <div class="toggle-buttons" id="viewToggle">
                             <button class="toggle-btn active" data-view="map">Map View</button>
@@ -34,11 +34,11 @@
             <!-- Bubble Map -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Global Views Distribution</div>
+                    <div class="chart-title">Global Views Distribution (Plan A & Plan B Combined)</div>
                     <div class="chart-controls">
-                        <div class="toggle-buttons" id="planToggle">
-                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
-                            <button class="toggle-btn" data-plan="planB">Plan B</button>
+                        <div class="toggle-buttons" id="bubbleViewToggle">
+                            <button class="toggle-btn active" data-view="bubble">Bubble Map</button>
+                            <button class="toggle-btn" data-view="bar">Bar Chart</button>
                         </div>
                         <button class="download-btn" onclick="downloadChart('bubbleMapChart')" title="Download Chart">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -72,10 +72,10 @@
                 <div id="stackedAreaChart" class="chart"></div>
             </div>
 
-            <!-- Rank Change Chart -->
+            <!-- Engagement Rate Trend Chart -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Country Rank Changes</div>
+                    <div class="chart-title">Engagement Rate Trends Over Time</div>
                     <div class="chart-controls">
                         <button class="download-btn" onclick="downloadChart('rankChangeChart')" title="Download Chart">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -270,94 +270,159 @@
         const stackedAreaChart = echarts.init(document.getElementById('stackedAreaChart'));
         const rankChangeChart = echarts.init(document.getElementById('rankChangeChart'));
 
-        // Country data
+        // Country data - 修改为基于互动量的数据结构
         const countryData = {
             planA: [
-                { name: 'United States', value: 2850000, qoq: '▲9.1%', er: 5.8, erQoq: '▲7.4%', coords: [37.0902, -95.7129] },
-                { name: 'Brazil', value: 1950000, qoq: '▲8.5%', er: 5.5, erQoq: '▲6.8%', coords: [-14.2350, -51.9253] },
-                { name: 'Mexico', value: 1680000, qoq: '▲7.8%', er: 5.2, erQoq: '▲6.2%', coords: [23.6345, -102.5528] },
-                { name: 'India', value: 1450000, qoq: '▲6.5%', er: 4.9, erQoq: '▲5.5%', coords: [20.5937, 78.9629] },
-                { name: 'Indonesia', value: 1280000, qoq: '▲5.8%', er: 4.7, erQoq: '▲4.8%', coords: [-0.7893, 113.9213] },
-                { name: 'Japan', value: 980000, qoq: '▲4.2%', er: 4.5, erQoq: '▲3.5%', coords: [36.2048, 138.2529] },
-                { name: 'United Kingdom', value: 850000, qoq: '▲3.8%', er: 4.3, erQoq: '▲2.8%', coords: [55.3781, -3.4360] },
-                { name: 'Germany', value: 720000, qoq: '▲2.5%', er: 4.1, erQoq: '▲1.5%', coords: [51.1657, 10.4515] },
-                { name: 'France', value: 680000, qoq: '▼1.2%', er: 3.8, erQoq: '▼0.8%', coords: [46.2276, 2.2137] },
-                { name: 'Canada', value: 580000, qoq: '▼3.2%', er: 3.5, erQoq: '▼2.5%', coords: [56.1304, -106.3468] }
+                { name: 'United States', value: 165300, qoq: '▲9.1%', er: 5.8, erQoq: '▲7.4%', coords: [37.0902, -95.7129] },
+                { name: 'Brazil', value: 107250, qoq: '▲8.5%', er: 5.5, erQoq: '▲6.8%', coords: [-14.2350, -51.9253] },
+                { name: 'Mexico', value: 87360, qoq: '▲7.8%', er: 5.2, erQoq: '▲6.2%', coords: [23.6345, -102.5528] },
+                { name: 'India', value: 71050, qoq: '▲6.5%', er: 4.9, erQoq: '▲5.5%', coords: [20.5937, 78.9629] },
+                { name: 'Indonesia', value: 60160, qoq: '▲5.8%', er: 4.7, erQoq: '▲4.8%', coords: [-0.7893, 113.9213] },
+                { name: 'Japan', value: 44100, qoq: '▲4.2%', er: 4.5, erQoq: '▲3.5%', coords: [36.2048, 138.2529] },
+                { name: 'United Kingdom', value: 36550, qoq: '▲3.8%', er: 4.3, erQoq: '▲2.8%', coords: [55.3781, -3.4360] },
+                { name: 'Germany', value: 29520, qoq: '▲2.5%', er: 4.1, erQoq: '▲1.5%', coords: [51.1657, 10.4515] },
+                { name: 'France', value: 25840, qoq: '▼1.2%', er: 3.8, erQoq: '▼0.8%', coords: [46.2276, 2.2137] },
+                { name: 'Canada', value: 20300, qoq: '▼3.2%', er: 3.5, erQoq: '▼2.5%', coords: [56.1304, -106.3468] }
             ],
             planB: [
-                { name: 'United States', value: 2650000, qoq: '▲8.2%', er: 5.5, erQoq: '▲6.8%', coords: [37.0902, -95.7129] },
-                { name: 'Brazil', value: 1850000, qoq: '▲7.5%', er: 5.2, erQoq: '▲6.0%', coords: [-14.2350, -51.9253] },
-                { name: 'Mexico', value: 1580000, qoq: '▲6.8%', er: 4.9, erQoq: '▲5.5%', coords: [23.6345, -102.5528] },
-                { name: 'India', value: 1380000, qoq: '▲5.5%', er: 4.6, erQoq: '▲4.8%', coords: [20.5937, 78.9629] },
-                { name: 'Indonesia', value: 1220000, qoq: '▲4.8%', er: 4.4, erQoq: '▲4.2%', coords: [-0.7893, 113.9213] },
-                { name: 'Japan', value: 920000, qoq: '▲3.5%', er: 4.2, erQoq: '▲2.8%', coords: [36.2048, 138.2529] },
-                { name: 'United Kingdom', value: 780000, qoq: '▲3.0%', er: 4.0, erQoq: '▲2.2%', coords: [55.3781, -3.4360] },
-                { name: 'Germany', value: 680000, qoq: '▲1.8%', er: 3.8, erQoq: '▲1.0%', coords: [51.1657, 10.4515] },
-                { name: 'France', value: 650000, qoq: '▼1.8%', er: 3.5, erQoq: '▼1.5%', coords: [46.2276, 2.2137] },
-                { name: 'Canada', value: 550000, qoq: '▼3.8%', er: 3.2, erQoq: '▼3.2%', coords: [56.1304, -106.3468] }
+                { name: 'United States', value: 145750, qoq: '▲8.2%', er: 5.5, erQoq: '▲6.8%', coords: [37.0902, -95.7129] },
+                { name: 'Brazil', value: 96200, qoq: '▲7.5%', er: 5.2, erQoq: '▲6.0%', coords: [-14.2350, -51.9253] },
+                { name: 'Mexico', value: 77420, qoq: '▲6.8%', er: 4.9, erQoq: '▲5.5%', coords: [23.6345, -102.5528] },
+                { name: 'India', value: 63480, qoq: '▲5.5%', er: 4.6, erQoq: '▲4.8%', coords: [20.5937, 78.9629] },
+                { name: 'Indonesia', value: 53680, qoq: '▲4.8%', er: 4.4, erQoq: '▲4.2%', coords: [-0.7893, 113.9213] },
+                { name: 'Japan', value: 38640, qoq: '▲3.5%', er: 4.2, erQoq: '▲2.8%', coords: [36.2048, 138.2529] },
+                { name: 'United Kingdom', value: 31200, qoq: '▲3.0%', er: 4.0, erQoq: '▲2.2%', coords: [55.3781, -3.4360] },
+                { name: 'Germany', value: 25840, qoq: '▲1.8%', er: 3.8, erQoq: '▲1.0%', coords: [51.1657, 10.4515] },
+                { name: 'France', value: 22750, qoq: '▼1.8%', er: 3.5, erQoq: '▼1.5%', coords: [46.2276, 2.2137] },
+                { name: 'Canada', value: 17600, qoq: '▼3.8%', er: 3.2, erQoq: '▼3.2%', coords: [56.1304, -106.3468] }
             ]
         };
 
-        // Map Chart Option
-        const mapOption = {
-            tooltip: {
-                trigger: 'item',
-                formatter: function(params) {
-                    const data = params.data || {};
-                    if (!data.value) return params.name;
-                    
-                    const qoqColor = data.qoq && data.qoq.includes('▲') ? '#28a745' : '#dc3545';
-                    const erQoqColor = data.erQoq && data.erQoq.includes('▲') ? '#28a745' : '#dc3545';
-                    
-                    return `
-                        <div style="font-weight:bold">${params.name}</div>
-                        <div>Total Views: ${formatNumber(data.value)}</div>
-                        <div>QoQ: <span style="color:${qoqColor}">${data.qoq}</span></div>
-                        <div>Engagement Rate: ${data.er}%</div>
-                        <div>ER QoQ: <span style="color:${erQoqColor}">${data.erQoq}</span></div>
-                    `;
-                }
-            },
-            visualMap: {
-                left: 'right',
-                min: 500000,
-                max: 3000000,
-                inRange: {
-                    color: ['#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695']
+        // Map Chart Option - 合并显示Plan A和Plan B
+        const generateCombinedEngagementMapData = () => {
+            const planAData = countryData.planA.map(item => {
+                const qoqValue = parseFloat(item.qoq.replace('▲', '').replace('▼', '').replace('%', ''));
+                
+                return {
+                    name: item.name,
+                    value: [...item.coords, item.value / 100000], // Scale down for better visualization
+                    qoq: item.qoq,
+                    er: item.er,
+                    erQoq: item.erQoq,
+                    plan: 'Plan A',
+                    itemStyle: {
+                        color: `rgba(25, 118, 210, ${0.6 + qoqValue / 30})` // 蓝色系 - Plan A
+                    }
+                };
+            });
+            
+            const planBData = countryData.planB.map(item => {
+                const qoqValue = parseFloat(item.qoq.replace('▲', '').replace('▼', '').replace('%', ''));
+                
+                return {
+                    name: item.name + '_B', // 添加后缀避免重复
+                    value: [item.coords[0] + 2, item.coords[1] + 1, item.value / 100000], // 稍微偏移位置
+                    qoq: item.qoq,
+                    er: item.er,
+                    erQoq: item.erQoq,
+                    plan: 'Plan B',
+                    originalName: item.name,
+                    itemStyle: {
+                        color: `rgba(194, 24, 91, ${0.6 + qoqValue / 30})` // 粉色系 - Plan B
+                    }
+                };
+            });
+            
+            return [...planAData, ...planBData];
+        };
+
+        const createMapOption = (plan) => {
+            return {
+                tooltip: {
+                    formatter: function(params) {
+                        const qoqColor = params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        const erQoqColor = params.data.erQoq.includes('▲') ? '#28a745' : '#dc3545';
+                        const countryName = params.data.originalName || params.data.name;
+                        
+                        return `
+                            <div style="font-weight:bold">${countryName} (${params.data.plan})</div>
+                            <div>Total Engagement: ${formatNumber(params.data.value[2] * 100000)}</div>
+                            <div>QoQ: <span style="color:${qoqColor}">${params.data.qoq}</span></div>
+                            <div>Engagement Rate: ${params.data.er}%</div>
+                            <div>ER QoQ: <span style="color:${erQoqColor}">${params.data.erQoq}</span></div>
+                        `;
+                    }
                 },
-                text: ['High', 'Low'],
-                calculable: true
-            },
-            series: [
-                {
-                    name: 'Total Views',
-                    type: 'map',
+                legend: {
+                    orient: 'horizontal',
+                    left: 'center',
+                    bottom: '5%',
+                    data: [
+                        {
+                            name: 'Plan A',
+                            icon: 'circle',
+                            textStyle: { color: '#1976d2' }
+                        },
+                        {
+                            name: 'Plan B', 
+                            icon: 'circle',
+                            textStyle: { color: '#c2185b' }
+                        }
+                    ]
+                },
+                geo: {
                     map: 'world',
                     roam: true,
                     emphasis: {
-                        label: {
-                            show: false
+                        itemStyle: {
+                            areaColor: '#f4f4f4'
                         }
-                    },
-                    data: countryData.planA.map(item => {
-                        return {
-                            name: item.name,
-                            value: item.value,
-                            qoq: item.qoq,
-                            er: item.er,
-                            erQoq: item.erQoq
-                        };
-                    }),
-                    label: {
-                        show: false
                     },
                     itemStyle: {
                         areaColor: '#f7f7f7',
                         borderColor: '#ddd'
                     }
-                }
-            ]
+                },
+                series: [
+                    {
+                        name: 'Plan A',
+                        type: 'scatter',
+                        coordinateSystem: 'geo',
+                        data: generateCombinedEngagementMapData().filter(item => item.plan === 'Plan A'),
+                        symbolSize: function(val) {
+                            return Math.sqrt(val[2]) * 5;
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                formatter: '{b}',
+                                position: 'right'
+                            }
+                        }
+                    },
+                    {
+                        name: 'Plan B',
+                        type: 'scatter',
+                        coordinateSystem: 'geo',
+                        data: generateCombinedEngagementMapData().filter(item => item.plan === 'Plan B'),
+                        symbolSize: function(val) {
+                            return Math.sqrt(val[2]) * 5;
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                formatter: function(params) {
+                                    return params.data.originalName || params.name;
+                                },
+                                position: 'right'
+                            }
+                        }
+                    }
+                ]
+            };
         };
+        
+        const mapOption = createMapOption('planA');
 
         // Bar Chart Option
         const barOption = {
@@ -523,36 +588,162 @@
             ]
         };
 
-        // Bubble Map Option
-        const generateBubbleMapData = (plan) => {
-            return countryData[plan].map(item => {
+        // Bubble Map Option - 在一张地图上显示Plan A和Plan B
+        const generateCombinedBubbleMapData = () => {
+            const planAData = countryData.planA.map(item => {
                 const qoqValue = parseFloat(item.qoq.replace('▲', '').replace('▼', '').replace('%', ''));
-                const isPositive = item.qoq.includes('▲');
                 
                 return {
                     name: item.name,
                     value: [...item.coords, item.value / 100000], // Scale down for better visualization
                     qoq: item.qoq,
+                    plan: 'Plan A',
                     itemStyle: {
-                        color: isPositive ? 
-                            `rgba(40, 167, 69, ${0.5 + qoqValue / 20})` : 
-                            `rgba(220, 53, 69, ${0.5 + qoqValue / 20})`
+                        color: `rgba(25, 118, 210, ${0.6 + qoqValue / 30})` // 蓝色系 - Plan A
                     }
                 };
             });
+            
+            const planBData = countryData.planB.map(item => {
+                const qoqValue = parseFloat(item.qoq.replace('▲', '').replace('▼', '').replace('%', ''));
+                
+                return {
+                    name: item.name + '_B', // 添加后缀避免重复
+                    value: [item.coords[0] + 2, item.coords[1] + 1, item.value / 100000], // 稍微偏移位置
+                    qoq: item.qoq,
+                    plan: 'Plan B',
+                    originalName: item.name,
+                    itemStyle: {
+                        color: `rgba(194, 24, 91, ${0.6 + qoqValue / 30})` // 粉色系 - Plan B
+                    }
+                };
+            });
+            
+            return [...planAData, ...planBData];
+        };
+
+        // Global Views Distribution Bar Chart Option
+        const globalViewsBarOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    let result = `<div style="font-weight:bold">${params[0].name}</div>`;
+                    params.forEach(param => {
+                        const qoqColor = param.data.qoq && param.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        result += `
+                            <div>${param.seriesName}: ${formatNumber(param.value)}</div>
+                            <div>QoQ: <span style="color:${qoqColor}">${param.data.qoq}</span></div>
+                        `;
+                    });
+                    return result;
+                }
+            },
+            legend: {
+                data: ['Plan A', 'Plan B'],
+                bottom: '5%'
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: countryData.planA.map(item => item.name),
+                axisLabel: {
+                    rotate: 45,
+                    interval: 0
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Views',
+                axisLabel: {
+                    formatter: function(value) {
+                        return formatNumber(value);
+                    }
+                }
+            },
+            series: [
+                {
+                    name: 'Plan A',
+                    type: 'bar',
+                    data: countryData.planA.map(item => ({
+                        value: item.value,
+                        qoq: item.qoq
+                    })),
+                    itemStyle: {
+                        color: CHART_COLORS.planA
+                    },
+                    barGap: '20%', // 设置柱间距离
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            return params.data.qoq;
+                        },
+                        color: function(params) {
+                            return params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        }
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'bar',
+                    data: countryData.planB.map(item => ({
+                        value: item.value,
+                        qoq: item.qoq
+                    })),
+                    itemStyle: {
+                        color: CHART_COLORS.planB
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            return params.data.qoq;
+                        },
+                        color: function(params) {
+                            return params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        }
+                    }
+                }
+            ]
         };
 
         const bubbleMapOption = {
             tooltip: {
                 formatter: function(params) {
                     const qoqColor = params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                    const countryName = params.data.originalName || params.data.name;
                     
                     return `
-                        <div style="font-weight:bold">${params.name}</div>
+                        <div style="font-weight:bold">${countryName} (${params.data.plan})</div>
                         <div>Views: ${formatNumber(params.data.value[2] * 100000)}</div>
                         <div>QoQ: <span style="color:${qoqColor}">${params.data.qoq}</span></div>
                     `;
                 }
+            },
+            legend: {
+                orient: 'horizontal',
+                left: 'center',
+                bottom: '5%',
+                data: [
+                    {
+                        name: 'Plan A',
+                        icon: 'circle',
+                        textStyle: { color: '#1976d2' }
+                    },
+                    {
+                        name: 'Plan B', 
+                        icon: 'circle',
+                        textStyle: { color: '#c2185b' }
+                    }
+                ]
             },
             geo: {
                 map: 'world',
@@ -569,10 +760,10 @@
             },
             series: [
                 {
-                    name: 'Views',
+                    name: 'Plan A',
                     type: 'scatter',
                     coordinateSystem: 'geo',
-                    data: generateBubbleMapData('planA'),
+                    data: generateCombinedBubbleMapData().filter(item => item.plan === 'Plan A'),
                     symbolSize: function(val) {
                         return Math.sqrt(val[2]) * 5;
                     },
@@ -580,6 +771,24 @@
                         label: {
                             show: true,
                             formatter: '{b}',
+                            position: 'right'
+                        }
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    data: generateCombinedBubbleMapData().filter(item => item.plan === 'Plan B'),
+                    symbolSize: function(val) {
+                        return Math.sqrt(val[2]) * 5;
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            formatter: function(params) {
+                                return params.data.originalName || params.name;
+                            },
                             position: 'right'
                         }
                     }
@@ -682,25 +891,74 @@
             series: planASeries
         };
 
-        // Rank Change Chart
+        // Engagement Rate Trend Data Generator
+        const generateEngagementTrendData = () => {
+            const dates = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'];
+            
+            const planAData = countryData.planA.slice(0, 5).map(country => {
+                const baseER = country.er;
+                const trend = parseFloat(country.erQoq.replace('▲', '').replace('▼', '').replace('%', '')) / 100;
+                
+                // Generate weekly data with trend
+                const weeklyData = dates.map((_, index) => {
+                    const weeklyTrend = trend / 8; // Distribute trend over 8 weeks
+                    const randomVariation = (Math.random() - 0.5) * 0.2; // ±0.1% random variation
+                    return Math.round((baseER + (index * weeklyTrend) + randomVariation) * 100) / 100;
+                });
+                
+                return {
+                    name: country.name,
+                    data: weeklyData,
+                    trend: country.erQoq
+                };
+            });
+            
+            const planBData = countryData.planB.slice(0, 5).map(country => {
+                const baseER = country.er;
+                const trend = parseFloat(country.erQoq.replace('▲', '').replace('▼', '').replace('%', '')) / 100;
+                
+                // Generate weekly data with trend
+                const weeklyData = dates.map((_, index) => {
+                    const weeklyTrend = trend / 8; // Distribute trend over 8 weeks
+                    const randomVariation = (Math.random() - 0.5) * 0.2; // ±0.1% random variation
+                    return Math.round((baseER + (index * weeklyTrend) + randomVariation) * 100) / 100;
+                });
+                
+                return {
+                    name: country.name,
+                    data: weeklyData,
+                    trend: country.erQoq
+                };
+            });
+            
+            return { dates, planA: planAData, planB: planBData };
+        };
+
+        const engagementTrendData = generateEngagementTrendData();
+
         const rankChangeOption = {
             tooltip: {
                 trigger: 'axis',
                 axisPointer: {
-                    type: 'shadow'
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
                 },
                 formatter: function(params) {
-                    const country = params[0].data.name;
-                    let html = `<div style="font-weight:bold">${country}</div>`;
+                    if (!params || params.length === 0) return '';
+                    
+                    const week = params[0].axisValue;
+                    let html = `<div style="font-weight:bold">${week}</div>`;
                     
                     params.forEach(param => {
-                        const data = param.data;
-                        const qoqColor = data.qoq.includes('▲') ? '#28a745' : '#dc3545';
+                        const seriesName = param.seriesName;
+                        const value = param.value;
+                        const color = param.color;
                         
                         html += `<div style="margin-top:5px;">`;
-                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
-                        html += `${param.seriesName}: Rank ${data.prevRank} → ${data.currRank}`;
-                        html += ` <span style="color:${qoqColor}">${data.qoq}</span>`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${color};"></span>`;
+                        html += `${seriesName}: ${value}%`;
                         html += `</div>`;
                     });
                     
@@ -708,161 +966,110 @@
                 }
             },
             legend: {
-                data: ['Plan A', 'Plan B'],
-                bottom: 0
+                data: ['Plan A - US', 'Plan A - Brazil', 'Plan A - Mexico', 'Plan A - India', 'Plan A - Indonesia',
+                       'Plan B - US', 'Plan B - Brazil', 'Plan B - Mexico', 'Plan B - India', 'Plan B - Indonesia'],
+                bottom: 0,
+                type: 'scroll'
             },
             grid: {
                 left: '3%',
                 right: '4%',
-                bottom: '15%',
+                bottom: '20%',
+                top: '10%',
                 containLabel: true
             },
             xAxis: {
-                type: 'value',
-                min: 0,
-                max: 11,
-                splitLine: {
-                    show: false
-                },
+                type: 'category',
+                data: engagementTrendData.dates,
                 axisLabel: {
-                    formatter: function(value) {
-                        if (value === 0) return 'Previous';
-                        if (value === 10) return 'Current';
-                        return '';
-                    }
-                }
+                    rotate: 0
+                },
+                name: 'Time Period',
+                nameLocation: 'middle',
+                nameGap: 30
             },
             yAxis: {
-                type: 'category',
-                data: ['United States', 'Brazil', 'Mexico', 'India', 'Indonesia'],
-                inverse: true,
-                axisLine: {
-                    show: false
+                type: 'value',
+                name: 'Engagement Rate (%)',
+                nameLocation: 'middle',
+                nameGap: 50,
+                axisLabel: {
+                    formatter: function(value) {
+                        return value + '%';
+                    }
                 },
-                axisTick: {
-                    show: false
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        type: 'dashed',
+                        color: '#e0e0e0'
+                    }
                 }
             },
             series: [
-                {
-                    name: 'Plan A',
-                    type: 'pictorialBar',
-                    symbol: 'rect',
-                    symbolSize: [10, 20],
-                    symbolOffset: [0, 0],
-                    z: 12,
-                    data: [
-                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲9.1%', value: 0, itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'Brazil', prevRank: 3, currRank: 2, qoq: '▲8.5%', value: 0, itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'Mexico', prevRank: 2, currRank: 3, qoq: '▲7.8%', value: 0, itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'India', prevRank: 4, currRank: 4, qoq: '▲6.5%', value: 0, itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'Indonesia', prevRank: 5, currRank: 5, qoq: '▲5.8%', value: 0, itemStyle: { color: CHART_COLORS.planA } }
-                    ]
-                },
-                {
-                    name: 'Plan A',
-                    type: 'pictorialBar',
-                    symbol: 'rect',
-                    symbolSize: [10, 20],
-                    symbolOffset: [0, 0],
-                    z: 12,
-                    data: [
-                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲9.1%', value: 10, itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'Brazil', prevRank: 3, currRank: 2, qoq: '▲8.5%', value: 10, itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'Mexico', prevRank: 2, currRank: 3, qoq: '▲7.8%', value: 10, itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'India', prevRank: 4, currRank: 4, qoq: '▲6.5%', value: 10, itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'Indonesia', prevRank: 5, currRank: 5, qoq: '▲5.8%', value: 10, itemStyle: { color: CHART_COLORS.planA } }
-                    ]
-                },
-                {
-                    name: 'Plan A',
+                // Plan A series
+                ...engagementTrendData.planA.map((country, index) => ({
+                    name: `Plan A - ${country.name}`,
                     type: 'line',
-                    symbol: 'none',
-                    data: [
-                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲9.1%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'Brazil', prevRank: 3, currRank: 2, qoq: '▲8.5%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'Mexico', prevRank: 2, currRank: 3, qoq: '▲7.8%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'India', prevRank: 4, currRank: 4, qoq: '▲6.5%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } },
-                        { name: 'Indonesia', prevRank: 5, currRank: 5, qoq: '▲5.8%', value: [0, 10], itemStyle: { color: CHART_COLORS.planA } }
-                    ],
+                    data: country.data,
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 6,
                     lineStyle: {
-                        color: CHART_COLORS.planA
+                        width: 2,
+                        color: `rgba(25, 118, 210, ${0.8 - index * 0.15})`
+                    },
+                    itemStyle: {
+                        color: `rgba(25, 118, 210, ${0.8 - index * 0.15})`
                     },
                     markPoint: {
-                        symbol: 'arrow',
-                        symbolSize: 15,
-                        symbolOffset: [0, 0],
                         data: [
-                            { coord: [5, 0], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲9.1%', color: '#28a745', position: 'right' } },
-                            { coord: [5, 1], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲8.5%', color: '#28a745', position: 'right' } },
-                            { coord: [5, 2], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲7.8%', color: '#28a745', position: 'right' } },
-                            { coord: [5, 3], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲6.5%', color: '#28a745', position: 'right' } },
-                            { coord: [5, 4], itemStyle: { color: CHART_COLORS.planA }, label: { show: true, formatter: '▲5.8%', color: '#28a745', position: 'right' } }
+                            {
+                                type: 'max',
+                                name: 'Max',
+                                label: {
+                                    formatter: function(params) {
+                                        return params.value + '%';
+                                    }
+                                }
+                            }
                         ]
                     }
-                },
-                {
-                    name: 'Plan B',
-                    type: 'pictorialBar',
-                    symbol: 'rect',
-                    symbolSize: [10, 20],
-                    symbolOffset: [0, 0],
-                    z: 12,
-                    data: [
-                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲8.2%', value: 0, itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Brazil', prevRank: 2, currRank: 2, qoq: '▲7.5%', value: 0, itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Mexico', prevRank: 3, currRank: 3, qoq: '▲6.8%', value: 0, itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'India', prevRank: 5, currRank: 4, qoq: '▲5.5%', value: 0, itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Indonesia', prevRank: 4, currRank: 5, qoq: '▲4.8%', value: 0, itemStyle: { color: CHART_COLORS.planB } }
-                    ]
-                },
-                {
-                    name: 'Plan B',
-                    type: 'pictorialBar',
-                    symbol: 'rect',
-                    symbolSize: [10, 20],
-                    symbolOffset: [0, 0],
-                    z: 12,
-                    data: [
-                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲8.2%', value: 10, itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Brazil', prevRank: 2, currRank: 2, qoq: '▲7.5%', value: 10, itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Mexico', prevRank: 3, currRank: 3, qoq: '▲6.8%', value: 10, itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'India', prevRank: 5, currRank: 4, qoq: '▲5.5%', value: 10, itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Indonesia', prevRank: 4, currRank: 5, qoq: '▲4.8%', value: 10, itemStyle: { color: CHART_COLORS.planB } }
-                    ]
-                },
-                {
-                    name: 'Plan B',
+                })),
+                // Plan B series
+                ...engagementTrendData.planB.map((country, index) => ({
+                    name: `Plan B - ${country.name}`,
                     type: 'line',
-                    symbol: 'none',
-                    data: [
-                        { name: 'United States', prevRank: 1, currRank: 1, qoq: '▲8.2%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Brazil', prevRank: 2, currRank: 2, qoq: '▲7.5%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Mexico', prevRank: 3, currRank: 3, qoq: '▲6.8%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'India', prevRank: 5, currRank: 4, qoq: '▲5.5%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Indonesia', prevRank: 4, currRank: 5, qoq: '▲4.8%', value: [0, 10], itemStyle: { color: CHART_COLORS.planB } }
-                    ],
+                    data: country.data,
+                    smooth: true,
+                    symbol: 'diamond',
+                    symbolSize: 6,
                     lineStyle: {
-                        color: CHART_COLORS.planB
+                        width: 2,
+                        color: `rgba(194, 24, 91, ${0.8 - index * 0.15})`
+                    },
+                    itemStyle: {
+                        color: `rgba(194, 24, 91, ${0.8 - index * 0.15})`
                     },
                     markPoint: {
-                        symbol: 'arrow',
-                        symbolSize: 15,
-                        symbolOffset: [0, 0],
                         data: [
-                            { coord: [5, 0], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲8.2%', color: '#28a745', position: 'right' } },
-                            { coord: [5, 1], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲7.5%', color: '#28a745', position: 'right' } },
-                            { coord: [5, 2], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲6.8%', color: '#28a745', position: 'right' } },
-                            { coord: [5, 3], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲5.5%', color: '#28a745', position: 'right' } },
-                            { coord: [5, 4], itemStyle: { color: CHART_COLORS.planB }, label: { show: true, formatter: '▲4.8%', color: '#28a745', position: 'right' } }
+                            {
+                                type: 'max',
+                                name: 'Max',
+                                label: {
+                                    formatter: function(params) {
+                                        return params.value + '%';
+                                    }
+                                }
+                            }
                         ]
                     }
-                }
+                }))
             ]
         };
 
         // Set initial chart options
-        countryViewsChart.setOption(mapOption);
+        countryViewsChart.setOption(createMapOption('planA'));
         bubbleMapChart.setOption(bubbleMapOption);
         stackedAreaChart.setOption(stackedAreaOption);
         rankChangeChart.setOption(rankChangeOption);
@@ -876,25 +1083,44 @@
                 const view = this.getAttribute('data-view');
                 
                 if (view === 'map') {
-                    countryViewsChart.setOption(mapOption, true);
+                    // 显示合并的地图视图
+                    countryViewsChart.setOption(createMapOption('planA'), true);
                 } else {
                     countryViewsChart.setOption(barOption, true);
                 }
             });
         });
 
-        // Setup plan toggle for bubble map
-        document.querySelectorAll('#planToggle .toggle-btn').forEach(btn => {
+        // Setup view toggle for Global Views Distribution
+        document.querySelectorAll('#bubbleViewToggle .toggle-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('#planToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#bubbleViewToggle .toggle-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
-                const plan = this.getAttribute('data-plan');
+                const view = this.getAttribute('data-view');
                 
-                bubbleMapOption.series[0].data = generateBubbleMapData(plan === 'planA' ? 'planA' : 'planB');
-                bubbleMapChart.setOption(bubbleMapOption);
+                if (view === 'bubble') {
+                    bubbleMapChart.clear(); // 清除之前的图表内容
+                    bubbleMapChart.setOption(bubbleMapOption, true); // 使用notMerge参数
+                } else if (view === 'bar') {
+                    bubbleMapChart.clear(); // 清除之前的图表内容
+                    bubbleMapChart.setOption(globalViewsBarOption, true); // 使用notMerge参数
+                }
             });
         });
+
+        // Setup plan toggle for bubble map - 移除，因为现在在一张地图上显示Plan A和Plan B
+        // document.querySelectorAll('#planToggle .toggle-btn').forEach(btn => {
+        //     btn.addEventListener('click', function() {
+        //         document.querySelectorAll('#planToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+        //         this.classList.add('active');
+        //         
+        //         const plan = this.getAttribute('data-plan');
+        //         
+        //         bubbleMapOption.series[0].data = generateBubbleMapData(plan === 'planA' ? 'planA' : 'planB');
+        //         bubbleMapChart.setOption(bubbleMapOption);
+        //     });
+        // });
 
         // Setup area toggle
         document.querySelectorAll('#areaToggle .toggle-btn').forEach(btn => {
