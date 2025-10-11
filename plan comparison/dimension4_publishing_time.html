@@ -29,12 +29,8 @@
             <!-- Heatmap Matrix -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Weekly Engagement Patterns</div>
+                    <div class="chart-title">Engagement Patterns</div>
                     <div class="chart-controls">
-                        <div class="toggle-buttons" id="heatmapToggle">
-                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
-                            <button class="toggle-btn" data-plan="planB">Plan B</button>
-                        </div>
                         <button class="download-btn" onclick="downloadChart('weeklyHeatmapChart')" title="Download Chart">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -344,6 +340,34 @@
         };
 
         // Weekly Heatmap Chart
+        const generateCombinedHeatmapData = () => {
+            const planAData = generateHeatmapData('Plan A');
+            const planBData = generateHeatmapData('Plan B');
+            
+            const combinedData = [];
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            
+            days.forEach((day, dayIndex) => {
+                for (let hour = 0; hour < 24; hour++) {
+                    // Find Plan A data for this hour and day
+                    const planAItem = planAData.find(item => item[0] === hour && item[1] === dayIndex);
+                    // Find Plan B data for this hour and day
+                    const planBItem = planBData.find(item => item[0] === hour && item[1] === dayIndex);
+                    
+                    if (planAItem) {
+                        // Plan A data at hour*2 position
+                        combinedData.push([hour, dayIndex * 2, planAItem[2], planAItem[3]]);
+                    }
+                    if (planBItem) {
+                        // Plan B data at hour*2+1 position
+                        combinedData.push([hour, dayIndex * 2 + 1, planBItem[2], planBItem[3]]);
+                    }
+                }
+            });
+            
+            return combinedData;
+        };
+
         const generateHeatmapData = (plan) => {
             const data = [];
             const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -393,19 +417,37 @@
 
         const heatmapPlanAData = generateHeatmapData('Plan A');
         const heatmapPlanBData = generateHeatmapData('Plan B');
+        const heatmapCombinedData = generateCombinedHeatmapData();
 
         const weeklyHeatmapOption = {
             tooltip: {
                 position: 'top',
                 formatter: function(params) {
-                    const day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][params.value[1]];
+                    const dayIndex = Math.floor(params.value[1] / 2);
+                    
+                    // Generate the same date as in Y-axis
+                    const today = new Date();
+                    const startOfWeek = new Date(today);
+                    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday of current week
+                    
+                    const currentDate = new Date(startOfWeek);
+                    currentDate.setDate(startOfWeek.getDate() + dayIndex);
+                    
+                    const dateStr = currentDate.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit' 
+                    });
+                    
                     const hour = params.value[0];
+                    const plan = params.value[1] % 2 === 0 ? 'Plan A' : 'Plan B';
                     const er = params.value[2];
                     const qoqChange = params.value[3];
                     const changeColor = qoqChange.includes('▲') ? '#28a745' : '#dc3545';
                     
                     return `
-                        <div>${day}, ${hour}:00</div>
+                        <div>${dateStr}, ${hour}:00</div>
+                        <div>Plan: ${plan}</div>
                         <div>ER: ${er}%</div>
                         <div>QoQ: <span style="color:${changeColor}">${qoqChange}</span></div>
                     `;
@@ -427,35 +469,61 @@
             },
             yAxis: {
                 type: 'category',
-                data: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                data: Array.from({length: 14}, (_, i) => {
+                    const dayIndex = Math.floor(i / 2);
+                    // Generate dates for the current week (starting from today)
+                    const today = new Date();
+                    const startOfWeek = new Date(today);
+                    startOfWeek.setDate(today.getDate() - today.getDay() + 1); // Monday of current week
+                    
+                    const currentDate = new Date(startOfWeek);
+                    currentDate.setDate(startOfWeek.getDate() + dayIndex);
+                    
+                    const dateStr = currentDate.toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit' 
+                    });
+                    
+                    const plan = i % 2 === 0 ? 'A' : 'B';
+                    return `${dateStr} ${plan}`;
+                }),
                 splitArea: {
                     show: true
-                }
-            },
-            visualMap: {
-                min: 5,
-                max: 20,
-                calculable: true,
-                orient: 'horizontal',
-                left: 'center',
-                bottom: '0%',
-                inRange: {
-                    color: ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127']
+                },
+                axisLabel: {
+                    formatter: function(value) {
+                        return value;
+                    }
                 }
             },
             series: [
                 {
-                    name: 'Plan A',
+                    name: 'Heatmap Data',
                     type: 'heatmap',
-                    data: heatmapPlanAData,
+                    data: heatmapCombinedData,
                     label: {
-                        show: true,
-                        formatter: function(params) {
-                            return params.value[3];
-                        },
-                        fontSize: 8,
+                        show: false
+                    },
+                    itemStyle: {
                         color: function(params) {
-                            return params.value[3].includes('▲') ? '#28a745' : '#dc3545';
+                            const value = params.value[2];
+                            const intensity = Math.min(value / 20, 1);
+                            const isPlanA = params.value[1] % 2 === 0;
+                            
+                            if (isPlanA) {
+                                // Blue color scheme for Plan A
+                                const r = Math.round(224 - intensity * 160);
+                                const g = Math.round(243 - intensity * 110);
+                                const b = Math.round(248 - intensity * 40);
+                                return `rgb(${r}, ${g}, ${b})`;
+                            } else {
+                                // Orange color scheme for Plan B
+                                const r = Math.round(255 - intensity * 50);
+                                const g = Math.round(245 - intensity * 120);
+                                const b = Math.round(235 - intensity * 200);
+                                return `rgb(${r}, ${g}, ${b})`;
+                            }
                         }
                     },
                     emphasis: {
@@ -750,25 +818,8 @@
         boxplotChart.setOption(boxplotOption);
         ganttChart.setOption(ganttOption);
 
-        // Setup heatmap toggle
-        document.querySelectorAll('#heatmapToggle .toggle-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('#heatmapToggle .toggle-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                const plan = this.getAttribute('data-plan');
-                
-                if (plan === 'planA') {
-                    weeklyHeatmapOption.series[0].data = heatmapPlanAData;
-                    weeklyHeatmapOption.series[0].name = 'Plan A';
-                } else {
-                    weeklyHeatmapOption.series[0].data = heatmapPlanBData;
-                    weeklyHeatmapOption.series[0].name = 'Plan B';
-                }
-                
-                weeklyHeatmapChart.setOption(weeklyHeatmapOption);
-            });
-        });
+        // Setup chart toggles
+        setupChartToggle('hourlyEngagementChart', hourlyEngagementChart, hourlyEngagementOption);
 
         // Resize charts when window is resized
         window.addEventListener('resize', function() {

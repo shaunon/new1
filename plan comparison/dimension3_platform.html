@@ -70,17 +70,18 @@
             <!-- Heatmap Calendar -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Weekly Viewing Patterns by Platform</div>
+                    <h3 class="chart-title">Viewing Patterns by Platform</h3>
                     <div class="chart-controls">
-                        <div class="toggle-buttons" id="heatmapToggle">
-                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
-                            <button class="toggle-btn" data-plan="planB">Plan B</button>
+                        <div class="control-group">
+                            <label>Platform:</label>
+                            <div id="platformToggle" class="toggle-group">
+                                <button class="toggle-btn active" data-platform="TikTok">TikTok</button>
+                                <button class="toggle-btn" data-platform="Instagram">Instagram</button>
+                                <button class="toggle-btn" data-platform="YouTube">YouTube</button>
+                                <button class="toggle-btn" data-platform="Facebook">Facebook</button>
+                                <button class="toggle-btn" data-platform="Twitter">Twitter</button>
+                            </div>
                         </div>
-                        <button class="download-btn" onclick="downloadChart('heatmapChart')" title="Download Chart">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                            </svg>
-                        </button>
                     </div>
                 </div>
                 <div id="heatmapChart" class="chart"></div>
@@ -627,12 +628,20 @@
         };
 
         // Heatmap Calendar
-        const generateHeatmapData = (platform, plan, baseValue) => {
+        const generateHeatmapData = (platform, plan, baseValue, planSuffix) => {
             const data = [];
-            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const dates = [];
+            
+            // Generate dates for the last 15 days to fit both plans
+            for (let i = 14; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                dates.push(date.toISOString().split('T')[0]);
+            }
+            
             const hours = Array.from({length: 24}, (_, i) => i);
             
-            days.forEach((day, dayIndex) => {
+            dates.forEach((date, dateIndex) => {
                 hours.forEach((hour) => {
                     // Generate random value with some patterns
                     let value = baseValue;
@@ -643,7 +652,8 @@
                     }
                     
                     // Weekend boost
-                    if (dayIndex >= 5) {
+                    const dayOfWeek = new Date(date).getDay();
+                    if (dayOfWeek === 0 || dayOfWeek === 6) {
                         value += Math.random() * 30 + 20;
                     }
                     
@@ -662,41 +672,71 @@
                         `▼${(Math.random() * 3).toFixed(1)}%` : 
                         `▲${(Math.random() * 8).toFixed(1)}%`;
                     
-                    data.push([hour, dayIndex, Math.round(value), qoqChange]);
+                    // Transpose coordinates: [dateIndex, hour, value, qoqChange, plan]
+                    data.push([dateIndex, hour, Math.round(value), qoqChange, planSuffix]);
                 });
             });
             
-            return data;
+            return { data, dates };
         };
 
-        const heatmapPlanAData = {
-            'TikTok': generateHeatmapData('TikTok', 'Plan A', 100),
-            'Instagram': generateHeatmapData('Instagram', 'Plan A', 80),
-            'YouTube': generateHeatmapData('YouTube', 'Plan A', 60),
-            'Facebook': generateHeatmapData('Facebook', 'Plan A', 40),
-            'Twitter': generateHeatmapData('Twitter', 'Plan A', 30)
+        const generateCombinedHeatmapData = (platform) => {
+            const planAData = generateHeatmapData(platform, 'Plan A', 100, 'A');
+            const planBData = generateHeatmapData(platform, 'Plan B', 90, 'B');
+            
+            // Create combined data with new structure for side-by-side display
+            const combinedData = [];
+            const dates = planAData.dates;
+            
+            // For each date and hour, create two entries (Plan A and Plan B)
+            dates.forEach((date, dateIndex) => {
+                for (let hour = 0; hour < 24; hour++) {
+                    // Find Plan A data for this date/hour
+                    const planAItem = planAData.data.find(item => 
+                        item[0] === dateIndex && item[1] === hour
+                    );
+                    // Find Plan B data for this date/hour
+                    const planBItem = planBData.data.find(item => 
+                        item[0] === dateIndex && item[1] === hour
+                    );
+                    
+                    if (planAItem) {
+                        // Plan A: [dateIndex, hour*2, value, qoqChange]
+                        combinedData.push([dateIndex, hour * 2, planAItem[2], planAItem[3]]);
+                    }
+                    if (planBItem) {
+                        // Plan B: [dateIndex, hour*2+1, value, qoqChange]
+                        combinedData.push([dateIndex, hour * 2 + 1, planBItem[2], planBItem[3]]);
+                    }
+                }
+            });
+            
+            return { data: planAData.data, dates: dates, combinedData: combinedData };
         };
 
-        const heatmapPlanBData = {
-            'TikTok': generateHeatmapData('TikTok', 'Plan B', 90),
-            'Instagram': generateHeatmapData('Instagram', 'Plan B', 75),
-            'YouTube': generateHeatmapData('YouTube', 'Plan B', 55),
-            'Facebook': generateHeatmapData('Facebook', 'Plan B', 35),
-            'Twitter': generateHeatmapData('Twitter', 'Plan B', 25)
+        const heatmapCombinedData = {
+            'TikTok': generateCombinedHeatmapData('TikTok'),
+            'Instagram': generateCombinedHeatmapData('Instagram'),
+            'YouTube': generateCombinedHeatmapData('YouTube'),
+            'Facebook': generateCombinedHeatmapData('Facebook'),
+            'Twitter': generateCombinedHeatmapData('Twitter')
         };
 
         const heatmapOption = {
             tooltip: {
                 position: 'top',
                 formatter: function(params) {
-                    const day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][params.value[1]];
-                    const hour = params.value[0];
+                    const dates = heatmapCombinedData['TikTok'].dates;
+                    const date = dates[params.value[0]];
+                    const hour = Math.floor(params.value[1] / 2);
+                    const plan = params.value[1] % 2 === 0 ? 'Plan A' : 'Plan B';
                     const views = formatNumber(params.value[2]);
                     const qoqChange = params.value[3];
                     const changeColor = qoqChange.includes('▲') ? '#28a745' : '#dc3545';
                     
                     return `
-                        <div>${day}, ${hour}:00</div>
+                        <div>${new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${hour}:00</div>
+                        <div>Plan: ${plan}</div>
                         <div>Views: ${views}</div>
                         <div>QoQ: <span style="color:${changeColor}">${qoqChange}</span></div>
                     `;
@@ -708,45 +748,59 @@
             },
             xAxis: {
                 type: 'category',
-                data: Array.from({length: 24}, (_, i) => i),
+                data: heatmapCombinedData['TikTok'].dates,
                 splitArea: {
                     show: true
                 },
                 axisLabel: {
-                    formatter: '{value}:00'
+                    formatter: function(value) {
+                        return new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    }
                 }
             },
             yAxis: {
                 type: 'category',
-                data: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+                data: Array.from({length: 48}, (_, i) => {
+                    const hour = Math.floor(i / 2);
+                    const plan = i % 2 === 0 ? 'A' : 'B';
+                    return `${hour}:00 ${plan}`;
+                }),
                 splitArea: {
                     show: true
-                }
-            },
-            visualMap: {
-                min: 0,
-                max: 300,
-                calculable: true,
-                orient: 'horizontal',
-                left: 'center',
-                bottom: '0%',
-                inRange: {
-                    color: ['#e0f3f8', '#abd9e9', '#74add1', '#4575b4', '#313695']
+                },
+                axisLabel: {
+                    formatter: function(value) {
+                        return value;
+                    }
                 }
             },
             series: [
                 {
-                    name: 'TikTok - Plan A',
+                    name: 'Heatmap Data',
                     type: 'heatmap',
-                    data: heatmapPlanAData['TikTok'],
+                    data: heatmapCombinedData['TikTok'].combinedData,
                     label: {
-                        show: true,
-                        formatter: function(params) {
-                            return params.value[3];
-                        },
-                        fontSize: 8,
+                        show: false
+                    },
+                    itemStyle: {
                         color: function(params) {
-                            return params.value[3].includes('▲') ? '#28a745' : '#dc3545';
+                            const value = params.value[2];
+                            const intensity = Math.min(value / 300, 1);
+                            const isPlanA = params.value[1] % 2 === 0;
+                            
+                            if (isPlanA) {
+                                // Blue color scheme for Plan A
+                                const r = Math.round(224 - intensity * 160);
+                                const g = Math.round(243 - intensity * 110);
+                                const b = Math.round(248 - intensity * 40);
+                                return `rgb(${r}, ${g}, ${b})`;
+                            } else {
+                                // Orange color scheme for Plan B
+                                const r = Math.round(255 - intensity * 50);
+                                const g = Math.round(245 - intensity * 120);
+                                const b = Math.round(235 - intensity * 200);
+                                return `rgb(${r}, ${g}, ${b})`;
+                            }
                         }
                     },
                     emphasis: {
@@ -770,25 +824,30 @@
         setupChartToggle('platformERChart', platformERChart, platformEROption);
 
         // Setup heatmap toggle
-        document.querySelectorAll('#heatmapToggle .toggle-btn').forEach(btn => {
+        let currentPlatform = 'TikTok';
+
+        // Platform toggle functionality
+        document.querySelectorAll('#platformToggle .toggle-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('#heatmapToggle .toggle-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#platformToggle .toggle-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 
-                const plan = this.getAttribute('data-plan');
-                const currentPlatform = 'TikTok'; // Default platform
-                
-                if (plan === 'planA') {
-                    heatmapOption.series[0].data = heatmapPlanAData[currentPlatform];
-                    heatmapOption.series[0].name = `${currentPlatform} - Plan A`;
-                } else {
-                    heatmapOption.series[0].data = heatmapPlanBData[currentPlatform];
-                    heatmapOption.series[0].name = `${currentPlatform} - Plan B`;
-                }
-                
-                heatmapChart.setOption(heatmapOption);
+                currentPlatform = this.getAttribute('data-platform');
+                updateHeatmapChart();
             });
         });
+
+        // Function to update heatmap chart
+        function updateHeatmapChart() {
+            const platformData = heatmapCombinedData[currentPlatform];
+            
+            // Update the single series with combined data
+            heatmapOption.series[0].data = platformData.combinedData;
+            heatmapOption.series[0].name = `${currentPlatform} Heatmap`;
+            heatmapOption.xAxis.data = platformData.dates;
+            
+            heatmapChart.setOption(heatmapOption);
+        }
 
         // Resize charts when window is resized
         window.addEventListener('resize', function() {
