@@ -6,22 +6,171 @@
     <title>Content Type Sentiment Analysis</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
             padding: 20px;
             background-color: #f5f5f5;
         }
+        
         h1, h2, h3 {
             color: #333;
         }
+
+        .chart-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            gap: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .data-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+            min-width: 280px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-card.positive {
+            border-left-color: #28a745;
+        }
+
+        .data-card.negative {
+            border-left-color: #dc3545;
+        }
+
+        .data-card.neutral {
+            border-left-color: #6c757d;
+        }
+
+        .data-card.rate {
+            border-left-color: #ffc107;
+        }
+
+        .data-card.views {
+            border-left-color: #17a2b8;
+        }
+
+        .data-card-header {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .metric-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .metric-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .metric-change {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+
+        .change-positive {
+            color: #28a745;
+            background-color: #d4edda;
+        }
+
+        .change-negative {
+            color: #dc3545;
+            background-color: #f8d7da;
+        }
+
+        .download-icon {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .download-icon:hover {
+            color: #007bff;
+            background-color: #f8f9fa;
+        }
+
         .chart-container {
+            flex: 1;
             height: 400px;
-            background-color: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .chart-download {
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 16px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .chart-download:hover {
+            color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        .chart {
+            width: 100%;
+            height: 100%;
         }
         .radar-container {
             height: 500px;
@@ -160,17 +309,183 @@
     </style>
 </head>
 <body>
-    <div class="chart-container" id="interactionChart"></div>
-    <div class="chart-container" id="interactionRateChart"></div>
-    <div class="chart-container" id="viewsChart"></div>
-    <div class="chart-container" id="postCountChart"></div>
-    <div class="radar-container" id="emotionRadarChart"></div>
+    <!-- Chart 1: Interaction Volume by Sentiment -->
+    <div class="chart-section">
+        <div class="data-card positive">
+            <div class="data-card-header">
+                Sentiment Analysis Overview
+                <span class="download-icon" onclick="downloadData('sentiment-overview')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Positive Sentiment</div>
+                    <div class="metric-value">45.2%</div>
+                </div>
+                <div class="metric-change change-positive">↑ 3.1%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Negative Sentiment</div>
+                    <div class="metric-value">28.7%</div>
+                </div>
+                <div class="metric-change change-negative">↓ 1.8%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Neutral Sentiment</div>
+                    <div class="metric-value">26.1%</div>
+                </div>
+                <div class="metric-change change-negative">↓ 1.3%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Interaction Volume by Content Type and Sentiment</div>
+                <span class="chart-download" onclick="downloadChart('interactionChart')" title="Download Chart">📊</span>
+            </div>
+            <div id="interactionChart" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 2: Interaction Rate by Sentiment -->
+    <div class="chart-section">
+        <div class="data-card rate">
+            <div class="data-card-header">
+                Engagement Rate Analysis
+                <span class="download-icon" onclick="downloadData('engagement-rate')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Avg Engagement Rate</div>
+                    <div class="metric-value">6.8%</div>
+                </div>
+                <div class="metric-change change-positive">↑ 0.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Best Performing</div>
+                    <div class="metric-value">Positive</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.3%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Interaction Rate by Content Type and Sentiment</div>
+                <span class="chart-download" onclick="downloadChart('interactionRateChart')" title="Download Chart">📊</span>
+            </div>
+            <div id="interactionRateChart" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 3: Views by Sentiment -->
+    <div class="chart-section">
+        <div class="data-card views">
+            <div class="data-card-header">
+                Views Analysis
+                <span class="download-icon" onclick="downloadData('views-analysis')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Views</div>
+                    <div class="metric-value">45.2M</div>
+                </div>
+                <div class="metric-change change-positive">↑ 15.7%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Top Sentiment</div>
+                    <div class="metric-value">Positive</div>
+                </div>
+                <div class="metric-change change-positive">↑ 8.9%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Views by Content Type and Sentiment</div>
+                <span class="chart-download" onclick="downloadChart('viewsChart')" title="Download Chart">📊</span>
+            </div>
+            <div id="viewsChart" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Chart 4: Post Count by Sentiment -->
+    <div class="chart-section">
+        <div class="data-card neutral">
+            <div class="data-card-header">
+                Content Volume Analysis
+                <span class="download-icon" onclick="downloadData('content-volume')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Total Posts</div>
+                    <div class="metric-value">77.0K</div>
+                </div>
+                <div class="metric-change change-positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Most Active Type</div>
+                    <div class="metric-value">Entertainment</div>
+                </div>
+                <div class="metric-change change-positive">↑ 5.2%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Post Count by Content Type and Sentiment</div>
+                <span class="chart-download" onclick="downloadChart('postCountChart')" title="Download Chart">📊</span>
+            </div>
+            <div id="postCountChart" class="chart"></div>
+        </div>
+    </div>
+
+    <!-- Emotion Radar Chart -->
+    <div class="chart-section">
+        <div class="data-card">
+            <div class="data-card-header">
+                Emotion Distribution
+                <span class="download-icon" onclick="downloadData('emotion-distribution')" title="Download Data">📥</span>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Dominant Emotion</div>
+                    <div class="metric-value">Joy</div>
+                </div>
+                <div class="metric-change change-positive">↑ 7.3%</div>
+            </div>
+            <div class="metric-row">
+                <div class="metric-info">
+                    <div class="metric-label">Secondary Emotion</div>
+                    <div class="metric-value">Pleasure</div>
+                </div>
+                <div class="metric-change change-positive">↑ 2.1%</div>
+            </div>
+        </div>
+        <div class="chart-container">
+            <div class="chart-header">
+                <div class="chart-title">Emotion Distribution by Content Type</div>
+                <span class="chart-download" onclick="downloadChart('emotionRadarChart')" title="Download Chart">📊</span>
+            </div>
+            <div id="emotionRadarChart" class="chart"></div>
+        </div>
+    </div>
     
     <div class="table-container">
         <table id="metricsTable"></table>
     </div>
 
     <script>
+        // Download functions
+        function downloadData(type) {
+            console.log('Downloading data for:', type);
+            // Implementation for data download
+        }
+
+        function downloadChart(chartId) {
+            console.log('Downloading chart:', chartId);
+            // Implementation for chart download
+        }
         // Define video duration categories
         const durationCategories = ['Entertainment', 'Education', 'Lifestyle', 'Technology', 'Fashion', 'Food', 'Travel', 'Sports', 'Music', 'Gaming'];
         
