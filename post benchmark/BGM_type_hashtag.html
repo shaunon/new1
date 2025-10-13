@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BGM Type Analysis - Hashtag Dimension</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,127 +14,108 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
             padding: 20px;
         }
 
-        .chart-section {
-            display: flex;
-            align-items: center;
-            margin-bottom: 40px;
-            gap: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .data-card {
+        .summary-section {
             background: #f8f9fa;
+            border: 1px solid #e9ecef;
             border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-item {
+            background: white;
             padding: 20px;
-            border-left: 4px solid #ff6b6b;
-            min-width: 280px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            transition: transform 0.2s ease;
         }
 
-        .data-card.engagement {
-            border-left-color: #28a745;
+        .summary-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .data-card.trending {
-            border-left-color: #ffc107;
-        }
-
-        .data-card.viral {
-            border-left-color: #dc3545;
-        }
-
-        .data-card-header {
-            font-size: 14px;
+        .summary-label {
+            font-size: 13px;
             color: #6c757d;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .download-icon {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            transition: color 0.2s ease;
-        }
-
-        .download-icon:hover {
-            color: #ff6b6b;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .metric-row:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-
-        .metric-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: #6c757d;
-            margin-bottom: 2px;
+            margin-bottom: 8px;
             font-weight: 500;
         }
 
-        .metric-value {
-            font-size: 20px;
+        .summary-value {
+            font-size: 24px;
             font-weight: bold;
-            color: #212529;
+            color: #2c3e50;
+            margin-bottom: 8px;
         }
 
-        .hashtag-tag {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 2px 8px;
+        .summary-change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+
+        .page-header {
+            background: white;
             border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
         }
 
-        .metric-change {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
         }
 
-        .change-positive {
-            color: #28a745;
-            background-color: #d4edda;
+        .page-subtitle {
+            font-size: 16px;
+            color: #6c757d;
         }
 
-        .change-negative {
-            color: #dc3545;
-            background-color: #f8d7da;
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
         }
 
         .chart-container {
-            flex: 1;
-            height: 400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
             position: relative;
         }
 
@@ -141,57 +123,79 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .chart-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             color: #2c3e50;
         }
 
-        .chart-download {
+        .download-btn {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            background: #f8f9fa;
+            border-radius: 6px;
             cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            padding: 5px;
-            border-radius: 4px;
+            font-size: 12px;
+            color: #495057;
             transition: all 0.2s ease;
         }
 
-        .chart-download:hover {
-            color: #ff6b6b;
-            background-color: #f8f9fa;
+        .download-btn:hover {
+            background: #e9ecef;
+            color: #343a40;
         }
 
         .chart {
             width: 100%;
-            height: 100%;
+            height: 450px;
+        }
+
+        .network-chart {
+            height: 550px;
+        }
+
+        .data-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table-container {
+            overflow-x: auto;
         }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            font-size: 13px;
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .table-header {
-            background: white;
-            padding: 20px;
+        .data-table th,
+        .data-table td {
+            padding: 12px 10px;
+            text-align: center;
             border-bottom: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
         }
 
         .data-table th {
@@ -203,409 +207,699 @@
             z-index: 10;
             border: 1px solid #dee2e6;
             vertical-align: middle;
-            padding: 15px 12px;
+        }
+
+        .bgm-header {
+            background: #e3f2fd !important;
+            color: #1976d2 !important;
+            font-weight: 700;
+            min-width: 120px;
+        }
+
+        .hashtag-header {
+            background: #e8f5e8 !important;
+            color: #2e7d32 !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .metric-header {
+            background: #f3e5f5 !important;
+            color: #7b1fa2 !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .metric-group-header {
+            background: #e8f5e8 !important;
+            color: #2e7d32 !important;
+            font-weight: 700;
             text-align: center;
         }
 
-        .data-table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-            background: white;
-        }
-
-        .data-table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
+        .mom-header {
+            background: #fff3e0 !important;
+            color: #f57c00 !important;
+            font-weight: 600;
+            min-width: 90px;
         }
 
         .data-table tbody tr:hover {
-            background-color: #edf2f7;
+            background: #f8f9fa;
         }
 
-        .hashtag-cell {
-            text-align: left !important;
+        .mom-value {
             font-weight: 600;
-            color: #1976d2;
+        }
+
+        .mom-value.positive {
+            color: #28a745;
+        }
+
+        .mom-value.negative {
+            color: #dc3545;
         }
 
         @media (max-width: 768px) {
-            .chart-section {
-                flex-direction: column;
-                align-items: stretch;
+            .chart {
+                height: 350px;
             }
-
-            .data-card {
-                min-width: auto;
-                margin-bottom: 20px;
+            
+            .network-chart {
+                height: 450px;
             }
-
-            .metric-row {
+            
+            .chart-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 8px;
+                gap: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Chart 1: Top Hashtags by BGM Type -->
-    <div class="chart-section">
-        <div class="data-card">
-            <div class="data-card-header">
-                Top Hashtag Metrics
-                <span class="download-icon" onclick="downloadData('top-hashtags')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">#music Posts</div>
-                    <div class="metric-value">1.2M</div>
+    <div class="dashboard-container">
+        <!-- Data Summary Section -->
+        <div class="summary-section">
+            <div class="summary-title">BGM Type Analysis - Hashtag Dimension Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Total Hashtags</div>
+                    <div class="summary-value">2,847</div>
+                    <div class="summary-change positive">+156 MoM</div>
                 </div>
-                <div class="metric-change change-positive">↑ 18.4%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">#dance Posts</div>
-                    <div class="metric-value">890K</div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Post Count</div>
+                    <div class="summary-value">125.8M</div>
+                    <div class="summary-change positive">+12.3% MoM</div>
                 </div>
-                <div class="metric-change change-positive">↑ 12.3%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">#trending Posts</div>
-                    <div class="metric-value">654K</div>
+                <div class="summary-item">
+                    <div class="summary-label">Top Hashtag</div>
+                    <div class="summary-value">#music</div>
+                    <div class="summary-change positive">+19.4% MoM</div>
                 </div>
-                <div class="metric-change change-positive">↑ 8.7%</div>
+                <div class="summary-item">
+                    <div class="summary-label">Most Interactive Tag</div>
+                    <div class="summary-value">#viral</div>
+                    <div class="summary-change positive">+25.8% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Fastest Growing Tag</div>
+                    <div class="summary-value">#trending</div>
+                    <div class="summary-change positive">+42.1% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Average Tags per Post</div>
+                    <div class="summary-value">3.2</div>
+                    <div class="summary-change positive">+0.3 MoM</div>
+                </div>
             </div>
         </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">BGM Type Distribution by Top Hashtags</div>
-                <span class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart1" class="chart"></div>
-        </div>
-    </div>
 
-    <!-- Chart 2: Hashtag Engagement by BGM Type -->
-    <div class="chart-section">
-        <div class="data-card engagement">
-            <div class="data-card-header">
-                Hashtag Engagement
-                <span class="download-icon" onclick="downloadData('hashtag-engagement')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Avg Engagement</div>
-                    <div class="metric-value">5.8%</div>
-                </div>
-                <div class="metric-change change-positive">↑ 1.2%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Top Performer</div>
-                    <div class="metric-value">#viral</div>
-                </div>
-                <div class="metric-change change-positive">↑ 24.5%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Hashtags</div>
-                    <div class="metric-value">2,847</div>
-                </div>
-                <div class="metric-change change-positive">↑ 15.3%</div>
-            </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">Hashtag Engagement Rate by BGM Type</div>
-                <span class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart2" class="chart"></div>
-        </div>
-    </div>
 
-    <!-- Chart 3: Trending Hashtags Analysis -->
-    <div class="chart-section">
-        <div class="data-card trending">
-            <div class="data-card-header">
-                Trending Analysis
-                <span class="download-icon" onclick="downloadData('trending-hashtags')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Rising Star</div>
-                    <div class="metric-value">#remix</div>
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Word Cloud with BGM Type Categories -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">BGM Type Hashtag Word Cloud - Top 20 Popular Tags</div>
+                    <button class="download-btn" onclick="downloadChart('networkChart')" title="Download Chart">
+                        📥 Download
+                    </button>
                 </div>
-                <div class="metric-change change-positive">↑ 156%</div>
+                <div id="networkChart" class="chart network-chart"></div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Stable Trend</div>
-                    <div class="metric-value">#beats</div>
-                </div>
-                <div class="metric-change change-positive">↑ 8.4%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Declining</div>
-                    <div class="metric-value">#oldschool</div>
-                </div>
-                <div class="metric-change change-negative">↓ 12.7%</div>
-            </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">Trending Hashtags Growth (Last 30 Days)</div>
-                <span class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart3" class="chart"></div>
-        </div>
-    </div>
 
-    <!-- Data Table -->
-    <div class="table-header">
-        <div class="table-title">Detailed Hashtag Analysis by BGM Type</div>
-        <span class="download-icon" onclick="downloadTableData()" title="Download Table Data">📥</span>
+            <!-- Dual-Axis Bar+Line Chart with MoM Line -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Hashtag Performance with Average Interaction Rate MoM</div>
+                    <button class="download-btn" onclick="downloadChart('dualAxisChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="dualAxisChart" class="chart"></div>
+            </div>
+
+            <!-- Enhanced Heatmap with MoM Tooltips -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">BGM-Hashtag Heatmap with Post Count MoM</div>
+                    <button class="download-btn" onclick="downloadChart('heatmapChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="heatmapChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">Hashtag Analysis Data</div>
+                <button class="download-btn" onclick="downloadTableData()" title="Download Table Data">
+                    📥 Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="bgm-header">BGM Type</th>
+                            <th rowspan="2" class="hashtag-header">Hashtag</th>
+                            <th colspan="2" class="metric-group-header">Post</th>
+                            <th colspan="2" class="metric-group-header">Interaction</th>
+                            <th colspan="2" class="metric-group-header">Rate</th>
+                        </tr>
+                        <tr>
+                            <th class="metric-header">Count</th>
+                            <th class="mom-header">MoM (%)</th>
+                            <th class="metric-header">Count</th>
+                            <th class="mom-header">MoM (%)</th>
+                            <th class="metric-header">Rate</th>
+                            <th class="mom-header">MoM (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Pop Music</strong></td>
+                            <td><strong>#viral</strong></td>
+                            <td>234,567,890</td>
+                            <td><span class="mom-value positive">+22.3%</span></td>
+                            <td>23,456,789</td>
+                            <td><span class="mom-value positive">+25.7%</span></td>
+                            <td>10.0%</td>
+                            <td><span class="mom-value positive">+2.8%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pop Music</strong></td>
+                            <td><strong>#trending</strong></td>
+                            <td>198,765,432</td>
+                            <td><span class="mom-value positive">+19.8%</span></td>
+                            <td>19,876,543</td>
+                            <td><span class="mom-value positive">+23.1%</span></td>
+                            <td>10.0%</td>
+                            <td><span class="mom-value positive">+2.7%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hip Hop</strong></td>
+                            <td><strong>#hiphop</strong></td>
+                            <td>345,678,901</td>
+                            <td><span class="mom-value positive">+28.9%</span></td>
+                            <td>41,481,468</td>
+                            <td><span class="mom-value positive">+32.4%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+2.7%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hip Hop</strong></td>
+                            <td><strong>#rap</strong></td>
+                            <td>267,890,123</td>
+                            <td><span class="mom-value positive">+23.5%</span></td>
+                            <td>32,146,815</td>
+                            <td><span class="mom-value positive">+27.8%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+3.5%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Electronic</strong></td>
+                            <td><strong>#edm</strong></td>
+                            <td>156,789,012</td>
+                            <td><span class="mom-value positive">+16.4%</span></td>
+                            <td>18,814,681</td>
+                            <td><span class="mom-value positive">+19.9%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+3.0%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Electronic</strong></td>
+                            <td><strong>#techno</strong></td>
+                            <td>123,456,789</td>
+                            <td><span class="mom-value positive">+13.7%</span></td>
+                            <td>14,814,815</td>
+                            <td><span class="mom-value positive">+17.2%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+2.5%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Hashtag</th>
-                <th>Primary BGM Type</th>
-                <th>Posts Count</th>
-                <th>Total Views</th>
-                <th>Engagement Rate</th>
-                <th>Growth Rate</th>
-            </tr>
-        </thead>
-        <tbody id="dataTableBody">
-        </tbody>
-    </table>
 
     <script>
         // Sample data for hashtag analysis
         const hashtagData = {
-            hashtags: ['#music', '#dance', '#chill', '#viral', '#beats', '#remix', '#trending', '#fyp', '#sound', '#audio'],
-            primaryBGM: ['Pop', 'Electronic', 'Instrumental', 'Hip-Hop', 'Electronic', 'Pop', 'Pop', 'Hip-Hop', 'Instrumental', 'Electronic'],
-            posts: [1200000, 890000, 654000, 567000, 445000, 389000, 334000, 298000, 267000, 234000],
-            views: [420000000, 298000000, 187000000, 234000000, 156000000, 178000000, 145000000, 189000000, 123000000, 98000000],
-            engagementRate: [6.2, 7.8, 4.9, 9.1, 5.4, 8.3, 6.7, 7.2, 4.1, 5.8],
-            growthRate: [12.4, 18.7, -2.3, 156.2, 8.4, 156.0, 23.1, 45.6, -5.2, 67.8]
+            // Word cloud data for different BGM types
+            wordCloudData: [
+                // Pop Music hashtags
+                { name: '#viral', value: 15234, category: 'Pop Music', mom: 18.5 },
+                { name: '#trending', value: 12876, category: 'Pop Music', mom: 15.2 },
+                { name: '#popmusic', value: 11500, category: 'Pop Music', mom: 14.8 },
+                { name: '#dance', value: 10200, category: 'Pop Music', mom: 12.3 },
+                { name: '#love', value: 9800, category: 'Pop Music', mom: 11.7 },
+                { name: '#party', value: 9200, category: 'Pop Music', mom: 10.5 },
+                { name: '#summer', value: 8700, category: 'Pop Music', mom: 9.8 },
+                { name: '#fun', value: 8300, category: 'Pop Music', mom: 9.2 },
+                { name: '#music', value: 7900, category: 'Pop Music', mom: 8.7 },
+                { name: '#happy', value: 7500, category: 'Pop Music', mom: 8.1 },
+                { name: '#vibes', value: 7100, category: 'Pop Music', mom: 7.6 },
+                { name: '#mood', value: 6800, category: 'Pop Music', mom: 7.2 },
+                { name: '#energy', value: 6400, category: 'Pop Music', mom: 6.8 },
+                { name: '#beat', value: 6000, category: 'Pop Music', mom: 6.3 },
+                { name: '#rhythm', value: 5700, category: 'Pop Music', mom: 5.9 },
+                { name: '#melody', value: 5400, category: 'Pop Music', mom: 5.5 },
+                { name: '#catchy', value: 5100, category: 'Pop Music', mom: 5.1 },
+                { name: '#upbeat', value: 4800, category: 'Pop Music', mom: 4.7 },
+                { name: '#fresh', value: 4500, category: 'Pop Music', mom: 4.3 },
+                { name: '#cool', value: 4200, category: 'Pop Music', mom: 3.9 },
+
+                // Hip Hop hashtags
+                { name: '#hiphop', value: 18567, category: 'Hip Hop', mom: 24.6 },
+                { name: '#rap', value: 14321, category: 'Hip Hop', mom: 19.7 },
+                { name: '#trap', value: 13200, category: 'Hip Hop', mom: 18.3 },
+                { name: '#beats', value: 12100, category: 'Hip Hop', mom: 17.1 },
+                { name: '#freestyle', value: 11300, category: 'Hip Hop', mom: 16.2 },
+                { name: '#urban', value: 10800, category: 'Hip Hop', mom: 15.5 },
+                { name: '#street', value: 10200, category: 'Hip Hop', mom: 14.8 },
+                { name: '#flow', value: 9700, category: 'Hip Hop', mom: 14.1 },
+                { name: '#bars', value: 9200, category: 'Hip Hop', mom: 13.4 },
+                { name: '#culture', value: 8800, category: 'Hip Hop', mom: 12.8 },
+                { name: '#underground', value: 8400, category: 'Hip Hop', mom: 12.2 },
+                { name: '#real', value: 8000, category: 'Hip Hop', mom: 11.6 },
+                { name: '#raw', value: 7600, category: 'Hip Hop', mom: 11.0 },
+                { name: '#authentic', value: 7200, category: 'Hip Hop', mom: 10.4 },
+                { name: '#lyrical', value: 6900, category: 'Hip Hop', mom: 9.9 },
+                { name: '#conscious', value: 6500, category: 'Hip Hop', mom: 9.3 },
+                { name: '#oldschool', value: 6200, category: 'Hip Hop', mom: 8.8 },
+                { name: '#newschool', value: 5900, category: 'Hip Hop', mom: 8.3 },
+                { name: '#boom', value: 5600, category: 'Hip Hop', mom: 7.8 },
+                { name: '#bap', value: 5300, category: 'Hip Hop', mom: 7.3 },
+
+                // Electronic hashtags
+                { name: '#edm', value: 9876, category: 'Electronic', mom: 12.8 },
+                { name: '#techno', value: 7543, category: 'Electronic', mom: 9.3 },
+                { name: '#house', value: 7200, category: 'Electronic', mom: 8.9 },
+                { name: '#electronic', value: 6800, category: 'Electronic', mom: 8.4 },
+                { name: '#dubstep', value: 6400, category: 'Electronic', mom: 7.9 },
+                { name: '#trance', value: 6000, category: 'Electronic', mom: 7.4 },
+                { name: '#progressive', value: 5700, category: 'Electronic', mom: 7.0 },
+                { name: '#ambient', value: 5400, category: 'Electronic', mom: 6.6 },
+                { name: '#synth', value: 5100, category: 'Electronic', mom: 6.2 },
+                { name: '#bass', value: 4800, category: 'Electronic', mom: 5.8 },
+                { name: '#drop', value: 4500, category: 'Electronic', mom: 5.4 },
+                { name: '#festival', value: 4200, category: 'Electronic', mom: 5.0 },
+                { name: '#rave', value: 3900, category: 'Electronic', mom: 4.6 },
+                { name: '#club', value: 3600, category: 'Electronic', mom: 4.2 },
+                { name: '#dj', value: 3400, category: 'Electronic', mom: 3.9 },
+                { name: '#remix', value: 3200, category: 'Electronic', mom: 3.6 },
+                { name: '#mix', value: 3000, category: 'Electronic', mom: 3.3 },
+                { name: '#digital', value: 2800, category: 'Electronic', mom: 3.0 },
+                { name: '#futuristic', value: 2600, category: 'Electronic', mom: 2.7 },
+                { name: '#cyber', value: 2400, category: 'Electronic', mom: 2.4 },
+
+                // Rock hashtags
+                { name: '#rock', value: 8900, category: 'Rock', mom: 11.2 },
+                { name: '#guitar', value: 7800, category: 'Rock', mom: 9.8 },
+                { name: '#metal', value: 6700, category: 'Rock', mom: 8.5 },
+                { name: '#alternative', value: 5600, category: 'Rock', mom: 7.1 },
+                { name: '#indie', value: 5200, category: 'Rock', mom: 6.6 },
+                { name: '#punk', value: 4800, category: 'Rock', mom: 6.1 },
+                { name: '#grunge', value: 4400, category: 'Rock', mom: 5.6 },
+                { name: '#classic', value: 4000, category: 'Rock', mom: 5.1 },
+                { name: '#hard', value: 3600, category: 'Rock', mom: 4.6 },
+                { name: '#heavy', value: 3200, category: 'Rock', mom: 4.1 },
+
+                // Classical hashtags
+                { name: '#classical', value: 5400, category: 'Classical', mom: 6.8 },
+                { name: '#orchestra', value: 4200, category: 'Classical', mom: 5.3 },
+                { name: '#symphony', value: 3800, category: 'Classical', mom: 4.8 },
+                { name: '#piano', value: 3400, category: 'Classical', mom: 4.3 },
+                { name: '#violin', value: 3000, category: 'Classical', mom: 3.8 },
+                { name: '#baroque', value: 2600, category: 'Classical', mom: 3.3 },
+                { name: '#romantic', value: 2200, category: 'Classical', mom: 2.8 },
+                { name: '#chamber', value: 1800, category: 'Classical', mom: 2.3 },
+                { name: '#concerto', value: 1400, category: 'Classical', mom: 1.8 },
+                { name: '#sonata', value: 1000, category: 'Classical', mom: 1.3 },
+
+                // Jazz hashtags
+                { name: '#jazz', value: 4600, category: 'Jazz', mom: 5.8 },
+                { name: '#blues', value: 3800, category: 'Jazz', mom: 4.8 },
+                { name: '#swing', value: 3200, category: 'Jazz', mom: 4.1 },
+                { name: '#bebop', value: 2600, category: 'Jazz', mom: 3.3 },
+                { name: '#smooth', value: 2200, category: 'Jazz', mom: 2.8 },
+                { name: '#fusion', value: 1800, category: 'Jazz', mom: 2.3 },
+                { name: '#saxophone', value: 1400, category: 'Jazz', mom: 1.8 },
+                { name: '#trumpet', value: 1000, category: 'Jazz', mom: 1.3 },
+                { name: '#improvisation', value: 800, category: 'Jazz', mom: 1.0 },
+                { name: '#standards', value: 600, category: 'Jazz', mom: 0.8 },
+
+                // Country hashtags
+                { name: '#country', value: 6200, category: 'Country', mom: 7.8 },
+                { name: '#folk', value: 4800, category: 'Country', mom: 6.1 },
+                { name: '#bluegrass', value: 3600, category: 'Country', mom: 4.6 },
+                { name: '#acoustic', value: 3200, category: 'Country', mom: 4.1 },
+                { name: '#nashville', value: 2800, category: 'Country', mom: 3.6 },
+                { name: '#western', value: 2400, category: 'Country', mom: 3.1 },
+                { name: '#banjo', value: 2000, category: 'Country', mom: 2.6 },
+                { name: '#fiddle', value: 1600, category: 'Country', mom: 2.1 },
+                { name: '#honkytonk', value: 1200, category: 'Country', mom: 1.6 },
+                { name: '#americana', value: 800, category: 'Country', mom: 1.1 },
+
+                // R&B hashtags
+                { name: '#rnb', value: 7400, category: 'R&B', mom: 9.3 },
+                { name: '#soul', value: 5800, category: 'R&B', mom: 7.3 },
+                { name: '#funk', value: 4600, category: 'R&B', mom: 5.8 },
+                { name: '#groove', value: 3800, category: 'R&B', mom: 4.8 },
+                { name: '#smooth', value: 3200, category: 'R&B', mom: 4.1 },
+                { name: '#vocals', value: 2800, category: 'R&B', mom: 3.6 },
+                { name: '#neo', value: 2400, category: 'R&B', mom: 3.1 },
+                { name: '#contemporary', value: 2000, category: 'R&B', mom: 2.6 },
+                { name: '#urban', value: 1600, category: 'R&B', mom: 2.1 },
+                { name: '#soulful', value: 1200, category: 'R&B', mom: 1.6 }
+            ],
+            dualAxisData: {
+                bgmTypes: ['Pop Music', 'Hip Hop', 'Electronic', 'Rock', 'Classical', 'Jazz', 'Country', 'R&B'],
+                hashtags: ['#viral', '#trending', '#hiphop', '#rap', '#edm', '#techno'],
+                popMusic: {
+                    interactionRate: [10.0, 10.0, 8.5, 7.2, 6.8, 6.5],
+                    interactionRateMoM: [2.8, 2.7, 1.5, 1.2, 1.0, 0.8]
+                },
+                hipHop: {
+                    interactionRate: [8.2, 9.1, 12.0, 12.0, 7.5, 6.8],
+                    interactionRateMoM: [1.8, 2.1, 2.7, 3.5, 1.3, 1.1]
+                },
+                electronic: {
+                    interactionRate: [7.5, 8.0, 9.2, 8.8, 12.0, 12.0],
+                    interactionRateMoM: [1.5, 1.8, 2.1, 2.0, 3.0, 2.5]
+                },
+                rock: {
+                    interactionRate: [9.5, 8.8, 7.2, 8.5, 6.2, 5.8],
+                    interactionRateMoM: [2.2, 1.9, 1.4, 1.7, 1.0, 0.9]
+                },
+                classical: {
+                    interactionRate: [6.2, 5.8, 4.5, 4.2, 7.8, 6.5],
+                    interactionRateMoM: [1.1, 0.9, 0.7, 0.6, 1.4, 1.2]
+                },
+                jazz: {
+                    interactionRate: [7.8, 7.2, 6.5, 6.8, 8.2, 7.5],
+                    interactionRateMoM: [1.6, 1.4, 1.2, 1.3, 1.7, 1.5]
+                },
+                country: {
+                    interactionRate: [8.5, 9.2, 6.8, 7.5, 5.2, 4.8],
+                    interactionRateMoM: [1.9, 2.1, 1.3, 1.5, 0.8, 0.7]
+                },
+                rnb: {
+                    interactionRate: [9.8, 9.5, 8.2, 9.1, 7.8, 8.5],
+                    interactionRateMoM: [2.5, 2.3, 1.8, 2.1, 1.6, 1.9]
+                }
+            },
+            heatmapData: {
+                bgmTypes: ['Pop Music', 'Hip Hop', 'Electronic', 'Rock', 'Classical'],
+                hashtags: ['#viral', '#trending', '#hiphop', '#rap', '#edm', '#techno'],
+                values: [
+                    [0, 0, 234567890, 18.5], [0, 1, 198765432, 15.2], [0, 2, 0, 0], [0, 3, 0, 0], [0, 4, 0, 0], [0, 5, 0, 0],
+                    [1, 0, 156789012, 12.3], [1, 1, 0, 0], [1, 2, 345678901, 24.6], [1, 3, 267890123, 19.7], [1, 4, 0, 0], [1, 5, 0, 0],
+                    [2, 0, 123456789, 8.7], [2, 1, 0, 0], [2, 2, 0, 0], [2, 3, 0, 0], [2, 4, 156789012, 12.8], [2, 5, 123456789, 9.3],
+                    [3, 0, 89012345, 6.2], [3, 1, 67890123, 4.8], [3, 2, 0, 0], [3, 3, 45678901, 3.1], [3, 4, 0, 0], [3, 5, 0, 0],
+                    [4, 0, 34567890, 2.9], [4, 1, 23456789, 1.8], [4, 2, 0, 0], [4, 3, 0, 0], [4, 4, 12345678, 1.2], [4, 5, 0, 0]
+                ]
+            }
         };
 
-        // Chart 1: Top Hashtags Distribution
-        const chart1 = echarts.init(document.getElementById('chart1'));
-        const option1 = {
+        // Initialize charts
+        const wordCloudChart = echarts.init(document.getElementById('networkChart'));
+        const dualAxisChart = echarts.init(document.getElementById('dualAxisChart'));
+        const heatmapChart = echarts.init(document.getElementById('heatmapChart'));
+
+        // Word Cloud with BGM Type Categories
+        const wordCloudOption = {
+            tooltip: {
+                formatter: function(params) {
+                    return `${params.data.name}<br/>
+                            BGM Type: ${params.data.category}<br/>
+                            Value: ${params.data.value.toLocaleString()}<br/>
+                            <span style="color: ${params.data.mom > 0 ? '#28a745' : '#dc3545'}">MoM Growth: ${params.data.mom > 0 ? '+' : ''}${params.data.mom}%</span>`;
+                }
+            },
+            series: [{
+                type: 'wordCloud',
+                gridSize: 6,
+                sizeRange: [12, 60],
+                rotationRange: [-90, 90],
+                rotationStep: 45,
+                width: '95%',
+                height: '95%',
+                left: 'center',
+                top: 'center',
+                right: null,
+                bottom: null,
+                drawOutOfBound: false,
+                layoutAnimation: true,
+                textStyle: {
+                    fontFamily: 'Arial, sans-serif',
+                    fontWeight: 'bold',
+                    color: function(params) {
+                        // Different colors for different BGM types
+                        const colorMap = {
+                            'Pop Music': '#1976d2',      // Blue
+                            'Hip Hop': '#d32f2f',        // Red
+                            'Electronic': '#388e3c',     // Green
+                            'Rock': '#ff5722',           // Deep Orange
+                            'Classical': '#9c27b0',      // Purple
+                            'Jazz': '#ff9800',           // Orange
+                            'Country': '#795548',        // Brown
+                            'R&B': '#e91e63'             // Pink
+                        };
+                        return colorMap[params.data.category] || '#666';
+                    }
+                },
+                emphasis: {
+                    focus: 'self',
+                    textStyle: {
+                        shadowBlur: 10,
+                        shadowColor: '#333'
+                    }
+                },
+                data: hashtagData.wordCloudData
+            }]
+        };
+
+        // Dual-Axis Bar+Line Chart with MoM Line
+        const dualAxisOption = {
             tooltip: {
                 trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
+                axisPointer: { type: 'cross' },
+                formatter: function(params) {
+                    let result = params[0].axisValueLabel + '<br/>';
+                    params.forEach(function(item) {
+                        const bgmType = item.seriesName.replace(' - Interaction Rate', '').replace(' - MoM', '');
+                        const value = item.seriesName.includes('MoM') ? item.value + '%' : item.value + '%';
+                        result += `<span style="color:${item.color}">●</span> ${item.seriesName}: ${value}<br/>`;
+                    });
+                    return result;
                 }
             },
             legend: {
-                data: ['Pop', 'Electronic', 'Instrumental', 'Hip-Hop']
+                data: ['Pop Music - Interaction Rate', 'Pop Music - MoM', 'Hip Hop - Interaction Rate', 'Hip Hop - MoM', 
+                       'Electronic - Interaction Rate', 'Electronic - MoM', 'Rock - Interaction Rate', 'Rock - MoM'],
+                type: 'scroll',
+                orient: 'horizontal',
+                top: 10
             },
             grid: {
                 left: '3%',
                 right: '4%',
                 bottom: '3%',
+                top: '15%',
                 containLabel: true
             },
             xAxis: {
-                type: 'value'
-            },
-            yAxis: {
                 type: 'category',
-                data: hashtagData.hashtags.slice(0, 8)
+                data: hashtagData.dualAxisData.hashtags
             },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Interaction Rate (%)',
+                    position: 'left',
+                    axisLabel: { formatter: '{value}%' }
+                }
+            ],
             series: [
                 {
-                    name: 'Posts (K)',
-                    type: 'bar',
-                    data: hashtagData.posts.slice(0, 8).map(val => Math.round(val / 1000)),
-                    itemStyle: {
-                        color: '#ff6b6b'
-                    }
+                    name: 'Pop Music - Interaction Rate',
+                    type: 'line',
+                    data: hashtagData.dualAxisData.popMusic.interactionRate,
+                    itemStyle: { color: '#e91e63' },
+                    lineStyle: { width: 2 }
+                },
+                {
+                    name: 'Pop Music - MoM',
+                    type: 'line',
+                    data: hashtagData.dualAxisData.popMusic.interactionRateMoM,
+                    itemStyle: { color: '#e91e63' },
+                    lineStyle: { width: 1, type: 'dashed' },
+                    symbol: 'circle',
+                    symbolSize: 4
+                },
+                {
+                    name: 'Hip Hop - Interaction Rate',
+                    type: 'line',
+                    data: hashtagData.dualAxisData.hipHop.interactionRate,
+                    itemStyle: { color: '#ff9800' },
+                    lineStyle: { width: 2 }
+                },
+                {
+                    name: 'Hip Hop - MoM',
+                    type: 'line',
+                    data: hashtagData.dualAxisData.hipHop.interactionRateMoM,
+                    itemStyle: { color: '#ff9800' },
+                    lineStyle: { width: 1, type: 'dashed' },
+                    symbol: 'circle',
+                    symbolSize: 4
+                },
+                {
+                    name: 'Electronic - Interaction Rate',
+                    type: 'line',
+                    data: hashtagData.dualAxisData.electronic.interactionRate,
+                    itemStyle: { color: '#2196f3' },
+                    lineStyle: { width: 2 }
+                },
+                {
+                    name: 'Electronic - MoM',
+                    type: 'line',
+                    data: hashtagData.dualAxisData.electronic.interactionRateMoM,
+                    itemStyle: { color: '#2196f3' },
+                    lineStyle: { width: 1, type: 'dashed' },
+                    symbol: 'circle',
+                    symbolSize: 4
+                },
+                {
+                    name: 'Rock - Interaction Rate',
+                    type: 'line',
+                    data: hashtagData.dualAxisData.rock.interactionRate,
+                    itemStyle: { color: '#4caf50' },
+                    lineStyle: { width: 2 }
+                },
+                {
+                    name: 'Rock - MoM',
+                    type: 'line',
+                    data: hashtagData.dualAxisData.rock.interactionRateMoM,
+                    itemStyle: { color: '#4caf50' },
+                    lineStyle: { width: 1, type: 'dashed' },
+                    symbol: 'circle',
+                    symbolSize: 4
                 }
             ]
         };
-        chart1.setOption(option1);
 
-        // Chart 2: Engagement Rate by BGM Type
-        const chart2 = echarts.init(document.getElementById('chart2'));
-        const bgmTypes = ['Pop', 'Electronic', 'Instrumental', 'Hip-Hop'];
-        const avgEngagement = [6.8, 7.3, 4.5, 8.1];
-        
-        const option2 = {
+        // Enhanced Heatmap with MoM Tooltips
+        const heatmapOption = {
             tooltip: {
-                trigger: 'item'
-            },
-            radar: {
-                indicator: bgmTypes.map(type => ({
-                    name: type,
-                    max: 10
-                }))
-            },
-            series: [{
-                name: 'Engagement Rate',
-                type: 'radar',
-                data: [
-                    {
-                        value: avgEngagement,
-                        name: 'Hashtag Engagement Rate (%)',
-                        itemStyle: {
-                            color: '#ff6b6b'
-                        },
-                        areaStyle: {
-                            color: 'rgba(255, 107, 107, 0.3)'
-                        }
+                position: 'top',
+                formatter: function(params) {
+                    const bgmType = hashtagData.heatmapData.bgmTypes[params.data[1]];
+                    const hashtag = hashtagData.heatmapData.hashtags[params.data[0]];
+                    const value = params.data[2];
+                    const mom = params.data[3];
+                    
+                    if (value === 0) {
+                        return `${bgmType} × ${hashtag}<br/>No data available`;
                     }
-                ]
-            }]
-        };
-        chart2.setOption(option2);
-
-        // Chart 3: Trending Analysis
-        const chart3 = echarts.init(document.getElementById('chart3'));
-        const days = Array.from({length: 30}, (_, i) => `Day ${i + 1}`);
-        const trendingHashtags = {
-            '#remix': Array.from({length: 30}, (_, i) => Math.round(100 + i * 5.2 + Math.random() * 20)),
-            '#viral': Array.from({length: 30}, (_, i) => Math.round(200 + i * 3.1 + Math.random() * 15)),
-            '#beats': Array.from({length: 30}, (_, i) => Math.round(150 + i * 0.8 + Math.random() * 10))
-        };
-
-        const option3 = {
-            tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: Object.keys(trendingHashtags)
+                    
+                    return `${bgmType} × ${hashtag}<br/>
+                            Post Count: ${(value / 1000000).toFixed(1)}M<br/>
+                            <span style="color: ${mom > 0 ? '#28a745' : '#dc3545'}">Post Count MoM: ${mom > 0 ? '+' : ''}${mom}%</span>`;
+                }
             },
             grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
+                height: '50%',
+                top: '10%'
             },
             xAxis: {
                 type: 'category',
-                boundaryGap: false,
-                data: days.filter((_, i) => i % 5 === 0) // Show every 5th day
+                data: hashtagData.heatmapData.hashtags,
+                splitArea: { show: true }
             },
             yAxis: {
-                type: 'value',
-                name: 'Posts (K)'
+                type: 'category',
+                data: hashtagData.heatmapData.bgmTypes,
+                splitArea: { show: true }
             },
-            series: Object.keys(trendingHashtags).map(hashtag => ({
-                name: hashtag,
-                type: 'line',
-                data: trendingHashtags[hashtag].filter((_, i) => i % 5 === 0),
-                smooth: true
-            }))
+            visualMap: {
+                min: 0,
+                max: 350000000,
+                calculable: true,
+                orient: 'horizontal',
+                left: 'center',
+                bottom: '15%',
+                inRange: {
+                    color: ['#ffffff', '#e3f2fd', '#bbdefb', '#90caf9', '#64b5f6', '#42a5f5', '#2196f3', '#1976d2', '#1565c0']
+                }
+            },
+            series: [{
+                name: 'BGM-Hashtag Heatmap',
+                type: 'heatmap',
+                data: hashtagData.heatmapData.values,
+                label: {
+                    show: true,
+                    formatter: function(params) {
+                        return params.data[2] === 0 ? '' : (params.data[2] / 1000000).toFixed(0) + 'M';
+                    }
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }]
         };
-        chart3.setOption(option3);
 
-        // Download functions
+        // Set chart options
+        wordCloudChart.setOption(wordCloudOption);
+        dualAxisChart.setOption(dualAxisOption);
+        heatmapChart.setOption(heatmapOption);
+
+        // Download chart function
         function downloadChart(chartId) {
             const chart = echarts.getInstanceByDom(document.getElementById(chartId));
             const url = chart.getDataURL({
                 pixelRatio: 2,
                 backgroundColor: '#fff'
             });
-            
             const link = document.createElement('a');
             link.href = url;
-            link.download = `bgm-hashtag-analysis-${chartId}.png`;
+            link.download = chartId + '.png';
             link.click();
         }
 
-        function downloadData(type) {
-            let csvContent = '';
-            let filename = '';
-            
-            if (type === 'top-hashtags') {
-                csvContent = 'Hashtag,Primary BGM Type,Posts,Views\n';
-                hashtagData.hashtags.forEach((hashtag, index) => {
-                    csvContent += `${hashtag},${hashtagData.primaryBGM[index]},${hashtagData.posts[index]},${hashtagData.views[index]}\n`;
-                });
-                filename = 'top-hashtags-bgm-analysis.csv';
-            } else if (type === 'hashtag-engagement') {
-                csvContent = 'Hashtag,Engagement Rate (%)\n';
-                hashtagData.hashtags.forEach((hashtag, index) => {
-                    csvContent += `${hashtag},${hashtagData.engagementRate[index]}\n`;
-                });
-                filename = 'hashtag-engagement-analysis.csv';
-            } else if (type === 'trending-hashtags') {
-                csvContent = 'Hashtag,Growth Rate (%),Posts,Views\n';
-                hashtagData.hashtags.forEach((hashtag, index) => {
-                    csvContent += `${hashtag},${hashtagData.growthRate[index]},${hashtagData.posts[index]},${hashtagData.views[index]}\n`;
-                });
-                filename = 'trending-hashtags-analysis.csv';
-            }
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Populate data table
-        function populateDataTable() {
-            const tableBody = document.getElementById('dataTableBody');
-            let html = '';
-
-            hashtagData.hashtags.forEach((hashtag, index) => {
-                const primaryBGM = hashtagData.primaryBGM[index];
-                const posts = hashtagData.posts[index];
-                const views = hashtagData.views[index];
-                const engagementRate = hashtagData.engagementRate[index];
-                const growthRate = hashtagData.growthRate[index];
-                
-                html += `
-                    <tr>
-                        <td class="hashtag-cell">${hashtag}</td>
-                        <td><strong>${primaryBGM}</strong></td>
-                        <td>${posts.toLocaleString()}</td>
-                        <td>${(views / 1000000).toFixed(1)}M</td>
-                        <td>${engagementRate}%</td>
-                        <td style="color: ${growthRate >= 0 ? '#28a745' : '#dc3545'}">${growthRate >= 0 ? '+' : ''}${growthRate}%</td>
-                    </tr>
-                `;
-            });
-            
-            tableBody.innerHTML = html;
-        }
-
+        // Download table data function
         function downloadTableData() {
-            let csvContent = 'Hashtag,Primary BGM Type,Posts,Views,Engagement Rate (%),Growth Rate (%)\n';
-            hashtagData.hashtags.forEach((hashtag, index) => {
-                csvContent += `${hashtag},${hashtagData.primaryBGM[index]},${hashtagData.posts[index]},${hashtagData.views[index]},${hashtagData.engagementRate[index]},${hashtagData.growthRate[index]}\n`;
-            });
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "BGM Type,Hashtag,Total Post Count,Post MoM (%),Total Interaction Count,Interaction MoM (%),Average Interaction Rate,Rate MoM (%)\n"
+                + "Pop Music,#viral,234567890,+22.3%,23456789,+25.7%,10.0%,+2.8%\n"
+                + "Pop Music,#trending,198765432,+19.8%,19876543,+23.1%,10.0%,+2.7%\n"
+                + "Hip Hop,#hiphop,345678901,+28.9%,41481468,+32.4%,12.0%,+2.7%\n"
+                + "Hip Hop,#rap,267890123,+23.5%,32146815,+27.8%,12.0%,+3.5%\n"
+                + "Electronic,#edm,156789012,+16.4%,18814681,+19.9%,12.0%,+3.0%\n"
+                + "Electronic,#techno,123456789,+13.7%,14814815,+17.2%,12.0%,+2.5%";
             
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'hashtag-bgm-comprehensive-analysis.csv');
-            link.style.visibility = 'hidden';
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "bgm_hashtag_analysis.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        // Initialize data table
-        populateDataTable();
-
-        // Make charts responsive
+        // Responsive resize
         window.addEventListener('resize', function() {
-            chart1.resize();
-            chart2.resize();
-            chart3.resize();
+            wordCloudChart.resize();
+            dualAxisChart.resize();
+            heatmapChart.resize();
         });
     </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BGM Tone Gender Analysis</title>
+    <title>BGM Tone Analysis - Gender Dimension</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -13,666 +13,633 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
             padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #f5f5f5;
         }
 
-        .container {
+        .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .header h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header p {
-            color: #7f8c8d;
-            font-size: 1.2em;
-        }
-
-        .data-card {
-            background: white;
-            border-radius: 15px;
+        .summary-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
             padding: 25px;
             margin-bottom: 30px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .summary-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .summary-change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            color: #6c757d;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
             position: relative;
         }
 
-        .card-header {
+        .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
 
-        .card-title {
-            font-size: 1.5em;
-            color: #2c3e50;
+        .chart-title {
+            font-size: 18px;
             font-weight: 600;
+            color: #2c3e50;
         }
 
-        .download-icon {
-            background: #667eea;
-            color: white;
-            border: none;
+        .download-btn {
             padding: 8px 12px;
-            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background: #f8f9fa;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            font-size: 12px;
+            color: #495057;
+            transition: all 0.2s ease;
         }
 
-        .download-icon:hover {
-            background: #5a6fd8;
-            transform: translateY(-2px);
+        .download-btn:hover {
+            background: #e9ecef;
+            color: #343a40;
         }
 
-        .chart-container {
+        .chart {
             width: 100%;
-            height: 400px;
-            margin-bottom: 20px;
+            height: 450px;
         }
 
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .metric-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
+        .data-section {
+            background: white;
             border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
         }
 
-        .metric-value {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 5px;
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
         }
 
-        .metric-label {
-            font-size: 0.9em;
-            opacity: 0.9;
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table-container {
+            overflow-x: auto;
         }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 13px;
         }
 
         .data-table th,
         .data-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
         }
 
         .data-table th {
-            background: #667eea;
-            color: white;
-            font-weight: 600;
-        }
-
-        .data-table tr:hover {
             background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        .gender-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.85em;
-            font-weight: 500;
-            color: white;
+        .gender-header {
+            background: #e3f2fd !important;
+            color: #1976d2 !important;
+            font-weight: 700;
+            min-width: 120px;
+        }
+
+        .metric-header {
+            background: #f3e5f5 !important;
+            color: #7b1fa2 !important;
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .metric-group-header {
+            background: #e8f5e8 !important;
+            color: #2e7d32 !important;
+            font-weight: 700;
             text-align: center;
-            min-width: 60px;
         }
 
-        .gender-male { background: linear-gradient(135deg, #3498db, #2980b9); }
-        .gender-female { background: linear-gradient(135deg, #e91e63, #c2185b); }
-        .gender-non-binary { background: linear-gradient(135deg, #9c27b0, #7b1fa2); }
-        .gender-other { background: linear-gradient(135deg, #ff9800, #f57c00); }
-
-        .preference-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .high-preference { background: #4caf50; }
-        .medium-preference { background: #ff9800; }
-        .low-preference { background: #f44336; }
-
-        .engagement-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 5px 0;
-        }
-
-        .bar-container {
-            flex: 1;
-            height: 8px;
-            background: #ecf0f1;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .bar-fill {
-            height: 100%;
-            transition: width 0.3s ease;
-            border-radius: 4px;
-        }
-
-        .male-bar { background: linear-gradient(90deg, #3498db, #2980b9); }
-        .female-bar { background: linear-gradient(90deg, #e91e63, #c2185b); }
-        .non-binary-bar { background: linear-gradient(90deg, #9c27b0, #7b1fa2); }
-
-        .demographic-insight {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .insight-title {
+        .mom-header {
+            background: #fff3e0 !important;
+            color: #f57c00 !important;
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
+            min-width: 90px;
         }
 
-        .insight-text {
-            color: #5a6c7d;
-            line-height: 1.5;
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .mom-value {
+            font-weight: 600;
+        }
+
+        .mom-value.positive {
+            color: #28a745;
+        }
+
+        .mom-value.negative {
+            color: #dc3545;
+        }
+
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart {
+                height: 350px;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>BGM Tone Gender Analysis</h1>
-            <p>Comprehensive analysis of BGM tone preferences across different gender demographics</p>
+    <div class="dashboard-container">
+        <!-- Data Summary Section -->
+        <div class="summary-section">
+            <div class="summary-title">BGM Tone Analysis by Gender - Data Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Total Gender Categories</div>
+                    <div class="summary-value">3</div>
+                    <div class="summary-change positive">+0 MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Highest Posting Gender</div>
+                    <div class="summary-value">Female</div>
+                    <div class="summary-change positive">+8.3% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Highest Interaction Rate</div>
+                    <div class="summary-value">Male</div>
+                    <div class="summary-change positive">+2.1% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Most Popular Tone (Female)</div>
+                    <div class="summary-value">Upbeat</div>
+                    <div class="summary-change positive">+12.4% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Most Popular Tone (Male)</div>
+                    <div class="summary-value">Energetic</div>
+                    <div class="summary-change positive">+9.7% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Gender Diversity Index</div>
+                    <div class="summary-value">0.82</div>
+                    <div class="summary-change positive">+0.05 MoM</div>
+                </div>
+            </div>
         </div>
 
-        <!-- Key Metrics -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Gender Demographics Overview</h2>
-                <button class="download-icon" onclick="downloadMetrics()">📊 Download</button>
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="page-title">BGM Tone Analysis - Gender Dimension</div>
+            <div class="page-subtitle">Comprehensive analysis of BGM tone preferences across different gender demographics</div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Gender Distribution Pie Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">BGM Tone Posts Distribution by Gender</div>
+                    <button class="download-btn" onclick="downloadChart('genderPieChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="genderPieChart" class="chart"></div>
             </div>
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-value">16.8K</div>
-                    <div class="metric-label">Total Posts</div>
+
+            <!-- Stacked Bar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">BGM Tone Preferences by Gender</div>
+                    <button class="download-btn" onclick="downloadChart('stackedBarChart')" title="Download Chart">
+                        📥 Download
+                    </button>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-value">4.2M</div>
-                    <div class="metric-label">Total Likes</div>
+                <div id="stackedBarChart" class="chart"></div>
+            </div>
+
+            <!-- Radar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Gender BGM Tone Profile Comparison</div>
+                    <button class="download-btn" onclick="downloadChart('radarChart')" title="Download Chart">
+                        📥 Download
+                    </button>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-value">1.1M</div>
-                    <div class="metric-label">Total Comments</div>
+                <div id="radarChart" class="chart"></div>
+            </div>
+
+            <!-- Line Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Gender BGM Tone Trends Over Time</div>
+                    <button class="download-btn" onclick="downloadChart('lineChart')" title="Download Chart">
+                        📥 Download
+                    </button>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-value">1.9M</div>
-                    <div class="metric-label">Total Shares</div>
-                </div>
+                <div id="lineChart" class="chart"></div>
             </div>
         </div>
 
-        <!-- Gender Distribution Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">BGM Tone Posts by Gender</h2>
-                <button class="download-icon" onclick="downloadChart('genderDistribution')">📊 Download</button>
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">BGM Tone Analysis by Gender Data</div>
+                <button class="download-btn" onclick="downloadTableData()" title="Download Table Data">
+                    📥 Download CSV
+                </button>
             </div>
-            <div id="genderDistribution" class="chart-container"></div>
-        </div>
-
-        <!-- BGM Tone Preferences by Gender Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">BGM Tone Preferences by Gender</h2>
-                <button class="download-icon" onclick="downloadChart('genderPreferences')">📊 Download</button>
-            </div>
-            <div id="genderPreferences" class="chart-container"></div>
-        </div>
-
-        <!-- Gender Analysis Table -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Detailed Gender Analysis</h2>
-                <button class="download-icon" onclick="downloadTable('genderTable')">📊 Download</button>
-            </div>
-            <table class="data-table" id="genderTable">
-                <thead>
-                    <tr>
-                        <th>Gender</th>
-                        <th>Total Posts</th>
-                        <th>Top BGM Tone</th>
-                        <th>Engagement Rate</th>
-                        <th>Avg. Session Time</th>
-                        <th>Growth Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="gender-badge gender-female">Female</span></td>
-                        <td>9,240</td>
-                        <td><span class="preference-indicator high-preference"></span>Uplifting</td>
-                        <td>19.3%</td>
-                        <td>4m 45s</td>
-                        <td>+16.8%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="gender-badge gender-male">Male</span></td>
-                        <td>6,890</td>
-                        <td><span class="preference-indicator high-preference"></span>Energetic</td>
-                        <td>17.1%</td>
-                        <td>5m 32s</td>
-                        <td>+13.4%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="gender-badge gender-non-binary">Non-Binary</span></td>
-                        <td>520</td>
-                        <td><span class="preference-indicator medium-preference"></span>Melancholic</td>
-                        <td>23.7%</td>
-                        <td>6m 18s</td>
-                        <td>+31.2%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="gender-badge gender-other">Other</span></td>
-                        <td>150</td>
-                        <td><span class="preference-indicator medium-preference"></span>Ambient</td>
-                        <td>20.4%</td>
-                        <td>5m 55s</td>
-                        <td>+24.6%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Age-Gender Intersection Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">BGM Tone Preferences: Age-Gender Intersection</h2>
-                <button class="download-icon" onclick="downloadChart('ageGenderIntersection')">📊 Download</button>
-            </div>
-            <div id="ageGenderIntersection" class="chart-container"></div>
-        </div>
-
-        <!-- Gender Engagement Trends Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Gender Engagement Trends Over Time</h2>
-                <button class="download-icon" onclick="downloadChart('genderTrends')">📊 Download</button>
-            </div>
-            <div id="genderTrends" class="chart-container"></div>
-        </div>
-
-        <!-- Gender Insights -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Key Gender Insights</h2>
-                <button class="download-icon" onclick="downloadInsights()">📊 Download</button>
-            </div>
-            
-            <div class="demographic-insight">
-                <div class="insight-title">Female User Preferences</div>
-                <div class="insight-text">
-                    Female users show a strong preference for Uplifting (38%) and Romantic (31%) tones, with higher engagement rates during evening hours. 
-                    They are 2.8x more likely to share emotionally resonant BGM content and prefer warm, positive musical atmospheres.
-                </div>
-            </div>
-
-            <div class="demographic-insight">
-                <div class="insight-title">Male User Preferences</div>
-                <div class="insight-text">
-                    Male users gravitate towards Energetic (42%) and Dramatic (27%) tones, with peak activity during late-night sessions. 
-                    They spend 22% more time customizing BGM intensity settings and prefer high-impact, dynamic musical experiences.
-                </div>
-            </div>
-
-            <div class="demographic-insight">
-                <div class="insight-title">Non-Binary User Trends</div>
-                <div class="insight-text">
-                    Non-binary users demonstrate the highest engagement rates (23.7%) and show preference for Melancholic (32%) and Ambient (29%) tones. 
-                    This demographic is driving innovation in emotional BGM customization features and atmospheric sound design.
-                </div>
-            </div>
-
-            <div class="demographic-insight">
-                <div class="insight-title">Cross-Gender Trends</div>
-                <div class="insight-text">
-                    Emerging cross-gender BGM tone trends show increasing convergence in Uplifting and Energetic preferences, 
-                    with a 18% increase in tone-crossing behavior across all demographics in the past quarter.
-                </div>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="gender-header">Gender</th>
+                            <th colspan="2" class="metric-group-header">Post Count</th>
+                            <th colspan="2" class="metric-group-header">Interaction Count</th>
+                            <th colspan="2" class="metric-group-header">Interaction Rate</th>
+                            <th rowspan="2" class="metric-header">Top BGM Tone</th>
+                            <th rowspan="2" class="metric-header">Avg. Engagement</th>
+                        </tr>
+                        <tr>
+                            <th class="metric-header">Count</th>
+                            <th class="mom-header">MoM (%)</th>
+                            <th class="metric-header">Count</th>
+                            <th class="mom-header">MoM (%)</th>
+                            <th class="metric-header">Rate</th>
+                            <th class="mom-header">MoM (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="gender-header">Female</td>
+                            <td>62.4M</td>
+                            <td><span class="mom-value positive">+8.3%</span></td>
+                            <td>9.8M</td>
+                            <td><span class="mom-value positive">+10.7%</span></td>
+                            <td>15.7%</td>
+                            <td><span class="mom-value positive">+2.2%</span></td>
+                            <td>Upbeat</td>
+                            <td>4.2</td>
+                        </tr>
+                        <tr>
+                            <td class="gender-header">Male</td>
+                            <td>48.2M</td>
+                            <td><span class="mom-value positive">+6.1%</span></td>
+                            <td>8.1M</td>
+                            <td><span class="mom-value positive">+8.4%</span></td>
+                            <td>16.8%</td>
+                            <td><span class="mom-value positive">+2.1%</span></td>
+                            <td>Energetic</td>
+                            <td>3.9</td>
+                        </tr>
+                        <tr>
+                            <td class="gender-header">Non-binary/Other</td>
+                            <td>7.7M</td>
+                            <td><span class="mom-value positive">+15.2%</span></td>
+                            <td>1.3M</td>
+                            <td><span class="mom-value positive">+18.6%</span></td>
+                            <td>16.9%</td>
+                            <td><span class="mom-value positive">+2.9%</span></td>
+                            <td>Dramatic</td>
+                            <td>4.1</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // Gender Distribution Chart
-        const genderDistributionChart = echarts.init(document.getElementById('genderDistribution'));
-        const genderDistributionOption = {
-                tooltip: {
+        // Sample data for BGM tones by gender
+        const genderData = {
+            genders: ['Female', 'Male', 'Non-binary/Other'],
+            postCounts: [62400000, 48200000, 7700000],
+            interactionCounts: [9800000, 8100000, 1300000],
+            interactionRates: [15.7, 16.8, 16.9],
+            postMoM: [8.3, 6.1, 15.2],
+            interactionMoM: [10.7, 8.4, 18.6],
+            rateMoM: [2.2, 2.1, 2.9],
+            topTones: ['Upbeat', 'Energetic', 'Dramatic'],
+            avgEngagement: [4.2, 3.9, 4.1]
+        };
+
+        const toneData = {
+            tones: ['Upbeat', 'Energetic', 'Calm', 'Dramatic', 'Melancholic', 'Mysterious'],
+            colors: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272']
+        };
+
+        // Initialize charts
+        const genderPieChart = echarts.init(document.getElementById('genderPieChart'));
+        const stackedBarChart = echarts.init(document.getElementById('stackedBarChart'));
+        const radarChart = echarts.init(document.getElementById('radarChart'));
+        const lineChart = echarts.init(document.getElementById('lineChart'));
+
+        // Gender Pie Chart
+        const genderPieOption = {
+            tooltip: {
                 trigger: 'item',
-                formatter: '{a} <br/>{b}: {c} ({d}%)'
+                formatter: function(params) {
+                    return `${params.name}<br/>
+                            Posts: ${(params.value / 1000000).toFixed(1)}M<br/>
+                            Percentage: ${params.percent}%`;
+                }
             },
             legend: {
                 orient: 'vertical',
-                left: 'left',
-                data: ['Female', 'Male', 'Non-Binary', 'Other/Undisclosed']
+                left: 'left'
             },
-            series: [
-                {
-                    name: 'Gender',
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    avoidLabelOverlap: false,
+            series: [{
+                name: 'Gender Distribution',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                center: ['60%', '50%'],
+                avoidLabelOverlap: false,
+                itemStyle: {
+                    borderRadius: 10,
+                    borderColor: '#fff',
+                    borderWidth: 2
+                },
+                label: {
+                    show: false,
+                    position: 'center'
+                },
+                emphasis: {
                     label: {
                         show: true,
-                        formatter: '{b}: {d}%'
-                    },
-                    emphasis: {
-                        label: {
-                            show: true,
-                            fontSize: '18',
-                            fontWeight: 'bold'
-                        }
-                    },
-                    data: [
-                        { value: 9240, name: 'Female', itemStyle: { color: '#e91e63' } },
-                        { value: 6890, name: 'Male', itemStyle: { color: '#3498db' } },
-                        { value: 520, name: 'Non-Binary', itemStyle: { color: '#9c27b0' } },
-                        { value: 150, name: 'Other/Undisclosed', itemStyle: { color: '#ff9800' } }
-                    ]
-                }
-            ]
+                        fontSize: '30',
+                        fontWeight: 'bold'
+                    }
+                },
+                labelLine: {
+                    show: false
+                },
+                data: genderData.genders.map((gender, index) => ({
+                    name: gender,
+                    value: genderData.postCounts[index]
+                }))
+            }]
         };
-        genderDistributionChart.setOption(genderDistributionOption);
 
-        // BGM Tone Preferences by Gender Chart
-        const genderPreferencesChart = echarts.init(document.getElementById('genderPreferences'));
-        const genderPreferencesOption = {
-                tooltip: {
+        // Stacked Bar Chart
+        const stackedBarOption = {
+            tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' }
             },
             legend: {
-                data: ['Female', 'Male', 'Non-Binary', 'Other'],
-                top: '10%'
+                data: toneData.tones
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
             },
             xAxis: {
                 type: 'category',
-                data: ['Uplifting', 'Energetic', 'Romantic', 'Dramatic', 'Melancholic', 'Ambient', 'Mysterious']
+                data: genderData.genders
             },
             yAxis: {
-                type: 'value',
-                name: 'Engagement Rate (%)'
+                type: 'value'
             },
-            series: [
-                {
-                    name: 'Female',
-                    type: 'bar',
-                    data: [19.3, 15.8, 18.2, 14.6, 16.1, 13.9, 12.7],
-                    itemStyle: { color: '#e91e63' }
-                },
-                {
-                    name: 'Male',
-                    type: 'bar',
-                    data: [17.1, 21.4, 13.5, 19.8, 14.2, 15.6, 16.9],
-                    itemStyle: { color: '#3498db' }
-                },
-                {
-                    name: 'Non-Binary',
-                    type: 'bar',
-                    data: [23.7, 20.8, 21.4, 22.1, 25.3, 24.6, 23.9],
-                    itemStyle: { color: '#9c27b0' }
-                },
-                {
-                    name: 'Other',
-                    type: 'bar',
-                    data: [20.4, 18.7, 19.2, 17.8, 21.1, 22.3, 20.9],
-                    itemStyle: { color: '#ff9800' }
-                }
-            ]
+            series: toneData.tones.map((tone, toneIndex) => ({
+                name: tone,
+                type: 'bar',
+                stack: 'total',
+                data: genderData.genders.map((gender, genderIndex) => {
+                    // Simulate tone distribution for each gender
+                    const baseValue = genderData.postCounts[genderIndex] / 1000000;
+                    const distributions = [
+                        [0.38, 0.22, 0.18, 0.12, 0.07, 0.03], // Female
+                        [0.25, 0.35, 0.15, 0.15, 0.06, 0.04], // Male
+                        [0.20, 0.25, 0.15, 0.25, 0.10, 0.05]  // Non-binary/Other
+                    ];
+                    return (baseValue * distributions[genderIndex][toneIndex]).toFixed(1);
+                }),
+                itemStyle: { color: toneData.colors[toneIndex] }
+            }))
         };
-        genderPreferencesChart.setOption(genderPreferencesOption);
 
-        // Age-Gender Intersection Chart
-        const ageGenderChart = echarts.init(document.getElementById('ageGenderIntersection'));
-        const ageGenderOption = {
-                tooltip: {
+        // Radar Chart
+        const radarOption = {
+            tooltip: {},
+            legend: {
+                data: genderData.genders
+            },
+            radar: {
+                indicator: toneData.tones.map(tone => ({
+                    name: tone,
+                    max: 100
+                }))
+            },
+            series: [{
+                name: 'BGM Tone Preferences',
+                type: 'radar',
+                data: genderData.genders.map((gender, genderIndex) => {
+                    const distributions = [
+                        [95, 70, 60, 40, 25, 15], // Female
+                        [65, 90, 50, 50, 20, 25], // Male
+                        [55, 70, 45, 85, 35, 30]  // Non-binary/Other
+                    ];
+                    return {
+                        value: distributions[genderIndex],
+                        name: gender
+                    };
+                })
+            }]
+        };
+
+        // Line Chart
+        const lineOption = {
+            tooltip: {
                 trigger: 'axis'
             },
             legend: {
-                data: ['Female 18-25', 'Female 26-35', 'Male 18-25', 'Male 26-35', 'Non-Binary 18-35'],
-                top: '10%'
+                data: genderData.genders
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
             },
             xAxis: {
                 type: 'category',
-                data: ['Uplifting', 'Energetic', 'Romantic', 'Dramatic', 'Melancholic', 'Ambient']
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Preference Index'
-            },
-            series: [
-                {
-                    name: 'Female 18-25',
-                    type: 'line',
-                    data: [92, 68, 88, 52, 61, 58],
-                    itemStyle: { color: '#e91e63' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Female 26-35',
-                    type: 'line',
-                    data: [87, 72, 91, 58, 73, 68],
-                    itemStyle: { color: '#c2185b' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Male 18-25',
-                    type: 'line',
-                    data: [64, 89, 48, 87, 58, 62],
-                    itemStyle: { color: '#3498db' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Male 26-35',
-                    type: 'line',
-                    data: [68, 84, 52, 82, 64, 67],
-                    itemStyle: { color: '#2980b9' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Non-Binary 18-35',
-                    type: 'line',
-                    data: [74, 78, 72, 75, 89, 86],
-                    itemStyle: { color: '#9c27b0' },
-                    lineStyle: { width: 3 }
-                }
-            ]
-        };
-        ageGenderChart.setOption(ageGenderOption);
-
-        // Gender Engagement Trends Chart
-        const genderTrendsChart = echarts.init(document.getElementById('genderTrends'));
-        const genderTrendsOption = {
-                tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: ['Female Engagement', 'Male Engagement', 'Non-Binary Engagement'],
-                top: '10%'
-            },
-            xAxis: {
-                type: 'category',
+                boundaryGap: false,
                 data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
             },
             yAxis: {
-                type: 'value',
-                name: 'Engagement Rate (%)'
+                type: 'value'
             },
-            series: [
-                {
-                    name: 'Female Engagement',
+            series: genderData.genders.map((gender, genderIndex) => {
+                const baseValues = [
+                    [58.2, 59.8, 60.5, 61.2, 61.8, 62.4], // Female
+                    [45.1, 45.9, 46.7, 47.3, 47.8, 48.2], // Male
+                    [6.2, 6.8, 7.1, 7.3, 7.5, 7.7]        // Non-binary/Other
+                ];
+                return {
+                    name: gender,
                     type: 'line',
-                    data: [17.2, 17.9, 18.4, 18.8, 19.1, 19.3],
-                    itemStyle: { color: '#e91e63' },
-                    lineStyle: { width: 3 },
-                    areaStyle: { opacity: 0.3 }
-                },
-                {
-                    name: 'Male Engagement',
-                    type: 'line',
-                    data: [15.8, 16.1, 16.5, 16.7, 16.9, 17.1],
-                    itemStyle: { color: '#3498db' },
-                    lineStyle: { width: 3 },
-                    areaStyle: { opacity: 0.3 }
-                },
-                {
-                    name: 'Non-Binary Engagement',
-                    type: 'line',
-                    data: [20.5, 21.2, 21.9, 22.6, 23.1, 23.7],
-                    itemStyle: { color: '#9c27b0' },
-                    lineStyle: { width: 3 },
-                    areaStyle: { opacity: 0.3 }
-                }
-            ]
+                    data: baseValues[genderIndex],
+                    smooth: true
+                };
+            })
         };
-        genderTrendsChart.setOption(genderTrendsOption);
 
-        // Resize charts on window resize
-        window.addEventListener('resize', function() {
-            genderDistributionChart.resize();
-            genderPreferencesChart.resize();
-            ageGenderChart.resize();
-            genderTrendsChart.resize();
-        });
+        // Set chart options
+        genderPieChart.setOption(genderPieOption);
+        stackedBarChart.setOption(stackedBarOption);
+        radarChart.setOption(radarOption);
+        lineChart.setOption(lineOption);
 
-        // Download functions
+        // Download chart function
         function downloadChart(chartId) {
-            let chart;
-            switch(chartId) {
-                case 'genderDistribution':
-                    chart = genderDistributionChart;
-                    break;
-                case 'genderPreferences':
-                    chart = genderPreferencesChart;
-                    break;
-                case 'ageGenderIntersection':
-                    chart = ageGenderChart;
-                    break;
-                case 'genderTrends':
-                    chart = genderTrendsChart;
-                    break;
-            }
-            
-            if (chart) {
-                const url = chart.getDataURL({
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${chartId}_chart.png`;
-                link.click();
-            }
+            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
+            const url = chart.getDataURL({
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = chartId + '.png';
+            link.click();
         }
 
-        function downloadTable(tableId) {
-            const table = document.getElementById(tableId);
-            let csv = [];
-            const rows = table.querySelectorAll('tr');
+        // Download table data function
+        function downloadTableData() {
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "Gender,Post Count,Post Count MoM (%),Interaction Count,Interaction MoM (%),Interaction Rate,Rate MoM (%),Top BGM Tone,Avg Engagement\n"
+                + genderData.genders.map((gender, index) => 
+                    `${gender},${genderData.postCounts[index]},${genderData.postMoM[index]}%,${genderData.interactionCounts[index]},${genderData.interactionMoM[index]}%,${genderData.interactionRates[index]}%,${genderData.rateMoM[index]}%,${genderData.topTones[index]},${genderData.avgEngagement[index]}`
+                ).join("\n");
             
-            for (let i = 0; i < rows.length; i++) {
-                const row = [], cols = rows[i].querySelectorAll('td, th');
-                for (let j = 0; j < cols.length; j++) {
-                    let cellText = cols[j].innerText;
-                    // Remove badges and indicators for CSV
-                    if (cols[j].querySelector('.gender-badge')) {
-                        cellText = cols[j].querySelector('.gender-badge').innerText;
-                    }
-                    row.push('"' + cellText + '"');
-                }
-                csv.push(row.join(','));
-            }
-            
-            const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
-            const downloadLink = document.createElement('a');
-            downloadLink.download = `${tableId}_data.csv`;
-            downloadLink.href = window.URL.createObjectURL(csvFile);
-            downloadLink.click();
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "bgm_tone_gender_analysis.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        function downloadMetrics() {
-            const metrics = [
-                ['Metric', 'Value'],
-                ['Female Users', '55.0%'],
-                ['Male Users', '41.0%'],
-                ['Non-Binary Users', '3.1%'],
-                ['Other/Undisclosed', '0.9%']
-            ];
-            
-            const csv = metrics.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-            const csvFile = new Blob([csv], { type: 'text/csv' });
-            const downloadLink = document.createElement('a');
-            downloadLink.download = 'bgm_tone_gender_metrics.csv';
-            downloadLink.href = window.URL.createObjectURL(csvFile);
-            downloadLink.click();
-        }
-
-        function downloadInsights() {
-            const insights = [
-                ['Gender Group', 'Key Insight'],
-                ['Female Users', 'Strong preference for Uplifting (38%) and Romantic (31%) tones, higher evening engagement, 2.8x more likely to share emotional BGM content'],
-                ['Male Users', 'Prefer Energetic (42%) and Dramatic (27%) tones, peak late-night activity, 22% more time on BGM intensity customization'],
-                ['Non-Binary Users', 'Highest engagement rates (23.7%), prefer Melancholic (32%) and Ambient (29%) tones, drive emotional BGM innovation'],
-                ['Cross-Gender Trends', '18% increase in tone-crossing behavior, convergence in Uplifting and Energetic preferences']
-            ];
-            
-            const csv = insights.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-            const csvFile = new Blob([csv], { type: 'text/csv' });
-            const downloadLink = document.createElement('a');
-            downloadLink.download = 'bgm_tone_gender_insights.csv';
-            downloadLink.href = window.URL.createObjectURL(csvFile);
-            downloadLink.click();
-        }
+        // Responsive resize
+        window.addEventListener('resize', function() {
+            genderPieChart.resize();
+            stackedBarChart.resize();
+            radarChart.resize();
+            lineChart.resize();
+        });
     </script>
 </body>
 </html>

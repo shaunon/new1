@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BGM Type Analysis - Comprehensive Overview</title>
+    <title>BGM Type Analysis - Overview</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -13,118 +13,87 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
             padding: 20px;
         }
 
-        .chart-section {
-            display: flex;
-            align-items: center;
-            margin-bottom: 40px;
-            gap: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .data-card {
+        .summary-section {
             background: #f8f9fa;
+            border: 1px solid #e9ecef;
             border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-item {
+            background: white;
             padding: 20px;
-            border-left: 4px solid #007bff;
-            min-width: 280px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            transition: transform 0.2s ease;
         }
 
-        .data-card.engagement {
-            border-left-color: #28a745;
+        .summary-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .data-card.rate {
-            border-left-color: #ffc107;
-        }
-
-        .data-card.views {
-            border-left-color: #dc3545;
-        }
-
-        .data-card-header {
-            font-size: 14px;
+        .summary-label {
+            font-size: 13px;
             color: #6c757d;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .download-icon {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            transition: color 0.2s ease;
-        }
-
-        .download-icon:hover {
-            color: #007bff;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .metric-row:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-
-        .metric-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: #6c757d;
-            margin-bottom: 2px;
+            margin-bottom: 8px;
             font-weight: 500;
         }
 
-        .metric-value {
-            font-size: 20px;
+        .summary-value {
+            font-size: 24px;
             font-weight: bold;
-            color: #212529;
+            color: #2c3e50;
+            margin-bottom: 8px;
         }
 
-        .metric-change {
-            font-size: 11px;
+        .summary-change {
+            font-size: 12px;
             font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
         }
 
-        .change-positive {
-            color: #28a745;
-            background-color: #d4edda;
-        }
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
 
-        .change-negative {
-            color: #dc3545;
-            background-color: #f8d7da;
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
         }
 
         .chart-container {
-            flex: 1;
-            height: 400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
             position: relative;
         }
 
@@ -132,57 +101,75 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .chart-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             color: #2c3e50;
         }
 
-        .chart-download {
+        .download-btn {
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            background: #f8f9fa;
+            border-radius: 6px;
             cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            padding: 5px;
-            border-radius: 4px;
+            font-size: 12px;
+            color: #495057;
             transition: all 0.2s ease;
         }
 
-        .chart-download:hover {
-            color: #007bff;
-            background-color: #f8f9fa;
+        .download-btn:hover {
+            background: #e9ecef;
+            color: #343a40;
         }
 
         .chart {
             width: 100%;
-            height: 100%;
+            height: 450px;
+        }
+
+        .data-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table-container {
+            overflow-x: auto;
         }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            font-size: 13px;
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .table-header {
-            background: white;
-            padding: 20px;
+        .data-table th,
+        .data-table td {
+            padding: 12px 10px;
+            text-align: center;
             border-bottom: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
         }
 
         .data-table th {
@@ -194,441 +181,485 @@
             z-index: 10;
             border: 1px solid #dee2e6;
             vertical-align: middle;
-            padding: 15px 12px;
+        }
+
+        .bgm-header {
+            background: #e3f2fd !important;
+            color: #1976d2 !important;
+            font-weight: 700;
+            min-width: 120px;
+        }
+
+        .metric-header {
+            background: #f3e5f5 !important;
+            color: #7b1fa2 !important;
+            font-weight: 700;
+            min-width: 100px;
+        }
+
+        .metric-group-header {
+            background: #e8f5e8 !important;
+            color: #2e7d32 !important;
+            font-weight: 700;
             text-align: center;
         }
 
-        .data-table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-            background: white;
-        }
-
-        .data-table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
+        .mom-header {
+            background: #fff3e0 !important;
+            color: #f57c00 !important;
+            font-weight: 600;
+            min-width: 90px;
         }
 
         .data-table tbody tr:hover {
-            background-color: #edf2f7;
+            background: #f8f9fa;
+        }
+
+        .mom-value {
+            font-weight: 600;
+        }
+
+        .mom-value.positive {
+            color: #28a745;
+        }
+
+        .mom-value.negative {
+            color: #dc3545;
         }
 
         @media (max-width: 768px) {
-            .chart-section {
-                flex-direction: column;
-                align-items: stretch;
+            .summary-grid {
+                grid-template-columns: 1fr;
             }
-
-            .data-card {
-                min-width: auto;
-                margin-bottom: 20px;
+            
+            .chart {
+                height: 350px;
             }
-
-            .metric-row {
+            
+            .chart-header {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 8px;
+                gap: 10px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Chart 1: Overall BGM Type Distribution -->
-    <div class="chart-section">
-        <div class="data-card">
-            <div class="data-card-header">
-                BGM Type Distribution
-                <span class="download-icon" onclick="downloadData('overall-distribution')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Pop Music Posts</div>
-                    <div class="metric-value">847K</div>
+    <div class="dashboard-container">
+        <!-- Data Summary Section -->
+        <div class="summary-section">
+            <div class="summary-title">BGM Type Analysis - Data Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Total Post Count</div>
+                    <div class="summary-value">125.8M</div>
+                    <div class="summary-change positive">+12.3% MoM</div>
                 </div>
-                <div class="metric-change change-positive">↑ 12.4%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Electronic Posts</div>
-                    <div class="metric-value">648K</div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Interaction Count</div>
+                    <div class="summary-value">18.7M</div>
+                    <div class="summary-change positive">+8.9% MoM</div>
                 </div>
-                <div class="metric-change change-positive">↑ 8.3%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Instrumental Posts</div>
-                    <div class="metric-value">489K</div>
+                <div class="summary-item">
+                    <div class="summary-label">Average Interaction Rate</div>
+                    <div class="summary-value">14.9%</div>
+                    <div class="summary-change positive">+2.1% MoM</div>
                 </div>
-                <div class="metric-change change-negative">↓ 2.1%</div>
+                <div class="summary-item">
+                    <div class="summary-label">Top BGM Type</div>
+                    <div class="summary-value">Pop Music</div>
+                    <div class="summary-change positive">+15.6% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Most Interactive</div>
+                    <div class="summary-value">Electronic</div>
+                    <div class="summary-change positive">+18.2% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Fastest Growing</div>
+                    <div class="summary-value">Hip Hop</div>
+                    <div class="summary-change positive">+24.7% MoM</div>
+                </div>
             </div>
         </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">Overall BGM Type Distribution</div>
-                <span class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart1" class="chart"></div>
-        </div>
-    </div>
 
-    <!-- Chart 2: BGM Type Performance Metrics -->
-    <div class="chart-section">
-        <div class="data-card engagement">
-            <div class="data-card-header">
-                Engagement Metrics
-                <span class="download-icon" onclick="downloadData('performance-metrics')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Likes</div>
-                    <div class="metric-value">124M</div>
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Horizontal Stacked Bar Chart with Mini Line -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">BGM Type Distribution with Interaction Rate MoM Trend</div>
+                    <button class="download-btn" onclick="downloadChart('stackedBarChart')" title="Download Chart">
+                        📥 Download
+                    </button>
                 </div>
-                <div class="metric-change change-positive">↑ 15.8%</div>
+                <div id="stackedBarChart" class="chart"></div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Comments</div>
-                    <div class="metric-value">8.7M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 12.5%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Shares</div>
-                    <div class="metric-value">3.2M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 18.3%</div>
-            </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">BGM Type Engagement Comparison</div>
-                <span class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart2" class="chart"></div>
-        </div>
-    </div>
 
-    <!-- Chart 3: Trend Analysis -->
-    <div class="chart-section">
-        <div class="data-card rate">
-            <div class="data-card-header">
-                Creator & Content Metrics
-                <span class="download-icon" onclick="downloadData('trend-analysis')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Creators</div>
-                    <div class="metric-value">45.2K</div>
+            <!-- Scatter Plot with MoM Tooltip -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Post Count vs Interaction Rate Scatter</div>
+                    <button class="download-btn" onclick="downloadChart('scatterChart')" title="Download Chart">
+                        📥 Download
+                    </button>
                 </div>
-                <div class="metric-change change-positive">↑ 28.4%</div>
+                <div id="scatterChart" class="chart"></div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Posts</div>
-                    <div class="metric-value">2.1M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 15.7%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Views</div>
-                    <div class="metric-value">847M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 22.1%</div>
-            </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">Views and Creator Analysis by BGM Type</div>
-                <span class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart3" class="chart"></div>
-        </div>
-    </div>
 
-    <!-- Data Table -->
-    <div class="table-header">
-        <div class="table-title">Detailed BGM Type Analysis</div>
-        <span class="download-icon" onclick="downloadTableData()" title="Download Table Data">📥</span>
+            <!-- Three-Axis Trend Line with MoM Lines -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Multi-Metric Trend Analysis with MoM Comparison</div>
+                    <button class="download-btn" onclick="downloadChart('trendChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="trendChart" class="chart"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">BGM Type Analysis Data</div>
+                <button class="download-btn" onclick="downloadTableData()" title="Download Table Data">
+                    📥 Download CSV
+                </button>
+            </div>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="bgm-header">BGM Type</th>
+                            <th colspan="2" class="metric-group-header">Post</th>
+                            <th colspan="2" class="metric-group-header">Interaction</th>
+                            <th colspan="2" class="metric-group-header">Rate</th>
+                        </tr>
+                        <tr>
+                            <th class="metric-header">Count</th>
+                            <th class="mom-header">MoM (%)</th>
+                            <th class="metric-header">Count</th>
+                            <th class="mom-header">MoM (%)</th>
+                            <th class="metric-header">Rate</th>
+                            <th class="mom-header">MoM (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Pop Music</strong></td>
+                            <td>45,234,567</td>
+                            <td><span class="mom-value positive">+15.6%</span></td>
+                            <td>6,785,234</td>
+                            <td><span class="mom-value positive">+12.3%</span></td>
+                            <td>15.0%</td>
+                            <td><span class="mom-value negative">-2.1%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Hip Hop</strong></td>
+                            <td>32,876,543</td>
+                            <td><span class="mom-value positive">+24.7%</span></td>
+                            <td>4,931,481</td>
+                            <td><span class="mom-value positive">+18.9%</span></td>
+                            <td>15.0%</td>
+                            <td><span class="mom-value negative">-4.7%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Electronic</strong></td>
+                            <td>18,765,432</td>
+                            <td><span class="mom-value positive">+8.4%</span></td>
+                            <td>3,378,778</td>
+                            <td><span class="mom-value positive">+18.2%</span></td>
+                            <td>18.0%</td>
+                            <td><span class="mom-value positive">+9.0%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rock</strong></td>
+                            <td>12,345,678</td>
+                            <td><span class="mom-value positive">+5.2%</span></td>
+                            <td>1,851,852</td>
+                            <td><span class="mom-value positive">+7.8%</span></td>
+                            <td>15.0%</td>
+                            <td><span class="mom-value positive">+2.5%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Classical</strong></td>
+                            <td>9,876,543</td>
+                            <td><span class="mom-value negative">-2.1%</span></td>
+                            <td>1,185,185</td>
+                            <td><span class="mom-value positive">+1.2%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+3.4%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Jazz</strong></td>
+                            <td>7,654,321</td>
+                            <td><span class="mom-value positive">+3.8%</span></td>
+                            <td>918,519</td>
+                            <td><span class="mom-value positive">+6.1%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+2.2%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>BGM Type</th>
-                <th>Posts Count</th>
-                <th>Total Views</th>
-                <th>Engagement Rate</th>
-                <th>Avg Duration</th>
-                <th>Top Platform</th>
-                <th>Growth Rate</th>
-            </tr>
-        </thead>
-        <tbody id="dataTableBody">
-        </tbody>
-    </table>
 
     <script>
         // Sample data for BGM types
         const bgmData = {
-            types: ['Pop', 'Electronic', 'Hip-Hop', 'Instrumental', 'Rock', 'Classical'],
-            posts: [847000, 648000, 578000, 489000, 356000, 234000],
-            likes: [124000000, 89000000, 95000000, 67000000, 45000000, 28000000],
-            comments: [8700000, 6200000, 7100000, 4800000, 3200000, 1900000],
-            shares: [3200000, 2400000, 2800000, 1900000, 1300000, 800000],
-            views: [847000000, 612000000, 698000000, 456000000, 298000000, 187000000],
-            creators: [45200, 38900, 42100, 28700, 19800, 12400]
+            types: ['Pop Music', 'Hip Hop', 'Electronic', 'Rock', 'Classical', 'Jazz'],
+            postCounts: [45234567, 32876543, 18765432, 12345678, 9876543, 7654321],
+            interactionCounts: [6785234, 4931481, 3378778, 1851852, 1185185, 918519],
+            interactionRates: [15.0, 15.0, 18.0, 15.0, 12.0, 12.0],
+            momRates: [8.3, 12.1, 9.7, 5.4, 3.2, 4.8], // MoM interaction rate changes
+            postMoM: [15.6, 24.7, 8.4, 5.2, -2.1, 3.8],
+            interactionMoM: [12.3, 18.9, 18.2, 7.8, 1.2, 6.1],
+            rateMoM: [-2.1, -4.7, 9.0, 2.5, 3.4, 2.2]
         };
 
-        // Chart 1: Overall Distribution
-        const chart1 = echarts.init(document.getElementById('chart1'));
-        const option1 = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b}: {c} ({d}%)'
-            },
-            legend: {
-                orient: 'vertical',
-                left: 'left',
-                data: bgmData.types
-            },
-            series: [
-                {
-                    name: 'BGM Types',
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    avoidLabelOverlap: false,
-                    label: {
-                        show: false,
-                        position: 'center'
-                    },
-                    emphasis: {
-                        label: {
-                            show: true,
-                            fontSize: '18',
-                            fontWeight: 'bold'
-                        }
-                    },
-                    labelLine: {
-                        show: false
-                    },
-                    data: bgmData.types.map((type, index) => ({
-                        value: bgmData.posts[index],
-                        name: type
-                    }))
-                }
-            ]
-        };
-        chart1.setOption(option1);
+        // Initialize charts
+        const stackedBarChart = echarts.init(document.getElementById('stackedBarChart'));
+        const scatterChart = echarts.init(document.getElementById('scatterChart'));
+        const trendChart = echarts.init(document.getElementById('trendChart'));
 
-        // Chart 2: Performance Comparison
-        const chart2 = echarts.init(document.getElementById('chart2'));
-        const option2 = {
+        // Vertical Bar Chart with Line Overlay
+        const stackedBarOption = {
             tooltip: {
                 trigger: 'axis',
-                axisPointer: {
-                    type: 'cross'
-                }
+                axisPointer: { type: 'cross' }
             },
             legend: {
-                data: ['Posts (K)', 'Likes (M)', 'Comments (K)', 'Shares (K)']
+                data: ['Post Count', 'Interaction Count', 'MoM Rate Trend']
             },
             grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
+                left: '10%',
+                right: '10%',
+                top: '15%',
+                bottom: '15%'
             },
             xAxis: {
                 type: 'category',
-                data: bgmData.types
+                data: bgmData.types,
+                axisLabel: {
+                    rotate: 45,
+                    interval: 0
+                }
             },
             yAxis: [
                 {
                     type: 'value',
-                    name: 'Count'
+                    name: 'Count (M)',
+                    position: 'left',
+                    axisLabel: { formatter: '{value}M' }
+                },
+                {
+                    type: 'value',
+                    name: 'MoM Rate (%)',
+                    position: 'right',
+                    axisLabel: { formatter: '{value}%' }
                 }
             ],
             series: [
                 {
-                    name: 'Posts (K)',
+                    name: 'Post Count',
                     type: 'bar',
-                    data: bgmData.posts.map(val => Math.round(val / 1000))
+                    yAxisIndex: 0,
+                    data: bgmData.postCounts.map(v => (v / 1000000).toFixed(1)),
+                    itemStyle: { color: '#5470c6' },
+                    stack: 'total'
                 },
                 {
-                    name: 'Likes (M)',
+                    name: 'Interaction Count',
                     type: 'bar',
-                    data: bgmData.likes.map(val => Math.round(val / 1000000))
+                    yAxisIndex: 0,
+                    data: bgmData.interactionCounts.map(v => (v / 1000000).toFixed(1)),
+                    itemStyle: { color: '#91cc75' },
+                    stack: 'total'
                 },
                 {
-                    name: 'Comments (K)',
-                    type: 'bar',
-                    data: bgmData.comments.map(val => Math.round(val / 1000))
-                },
-                {
-                    name: 'Shares (K)',
-                    type: 'bar',
-                    data: bgmData.shares.map(val => Math.round(val / 1000))
-                }
-            ]
-        };
-        chart2.setOption(option2);
-
-        // Chart 3: Views and Creator Analysis
-        const chart3 = echarts.init(document.getElementById('chart3'));
-        const option3 = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'cross'
-                }
-            },
-            legend: {
-                data: ['Views (M)', 'Creators']
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                data: bgmData.types
-            },
-            yAxis: [
-                {
-                    type: 'value',
-                    name: 'Views (M)',
-                    position: 'left'
-                },
-                {
-                    type: 'value',
-                    name: 'Creators',
-                    position: 'right'
-                }
-            ],
-            series: [
-                {
-                    name: 'Views (M)',
-                    type: 'bar',
-                    data: bgmData.views.map(val => Math.round(val / 1000000))
-                },
-                {
-                    name: 'Creators',
+                    name: 'MoM Rate Trend',
                     type: 'line',
                     yAxisIndex: 1,
-                    data: bgmData.creators
+                    data: bgmData.momRates,
+                    itemStyle: { color: '#fac858' },
+                    lineStyle: { width: 3 },
+                    symbol: 'circle',
+                    symbolSize: 8
                 }
             ]
         };
-        chart3.setOption(option3);
 
-        // Download functions
+        // Scatter Plot with MoM Tooltip
+        const scatterOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    const index = params.dataIndex;
+                    return `${bgmData.types[index]}<br/>
+                            Post Count: ${(bgmData.postCounts[index] / 1000000).toFixed(1)}M<br/>
+                            Interaction Rate MoM: <span style="color: ${bgmData.rateMoM[index] > 0 ? '#28a745' : '#dc3545'}">${bgmData.rateMoM[index] > 0 ? '+' : ''}${bgmData.rateMoM[index]}%</span>`;
+                }
+            },
+            xAxis: {
+                type: 'value',
+                name: 'Post Count (M)',
+                nameLocation: 'middle',
+                nameGap: 30,
+                axisLabel: { formatter: '{value}M' }
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Interaction Rate (%)',
+                nameLocation: 'middle',
+                nameGap: 40
+            },
+            series: [{
+                type: 'scatter',
+                data: bgmData.types.map((type, index) => [
+                    (bgmData.postCounts[index] / 1000000).toFixed(1),
+                    bgmData.interactionRates[index]
+                ]),
+                symbolSize: function(data, params) {
+                    return Math.max(bgmData.rateMoM[params.dataIndex] * 2 + 20, 10);
+                },
+                itemStyle: {
+                    color: function(params) {
+                        return bgmData.rateMoM[params.dataIndex] > 0 ? '#28a745' : '#dc3545';
+                    }
+                }
+            }]
+        };
+
+        // Three-Axis Trend Chart with MoM Lines
+        const trendOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { type: 'cross' }
+            },
+            legend: {
+                data: ['Post Count', 'Interaction Count', 'Interaction Rate', 'Post MoM', 'Interaction MoM', 'Rate MoM'],
+                selected: {
+                    'Post MoM': false,
+                    'Interaction MoM': false,
+                    'Rate MoM': false
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: bgmData.types
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Count (M)',
+                    position: 'left',
+                    axisLabel: { formatter: '{value}M' }
+                },
+                {
+                    type: 'value',
+                    name: 'Rate (%)',
+                    position: 'right',
+                    axisLabel: { formatter: '{value}%' }
+                },
+                {
+                    type: 'value',
+                    name: 'MoM (%)',
+                    position: 'right',
+                    offset: 80,
+                    axisLabel: { formatter: '{value}%' }
+                }
+            ],
+            series: [
+                {
+                    name: 'Post Count',
+                    type: 'line',
+                    yAxisIndex: 0,
+                    data: bgmData.postCounts.map(v => (v / 1000000).toFixed(1)),
+                    itemStyle: { color: '#5470c6' }
+                },
+                {
+                    name: 'Interaction Count',
+                    type: 'line',
+                    yAxisIndex: 0,
+                    data: bgmData.interactionCounts.map(v => (v / 1000000).toFixed(1)),
+                    itemStyle: { color: '#91cc75' }
+                },
+                {
+                    name: 'Interaction Rate',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: bgmData.interactionRates,
+                    itemStyle: { color: '#fac858' }
+                },
+                {
+                    name: 'Post MoM',
+                    type: 'line',
+                    yAxisIndex: 2,
+                    data: bgmData.postMoM,
+                    itemStyle: { color: '#ee6666' },
+                    lineStyle: { type: 'dashed' }
+                },
+                {
+                    name: 'Interaction MoM',
+                    type: 'line',
+                    yAxisIndex: 2,
+                    data: bgmData.interactionMoM,
+                    itemStyle: { color: '#73c0de' },
+                    lineStyle: { type: 'dashed' }
+                },
+                {
+                    name: 'Rate MoM',
+                    type: 'line',
+                    yAxisIndex: 2,
+                    data: bgmData.rateMoM,
+                    itemStyle: { color: '#3ba272' },
+                    lineStyle: { type: 'dashed' }
+                }
+            ]
+        };
+
+        // Set chart options
+        stackedBarChart.setOption(stackedBarOption);
+        scatterChart.setOption(scatterOption);
+        trendChart.setOption(trendOption);
+
+        // Download chart function
         function downloadChart(chartId) {
             const chart = echarts.getInstanceByDom(document.getElementById(chartId));
             const url = chart.getDataURL({
                 pixelRatio: 2,
                 backgroundColor: '#fff'
             });
-            
             const link = document.createElement('a');
             link.href = url;
-            link.download = `bgm-type-analysis-${chartId}.png`;
+            link.download = chartId + '.png';
             link.click();
         }
 
-        function downloadData(type) {
-            let csvContent = '';
-            let filename = '';
-            
-            if (type === 'overall-distribution') {
-                csvContent = 'BGM Type,Posts,Percentage\n';
-                const total = bgmData.posts.reduce((a, b) => a + b, 0);
-                bgmData.types.forEach((bgmType, index) => {
-                    const percentage = ((bgmData.posts[index] / total) * 100).toFixed(1);
-                    csvContent += `${bgmType},${bgmData.posts[index]},${percentage}%\n`;
-                });
-                filename = 'bgm-type-distribution.csv';
-            } else if (type === 'performance-metrics') {
-                csvContent = 'BGM Type,Posts,Views,Engagement Rate (%)\n';
-                bgmData.types.forEach((bgmType, index) => {
-                    csvContent += `${bgmType},${bgmData.posts[index]},${bgmData.views[index]},${bgmData.engagementRate[index]}\n`;
-                });
-                filename = 'bgm-type-performance.csv';
-            } else if (type === 'trend-analysis') {
-                csvContent = 'Month,Pop,Electronic,Hip-Hop,Instrumental\n';
-                months.forEach((month, index) => {
-                    csvContent += `${month},${trendData['Pop'][index]},${trendData['Electronic'][index]},${trendData['Hip-Hop'][index]},${trendData['Instrumental'][index]}\n`;
-                });
-                filename = 'bgm-type-trends.csv';
-            }
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Populate data table
-        function populateDataTable() {
-            const tableBody = document.getElementById('dataTableBody');
-            let html = '';
-
-            bgmData.types.forEach((bgmType, index) => {
-                const posts = bgmData.posts[index];
-                const views = bgmData.views[index];
-                const engagementRate = bgmData.engagementRate[index];
-                const avgDuration = bgmData.avgDuration[index];
-                const topPlatform = bgmData.topPlatform[index];
-                const growthRate = bgmData.growthRate[index];
-                
-                html += `
-                    <tr>
-                        <td><strong>${bgmType}</strong></td>
-                        <td>${posts.toLocaleString()}</td>
-                        <td>${(views / 1000000).toFixed(1)}M</td>
-                        <td>${engagementRate}%</td>
-                        <td>${avgDuration}min</td>
-                        <td>${topPlatform}</td>
-                        <td style="color: ${growthRate >= 0 ? '#28a745' : '#dc3545'}">${growthRate >= 0 ? '+' : ''}${growthRate}%</td>
-                    </tr>
-                `;
-            });
-            
-            tableBody.innerHTML = html;
-        }
-
+        // Download table data function
         function downloadTableData() {
-            let csvContent = 'BGM Type,Posts,Views,Engagement Rate (%),Avg Duration (min),Top Platform,Growth Rate (%)\n';
-            bgmData.types.forEach((bgmType, index) => {
-                csvContent += `${bgmType},${bgmData.posts[index]},${bgmData.views[index]},${bgmData.engagementRate[index]},${bgmData.avgDuration[index]},${bgmData.topPlatform[index]},${bgmData.growthRate[index]}\n`;
-            });
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "BGM Type,Post Count,Post Count MoM (%),Interaction Count,Interaction MoM (%),Interaction Rate,Rate MoM (%)\n"
+                + bgmData.types.map((type, index) => 
+                    `${type},${bgmData.postCounts[index]},${bgmData.postMoM[index]}%,${bgmData.interactionCounts[index]},${bgmData.interactionMoM[index]}%,${bgmData.interactionRates[index]}%,${bgmData.rateMoM[index]}%`
+                ).join("\n");
             
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'bgm-type-comprehensive-analysis.csv');
-            link.style.visibility = 'hidden';
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "bgm_type_analysis.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        // Initialize data table
-        populateDataTable();
-
-        // Make charts responsive
+        // Responsive resize
         window.addEventListener('resize', function() {
-            chart1.resize();
-            chart2.resize();
-            chart3.resize();
+            stackedBarChart.resize();
+            scatterChart.resize();
+            trendChart.resize();
         });
     </script>
 </body>

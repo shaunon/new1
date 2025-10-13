@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BGM Type Language Analysis</title>
+    <title>BGM Type Analysis - Language Dimension</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -13,644 +13,730 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             padding: 20px;
         }
 
-        .container {
+        .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #667eea;
+        .summary-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border-left: 5px solid #007bff;
         }
 
-        .header h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
-            margin-bottom: 10px;
+        .summary-title {
+            font-size: 24px;
             font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
-        .header p {
-            color: #7f8c8d;
-            font-size: 1.2em;
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
         }
 
-        .data-card {
+        .summary-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .summary-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .summary-change {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .summary-change.positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .summary-change.negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
             background: white;
             border-radius: 15px;
             padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #667eea;
-            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
         }
 
-        .card-header {
+        .chart-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
-        .card-title {
-            font-size: 1.5em;
-            color: #2c3e50;
+        .chart-title {
+            font-size: 18px;
             font-weight: 600;
+            color: #2c3e50;
         }
 
-        .download-icon {
-            background: #667eea;
+        .download-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
             color: white;
             border: none;
-            padding: 8px 12px;
+            padding: 8px 16px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
+            font-weight: 500;
             transition: all 0.3s ease;
         }
 
-        .download-icon:hover {
-            background: #5a6fd8;
+        .download-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
         }
 
-        .chart-container {
+        .chart {
             width: 100%;
             height: 400px;
-            margin-bottom: 20px;
         }
 
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+        .data-table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
         }
 
-        .metric-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .metric-value {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .metric-label {
-            font-size: 0.9em;
-            opacity: 0.9;
+        .data-table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
         }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .data-table th,
-        .data-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
+            font-size: 14px;
         }
 
         .data-table th {
-            background: #667eea;
-            color: white;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: #495057;
             font-weight: 600;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 0;
         }
 
-        .data-table tr:hover {
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            color: #495057;
+        }
+
+        .data-table tbody tr:hover {
             background: #f8f9fa;
         }
 
-        .language-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: 500;
-            color: white;
+        .mom-value {
+            font-weight: 600;
         }
 
-        .lang-english { background: #3498db; }
-        .lang-chinese { background: #e74c3c; }
-        .lang-spanish { background: #f39c12; }
-        .lang-french { background: #9b59b6; }
-        .lang-german { background: #2c3e50; }
-        .lang-japanese { background: #e91e63; }
-        .lang-korean { background: #00bcd4; }
-        .lang-portuguese { background: #4caf50; }
-
-        .language-family {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 0.7em;
-            background: #ecf0f1;
-            color: #2c3e50;
-            margin-left: 5px;
+        .mom-value.positive {
+            color: #28a745;
         }
 
-        .usage-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 5px 0;
+        .mom-value.negative {
+            color: #dc3545;
         }
 
-        .bar-container {
-            flex: 1;
-            height: 8px;
-            background: #ecf0f1;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .bar-fill {
-            height: 100%;
-            transition: width 0.3s ease;
-            border-radius: 4px;
+        @media (max-width: 768px) {
+            .chart {
+                height: 350px;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Key Metrics -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Language Diversity Metrics</h2>
-                <button class="download-icon" onclick="downloadMetrics()">📊 Download</button>
-            </div>
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-value">15.3K</div>
-                    <div class="metric-label">Total Posts</div>
+    <div class="dashboard-container">
+        <!-- Data Summary Section -->
+        <div class="summary-section">
+            <div class="summary-title">BGM Type Analysis - Language Dimension Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Total Languages</div>
+                    <div class="summary-value">15</div>
+                    <div class="summary-change positive">+3 MoM</div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-value">4.1M</div>
-                    <div class="metric-label">Total Likes</div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Post Count</div>
+                    <div class="summary-value">125.8M</div>
+                    <div class="summary-change positive">+12.3% MoM</div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-value">980K</div>
-                    <div class="metric-label">Total Comments</div>
+                <div class="summary-item">
+                    <div class="summary-label">Top Language</div>
+                    <div class="summary-value">English</div>
+                    <div class="summary-change positive">+11.7% MoM</div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-value">1.8M</div>
-                    <div class="metric-label">Total Shares</div>
+                <div class="summary-item">
+                    <div class="summary-label">Highest Interaction Rate</div>
+                    <div class="summary-value">Korean</div>
+                    <div class="summary-change positive">+18.3% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Fastest Growing</div>
+                    <div class="summary-value">Spanish</div>
+                    <div class="summary-change positive">+31.2% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Average Interaction Rate</div>
+                    <div class="summary-value">14.9%</div>
+                    <div class="summary-change positive">+2.1% MoM</div>
                 </div>
             </div>
         </div>
 
-        <!-- Language Distribution Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">BGM Posts by Language</h2>
-                <button class="download-icon" onclick="downloadChart('languageDistribution')">📊 Download</button>
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Grouped Bar Chart with MoM Labels -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">BGM Performance by Language with MoM Growth</div>
+                    <button class="download-btn" onclick="downloadChart('barChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="barChart" class="chart"></div>
             </div>
-            <div id="languageDistribution" class="chart-container"></div>
+
+            <!-- Radar Chart with MoM Tooltips -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Multi-Dimensional Language Performance with MoM Comparisons</div>
+                    <button class="download-btn" onclick="downloadChart('radarChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="radarChart" class="chart"></div>
+            </div>
+
+            <!-- Sankey Diagram with MoM Flow Changes -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Language Flow Analysis with MoM Changes</div>
+                    <button class="download-btn" onclick="downloadChart('sankeyChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="sankeyChart" class="chart"></div>
+            </div>
         </div>
 
-        <!-- BGM Preferences by Language Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">BGM Type Preferences by Language</h2>
-                <button class="download-icon" onclick="downloadChart('bgmPreferences')">📊 Download</button>
+        <!-- Data Table Section -->
+        <div class="data-table-container">
+            <div class="chart-header">
+                <div class="chart-title">Detailed Language Performance Data</div>
+                <button class="download-btn" onclick="downloadTableData()" title="Download Data">
+                    📥 Download CSV
+                </button>
             </div>
-            <div id="bgmPreferences" class="chart-container"></div>
-        </div>
-
-        <!-- Language Family Analysis Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">BGM Trends by Language Family</h2>
-                <button class="download-icon" onclick="downloadChart('languageFamily')">📊 Download</button>
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Language</th>
+                            <th>Post Count</th>
+                            <th>Post MoM</th>
+                            <th>Engagement Count</th>
+                            <th>Engagement MoM</th>
+                            <th>Engagement Rate</th>
+                            <th>Rate MoM</th>
+                            <th>Avg Interaction</th>
+                            <th>Interaction MoM</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>English</td>
+                            <td>25,234,567</td>
+                            <td><span class="mom-value positive">+15.3%</span></td>
+                            <td>2,523,456</td>
+                            <td><span class="mom-value positive">+18.7%</span></td>
+                            <td>10.0%</td>
+                            <td><span class="mom-value positive">+2.9%</span></td>
+                            <td>420,576</td>
+                            <td><span class="mom-value positive">+12.4%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Spanish</td>
+                            <td>18,765,432</td>
+                            <td><span class="mom-value positive">+22.4%</span></td>
+                            <td>1,876,543</td>
+                            <td><span class="mom-value positive">+25.8%</span></td>
+                            <td>10.0%</td>
+                            <td><span class="mom-value positive">+2.9%</span></td>
+                            <td>312,757</td>
+                            <td><span class="mom-value positive">+15.2%</span></td>
+                        </tr>
+                        <tr>
+                            <td>French</td>
+                            <td>12,345,678</td>
+                            <td><span class="mom-value positive">+19.7%</span></td>
+                            <td>1,481,481</td>
+                            <td><span class="mom-value positive">+23.4%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+3.1%</span></td>
+                            <td>205,946</td>
+                            <td><span class="mom-value positive">+13.8%</span></td>
+                        </tr>
+                        <tr>
+                            <td>German</td>
+                            <td>15,678,901</td>
+                            <td><span class="mom-value positive">+17.2%</span></td>
+                            <td>1,881,468</td>
+                            <td><span class="mom-value positive">+20.8%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+3.0%</span></td>
+                            <td>261,315</td>
+                            <td><span class="mom-value positive">+14.5%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Dutch</td>
+                            <td>9,876,543</td>
+                            <td><span class="mom-value positive">+13.8%</span></td>
+                            <td>1,185,185</td>
+                            <td><span class="mom-value positive">+17.1%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+2.9%</span></td>
+                            <td>164,609</td>
+                            <td><span class="mom-value positive">+10.7%</span></td>
+                        </tr>
+                        <tr>
+                            <td>Japanese</td>
+                            <td>8,765,432</td>
+                            <td><span class="mom-value positive">+11.5%</span></td>
+                            <td>1,052,651</td>
+                            <td><span class="mom-value positive">+14.2%</span></td>
+                            <td>12.0%</td>
+                            <td><span class="mom-value positive">+2.9%</span></td>
+                            <td>543,210</td>
+                            <td><span class="mom-value positive">+11.2%</span></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div id="languageFamily" class="chart-container"></div>
-        </div>
-
-        <!-- Language Analysis Table -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Detailed Language Analysis</h2>
-                <button class="download-icon" onclick="downloadTable('languageTable')">📊 Download</button>
-            </div>
-            <table class="data-table" id="languageTable">
-                <thead>
-                    <tr>
-                        <th>Language</th>
-                        <th>Family</th>
-                        <th>Total Posts</th>
-                        <th>Top BGM Type</th>
-                        <th>Engagement Rate</th>
-                        <th>Growth Rate</th>
-                        <th>Market Share</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><span class="language-badge lang-english">English</span><span class="language-family">Germanic</span></td>
-                        <td>Indo-European</td>
-                        <td>5,240</td>
-                        <td>Pop Music</td>
-                        <td>14.2%</td>
-                        <td>+12.8%</td>
-                        <td>32.3%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="language-badge lang-chinese">Chinese</span><span class="language-family">Sino-Tibetan</span></td>
-                        <td>Sino-Tibetan</td>
-                        <td>3,890</td>
-                        <td>Electronic</td>
-                        <td>18.7%</td>
-                        <td>+22.1%</td>
-                        <td>24.0%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="language-badge lang-spanish">Spanish</span><span class="language-family">Romance</span></td>
-                        <td>Indo-European</td>
-                        <td>2,650</td>
-                        <td>Pop Music</td>
-                        <td>16.3%</td>
-                        <td>+15.4%</td>
-                        <td>16.4%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="language-badge lang-french">French</span><span class="language-family">Romance</span></td>
-                        <td>Indo-European</td>
-                        <td>1,820</td>
-                        <td>Jazz</td>
-                        <td>12.9%</td>
-                        <td>+8.7%</td>
-                        <td>11.2%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="language-badge lang-german">German</span><span class="language-family">Germanic</span></td>
-                        <td>Indo-European</td>
-                        <td>1,590</td>
-                        <td>Classical</td>
-                        <td>11.4%</td>
-                        <td>+6.2%</td>
-                        <td>9.8%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="language-badge lang-japanese">Japanese</span><span class="language-family">Japonic</span></td>
-                        <td>Japonic</td>
-                        <td>1,340</td>
-                        <td>Electronic</td>
-                        <td>19.2%</td>
-                        <td>+18.3%</td>
-                        <td>8.3%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="language-badge lang-korean">Korean</span><span class="language-family">Koreanic</span></td>
-                        <td>Koreanic</td>
-                        <td>980</td>
-                        <td>Pop Music</td>
-                        <td>21.5%</td>
-                        <td>+25.7%</td>
-                        <td>6.0%</td>
-                    </tr>
-                    <tr>
-                        <td><span class="language-badge lang-portuguese">Portuguese</span><span class="language-family">Romance</span></td>
-                        <td>Indo-European</td>
-                        <td>850</td>
-                        <td>Rock</td>
-                        <td>13.8%</td>
-                        <td>+9.1%</td>
-                        <td>5.2%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Cross-Cultural Trends Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Cross-Cultural BGM Trends</h2>
-                <button class="download-icon" onclick="downloadChart('crossCultural')">📊 Download</button>
-            </div>
-            <div id="crossCultural" class="chart-container"></div>
         </div>
     </div>
 
     <script>
-        // Language Distribution Chart
-        const languageDistributionChart = echarts.init(document.getElementById('languageDistribution'));
-        const languageDistributionOption = {
-                tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b}: {c} ({d}%)'
+        // Sample data for language analysis
+        const languageData = {
+            barData: {
+                languages: ['English', 'Spanish', 'French', 'German', 'Dutch', 'Japanese'],
+                postCount: [25234567, 18765432, 12345678, 15678901, 9876543, 8765432],
+                engagementCount: [2523456, 1876543, 1481481, 1881468, 1185185, 1052651],
+                engagementRate: [10.0, 10.0, 12.0, 12.0, 12.0, 12.0],
+                postMoM: [15.3, 22.4, 19.7, 17.2, 13.8, 11.5],
+                engagementMoM: [18.7, 25.8, 23.4, 20.8, 17.1, 14.2],
+                rateMoM: [2.9, 2.9, 3.1, 3.0, 2.9, 2.9]
+            },
+            radarData: {
+                languages: ['English', 'Spanish', 'French', 'German', 'Dutch', 'Japanese'],
+                metrics: ['Post Count', 'Engagement', 'Growth Rate', 'Interaction', 'Reach', 'Quality'],
+                values: [
+                    [90, 85, 88, 92, 87, 89], // English
+                    [75, 78, 95, 80, 82, 85], // Spanish
+                    [60, 70, 85, 65, 68, 88], // French
+                    [70, 75, 80, 72, 75, 90], // German
+                    [50, 60, 75, 55, 58, 85], // Dutch
+                    [45, 55, 70, 48, 52, 92]  // Japanese
+                ]
+            },
+            sankeyData: {
+                nodes: [
+                    {name: 'Total Posts'},
+                    {name: 'English'}, {name: 'Spanish'}, {name: 'French'}, 
+                    {name: 'German'}, {name: 'Dutch'}, {name: 'Japanese'},
+                    {name: 'High Engagement'}, {name: 'Medium Engagement'}, {name: 'Low Engagement'}
+                ],
+                links: [
+                    {source: 0, target: 1, value: 25234567},
+                    {source: 0, target: 2, value: 18765432},
+                    {source: 0, target: 3, value: 12345678},
+                    {source: 0, target: 4, value: 15678901},
+                    {source: 0, target: 5, value: 9876543},
+                    {source: 0, target: 6, value: 8765432},
+                    {source: 1, target: 7, value: 15140540},
+                    {source: 1, target: 8, value: 7570270},
+                    {source: 1, target: 9, value: 2523757},
+                    {source: 2, target: 7, value: 11259259},
+                    {source: 2, target: 8, value: 5629630},
+                    {source: 2, target: 9, value: 1876543},
+                    {source: 3, target: 7, value: 7407407},
+                    {source: 3, target: 8, value: 3703704},
+                    {source: 3, target: 9, value: 1234567},
+                    {source: 4, target: 7, value: 9407340},
+                    {source: 4, target: 8, value: 4703670},
+                    {source: 4, target: 9, value: 1567891},
+                    {source: 5, target: 7, value: 5925926},
+                    {source: 5, target: 8, value: 2962963},
+                    {source: 5, target: 9, value: 987654},
+                    {source: 6, target: 7, value: 5259259},
+                    {source: 6, target: 8, value: 2629630},
+                    {source: 6, target: 9, value: 876543}
+                ]
+            }
+        };
+
+        // Initialize charts
+        const barChart = echarts.init(document.getElementById('barChart'));
+        const radarChart = echarts.init(document.getElementById('radarChart'));
+        const sankeyChart = echarts.init(document.getElementById('sankeyChart'));
+
+        // Bar Chart Configuration
+        const barOption = {
+            title: {
+                text: 'BGM Performance by Language',
+                left: 'center',
+                textStyle: {
+                    fontSize: 16,
+                    fontWeight: 'bold'
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function(params) {
+                    let result = params[0].name + '<br/>';
+                    params.forEach(function(item) {
+                        const seriesName = item.seriesName;
+                        const value = item.value;
+                        const dataIndex = item.dataIndex;
+                        let momValue = '';
+                        
+                        if (seriesName === 'Post Count') {
+                            momValue = languageData.barData.postMoM[dataIndex];
+                        } else if (seriesName === 'Engagement Count') {
+                            momValue = languageData.barData.engagementMoM[dataIndex];
+                        } else if (seriesName === 'Engagement Rate') {
+                            momValue = languageData.barData.rateMoM[dataIndex];
+                        }
+                        
+                        result += item.marker + ' ' + seriesName + ': ' + 
+                                 (typeof value === 'number' ? value.toLocaleString() : value) + 
+                                 (momValue ? ' (MoM: +' + momValue + '%)' : '') + '<br/>';
+                    });
+                    return result;
+                }
             },
             legend: {
-                orient: 'vertical',
-                left: 'left',
-                data: ['English', 'Chinese', 'Spanish', 'French', 'German', 'Japanese', 'Korean', 'Others']
+                data: ['Post Count', 'Engagement Count', 'Engagement Rate'],
+                top: 30
             },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                top: '15%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: languageData.barData.languages,
+                axisLabel: {
+                    rotate: 45
+                }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: 'Count',
+                    position: 'left',
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Rate (%)',
+                    position: 'right',
+                    axisLabel: {
+                        formatter: '{value}%'
+                    }
+                }
+            ],
             series: [
                 {
-                    name: 'Language',
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    avoidLabelOverlap: false,
+                    name: 'Post Count',
+                    type: 'bar',
+                    yAxisIndex: 0,
+                    data: languageData.barData.postCount,
+                    itemStyle: {
+                        color: '#5470c6'
+                    },
                     label: {
                         show: true,
-                        formatter: '{b}: {d}%'
-                    },
-                    emphasis: {
-                        label: {
-                            show: true,
-                            fontSize: '18',
+                        position: 'top',
+                        formatter: function(params) {
+                            const momValue = languageData.barData.postMoM[params.dataIndex];
+                            return '+' + momValue + '%';
+                        },
+                        textStyle: {
+                            color: '#28a745',
+                            fontSize: 10,
                             fontWeight: 'bold'
                         }
-                    },
-                    data: [
-                        { value: 5240, name: 'English', itemStyle: { color: '#3498db' } },
-                        { value: 3890, name: 'Chinese', itemStyle: { color: '#e74c3c' } },
-                        { value: 2650, name: 'Spanish', itemStyle: { color: '#f39c12' } },
-                        { value: 1820, name: 'French', itemStyle: { color: '#9b59b6' } },
-                        { value: 1590, name: 'German', itemStyle: { color: '#2c3e50' } },
-                        { value: 1340, name: 'Japanese', itemStyle: { color: '#e91e63' } },
-                        { value: 980, name: 'Korean', itemStyle: { color: '#00bcd4' } },
-                        { value: 1530, name: 'Others', itemStyle: { color: '#95a5a6' } }
-                    ]
-                }
-            ]
-        };
-        languageDistributionChart.setOption(languageDistributionOption);
-
-        // BGM Preferences by Language Chart
-        const bgmPreferencesChart = echarts.init(document.getElementById('bgmPreferences'));
-        const bgmPreferencesOption = {
-                tooltip: {
-                trigger: 'axis',
-                axisPointer: { type: 'shadow' }
-            },
-            legend: {
-                data: ['Pop Music', 'Electronic', 'Classical', 'Jazz', 'Rock'],
-                top: '10%'
-            },
-            xAxis: {
-                type: 'category',
-                data: ['English', 'Chinese', 'Spanish', 'French', 'German', 'Japanese', 'Korean', 'Portuguese']
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Percentage (%)'
-            },
-            series: [
-                {
-                    name: 'Pop Music',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [40, 25, 45, 20, 15, 30, 50, 25],
-                    itemStyle: { color: '#ff6b6b' }
-                },
-                {
-                    name: 'Electronic',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [25, 45, 20, 15, 20, 40, 25, 20],
-                    itemStyle: { color: '#4ecdc4' }
-                },
-                {
-                    name: 'Classical',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [15, 10, 15, 25, 40, 15, 10, 15],
-                    itemStyle: { color: '#45b7d1' }
-                },
-                {
-                    name: 'Jazz',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [10, 10, 10, 30, 15, 10, 10, 20],
-                    itemStyle: { color: '#f9ca24' }
-                },
-                {
-                    name: 'Rock',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [10, 10, 10, 10, 10, 5, 5, 20],
-                    itemStyle: { color: '#6c5ce7' }
-                }
-            ]
-        };
-        bgmPreferencesChart.setOption(bgmPreferencesOption);
-
-        // Language Family Analysis Chart
-        const languageFamilyChart = echarts.init(document.getElementById('languageFamily'));
-        const languageFamilyOption = {
-                tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: ['Indo-European', 'Sino-Tibetan', 'Japonic', 'Koreanic', 'Afro-Asiatic'],
-                top: '10%'
-            },
-            xAxis: {
-                type: 'category',
-                data: ['Pop Music', 'Electronic', 'Classical', 'Jazz', 'Rock']
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Engagement Rate (%)'
-            },
-            series: [
-                {
-                    name: 'Indo-European',
-                    type: 'line',
-                    data: [18.5, 16.2, 17.8, 19.1, 16.9],
-                    itemStyle: { color: '#3498db' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Sino-Tibetan',
-                    type: 'line',
-                    data: [17.2, 21.1, 15.8, 16.0, 16.2],
-                    itemStyle: { color: '#e74c3c' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Japonic',
-                    type: 'line',
-                    data: [17.8, 20.9, 16.5, 16.8, 15.5],
-                    itemStyle: { color: '#e91e63' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Koreanic',
-                    type: 'line',
-                    data: [22.2, 19.5, 15.2, 15.8, 15.0],
-                    itemStyle: { color: '#00bcd4' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Afro-Asiatic',
-                    type: 'line',
-                    data: [6.8, 6.0, 6.2, 7.2, 7.8],
-                    itemStyle: { color: '#f39c12' },
-                    lineStyle: { width: 3 }
-                }
-            ]
-        };
-        languageFamilyChart.setOption(languageFamilyOption);
-
-        // Cross-Cultural Trends Chart
-        const crossCulturalChart = echarts.init(document.getElementById('crossCultural'));
-        const crossCulturalOption = {
-                tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: ['Western Pop Influence', 'Asian Electronic Fusion', 'Classical Crossover', 'World Music Blend'],
-                top: '10%'
-            },
-            xAxis: {
-                type: 'category',
-                data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Adoption Rate (%)'
-            },
-            series: [
-                {
-                    name: 'Western Pop Influence',
-                    type: 'line',
-                    data: [65, 68, 71, 74, 76, 78],
-                    itemStyle: { color: '#3498db' },
-                    lineStyle: { width: 3 },
-                    areaStyle: { opacity: 0.3 }
-                },
-                {
-                    name: 'Asian Electronic Fusion',
-                    type: 'line',
-                    data: [45, 48, 52, 56, 59, 62],
-                    itemStyle: { color: '#e74c3c' },
-                    lineStyle: { width: 3 },
-                    areaStyle: { opacity: 0.3 }
-                },
-                {
-                    name: 'Classical Crossover',
-                    type: 'line',
-                    data: [35, 37, 39, 41, 43, 45],
-                    itemStyle: { color: '#9b59b6' },
-                    lineStyle: { width: 3 },
-                    areaStyle: { opacity: 0.3 }
-                },
-                {
-                    name: 'World Music Blend',
-                    type: 'line',
-                    data: [25, 28, 32, 35, 38, 42],
-                    itemStyle: { color: '#f39c12' },
-                    lineStyle: { width: 3 },
-                    areaStyle: { opacity: 0.3 }
-                }
-            ]
-        };
-        crossCulturalChart.setOption(crossCulturalOption);
-
-        // Resize charts on window resize
-        window.addEventListener('resize', function() {
-            languageDistributionChart.resize();
-            bgmPreferencesChart.resize();
-            languageFamilyChart.resize();
-            crossCulturalChart.resize();
-        });
-
-        // Download functions
-        function downloadChart(chartId) {
-            let chart;
-            switch(chartId) {
-                case 'languageDistribution':
-                    chart = languageDistributionChart;
-                    break;
-                case 'bgmPreferences':
-                    chart = bgmPreferencesChart;
-                    break;
-                case 'languageFamily':
-                    chart = languageFamilyChart;
-                    break;
-                case 'crossCultural':
-                    chart = crossCulturalChart;
-                    break;
-            }
-            
-            if (chart) {
-                const url = chart.getDataURL({
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${chartId}_chart.png`;
-                link.click();
-            }
-        }
-
-        function downloadTable(tableId) {
-            const table = document.getElementById(tableId);
-            let csv = [];
-            const rows = table.querySelectorAll('tr');
-            
-            for (let i = 0; i < rows.length; i++) {
-                const row = [], cols = rows[i].querySelectorAll('td, th');
-                for (let j = 0; j < cols.length; j++) {
-                    let cellText = cols[j].innerText;
-                    // Remove badges for CSV
-                    if (cols[j].querySelector('.language-badge')) {
-                        cellText = cols[j].querySelector('.language-badge').innerText;
                     }
-                    row.push('"' + cellText + '"');
+                },
+                {
+                    name: 'Engagement Count',
+                    type: 'bar',
+                    yAxisIndex: 0,
+                    data: languageData.barData.engagementCount,
+                    itemStyle: {
+                        color: '#91cc75'
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const momValue = languageData.barData.engagementMoM[params.dataIndex];
+                            return '+' + momValue + '%';
+                        },
+                        textStyle: {
+                            color: '#28a745',
+                            fontSize: 10,
+                            fontWeight: 'bold'
+                        }
+                    }
+                },
+                {
+                    name: 'Engagement Rate',
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: languageData.barData.engagementRate,
+                    itemStyle: {
+                        color: '#fac858'
+                    },
+                    lineStyle: {
+                        width: 3
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            const momValue = languageData.barData.rateMoM[params.dataIndex];
+                            return '+' + momValue + '%';
+                        },
+                        textStyle: {
+                            color: '#28a745',
+                            fontSize: 10,
+                            fontWeight: 'bold'
+                        }
+                    }
                 }
-                csv.push(row.join(','));
+            ]
+        };
+
+        // Radar Chart Configuration
+        const radarOption = {
+            title: {
+                text: 'Multi-Dimensional Language Performance',
+                left: 'center',
+                textStyle: {
+                    fontSize: 16,
+                    fontWeight: 'bold'
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    return params.name + '<br/>' +
+                           params.marker + ' Score: ' + params.value + '<br/>' +
+                           '<span style="color: #28a745;">MoM Growth: +' + 
+                           (Math.random() * 10 + 5).toFixed(1) + '%</span>';
+                }
+            },
+            legend: {
+                data: languageData.radarData.languages,
+                top: 30,
+                type: 'scroll'
+            },
+            radar: {
+                indicator: languageData.radarData.metrics.map(metric => ({
+                    name: metric,
+                    max: 100
+                })),
+                center: ['50%', '55%'],
+                radius: '60%'
+            },
+            series: [{
+                name: 'Language Performance',
+                type: 'radar',
+                data: languageData.radarData.languages.map((lang, index) => ({
+                    value: languageData.radarData.values[index],
+                    name: lang
+                }))
+            }]
+        };
+
+        // Sankey Chart Configuration
+        const sankeyOption = {
+            title: {
+                text: 'Language Flow Analysis',
+                left: 'center',
+                textStyle: {
+                    fontSize: 16,
+                    fontWeight: 'bold'
+                }
+            },
+            tooltip: {
+                trigger: 'item',
+                triggerOn: 'mousemove',
+                formatter: function(params) {
+                    if (params.dataType === 'edge') {
+                        return params.data.source + ' → ' + params.data.target + 
+                               '<br/>Flow: ' + params.data.value.toLocaleString() +
+                               '<br/><span style="color: #28a745;">MoM: +' + 
+                               (Math.random() * 15 + 5).toFixed(1) + '%</span>';
+                    }
+                    return params.name;
+                }
+            },
+            series: {
+                type: 'sankey',
+                layout: 'none',
+                emphasis: {
+                    focus: 'adjacency'
+                },
+                data: languageData.sankeyData.nodes,
+                links: languageData.sankeyData.links,
+                itemStyle: {
+                    borderWidth: 1,
+                    borderColor: '#aaa'
+                },
+                lineStyle: {
+                    color: 'gradient',
+                    curveness: 0.5
+                }
             }
-            
-            const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
-            const downloadLink = document.createElement('a');
-            downloadLink.download = `${tableId}_data.csv`;
-            downloadLink.href = window.URL.createObjectURL(csvFile);
-            downloadLink.click();
+        };
+
+        // Set chart options
+        barChart.setOption(barOption);
+        radarChart.setOption(radarOption);
+        sankeyChart.setOption(sankeyOption);
+
+        // Download functionality
+        function downloadChart(chartId) {
+            const chart = chartId === 'barChart' ? barChart : 
+                         chartId === 'radarChart' ? radarChart : sankeyChart;
+            const url = chart.getDataURL({
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = chartId + '_language_analysis.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        function downloadMetrics() {
-            const metrics = [
-                ['Metric', 'Value'],
-                ['Languages Analyzed', '28'],
-                ['Language Families', '6'],
-                ['Multilingual Posts', '16.2K'],
-                ['Language Coverage', '89.4%']
+        function downloadTableData() {
+            const data = [
+                ['Language', 'Post Count', 'Post MoM', 'Engagement Count', 'Engagement MoM', 'Engagement Rate', 'Rate MoM', 'Avg Interaction', 'Interaction MoM'],
+                ['English', '25,234,567', '+15.3%', '2,523,456', '+18.7%', '10.0%', '+2.9%', '420,576', '+12.4%'],
+                ['Spanish', '18,765,432', '+22.4%', '1,876,543', '+25.8%', '10.0%', '+2.9%', '312,757', '+15.2%'],
+                ['French', '12,345,678', '+19.7%', '1,481,481', '+23.4%', '12.0%', '+3.1%', '205,946', '+13.8%'],
+                ['German', '15,678,901', '+17.2%', '1,881,468', '+20.8%', '12.0%', '+3.0%', '261,315', '+14.5%'],
+                ['Dutch', '9,876,543', '+13.8%', '1,185,185', '+17.1%', '12.0%', '+2.9%', '164,609', '+10.7%'],
+                ['Japanese', '8,765,432', '+11.5%', '1,052,651', '+14.2%', '12.0%', '+2.9%', '543,210', '+11.2%']
             ];
             
-            const csv = metrics.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-            const csvFile = new Blob([csv], { type: 'text/csv' });
-            const downloadLink = document.createElement('a');
-            downloadLink.download = 'language_metrics.csv';
-            downloadLink.href = window.URL.createObjectURL(csvFile);
-            downloadLink.click();
+            const csvContent = data.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'language_analysis_data.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
+
+        // Responsive resize
+        window.addEventListener('resize', function() {
+            barChart.resize();
+            radarChart.resize();
+            sankeyChart.resize();
+        });
     </script>
 </body>
 </html>

@@ -3,8 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BGM Tone Country Analysis</title>
+    <title>BGM Tone Analysis - Country Dimension</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script>
+        // 内嵌世界地图数据 - 使用正确的GeoJSON格式
+        echarts.registerMap('world', {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {"name": "United States"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [
+                            [[-130, 20], [-130, 50], [-60, 50], [-60, 20], [-130, 20]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature", 
+                    "properties": {"name": "China"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [
+                            [[70, 15], [70, 55], [140, 55], [140, 15], [70, 15]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Brazil"}, 
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [
+                            [[-75, -35], [-75, 10], [-30, 10], [-30, -35], [-75, -35]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Germany"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [
+                            [[5, 47], [5, 55], [15, 55], [15, 47], [5, 47]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "India"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [[
+                            [[68, 6], [68, 38], [98, 38], [98, 6], [68, 6]]
+                        ]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "United Kingdom"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [
+                            [[-8, 49], [-8, 61], [2, 61], [2, 49], [-8, 49]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Japan"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [
+                            [[129, 30], [129, 46], [146, 46], [146, 30], [129, 30]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "France"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [
+                            [[-5, 42], [-5, 51], [8, 51], [8, 42], [-5, 42]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Canada"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [
+                            [[-141, 41], [-141, 84], [-52, 84], [-52, 41], [-141, 41]]
+                        ]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"name": "Australia"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [
+                            [[112, -44], [112, -10], [154, -10], [154, -44], [112, -44]]
+                        ]
+                    }
+                }
+            ]
+        });
+    </script>
     <style>
         * {
             margin: 0;
@@ -13,845 +121,636 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
             padding: 20px;
+            background-color: #f5f5f5;
         }
 
-        .container {
+        .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 20px 30px; /* Reduced top padding since no header */
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-            display: none; /* Hide header section */
-        }
-
-        .header h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header p {
-            color: #7f8c8d;
-            font-size: 1.2em;
-        }
-
-        .data-card {
-            background: white;
-            border-radius: 15px;
+        .summary-section {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
             padding: 25px;
             margin-bottom: 30px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .summary-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .summary-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .summary-change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
             position: relative;
         }
 
-        .card-header {
+        .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
 
-        .card-title {
-            font-size: 1.5em;
-            color: #2c3e50;
+        .chart-title {
+            font-size: 18px;
             font-weight: 600;
+            color: #2c3e50;
         }
 
-        .download-icon {
-            background: #667eea;
-            color: white;
-            border: none;
+        .download-btn {
             padding: 8px 12px;
-            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            background: #f8f9fa;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
+            font-size: 12px;
+            color: #495057;
+            transition: all 0.2s ease;
         }
 
-        .download-icon:hover {
-            background: #5a6fd8;
-            transform: translateY(-2px);
+        .download-btn:hover {
+            background: #e9ecef;
+            color: #343a40;
         }
 
-        .chart-container {
+        .chart {
             width: 100%;
-            height: 450px; /* Increased height for better visibility */
-            margin-bottom: 20px;
+            height: 450px;
         }
 
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .metric-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
+        .data-section {
+            background: white;
             border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 25px;
         }
 
-        .metric-value {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 5px;
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
         }
 
-        .metric-label {
-            font-size: 0.9em;
-            opacity: 0.9;
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .data-table-container {
+            overflow-x: auto;
         }
 
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 13px;
         }
 
         .data-table th,
         .data-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
+            padding: 12px 8px;
+            text-align: center;
+            border: 1px solid #dee2e6;
         }
 
         .data-table th {
-            background: #667eea;
-            color: white;
+            background: #f8f9fa;
             font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
-        .data-table tr:hover {
+        .country-header {
+            background: #e3f2fd !important;
+            color: #1976d2 !important;
+            font-weight: 700;
+            min-width: 120px;
+        }
+
+        .metric-header {
+            background: #f3e5f5 !important;
+            color: #7b1fa2 !important;
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .metric-group-header {
+            background: #e8f5e8 !important;
+            color: #2e7d32 !important;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .mom-header {
+            background: #fff3e0 !important;
+            color: #f57c00 !important;
+            font-weight: 600;
+            min-width: 90px;
+        }
+
+        .data-table tbody tr:hover {
             background: #f8f9fa;
         }
 
-        .country-flag {
-            display: inline-block;
-            width: 24px;
-            height: 16px;
-            margin-right: 8px;
-            border-radius: 2px;
-            vertical-align: middle;
+        .mom-value {
+            font-weight: 600;
         }
 
-        .country-name {
-            display: flex;
-            align-items: center;
+        .mom-value.positive {
+            color: #28a745;
         }
 
-        .region-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: 500;
-            color: white;
+        .mom-value.negative {
+            color: #dc3545;
         }
 
-        .region-asia { background: #e74c3c; }
-        .region-europe { background: #3498db; }
-        .region-america { background: #27ae60; }
-        .region-africa { background: #f39c12; }
-        .region-oceania { background: #9b59b6; }
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart {
+                height: 350px;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Key Metrics -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Global BGM Tone Metrics</h2>
-                <button class="download-icon" onclick="downloadMetrics()">📊 Download</button>
-            </div>
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-value">21.3K</div>
-                    <div class="metric-label">Total Posts</div>
+    <div class="dashboard-container">
+        <!-- Data Summary Section -->
+        <div class="summary-section">
+            <div class="summary-title">BGM Tone Analysis by Country - Data Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Total Countries</div>
+                    <div class="summary-value">10</div>
+                    <div class="summary-change positive">+2 MoM</div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-value">6.8M</div>
-                    <div class="metric-label">Total Likes</div>
+                <div class="summary-item">
+                    <div class="summary-label">Top Country</div>
+                    <div class="summary-value">United States</div>
+                    <div class="summary-change positive">+12.8% MoM</div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-value">1.7M</div>
-                    <div class="metric-label">Total Comments</div>
+                <div class="summary-item">
+                    <div class="summary-label">Highest Interaction Rate</div>
+                    <div class="summary-value">Brazil</div>
+                    <div class="summary-change positive">+3.2% MoM</div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-value">2.9M</div>
-                    <div class="metric-label">Total Shares</div>
+                <div class="summary-item">
+                    <div class="summary-label">Most Popular Tone</div>
+                    <div class="summary-value">Upbeat</div>
+                    <div class="summary-change positive">+15.6% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Fastest Growing Country</div>
+                    <div class="summary-value">India</div>
+                    <div class="summary-change positive">+28.7% MoM</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Global Posts</div>
+                    <div class="summary-value">118.3M</div>
+                    <div class="summary-change positive">+9.7% MoM</div>
                 </div>
             </div>
         </div>
 
-        <!-- Global Distribution Map -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Global BGM Tone Distribution</h2>
-                <button class="download-icon" onclick="downloadChart('globalMap')">📊 Download</button>
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- World Map -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">BGM Tone Distribution by Country (World Map)</div>
+                    <button class="download-btn" onclick="downloadChart('worldMapChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="worldMapChart" class="chart"></div>
             </div>
-            <div id="globalMap" class="chart-container"></div>
+
+            <!-- Stacked Bar Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">BGM Tone Distribution by Country</div>
+                    <button class="download-btn" onclick="downloadChart('stackedBarChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="stackedBarChart" class="chart"></div>
+            </div>
+
+            <!-- Heatmap -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-title">Country vs BGM Tone Interaction Heatmap</div>
+                    <button class="download-btn" onclick="downloadChart('heatmapChart')" title="Download Chart">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="heatmapChart" class="chart"></div>
+            </div>
         </div>
 
-        <!-- Top Countries Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Top Countries by BGM Tone Posts</h2>
-                <button class="download-icon" onclick="downloadChart('topCountries')">📊 Download</button>
+        <!-- Data Table Section -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">BGM Tone Analysis by Country Data</div>
+                <button class="download-btn" onclick="downloadTableData()" title="Download Table Data">
+                    📥 Download CSV
+                </button>
             </div>
-            <div id="topCountries" class="chart-container"></div>
-        </div>
-
-        <!-- Regional Preferences Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Regional BGM Tone Preferences</h2>
-                <button class="download-icon" onclick="downloadChart('regionalPreferences')">📊 Download</button>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="country-header">Country</th>
+                            <th colspan="2" class="metric-group-header">Post Count</th>
+                            <th colspan="2" class="metric-group-header">Interaction Count</th>
+                            <th colspan="2" class="metric-group-header">Interaction Rate</th>
+                            <th rowspan="2" class="metric-header">Top BGM Tone</th>
+                        </tr>
+                        <tr>
+                            <th class="metric-header">Count</th>
+                            <th class="mom-header">MoM (%)</th>
+                            <th class="metric-header">Count</th>
+                            <th class="mom-header">MoM (%)</th>
+                            <th class="metric-header">Rate</th>
+                            <th class="mom-header">MoM (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="country-header">United States</td>
+                            <td>32.4M</td>
+                            <td><span class="mom-value positive">+12.8%</span></td>
+                            <td>4.9M</td>
+                            <td><span class="mom-value positive">+15.2%</span></td>
+                            <td>15.1%</td>
+                            <td><span class="mom-value positive">+2.1%</span></td>
+                            <td>Upbeat</td>
+                        </tr>
+                        <tr>
+                            <td class="country-header">China</td>
+                            <td>28.7M</td>
+                            <td><span class="mom-value positive">+8.4%</span></td>
+                            <td>3.8M</td>
+                            <td><span class="mom-value positive">+11.7%</span></td>
+                            <td>13.2%</td>
+                            <td><span class="mom-value positive">+3.0%</span></td>
+                            <td>Energetic</td>
+                        </tr>
+                        <tr>
+                            <td class="country-header">Brazil</td>
+                            <td>15.2M</td>
+                            <td><span class="mom-value positive">+18.3%</span></td>
+                            <td>2.7M</td>
+                            <td><span class="mom-value positive">+21.8%</span></td>
+                            <td>17.8%</td>
+                            <td><span class="mom-value positive">+3.2%</span></td>
+                            <td>Upbeat</td>
+                        </tr>
+                        <tr>
+                            <td class="country-header">India</td>
+                            <td>12.8M</td>
+                            <td><span class="mom-value positive">+28.7%</span></td>
+                            <td>1.9M</td>
+                            <td><span class="mom-value positive">+32.1%</span></td>
+                            <td>14.8%</td>
+                            <td><span class="mom-value positive">+2.6%</span></td>
+                            <td>Dramatic</td>
+                        </tr>
+                        <tr>
+                            <td class="country-header">Germany</td>
+                            <td>8.9M</td>
+                            <td><span class="mom-value positive">+6.2%</span></td>
+                            <td>1.2M</td>
+                            <td><span class="mom-value positive">+8.9%</span></td>
+                            <td>13.5%</td>
+                            <td><span class="mom-value positive">+2.5%</span></td>
+                            <td>Calm</td>
+                        </tr>
+                        <tr>
+                            <td class="country-header">United Kingdom</td>
+                            <td>7.3M</td>
+                            <td><span class="mom-value positive">+4.8%</span></td>
+                            <td>1.0M</td>
+                            <td><span class="mom-value positive">+7.2%</span></td>
+                            <td>13.7%</td>
+                            <td><span class="mom-value positive">+2.3%</span></td>
+                            <td>Upbeat</td>
+                        </tr>
+                        <tr>
+                            <td class="country-header">Japan</td>
+                            <td>6.1M</td>
+                            <td><span class="mom-value positive">+3.4%</span></td>
+                            <td>0.8M</td>
+                            <td><span class="mom-value positive">+5.1%</span></td>
+                            <td>13.1%</td>
+                            <td><span class="mom-value positive">+1.6%</span></td>
+                            <td>Calm</td>
+                        </tr>
+                        <tr>
+                            <td class="country-header">France</td>
+                            <td>4.2M</td>
+                            <td><span class="mom-value positive">+2.1%</span></td>
+                            <td>0.6M</td>
+                            <td><span class="mom-value positive">+4.3%</span></td>
+                            <td>14.3%</td>
+                            <td><span class="mom-value positive">+2.1%</span></td>
+                            <td>Energetic</td>
+                        </tr>
+                        <tr>
+                            <td class="country-header">Canada</td>
+                            <td>3.8M</td>
+                            <td><span class="mom-value positive">+5.7%</span></td>
+                            <td>0.5M</td>
+                            <td><span class="mom-value positive">+8.2%</span></td>
+                            <td>13.2%</td>
+                            <td><span class="mom-value positive">+2.4%</span></td>
+                            <td>Upbeat</td>
+                        </tr>
+                        <tr>
+                            <td class="country-header">Australia</td>
+                            <td>2.9M</td>
+                            <td><span class="mom-value positive">+7.3%</span></td>
+                            <td>0.4M</td>
+                            <td><span class="mom-value positive">+9.8%</span></td>
+                            <td>13.8%</td>
+                            <td><span class="mom-value positive">+2.3%</span></td>
+                            <td>Energetic</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div id="regionalPreferences" class="chart-container"></div>
-        </div>
-
-        <!-- Country Analysis Table -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Country Performance Analysis</h2>
-                <button class="download-icon" onclick="downloadTable('countryTable')">📊 Download</button>
-            </div>
-            <table class="data-table" id="countryTable">
-                <thead>
-                    <tr>
-                        <th>Country</th>
-                        <th>Region</th>
-                        <th>Total Posts</th>
-                        <th>Top BGM Tone</th>
-                        <th>Engagement Rate</th>
-                        <th>Growth Rate</th>
-                        <th>Market Share</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="country-name">
-                                <span class="country-flag" style="background: linear-gradient(to bottom, #ff0000 33%, #ffffff 33%, #ffffff 66%, #ff0000 66%);"></span>
-                                United States
-                            </div>
-                        </td>
-                        <td><span class="region-badge region-america">North America</span></td>
-                        <td>4,850</td>
-                        <td>Upbeat</td>
-                        <td>14.2%</td>
-                        <td>+18.5%</td>
-                        <td>22.8%</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="country-name">
-                                <span class="country-flag" style="background: linear-gradient(to bottom, #ff0000 33%, #ffffff 33%, #ffffff 66%, #ff0000 66%);"></span>
-                                China
-                            </div>
-                        </td>
-                        <td><span class="region-badge region-asia">Asia</span></td>
-                        <td>4,120</td>
-                        <td>Energetic</td>
-                        <td>19.3%</td>
-                        <td>+24.7%</td>
-                        <td>19.4%</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="country-name">
-                                <span class="country-flag" style="background: linear-gradient(to bottom, #000000 33%, #ff0000 33%, #ff0000 66%, #ffff00 66%);"></span>
-                                Germany
-                            </div>
-                        </td>
-                        <td><span class="region-badge region-europe">Europe</span></td>
-                        <td>2,890</td>
-                        <td>Calm</td>
-                        <td>15.8%</td>
-                        <td>+11.2%</td>
-                        <td>13.6%</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="country-name">
-                                <span class="country-flag" style="background: linear-gradient(to bottom, #0055a4 33%, #ffffff 33%, #ffffff 66%, #ef4135 66%);"></span>
-                                France
-                            </div>
-                        </td>
-                        <td><span class="region-badge region-europe">Europe</span></td>
-                        <td>2,340</td>
-                        <td>Romantic</td>
-                        <td>13.1%</td>
-                        <td>+8.9%</td>
-                        <td>11.0%</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="country-name">
-                                <span class="country-flag" style="background: linear-gradient(to bottom, #ffffff 25%, #ff0000 25%, #ff0000 75%, #ffffff 75%);"></span>
-                                Japan
-                            </div>
-                        </td>
-                        <td><span class="region-badge region-asia">Asia</span></td>
-                        <td>2,180</td>
-                        <td>Melancholic</td>
-                        <td>17.6%</td>
-                        <td>+15.3%</td>
-                        <td>10.2%</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <div class="country-name">
-                                <span class="country-flag" style="background: linear-gradient(to bottom, #009639 33%, #ffffff 33%, #ffffff 66%, #ce1126 66%);"></span>
-                                Italy
-                            </div>
-                        </td>
-                        <td><span class="region-badge region-europe">Europe</span></td>
-                        <td>1,820</td>
-                        <td>Dramatic</td>
-                        <td>14.9%</td>
-                        <td>+10.7%</td>
-                        <td>8.5%</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Cultural Trends Chart -->
-        <div class="data-card">
-            <div class="card-header">
-                <h2 class="card-title">Cultural BGM Tone Trends by Region</h2>
-                <button class="download-icon" onclick="downloadChart('culturalTrends')">📊 Download</button>
-            </div>
-            <div id="culturalTrends" class="chart-container"></div>
         </div>
     </div>
 
     <script>
-        // Global Map Chart
-        const globalMapChart = echarts.init(document.getElementById('globalMap'));
-        
-        // Enhanced world map data with multiple sources for better reliability
-        const loadWorldMap = async () => {
-            const mapSources = [
-                'https://geo.datav.aliyun.com/areas_v3/bound/world.json',
-                'https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson'
-            ];
-            
-            for (const source of mapSources) {
-                try {
-                    const response = await fetch(source);
-                    if (response.ok) {
-                        const worldJson = await response.json();
-                        echarts.registerMap('world', worldJson);
-                        return true;
-                    }
-                } catch (error) {
-                    console.warn(`Failed to load from ${source}:`, error);
-                }
-            }
-            return false;
+        // Sample data for BGM tones by country
+        const countryData = {
+            countries: ['United States', 'China', 'Brazil', 'India', 'Germany', 'United Kingdom', 'Japan', 'France', 'Canada', 'Australia'],
+            postCounts: [32400000, 28700000, 15200000, 12800000, 8900000, 7300000, 6100000, 4200000, 3800000, 2900000],
+            interactionCounts: [4900000, 3800000, 2700000, 1900000, 1200000, 1000000, 800000, 600000, 500000, 400000],
+            interactionRates: [15.1, 13.2, 17.8, 14.8, 13.5, 13.7, 13.1, 14.3, 13.2, 13.8],
+            postMoM: [12.8, 8.4, 18.3, 28.7, 6.2, 4.8, 3.4, 2.1, 5.7, 7.3],
+            interactionMoM: [15.2, 11.7, 21.8, 32.1, 8.9, 7.2, 5.1, 4.3, 8.2, 9.8],
+            rateMoM: [2.1, 3.0, 3.2, 2.6, 2.5, 2.3, 1.6, 2.1, 2.4, 2.3],
+            topTones: ['Upbeat', 'Energetic', 'Upbeat', 'Dramatic', 'Calm', 'Upbeat', 'Calm', 'Energetic', 'Upbeat', 'Energetic']
         };
 
-        loadWorldMap().then(success => {
-            const globalMapOption = {
-                tooltip: {
-                    trigger: 'item',
-                    backgroundColor: 'rgba(0,0,0,0.85)',
-                    borderColor: '#667eea',
-                    borderWidth: 1,
-                    textStyle: {
-                        color: '#fff',
-                        fontSize: 12
-                    },
-                    formatter: function(params) {
-                        if (params.data && params.data.value) {
-                            const bgmTones = params.data.bgmTones || {};
-                            let content = `<strong>${params.name}</strong><br/>`;
-                            content += `Total Posts: ${params.data.value}<br/>`;
-                            content += `Engagement: ${params.data.engagement || 'N/A'}<br/>`;
-                            if (Object.keys(bgmTones).length > 0) {
-                                content += `Main Tone: ${Object.keys(bgmTones)[0]}`;
-                            }
-                            return content;
-                        }
-                        return `${params.name}<br/>No Data Available`;
-                    }
-                },
-                visualMap: {
-                    min: 0,
-                    max: 5000,
-                    left: 'left',
-                    top: 'bottom',
-                    text: ['High', 'Low'],
-                    calculable: true,
-                    textStyle: {
-                        color: '#333',
-                        fontSize: 12
-                    },
-                    inRange: {
-                        color: ['#f7f7f7', '#d4e6f1', '#a9cce3', '#7fb3d3', '#5499c7', '#2980b9', '#1f618d']
-                    },
-                    outOfRange: {
-                        color: ['#f0f0f0']
-                    }
-                },
-                series: [
-                    {
-                        name: 'BGM Tone Posts',
-                        type: 'map',
-                        map: 'world',
-                        roam: true,
-                        scaleLimit: {
-                            min: 0.5,
-                            max: 5
-                        },
-                        zoom: 1.2,
-                        itemStyle: {
-                            borderColor: '#ffffff',
-                            borderWidth: 0.8,
-                            areaColor: '#f0f0f0'
-                        },
-                        emphasis: {
-                            label: {
-                                show: true,
-                                color: '#fff',
-                                fontSize: 12,
-                                fontWeight: 'bold'
-                            },
-                            itemStyle: {
-                                areaColor: '#ff6b6b',
-                                borderColor: '#fff',
-                                borderWidth: 2,
-                                shadowBlur: 10,
-                                shadowColor: 'rgba(0, 0, 0, 0.3)'
-                            }
-                        },
-                        select: {
-                            label: {
-                                show: true,
-                                color: '#fff'
-                            },
-                            itemStyle: {
-                                areaColor: '#667eea'
-                            }
-                        },
-                        data: [
-                            { 
-                                name: 'United States', 
-                                value: 4850,
-                                engagement: '14.2%',
-                                bgmTones: { 'Upbeat': 38, 'Energetic': 28, 'Calm': 20, 'Dramatic': 14 }
-                            },
-                            { 
-                                name: 'China', 
-                                value: 4120,
-                                engagement: '19.3%',
-                                bgmTones: { 'Energetic': 42, 'Upbeat': 25, 'Dramatic': 18, 'Calm': 15 }
-                            },
-                            { 
-                                name: 'Japan', 
-                                value: 2180,
-                                engagement: '17.6%',
-                                bgmTones: { 'Melancholic': 35, 'Calm': 28, 'Dramatic': 22, 'Upbeat': 15 }
-                            },
-                            { 
-                                name: 'Germany', 
-                                value: 2890,
-                                engagement: '15.8%',
-                                bgmTones: { 'Calm': 40, 'Upbeat': 25, 'Dramatic': 20, 'Energetic': 15 }
-                            },
-                            { 
-                                name: 'United Kingdom', 
-                                value: 1980,
-                                engagement: '13.5%',
-                                bgmTones: { 'Upbeat': 35, 'Calm': 30, 'Dramatic': 20, 'Energetic': 15 }
-                            },
-                            { 
-                                name: 'France', 
-                                value: 2340,
-                                engagement: '13.1%',
-                                bgmTones: { 'Romantic': 45, 'Calm': 25, 'Dramatic': 18, 'Upbeat': 12 }
-                            },
-                            { 
-                                name: 'Canada', 
-                                value: 1120,
-                                engagement: '12.8%',
-                                bgmTones: { 'Upbeat': 40, 'Calm': 30, 'Energetic': 20, 'Dramatic': 10 }
-                            },
-                            { 
-                                name: 'Australia', 
-                                value: 980,
-                                engagement: '16.2%',
-                                bgmTones: { 'Upbeat': 45, 'Energetic': 25, 'Calm': 20, 'Dramatic': 10 }
-                            },
-                            { 
-                                name: 'South Korea', 
-                                value: 1650,
-                                engagement: '22.1%',
-                                bgmTones: { 'Energetic': 50, 'Upbeat': 25, 'Dramatic': 15, 'Calm': 10 }
-                            },
-                            { 
-                                name: 'Brazil', 
-                                value: 1480,
-                                engagement: '18.7%',
-                                bgmTones: { 'Energetic': 55, 'Upbeat': 30, 'Dramatic': 10, 'Calm': 5 }
-                            },
-                            { 
-                                name: 'India', 
-                                value: 1320,
-                                engagement: '20.3%',
-                                bgmTones: { 'Energetic': 45, 'Dramatic': 25, 'Upbeat': 20, 'Calm': 10 }
-                            },
-                            { 
-                                name: 'Italy', 
-                                value: 1820,
-                                engagement: '14.9%',
-                                bgmTones: { 'Dramatic': 40, 'Romantic': 30, 'Calm': 20, 'Upbeat': 10 }
-                            },
-                            { 
-                                name: 'Spain', 
-                                value: 1450,
-                                engagement: '15.2%',
-                                bgmTones: { 'Dramatic': 35, 'Energetic': 30, 'Upbeat': 25, 'Calm': 10 }
-                            },
-                            { 
-                                name: 'Netherlands', 
-                                value: 890,
-                                engagement: '12.1%',
-                                bgmTones: { 'Calm': 40, 'Upbeat': 35, 'Dramatic': 15, 'Energetic': 10 }
-                            },
-                            { 
-                                name: 'Sweden', 
-                                value: 720,
-                                engagement: '11.8%',
-                                bgmTones: { 'Calm': 45, 'Melancholic': 25, 'Upbeat': 20, 'Dramatic': 10 }
-                            },
-                            { 
-                                name: 'Russia', 
-                                value: 980,
-                                engagement: '13.4%',
-                                bgmTones: { 'Dramatic': 40, 'Melancholic': 30, 'Calm': 20, 'Upbeat': 10 }
-                            },
-                            { 
-                                name: 'Mexico', 
-                                value: 1200,
-                                engagement: '17.8%',
-                                bgmTones: { 'Energetic': 50, 'Upbeat': 30, 'Dramatic': 15, 'Calm': 5 }
-                            }
-                        ]
-                    }
-                ]
-            };
-            
-            if (success) {
-                globalMapChart.setOption(globalMapOption);
-            } else {
-                // Enhanced fallback with better styling
-                const fallbackOption = {
-                tooltip: {
-                        trigger: 'item',
-                        formatter: '{b}: {c} Posts'
-                    },
-                    legend: {
-                        orient: 'vertical',
-                        left: 'left',
-                        top: 'middle'
-                    },
-                    series: [{
-                        name: 'BGM Tone Distribution',
-                        type: 'pie',
-                        radius: ['30%', '70%'],
-                        center: ['60%', '50%'],
-                        data: [
-                            { name: 'United States', value: 4850 },
-                    { name: 'China', value: 4120 },
-                    { name: 'Germany', value: 2890 },
-                    { name: 'France', value: 2340 },
-                    { name: 'Japan', value: 2180 },
-                    { name: 'Italy', value: 1820 },
-                    { name: 'Others', value: 3800 }
-                        ],
-                        itemStyle: {
-                            borderRadius: 5,
-                            borderColor: '#fff',
-                            borderWidth: 2
-                        },
-                        label: {
-                            show: true,
-                            formatter: '{b}\n{c} Posts'
-                        },
-                        emphasis: {
-                            itemStyle: {
-                                shadowBlur: 10,
-                                shadowOffsetX: 0,
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
-                            }
-                        }
-                    }]
-                };
-                globalMapChart.setOption(fallbackOption);
-            }
-        }).catch(error => {
-            console.error('Map loading failed:', error);
-        });
+        const toneData = {
+            tones: ['Upbeat', 'Energetic', 'Calm', 'Dramatic', 'Melancholic', 'Mysterious'],
+            colors: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272']
+        };
 
-        // Top Countries Chart
-        const topCountriesChart = echarts.init(document.getElementById('topCountries'));
-        const topCountriesOption = {
-                tooltip: {
+        // Initialize charts
+        const worldMapChart = echarts.init(document.getElementById('worldMapChart'));
+        const stackedBarChart = echarts.init(document.getElementById('stackedBarChart'));
+        const heatmapChart = echarts.init(document.getElementById('heatmapChart'));
+
+        // World Map Chart
+        const worldMapOption = {
+            tooltip: {
+                trigger: 'item',
+                formatter: function(params) {
+                    const index = countryData.countries.indexOf(params.name);
+                    if (index !== -1) {
+                        return `${params.name}<br/>
+                                Post Count: ${(countryData.postCounts[index] / 1000000).toFixed(1)}M<br/>
+                                Interaction Rate: ${countryData.interactionRates[index]}%<br/>
+                                Top BGM Tone: ${countryData.topTones[index]}`;
+                    }
+                    return params.name;
+                }
+            },
+            visualMap: {
+                min: 0,
+                max: 35,
+                text: ['High', 'Low'],
+                realtime: false,
+                calculable: true,
+                inRange: {
+                    color: ['#e0f3ff', '#006edd']
+                }
+            },
+            series: [{
+                name: 'Post Count (M)',
+                type: 'map',
+                map: 'world',
+                roam: true,
+                data: countryData.countries.map((country, index) => ({
+                    name: country,
+                    value: (countryData.postCounts[index] / 1000000).toFixed(1)
+                }))
+            }]
+        };
+
+        // Stacked Bar Chart
+        const stackedBarOption = {
+            tooltip: {
                 trigger: 'axis',
                 axisPointer: { type: 'shadow' }
             },
+            legend: {
+                data: toneData.tones
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
             xAxis: {
-                type: 'value',
-                name: 'Number of Posts'
+                type: 'value'
             },
             yAxis: {
                 type: 'category',
-                data: ['Australia', 'Canada', 'India', 'Brazil', 'Italy', 'Japan', 'France', 'Germany', 'China', 'United States']
+                data: countryData.countries
             },
-            series: [
-                {
-                    name: 'Posts',
-                    type: 'bar',
-                    data: [980, 1120, 1480, 1650, 1820, 2180, 2340, 2890, 4120, 4850],
+            series: toneData.tones.map((tone, toneIndex) => ({
+                name: tone,
+                type: 'bar',
+                stack: 'total',
+                data: countryData.countries.map((country, countryIndex) => {
+                    // Simulate tone distribution for each country
+                    const baseValue = countryData.postCounts[countryIndex] / 1000000;
+                    const distribution = [0.35, 0.25, 0.18, 0.12, 0.07, 0.03];
+                    return (baseValue * distribution[toneIndex]).toFixed(1);
+                }),
+                itemStyle: { color: toneData.colors[toneIndex] }
+            }))
+        };
+
+        // Heatmap Chart
+        const heatmapData = [];
+        countryData.countries.forEach((country, countryIndex) => {
+            toneData.tones.forEach((tone, toneIndex) => {
+                const baseRate = countryData.interactionRates[countryIndex];
+                const toneMultiplier = [1.2, 1.1, 0.9, 1.0, 0.6, 0.4];
+                const value = (baseRate * toneMultiplier[toneIndex]).toFixed(1);
+                heatmapData.push([toneIndex, countryIndex, value]);
+            });
+        });
+
+        const heatmapOption = {
+            tooltip: {
+                position: 'top',
+                formatter: function(params) {
+                    return `${toneData.tones[params.data[0]]}<br/>
+                            ${countryData.countries[params.data[1]]}<br/>
+                            Interaction Rate: ${params.data[2]}%`;
+                }
+            },
+            grid: {
+                height: '50%',
+                top: '10%'
+            },
+            xAxis: {
+                type: 'category',
+                data: toneData.tones,
+                splitArea: { show: true }
+            },
+            yAxis: {
+                type: 'category',
+                data: countryData.countries,
+                splitArea: { show: true }
+            },
+            visualMap: {
+                min: 0,
+                max: 20,
+                calculable: true,
+                orient: 'horizontal',
+                left: 'center',
+                bottom: '15%'
+            },
+            series: [{
+                name: 'Interaction Rate',
+                type: 'heatmap',
+                data: heatmapData,
+                label: {
+                    show: true
+                },
+                emphasis: {
                     itemStyle: {
-                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                            { offset: 0, color: '#667eea' },
-                            { offset: 1, color: '#764ba2' }
-                        ])
-                    },
-                    label: {
-                        show: true,
-                        position: 'right',
-                        formatter: '{c}'
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
                     }
                 }
-            ]
+            }]
         };
-        topCountriesChart.setOption(topCountriesOption);
 
-        // Regional Preferences Chart
-        const regionalPreferencesChart = echarts.init(document.getElementById('regionalPreferences'));
-        const regionalPreferencesOption = {
-                tooltip: {
-                trigger: 'axis',
-                axisPointer: { type: 'shadow' }
-            },
-            legend: {
-                data: ['Upbeat', 'Energetic', 'Calm', 'Dramatic', 'Romantic'],
-                top: '10%'
-            },
-            xAxis: {
-                type: 'category',
-                data: ['North America', 'Asia', 'Europe', 'South America', 'Africa', 'Oceania']
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Percentage (%)'
-            },
-            series: [
-                {
-                    name: 'Upbeat',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [38, 28, 22, 42, 35, 36],
-                    itemStyle: { color: '#ff6b6b' }
-                },
-                {
-                    name: 'Energetic',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [28, 38, 18, 25, 28, 30],
-                    itemStyle: { color: '#4ecdc4' }
-                },
-                {
-                    name: 'Calm',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [15, 12, 32, 12, 18, 16],
-                    itemStyle: { color: '#45b7d1' }
-                },
-                {
-                    name: 'Dramatic',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [12, 15, 20, 15, 12, 12],
-                    itemStyle: { color: '#f9ca24' }
-                },
-                {
-                    name: 'Romantic',
-                    type: 'bar',
-                    stack: 'total',
-                    data: [7, 7, 8, 6, 7, 6],
-                    itemStyle: { color: '#6c5ce7' }
-                }
-            ]
-        };
-        regionalPreferencesChart.setOption(regionalPreferencesOption);
+        // Set chart options
+        worldMapChart.setOption(worldMapOption);
+        stackedBarChart.setOption(stackedBarOption);
+        heatmapChart.setOption(heatmapOption);
 
-        // Cultural Trends Chart
-        const culturalTrendsChart = echarts.init(document.getElementById('culturalTrends'));
-        const culturalTrendsOption = {
-                tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: ['Western Upbeat', 'Asian Energetic', 'European Calm', 'Latin Dramatic', 'African Rhythmic'],
-                top: '10%'
-            },
-            xAxis: {
-                type: 'category',
-                data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Popularity Index'
-            },
-            series: [
-                {
-                    name: 'Western Upbeat',
-                    type: 'line',
-                    data: [88, 90, 92, 94, 96, 98],
-                    itemStyle: { color: '#e74c3c' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Asian Energetic',
-                    type: 'line',
-                    data: [75, 78, 82, 85, 88, 91],
-                    itemStyle: { color: '#3498db' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'European Calm',
-                    type: 'line',
-                    data: [68, 70, 72, 74, 76, 78],
-                    itemStyle: { color: '#27ae60' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'Latin Dramatic',
-                    type: 'line',
-                    data: [62, 65, 68, 71, 74, 77],
-                    itemStyle: { color: '#f39c12' },
-                    lineStyle: { width: 3 }
-                },
-                {
-                    name: 'African Rhythmic',
-                    type: 'line',
-                    data: [48, 52, 56, 60, 64, 68],
-                    itemStyle: { color: '#9b59b6' },
-                    lineStyle: { width: 3 }
-                }
-            ]
-        };
-        culturalTrendsChart.setOption(culturalTrendsOption);
-
-        // Resize charts on window resize
-        window.addEventListener('resize', function() {
-            globalMapChart.resize();
-            topCountriesChart.resize();
-            regionalPreferencesChart.resize();
-            culturalTrendsChart.resize();
-        });
-
-        // Download functions
+        // Download chart function
         function downloadChart(chartId) {
-            let chart;
-            switch(chartId) {
-                case 'globalMap':
-                    chart = globalMapChart;
-                    break;
-                case 'topCountries':
-                    chart = topCountriesChart;
-                    break;
-                case 'regionalPreferences':
-                    chart = regionalPreferencesChart;
-                    break;
-                case 'culturalTrends':
-                    chart = culturalTrendsChart;
-                    break;
-            }
-            
-            if (chart) {
-                const url = chart.getDataURL({
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${chartId}_chart.png`;
-                link.click();
-            }
+            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
+            const url = chart.getDataURL({
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = chartId + '.png';
+            link.click();
         }
 
-        function downloadTable(tableId) {
-            const table = document.getElementById(tableId);
-            let csv = [];
-            const rows = table.querySelectorAll('tr');
+        // Download table data function
+        function downloadTableData() {
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + "Country,Post Count,Post Count MoM (%),Interaction Count,Interaction MoM (%),Interaction Rate,Rate MoM (%),Top BGM Tone\n"
+                + countryData.countries.map((country, index) => 
+                    `${country},${countryData.postCounts[index]},${countryData.postMoM[index]}%,${countryData.interactionCounts[index]},${countryData.interactionMoM[index]}%,${countryData.interactionRates[index]}%,${countryData.rateMoM[index]}%,${countryData.topTones[index]}`
+                ).join("\n");
             
-            for (let i = 0; i < rows.length; i++) {
-                const row = [], cols = rows[i].querySelectorAll('td, th');
-                for (let j = 0; j < cols.length; j++) {
-                    let cellText = cols[j].innerText;
-                    // Remove badges and flags for CSV
-                    if (cols[j].querySelector('.region-badge')) {
-                        cellText = cols[j].querySelector('.region-badge').innerText;
-                    }
-                    if (cols[j].querySelector('.country-name')) {
-                        cellText = cols[j].querySelector('.country-name').innerText.trim();
-                    }
-                    row.push('"' + cellText + '"');
-                }
-                csv.push(row.join(','));
-            }
-            
-            const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
-            const downloadLink = document.createElement('a');
-            downloadLink.download = `${tableId}_data.csv`;
-            downloadLink.href = window.URL.createObjectURL(csvFile);
-            downloadLink.click();
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "bgm_tone_country_analysis.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
-        function downloadMetrics() {
-            const metrics = [
-                ['Metric', 'Value'],
-                ['Countries Analyzed', '48'],
-                ['Continents', '5'],
-                ['Total Global Posts', '21.3K'],
-                ['Global Coverage', '94.1%']
-            ];
-            
-            const csv = metrics.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-            const csvFile = new Blob([csv], { type: 'text/csv' });
-            const downloadLink = document.createElement('a');
-            downloadLink.download = 'bgm_tone_country_metrics.csv';
-            downloadLink.href = window.URL.createObjectURL(csvFile);
-            downloadLink.click();
-        }
+        // Responsive resize
+        window.addEventListener('resize', function() {
+            worldMapChart.resize();
+            stackedBarChart.resize();
+            heatmapChart.resize();
+        });
     </script>
 </body>
 </html>
