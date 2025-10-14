@@ -59,10 +59,10 @@
                 <div id="boxplotChart" class="chart"></div>
             </div>
 
-            <!-- Gantt Chart -->
+            <!-- Views Distribution Chart -->
             <div class="chart-container">
                 <div class="chart-header">
-                    <div class="chart-title">Top 3 Golden Windows</div>
+                    <div class="chart-title">Views Distribution</div>
                     <div class="chart-controls">
                         <button class="download-btn" onclick="downloadChart('ganttChart')" title="Download Chart">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -662,22 +662,30 @@
             ]
         };
 
-        // Gantt Chart - Top 3 Golden Windows
+        // Views Distribution Chart - 6 Time Intervals
         const ganttOption = {
             tooltip: {
-                trigger: 'item',
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
                 formatter: function(params) {
-                    const data = params.data;
-                    const plan = params.name;
-                    const timeWindow = data.timeWindow;
-                    const change = data.change;
-                    const changeColor = change.includes('▲') ? '#28a745' : '#dc3545';
+                    let html = `<div style="font-weight:bold">${params[0].axisValue}</div>`;
                     
-                    return `
-                        <div style="font-weight:bold">${plan}</div>
-                        <div style="margin-top:5px;font-weight:bold;color:${params.color}">${data.rank}: ${timeWindow}</div>
-                        <div>QoQ: <span style="color:${changeColor}">${change}</span></div>
-                    `;
+                    params.forEach(param => {
+                        const changeValue = param.data.change;
+                        const changeColor = changeValue.includes('+') ? '#28a745' : '#dc3545';
+                        
+                        html += `
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
+                                <span style="display:inline-block;margin-right:5px;border-radius:50%;width:10px;height:10px;background-color:${param.color};"></span>
+                                <span>${param.seriesName}: ${param.data.views}</span>
+                                <span style="margin-left:10px;color:${changeColor}">MoM: ${changeValue}</span>
+                            </div>
+                        `;
+                    });
+                    
+                    return html;
                 }
             },
             legend: {
@@ -685,166 +693,125 @@
                 bottom: 0
             },
             grid: {
-                left: '8%',
+                left: '15%',
                 right: '4%',
                 bottom: '15%',
                 top: '10%',
                 containLabel: true
             },
             xAxis: {
-                type: 'value',
+                type: 'category',
+                data: ['Morning\n(6-9 AM)', 'Midday\n(10 AM-1 PM)', 'Afternoon\n(2-5 PM)', 'Evening\n(6-9 PM)', 'Night\n(10 PM-1 AM)', 'Late Night\n(2-5 AM)'],
                 axisLabel: {
-                    formatter: function(value) {
-                        const hour = Math.floor(value);
-                        return `${hour}:00`;
-                    }
-                },
-                min: 0,
-                max: 24,
-                splitLine: {
-                    show: true,
-                    lineStyle: {
-                        type: 'dashed',
-                        opacity: 0.3
-                    }
+                    fontSize: 10,
+                    interval: 0,
+                    rotate: 0
                 }
             },
             yAxis: {
-                type: 'category',
-                data: ['Plan B', 'Plan A'],
+                type: 'value',
+                name: 'Views (K)',
                 axisLabel: {
                     fontSize: 12,
-                    fontWeight: 'bold'
+                    formatter: '{value}K'
                 }
             },
             series: [
                 {
                     name: 'Plan A',
-                    type: 'custom',
-                    renderItem: function (params, api) {
-                        const categoryIndex = api.value(0);
-                        const start = api.value(1);
-                        const end = api.value(2);
-                        const height = api.size([0, 1])[1] * 0.6;
-                        
-                        const rectShape = echarts.graphic.clipRectByRect({
-                            x: api.coord([start, categoryIndex])[0],
-                            y: api.coord([start, categoryIndex])[1] - height / 2,
-                            width: api.coord([end, categoryIndex])[0] - api.coord([start, categoryIndex])[0],
-                            height: height
-                        }, {
-                            x: params.coordSys.x,
-                            y: params.coordSys.y,
-                            width: params.coordSys.width,
-                            height: params.coordSys.height
-                        });
-                        
-                        return rectShape && {
-                            type: 'rect',
-                            shape: rectShape,
-                            style: api.style({
-                                fill: api.value(3)
-                            })
-                        };
+                    type: 'bar',
+                    barGap: '0%',
+                    barWidth: '30%',
+                    itemStyle: {
+                        color: '#5470c6'
                     },
                     label: {
                         show: true,
-                        position: 'inside',
+                        position: 'top',
                         formatter: function(params) {
-                            return params.data.change;
+                            return params.data.views;
                         },
-                        color: '#fff',
-                        fontWeight: 'bold',
-                        fontSize: 11
-                    },
-                    encode: {
-                        x: [1, 2],
-                        y: 0
+                        fontSize: 10
                     },
                     data: [
-                        // Plan A data (categoryIndex: 1)
                         {
-                            value: [1, 18, 21, '#28a745'], // Top 1: Evening (6-9 PM)
-                            change: '▲5.4%',
-                            timeWindow: 'Evening (6-9 PM)',
-                            rank: 'Top 1'
+                            value: 42,
+                            views: '42K',
+                            change: '+5.0%'
                         },
                         {
-                            value: [1, 10, 13, '#17a2b8'], // Top 2: Midday (10 AM-1 PM)
-                            change: '▲4.5%',
-                            timeWindow: 'Midday (10 AM-1 PM)',
-                            rank: 'Top 2'
+                            value: 38,
+                            views: '38K',
+                            change: '+3.8%'
                         },
                         {
-                            value: [1, 22, 24, '#ffc107'], // Top 3: Night (10 PM-12 AM)
-                            change: '▲4.1%',
-                            timeWindow: 'Night (10 PM-12 AM)',
-                            rank: 'Top 3'
+                            value: 45,
+                            views: '45K',
+                            change: '+7.1%'
+                        },
+                        {
+                            value: 52,
+                            views: '52K',
+                            change: '+4.0%'
+                        },
+                        {
+                            value: 35,
+                            views: '35K',
+                            change: '-2.8%'
+                        },
+                        {
+                            value: 18,
+                            views: '18K',
+                            change: '-1.1%'
                         }
                     ]
                 },
                 {
                     name: 'Plan B',
-                    type: 'custom',
-                    renderItem: function (params, api) {
-                        const categoryIndex = api.value(0);
-                        const start = api.value(1);
-                        const end = api.value(2);
-                        const height = api.size([0, 1])[1] * 0.6;
-                        
-                        const rectShape = echarts.graphic.clipRectByRect({
-                            x: api.coord([start, categoryIndex])[0],
-                            y: api.coord([start, categoryIndex])[1] - height / 2,
-                            width: api.coord([end, categoryIndex])[0] - api.coord([start, categoryIndex])[0],
-                            height: height
-                        }, {
-                            x: params.coordSys.x,
-                            y: params.coordSys.y,
-                            width: params.coordSys.width,
-                            height: params.coordSys.height
-                        });
-                        
-                        return rectShape && {
-                            type: 'rect',
-                            shape: rectShape,
-                            style: api.style({
-                                fill: api.value(3)
-                            })
-                        };
+                    type: 'bar',
+                    barGap: '0%',
+                    barWidth: '30%',
+                    itemStyle: {
+                        color: '#91cc75'
                     },
                     label: {
                         show: true,
-                        position: 'inside',
+                        position: 'top',
                         formatter: function(params) {
-                            return params.data.change;
+                            return params.data.views;
                         },
-                        color: '#fff',
-                        fontWeight: 'bold',
-                        fontSize: 11
-                    },
-                    encode: {
-                        x: [1, 2],
-                        y: 0
+                        fontSize: 10
                     },
                     data: [
-                        // Plan B data (categoryIndex: 0)
                         {
-                            value: [0, 18, 21, '#28a745'], // Top 1: Evening (6-9 PM)
-                            change: '▲4.7%',
-                            timeWindow: 'Evening (6-9 PM)',
-                            rank: 'Top 1'
+                            value: 38,
+                            views: '38K',
+                            change: '+3.5%'
                         },
                         {
-                            value: [0, 10, 13, '#17a2b8'], // Top 2: Midday (10 AM-1 PM)
-                            change: '▲3.8%',
-                            timeWindow: 'Midday (10 AM-1 PM)',
-                            rank: 'Top 2'
+                            value: 35,
+                            views: '35K',
+                            change: '+2.9%'
                         },
                         {
-                            value: [0, 22, 24, '#ffc107'], // Top 3: Night (10 PM-12 AM)
-                            change: '▲3.6%',
-                            timeWindow: 'Night (10 PM-12 AM)',
-                            rank: 'Top 3'
+                            value: 42,
+                            views: '42K',
+                            change: '+6.3%'
+                        },
+                        {
+                            value: 48,
+                            views: '48K',
+                            change: '+5.2%'
+                        },
+                        {
+                            value: 32,
+                            views: '32K',
+                            change: '-1.5%'
+                        },
+                        {
+                            value: 15,
+                            views: '15K',
+                            change: '-3.2%'
                         }
                     ]
                 }
