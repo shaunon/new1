@@ -487,7 +487,7 @@
             };
         };
 
-        // Semi-Circle Pie Chart Option
+        // Nested Ring Chart Option
         const semiCircleOption = {
             tooltip: {
                 trigger: 'item',
@@ -508,23 +508,27 @@
                 }
             },
             legend: {
-                data: ['Plan A', 'Plan B'],
+                data: ['Plan A (Inner)', 'Plan B (Outer)'],
                 bottom: 0
             },
             series: [
                 {
                     name: 'Plan A',
                     type: 'pie',
-                    radius: ['40%', '70%'],
-                    center: ['25%', '50%'],
-                    startAngle: 180,
-                    endAngle: 0,
+                    radius: ['20%', '45%'],
+                    center: ['50%', '50%'],
                     label: {
                         show: true,
                         formatter: function(params) {
-                            return `${params.name}\n${bgmToneData.planA.qoq[params.dataIndex]}`;
+                            return `${params.name}\n${params.value}%\n${bgmToneData.planA.qoq[params.dataIndex]}`;
                         },
-                        position: 'outside'
+                        position: 'inside',
+                        fontSize: 10,
+                        color: '#fff',
+                        fontWeight: 'bold'
+                    },
+                    labelLine: {
+                        show: false
                     },
                     data: bgmToneData.planA.er.map((value, index) => {
                         return {
@@ -533,7 +537,8 @@
                             itemStyle: {
                                 color: [
                                     '#91cc75', '#fac858', '#5470c6', '#ee6666', '#73c0de'
-                                ][index]
+                                ][index],
+                                opacity: 0.8
                             }
                         };
                     })
@@ -541,16 +546,21 @@
                 {
                     name: 'Plan B',
                     type: 'pie',
-                    radius: ['40%', '70%'],
-                    center: ['75%', '50%'],
-                    startAngle: 180,
-                    endAngle: 0,
+                    radius: ['50%', '75%'],
+                    center: ['50%', '50%'],
                     label: {
                         show: true,
                         formatter: function(params) {
-                            return `${params.name}\n${bgmToneData.planB.qoq[params.dataIndex]}`;
+                            return `${params.name}\n${params.value}%\n${bgmToneData.planB.qoq[params.dataIndex]}`;
                         },
-                        position: 'outside'
+                        position: 'outside',
+                        fontSize: 11,
+                        fontWeight: 'bold'
+                    },
+                    labelLine: {
+                        show: true,
+                        length: 15,
+                        length2: 10
                     },
                     data: bgmToneData.planB.er.map((value, index) => {
                         return {
@@ -559,7 +569,8 @@
                             itemStyle: {
                                 color: [
                                     '#91cc75', '#fac858', '#5470c6', '#ee6666', '#73c0de'
-                                ][index]
+                                ][index],
+                                opacity: 1
                             }
                         };
                     })

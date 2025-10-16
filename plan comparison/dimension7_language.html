@@ -34,10 +34,6 @@
                 <div class="chart-header">
                     <div class="chart-title">Language Distribution by Views</div>
                     <div class="chart-controls">
-                        <div class="toggle-buttons" id="donutToggle">
-                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
-                            <button class="toggle-btn" data-plan="planB">Plan B</button>
-                        </div>
                         <button class="download-btn" onclick="downloadChart('donutChart')" title="Download Chart">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -71,10 +67,6 @@
                 <div class="chart-header">
                     <div class="chart-title">Top 5 Languages Engagement Rate Trend</div>
                     <div class="chart-controls">
-                        <div class="toggle-buttons" id="trendToggle">
-                            <button class="toggle-btn active" data-plan="planA">Plan A</button>
-                            <button class="toggle-btn" data-plan="planB">Plan B</button>
-                        </div>
                         <button class="download-btn" onclick="downloadChart('trendChart')" title="Download Chart">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -473,7 +465,7 @@
             ]
         };
 
-        // Language Distribution Donut Chart
+        // Language Distribution Nested Ring Chart
         const generateDonutData = (plan) => {
             return [
                 { name: 'English', value: plan === 'Plan A' ? 45 : 42, qoq: plan === 'Plan A' ? '▲5.7%' : '▲4.8%' },
@@ -497,45 +489,72 @@
                     const qoqColor = params.data.qoq.includes('▲') ? '#28a745' : '#dc3545';
                     return `
                         <div style="font-weight:bold">${params.name}</div>
-                        <div>Share: ${params.percent.toFixed(1)}%</div>
+                        <div>${params.seriesName}: ${params.percent.toFixed(1)}%</div>
                         <div>QoQ: <span style="color:${qoqColor}">${params.data.qoq}</span></div>
                     `;
                 }
             },
             legend: {
-                orient: 'vertical',
-                left: 'left',
-                top: 'center',
+                data: ['Plan A (Inner)', 'Plan B (Outer)'],
+                bottom: 0,
                 textStyle: {
                     fontSize: 12
                 }
             },
             series: [
                 {
-                    name: 'Language Distribution',
+                    name: 'Plan A',
                     type: 'pie',
-                    radius: ['40%', '70%'],
-                    center: ['65%', '50%'],
+                    radius: ['20%', '45%'],
+                    center: ['50%', '50%'],
                     avoidLabelOverlap: false,
                     label: {
-                        show: false,
-                        position: 'center'
-                    },
-                    emphasis: {
-                        label: {
-                            show: true,
-                            fontSize: '18',
-                            fontWeight: 'bold'
-                        }
+                        show: true,
+                        position: 'inside',
+                        formatter: function(params) {
+                            return `${params.name}\n${params.percent.toFixed(1)}%\n${params.data.qoq}`;
+                        },
+                        fontSize: 10,
+                        color: '#fff',
+                        fontWeight: 'bold'
                     },
                     labelLine: {
                         show: false
                     },
                     data: planADonutData,
                     itemStyle: {
-                        borderRadius: 5,
+                        borderRadius: 3,
                         borderColor: '#fff',
-                        borderWidth: 2
+                        borderWidth: 1,
+                        opacity: 0.8
+                    }
+                },
+                {
+                    name: 'Plan B',
+                    type: 'pie',
+                    radius: ['50%', '75%'],
+                    center: ['50%', '50%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: true,
+                        position: 'outside',
+                        formatter: function(params) {
+                            return `${params.name}\n${params.percent.toFixed(1)}%\n${params.data.qoq}`;
+                        },
+                        fontSize: 11,
+                        fontWeight: 'bold'
+                    },
+                    labelLine: {
+                        show: true,
+                        length: 15,
+                        length2: 10
+                    },
+                    data: planBDonutData,
+                    itemStyle: {
+                        borderRadius: 3,
+                        borderColor: '#fff',
+                        borderWidth: 1,
+                        opacity: 1
                     }
                 }
             ]
@@ -699,189 +718,203 @@
         
         const { planATrendData, planBTrendData } = generateTrendData();
 
-        // Top 5 Languages Trend Chart
-        const createTrendOption = (data) => {
-            return {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'cross',
-                        label: {
-                            backgroundColor: '#6a7985'
-                        }
-                    },
-                    formatter: function(params) {
-                        const period = params[0].axisValue;
-                        let html = `<div style="font-weight:bold">${period}</div>`;
-                        
-                        params.forEach(param => {
-                            html += `<div style="margin-top:5px;">`;
-                            html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
-                            html += `${param.seriesName}: ${formatPercentage(param.value)}`;
-                            html += `</div>`;
-                        });
-                        
-                        return html;
+        // Top 5 Languages Trend Chart - Combined Plan A and Plan B
+        const trendOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
                     }
                 },
-                legend: {
-                    data: ['English', 'Spanish', 'Portuguese', 'French', 'German'],
-                    bottom: 0
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '15%',
-                    containLabel: true
-                },
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: ['Q-2', 'Q-1', 'Q1', 'Q2', 'Q3', 'Q4']
-                },
-                yAxis: {
-                    type: 'value',
-                    name: 'Engagement Rate',
-                    axisLabel: {
-                        formatter: '{value}%'
+                formatter: function(params) {
+                    const period = params[0].axisValue;
+                    let html = `<div style="font-weight:bold">${period}</div>`;
+                    
+                    params.forEach(param => {
+                        html += `<div style="margin-top:5px;">`;
+                        html += `<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${param.color};"></span>`;
+                        html += `${param.seriesName}: ${formatPercentage(param.value)}`;
+                        html += `</div>`;
+                    });
+                    
+                    return html;
+                }
+            },
+            legend: {
+                data: [
+                    'English (Plan A)', 'Spanish (Plan A)', 'Portuguese (Plan A)', 'French (Plan A)', 'German (Plan A)',
+                    'English (Plan B)', 'Spanish (Plan B)', 'Portuguese (Plan B)', 'French (Plan B)', 'German (Plan B)'
+                ],
+                bottom: 0,
+                textStyle: {
+                    fontSize: 11
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '20%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: ['Q-2', 'Q-1', 'Q1', 'Q2', 'Q3', 'Q4']
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Engagement Rate',
+                axisLabel: {
+                    formatter: '{value}%'
+                }
+            },
+            series: [
+                // Plan A Series
+                {
+                    name: 'English (Plan A)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#3b82f6'
+                    },
+                    data: planATrendData.English,
+                    itemStyle: {
+                        color: '#3b82f6'
                     }
                 },
-                series: [
-                    {
-                        name: 'English',
-                        type: 'line',
-                        smooth: true,
-                        lineStyle: {
-                            width: 3,
-                            color: '#3b82f6'
-                        },
-                        data: data.English,
-                        itemStyle: {
-                            color: '#3b82f6'
-                        },
-                        areaStyle: {
-                            opacity: 0.1,
-                            color: '#3b82f6'
-                        }
+                {
+                    name: 'Spanish (Plan A)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#ef4444'
                     },
-                    {
-                        name: 'Spanish',
-                        type: 'line',
-                        smooth: true,
-                        lineStyle: {
-                            width: 3,
-                            color: '#ef4444'
-                        },
-                        data: data.Spanish,
-                        itemStyle: {
-                            color: '#ef4444'
-                        },
-                        areaStyle: {
-                            opacity: 0.1,
-                            color: '#ef4444'
-                        }
-                    },
-                    {
-                        name: 'Portuguese',
-                        type: 'line',
-                        smooth: true,
-                        lineStyle: {
-                            width: 3,
-                            color: '#10b981'
-                        },
-                        data: data.Portuguese,
-                        itemStyle: {
-                            color: '#10b981'
-                        },
-                        areaStyle: {
-                            opacity: 0.1,
-                            color: '#10b981'
-                        }
-                    },
-                    {
-                        name: 'French',
-                        type: 'line',
-                        smooth: true,
-                        lineStyle: {
-                            width: 3,
-                            color: '#f59e0b'
-                        },
-                        data: data.French,
-                        itemStyle: {
-                            color: '#f59e0b'
-                        },
-                        areaStyle: {
-                            opacity: 0.1,
-                            color: '#f59e0b'
-                        }
-                    },
-                    {
-                        name: 'German',
-                        type: 'line',
-                        smooth: true,
-                        lineStyle: {
-                            width: 3,
-                            color: '#8b5cf6'
-                        },
-                        data: data.German,
-                        itemStyle: {
-                            color: '#8b5cf6'
-                        },
-                        areaStyle: {
-                            opacity: 0.1,
-                            color: '#8b5cf6'
-                        }
+                    data: planATrendData.Spanish,
+                    itemStyle: {
+                        color: '#ef4444'
                     }
-                ]
-            };
+                },
+                {
+                    name: 'Portuguese (Plan A)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#10b981'
+                    },
+                    data: planATrendData.Portuguese,
+                    itemStyle: {
+                        color: '#10b981'
+                    }
+                },
+                {
+                    name: 'French (Plan A)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#f59e0b'
+                    },
+                    data: planATrendData.French,
+                    itemStyle: {
+                        color: '#f59e0b'
+                    }
+                },
+                {
+                    name: 'German (Plan A)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#8b5cf6'
+                    },
+                    data: planATrendData.German,
+                    itemStyle: {
+                        color: '#8b5cf6'
+                    }
+                },
+                // Plan B Series (with dashed lines to differentiate)
+                {
+                    name: 'English (Plan B)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#3b82f6',
+                        type: 'dashed'
+                    },
+                    data: planBTrendData.English,
+                    itemStyle: {
+                        color: '#3b82f6'
+                    }
+                },
+                {
+                    name: 'Spanish (Plan B)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#ef4444',
+                        type: 'dashed'
+                    },
+                    data: planBTrendData.Spanish,
+                    itemStyle: {
+                        color: '#ef4444'
+                    }
+                },
+                {
+                    name: 'Portuguese (Plan B)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#10b981',
+                        type: 'dashed'
+                    },
+                    data: planBTrendData.Portuguese,
+                    itemStyle: {
+                        color: '#10b981'
+                    }
+                },
+                {
+                    name: 'French (Plan B)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#f59e0b',
+                        type: 'dashed'
+                    },
+                    data: planBTrendData.French,
+                    itemStyle: {
+                        color: '#f59e0b'
+                    }
+                },
+                {
+                    name: 'German (Plan B)',
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#8b5cf6',
+                        type: 'dashed'
+                    },
+                    data: planBTrendData.German,
+                    itemStyle: {
+                        color: '#8b5cf6'
+                    }
+                }
+            ]
         };
-        
-        const trendOption = createTrendOption(planATrendData);
         // Set chart options
         languageBarChart.setOption(languageBarOption);
         donutChart.setOption(donutOption);
         stackedBarChart.setOption(stackedBarOption);
         trendChart.setOption(trendOption);
-
-        // Setup donut toggle
-        document.querySelectorAll('#donutToggle .toggle-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('#donutToggle .toggle-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                
-                const plan = this.getAttribute('data-plan');
-                
-                if (plan === 'planA') {
-                    donutOption.series[0].data = planADonutData;
-                } else {
-                    donutOption.series[0].data = planBDonutData;
-                }
-                
-                donutChart.setOption(donutOption);
-            });
-        });
-
-        // Setup trend toggle
-        document.querySelectorAll('#trendToggle .toggle-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Remove active class from all buttons
-                document.querySelectorAll('#trendToggle .toggle-btn').forEach(b => b.classList.remove('active'));
-                
-                // Add active class to clicked button
-                this.classList.add('active');
-                
-                const plan = this.getAttribute('data-plan');
-                
-                let newOption;
-                if (plan === 'planA') {
-                    newOption = createTrendOption(planATrendData);
-                } else {
-                    newOption = createTrendOption(planBTrendData);
-                }
-                
-                trendChart.setOption(newOption);
-            });
-        });
 
         // Resize charts when window is resized
         window.addEventListener('resize', function() {
