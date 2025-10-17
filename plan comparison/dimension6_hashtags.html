@@ -525,7 +525,7 @@
                     
                     return `
                         <div style="font-weight:bold">${sourceName} → ${targetName}</div>
-                        <div>Engagement: ${formatNumber(value)}</div>
+                        <div>Posts: ${formatNumber(value)}</div>
                         <div>QoQ: <span style="color:${qoqColor}">${qoq}</span></div>
                     `;
                 }
@@ -564,29 +564,29 @@
                         { name: '#challenge (Plan B)', itemStyle: { color: CHART_COLORS.planB } },
                         { name: '#fashion (Plan B)', itemStyle: { color: CHART_COLORS.planB } },
                         { name: '#music (Plan B)', itemStyle: { color: CHART_COLORS.planB } },
-                        { name: 'Mega Creators (10M+)' },
-                        { name: 'Macro Creators (1M-10M)' },
-                        { name: 'Mid-tier Creators (100K-1M)' },
-                        { name: 'Micro Creators (10K-100K)' }
+                        { name: 'High Engagement (1M+)' },
+                        { name: 'Medium Engagement (500K-1M)' },
+                        { name: 'Low Engagement (100K-500K)' },
+                        { name: 'Minimal Engagement (<100K)' }
                     ],
                     links: [
-                        { source: '#trending (Plan A)', target: 'Mega Creators (10M+)', value: 15000, qoq: '▲11.2%' },
-                        { source: '#trending (Plan A)', target: 'Macro Creators (1M-10M)', value: 9500, qoq: '▲10.5%' },
-                        { source: '#viral (Plan A)', target: 'Mega Creators (10M+)', value: 14000, qoq: '▲9.8%' },
-                        { source: '#viral (Plan A)', target: 'Mid-tier Creators (100K-1M)', value: 8800, qoq: '▲8.5%' },
-                        { source: '#challenge (Plan A)', target: 'Macro Creators (1M-10M)', value: 12000, qoq: '▲8.5%' },
-                        { source: '#challenge (Plan A)', target: 'Mid-tier Creators (100K-1M)', value: 9200, qoq: '▲7.8%' },
-                        { source: '#fashion (Plan A)', target: 'Macro Creators (1M-10M)', value: 18500, qoq: '▲7.2%' },
-                        { source: '#music (Plan A)', target: 'Micro Creators (10K-100K)', value: 17800, qoq: '▲6.5%' },
+                        { source: '#trending (Plan A)', target: 'High Engagement (1M+)', value: 15000, qoq: '▲11.2%' },
+                        { source: '#trending (Plan A)', target: 'Medium Engagement (500K-1M)', value: 9500, qoq: '▲10.5%' },
+                        { source: '#viral (Plan A)', target: 'High Engagement (1M+)', value: 14000, qoq: '▲9.8%' },
+                        { source: '#viral (Plan A)', target: 'Low Engagement (100K-500K)', value: 8800, qoq: '▲8.5%' },
+                        { source: '#challenge (Plan A)', target: 'Medium Engagement (500K-1M)', value: 12000, qoq: '▲8.5%' },
+                        { source: '#challenge (Plan A)', target: 'Low Engagement (100K-500K)', value: 9200, qoq: '▲7.8%' },
+                        { source: '#fashion (Plan A)', target: 'Medium Engagement (500K-1M)', value: 18500, qoq: '▲7.2%' },
+                        { source: '#music (Plan A)', target: 'Minimal Engagement (<100K)', value: 17800, qoq: '▲6.5%' },
                         
-                        { source: '#trending (Plan B)', target: 'Mega Creators (10M+)', value: 14000, qoq: '▲9.5%' },
-                        { source: '#trending (Plan B)', target: 'Macro Creators (1M-10M)', value: 8800, qoq: '▲8.8%' },
-                        { source: '#viral (Plan B)', target: 'Mega Creators (10M+)', value: 13000, qoq: '▲8.2%' },
-                        { source: '#viral (Plan B)', target: 'Mid-tier Creators (100K-1M)', value: 8500, qoq: '▲7.5%' },
-                        { source: '#challenge (Plan B)', target: 'Macro Creators (1M-10M)', value: 11500, qoq: '▲7.8%' },
-                        { source: '#challenge (Plan B)', target: 'Mid-tier Creators (100K-1M)', value: 8600, qoq: '▲7.2%' },
-                        { source: '#fashion (Plan B)', target: 'Macro Creators (1M-10M)', value: 17200, qoq: '▲6.5%' },
-                        { source: '#music (Plan B)', target: 'Micro Creators (10K-100K)', value: 16800, qoq: '▲5.8%' }
+                        { source: '#trending (Plan B)', target: 'High Engagement (1M+)', value: 14000, qoq: '▲9.5%' },
+                        { source: '#trending (Plan B)', target: 'Medium Engagement (500K-1M)', value: 8800, qoq: '▲8.8%' },
+                        { source: '#viral (Plan B)', target: 'High Engagement (1M+)', value: 13000, qoq: '▲8.2%' },
+                        { source: '#viral (Plan B)', target: 'Low Engagement (100K-500K)', value: 8500, qoq: '▲7.5%' },
+                        { source: '#challenge (Plan B)', target: 'Medium Engagement (500K-1M)', value: 11500, qoq: '▲7.8%' },
+                        { source: '#challenge (Plan B)', target: 'Low Engagement (100K-500K)', value: 8600, qoq: '▲7.2%' },
+                        { source: '#fashion (Plan B)', target: 'Medium Engagement (500K-1M)', value: 17200, qoq: '▲6.5%' },
+                        { source: '#music (Plan B)', target: 'Minimal Engagement (<100K)', value: 16800, qoq: '▲5.8%' }
                     ]
                 }
             ]
