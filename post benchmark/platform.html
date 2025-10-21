@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platform Analytics Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <script>
+        // Register themeRiver chart
+        if (typeof echarts !== 'undefined') {
+            echarts.registerChart = echarts.registerChart || function() {};
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -19,984 +24,336 @@
             line-height: 1.6;
         }
         
-        .dashboard {
-            padding: 20px;
+        .container {
             max-width: 1400px;
             margin: 0 auto;
+            padding: 20px;
         }
         
-        .chart-section {
-            margin-bottom: 30px;
-            background: #fff;
+        .section {
+            margin-bottom: 40px;
+            background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
         }
         
-        .chart-header {
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .chart-title {
-            font-size: 18px;
+        .section-title {
+            font-size: 24px;
             font-weight: 600;
+            margin-bottom: 20px;
             color: #2c3e50;
-        }
-        
-        .toggle-buttons {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .toggle-btn {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s ease;
-        }
-        
-        .toggle-btn:hover {
-            background: #f8f9fa;
-        }
-        
-        .toggle-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        
-        .view-selector {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .view-dropdown {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            min-width: 150px;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 8px center;
-            background-repeat: no-repeat;
-            background-size: 16px;
-            padding-right: 32px;
-        }
-        
-        .view-dropdown:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
         }
         
         .chart-container {
+            width: 100%;
             height: 500px;
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 20px;
         }
         
-        .chart-container.large {
-            height: 650px;
+        .chart-controls {
+            margin-bottom: 20px;
+            text-align: center;
         }
         
-        .stats-grid {
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn.active {
+            background: #e74c3c;
+        }
+        
+        .stacked-charts {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
-        .stats-item {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .stats-item .chart-container {
-            height: 350px;
+        .stacked-chart {
+            height: 400px;
         }
         
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 20px;
         }
         
         .data-table th,
         .data-table td {
-            padding: 8px 12px;
+            border: 1px solid #ddd;
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #eee;
         }
         
         .data-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-        
-        .data-list {
-            max-height: 350px;
-            overflow-y: auto;
-            padding: 10px;
-        }
-        
-        .list-item {
-            padding: 8px 12px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .list-item:last-child {
-            border-bottom: none;
-        }
-        
-        .item-rank {
-            font-weight: bold;
-            color: #666;
-            margin-right: 10px;
-        }
-        
-        .item-name {
-            flex: 1;
-        }
-        
-        .item-value {
-            font-weight: 600;
-            color: #007bff;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .chart-container {
-                height: 450px;
-            }
-            
-            .chart-container.large {
-                height: 550px;
-            }
-            
-            .stats-item .chart-container {
-                height: 320px;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .chart-container {
-                height: 400px;
-                padding: 15px;
-            }
-            
-            .chart-container.large {
-                height: 480px;
-            }
-            
-            .stats-item .chart-container {
-                height: 300px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .chart-container {
-                height: 350px;
-                padding: 10px;
-            }
-            
-            .chart-container.large {
-                height: 420px;
-            }
-            
-            .stats-item .chart-container {
-                height: 280px;
-            }
-        }
-        
-        /* Platform Statistics Table Styling */
-        .table-container {
-            padding: 20px;
-            overflow-x: auto;
-        }
-        
-        .platform-stats-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0;
-            font-size: 14px;
-            background: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .platform-stats-table thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .platform-stats-table th,
-        .platform-stats-table td {
-            padding: 15px 20px;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .platform-stats-table th {
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .platform-stats-table tbody tr {
-            transition: background-color 0.3s ease;
-        }
-        
-        .platform-stats-table tbody tr:hover {
             background-color: #f8f9fa;
-        }
-        
-        .platform-stats-table tbody tr:nth-child(even) {
-            background-color: #fafbfc;
-        }
-        
-        .platform-stats-table tbody tr:nth-child(even):hover {
-            background-color: #f1f3f4;
-        }
-        
-        .platform-stats-table .platform-name {
             font-weight: 600;
             color: #2c3e50;
         }
         
-        .platform-stats-table .metric-value {
-            font-weight: 500;
-        }
-        
-        .platform-stats-table .engagement-rate {
-            color: #28a745;
-        }
-        
-        .platform-stats-table .sentiment-positive {
-            color: #28a745;
-        }
-        
-        .platform-stats-table .sentiment-negative {
-            color: #dc3545;
-        }
-        
-        .platform-stats-table .sentiment-neutral {
-            color: #6c757d;
-        }
-        
-        .platform-stats-table .reach-value {
-            color: #007bff;
-        }
-        
-        /* Responsive table styling */
-        @media (max-width: 768px) {
-            .table-container {
-                padding: 15px;
-            }
-            
-            .platform-stats-table {
-                font-size: 12px;
-            }
-            
-            .platform-stats-table th,
-            .platform-stats-table td {
-                padding: 10px 8px;
-            }
-            
-            .platform-stats-table th {
-                font-size: 11px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .platform-stats-table th,
-            .platform-stats-table td {
-                padding: 8px 6px;
-            }
-        }
-        
-        /* Download Button Styling */
-        .download-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-        }
-        
-        .download-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: relative;
-        }
-        
-        .download-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-        }
-        
-        .download-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .download-icon {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
-        }
-        
-        .download-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            min-width: 120px;
-            display: none;
-            z-index: 1001;
-            margin-top: 4px;
-        }
-        
-        .download-dropdown.show {
-            display: block;
-        }
-        
-        .download-option {
-            padding: 10px 12px;
-            cursor: pointer;
-            font-size: 12px;
-            color: #333;
-            border-bottom: 1px solid #f0f0f0;
-            transition: background-color 0.2s ease;
-        }
-        
-        .download-option:last-child {
-            border-bottom: none;
-        }
-        
-        .download-option:hover {
+        .data-table tr:nth-child(even) {
             background-color: #f8f9fa;
         }
         
-        .download-option:active {
-            background-color: #e9ecef;
+        .data-table tr:hover {
+            background-color: #e8f4f8;
         }
         
-        /* Chart container positioning for download buttons */
-        .chart-container {
-            position: relative;
+        .positive {
+            color: #27ae60;
+            font-weight: 600;
         }
         
-        .stats-item {
-            position: relative;
+        .negative {
+            color: #e74c3c;
+            font-weight: 600;
         }
         
-        /* Table download button specific styling */
-        .table-download-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 15px;
-        }
-        
-        .table-download-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: relative;
-        }
-        
-        .table-download-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
-        }
-        
-        /* Responsive adjustments for download buttons */
         @media (max-width: 768px) {
-            .download-btn {
-                padding: 6px 10px;
-                font-size: 11px;
+            .stacked-charts {
+                grid-template-columns: 1fr;
             }
             
-            .download-icon {
-                width: 12px;
-                height: 12px;
+            .chart-container {
+                height: 400px;
             }
             
-            .download-dropdown {
-                min-width: 100px;
-            }
-            
-            .download-option {
-                padding: 8px 10px;
-                font-size: 11px;
+            .stacked-chart {
+                height: 300px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Time Series Chart Section -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <div class="chart-title">Post Count Trends Across Different Platforms</div>
-                <div class="toggle-buttons">
-                    <button class="toggle-btn active" onclick="toggleTimeChart('river')">📊 River Chart</button>
-                    <button class="toggle-btn" onclick="toggleTimeChart('area')">📈 Area Chart</button>
-                </div>
+    <div class="container">
+        <!-- River Chart / Area Chart Section -->
+        <div class="section">
+            <h2 class="section-title">Platforms - Post Count & Period-over-Period Comparison</h2>
+            <div class="chart-controls">
+                <button class="btn active" onclick="toggleRiverChart('themeriver')">Theme River</button>
+                <button class="btn" onclick="toggleRiverChart('area')">Area Chart</button>
             </div>
-            <div class="chart-container large">
-                <div class="download-container">
-                    <button class="download-btn" onclick="toggleDownloadDropdown('timeChart')">
-                        <svg class="download-icon" viewBox="0 0 24 24">
-                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                        </svg>
-                    </button>
-                    <div class="download-dropdown" id="timeChart-dropdown">
-                        <div class="download-option" onclick="downloadChart('timeChart', 'png')">PNG Image</div>
-                        <div class="download-option" onclick="downloadChart('timeChart', 'svg')">SVG Vector</div>
-                    </div>
-                </div>
-                <div id="timeChart" style="width: 100%; height: 100%;"></div>
+            <div id="riverChart" class="chart-container"></div>
+        </div>
+
+        <!-- Stacked Bar Charts Section -->
+        <div class="section">
+            <h2 class="section-title">Distribution Analysis</h2>
+            <div class="stacked-charts">
+                <div id="countryChart" class="stacked-chart"></div>
+                <div id="languageChart" class="stacked-chart"></div>
+                <div id="sentimentChart" class="stacked-chart"></div>
             </div>
         </div>
 
-        <!-- Statistics Grid -->
-        <div class="stats-grid">
-            <div class="stats-item">
-                <div class="chart-header">
-                    <div class="chart-title">Emotion Distribution</div>
-                </div>
-                <div class="chart-container">
-                    <div class="download-container">
-                        <button class="download-btn" onclick="toggleDownloadDropdown('emotionChart')">
-                            <svg class="download-icon" viewBox="0 0 24 24">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                            </svg>
-                        </button>
-                        <div class="download-dropdown" id="emotionChart-dropdown">
-                            <div class="download-option" onclick="downloadChart('emotionChart', 'png')">PNG Image</div>
-                            <div class="download-option" onclick="downloadChart('emotionChart', 'svg')">SVG Vector</div>
-                        </div>
-                    </div>
-                    <div id="emotionChart" style="width: 100%; height: 100%;"></div>
-                </div>
+        <!-- Word Cloud / Sunburst Chart Section -->
+        <div class="section">
+            <h2 class="section-title">Top 100 Platforms Visualization</h2>
+            <div class="chart-controls">
+                <button class="btn active" onclick="toggleWordChart('wordcloud')">Word Cloud</button>
+                <button class="btn" onclick="toggleWordChart('sunburst')">Sunburst Chart</button>
             </div>
-            
-            <div class="stats-item">
-                <div class="chart-header">
-                    <div class="chart-title">Country Distribution</div>
-                </div>
-                <div class="chart-container">
-                    <div class="download-container">
-                        <button class="download-btn" onclick="toggleDownloadDropdown('countryChart')">
-                            <svg class="download-icon" viewBox="0 0 24 24">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                            </svg>
-                        </button>
-                        <div class="download-dropdown" id="countryChart-dropdown">
-                            <div class="download-option" onclick="downloadChart('countryChart', 'png')">PNG Image</div>
-                            <div class="download-option" onclick="downloadChart('countryChart', 'svg')">SVG Vector</div>
-                        </div>
-                    </div>
-                    <div id="countryChart" style="width: 100%; height: 100%;"></div>
-                </div>
-            </div>
-            
-            <div class="stats-item">
-                <div class="chart-header">
-                    <div class="chart-title">Language Distribution</div>
-                </div>
-                <div class="chart-container">
-                    <div class="download-container">
-                        <button class="download-btn" onclick="toggleDownloadDropdown('languageChart')">
-                            <svg class="download-icon" viewBox="0 0 24 24">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                            </svg>
-                        </button>
-                        <div class="download-dropdown" id="languageChart-dropdown">
-                            <div class="download-option" onclick="downloadChart('languageChart', 'png')">PNG Image</div>
-                            <div class="download-option" onclick="downloadChart('languageChart', 'svg')">SVG Vector</div>
-                        </div>
-                    </div>
-                    <div id="languageChart" style="width: 100%; height: 100%;"></div>
-                </div>
-            </div>
+            <div id="wordChart" class="chart-container"></div>
         </div>
 
-        <!-- Top 100 Analysis Section -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <div class="chart-title">Hot Topic</div>
-                <div class="view-selector">
-                    <select class="view-dropdown" onchange="toggleTopAnalysis(this.value)">
-                        <option value="wordcloud">☁️ Word Cloud</option>
-                        <option value="sunburst">🌅 Sunburst</option>
-                    </select>
-                </div>
-            </div>
-            <div class="chart-container large">
-                <div class="download-container">
-                    <button class="download-btn" onclick="toggleDownloadDropdown('topAnalysisChart')">
-                        <svg class="download-icon" viewBox="0 0 24 24">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                            </svg>
-                    </button>
-                    <div class="download-dropdown" id="topAnalysisChart-dropdown">
-                        <div class="download-option" onclick="downloadChart('topAnalysisChart', 'png')">PNG Image</div>
-                        <div class="download-option" onclick="downloadChart('topAnalysisChart', 'svg')">SVG Vector</div>
-                        <div class="download-option" onclick="downloadTopAnalysisData('csv')">CSV Data</div>
-                        <div class="download-option" onclick="downloadTopAnalysisData('json')">JSON Data</div>
-                    </div>
-                </div>
-                <div id="topAnalysisChart" style="width: 100%; height: 100%;"></div>
-                <div id="topAnalysisTable" style="display: none;"></div>
-                <div id="topAnalysisList" style="display: none;"></div>
-            </div>
-        </div>
-
-        <!-- Platform Statistics Table Section -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <div class="chart-title">Platform Statistics Overview</div>
-            </div>
-            <div class="table-download-container">
-                <button class="table-download-btn" onclick="toggleDownloadDropdown('platformStatsTable')">
-                    <svg class="download-icon" viewBox="0 0 24 24">
-                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                        </svg>
-                </button>
-                <div class="download-dropdown" id="platformStatsTable-dropdown">
-                    <div class="download-option" onclick="downloadTableData('csv')">CSV File</div>
-                    <div class="download-option" onclick="downloadTableData('excel')">Excel File</div>
-                    <div class="download-option" onclick="downloadTableData('json')">JSON Data</div>
-                </div>
-            </div>
-            <div class="table-container">
-                <table class="platform-stats-table">
-                    <thead>
-                        <tr>
-                            <th>Platform</th>
-                            <th>Author Count</th>
-                            <th>Post Count</th>
-                            <th>Engagement Rate</th>
-                            <th>Net Sentiment</th>
-                            <th>Potential Reach</th>
-                        </tr>
-                    </thead>
-                    <tbody id="platformStatsTableBody">
-                        <!-- Data will be populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
+        <!-- Data Table Section -->
+        <div class="section">
+            <h2 class="section-title">Platform Performance Metrics</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Platform</th>
+                        <th>Authors</th>
+                        <th>Authors (MoM %)</th>
+                        <th>Posts</th>
+                        <th>Posts (MoM %)</th>
+                        <th>Interactions</th>
+                        <th>Interactions (MoM %)</th>
+                        <th>Net Sentiment</th>
+                        <th>Sentiment (MoM %)</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // Platform data for river chart - representing different social media platforms' post counts
-        const timeSeriesData = {
-            dates: ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06', '2024-07', '2024-08', '2024-09', '2024-10', '2024-11', '2024-12'],
+        // Sample data - replace with actual data
+        const hashtagData = {
+            themeRiver: [
+                ['2024-01-01', 120, 'TikTok', 14.3],
+                ['2024-01-02', 132, 'TikTok', 10.0],
+                ['2024-01-03', 101, 'TikTok', -23.5],
+                ['2024-01-04', 134, 'TikTok', 32.7],
+                ['2024-01-05', 90, 'TikTok', -32.8],
+                ['2024-01-06', 230, 'TikTok', 155.6],
+                ['2024-01-07', 210, 'TikTok', -8.7],
+                ['2024-01-01', 220, 'Instagram', -2.1],
+                ['2024-01-02', 182, 'Instagram', -17.3],
+                ['2024-01-03', 191, 'Instagram', 4.9],
+                ['2024-01-04', 234, 'Instagram', 22.5],
+                ['2024-01-05', 290, 'Instagram', 23.9],
+                ['2024-01-06', 330, 'Instagram', 13.8],
+                ['2024-01-07', 310, 'Instagram', -6.1],
+                ['2024-01-01', 150, 'YouTube', 6.2],
+                ['2024-01-02', 232, 'YouTube', 54.7],
+                ['2024-01-03', 201, 'YouTube', -13.4],
+                ['2024-01-04', 154, 'YouTube', -23.4],
+                ['2024-01-05', 190, 'YouTube', 23.4],
+                ['2024-01-06', 330, 'YouTube', 73.7],
+                ['2024-01-07', 410, 'YouTube', 24.2],
+                ['2024-01-01', 320, 'Twitter', 8.1],
+                ['2024-01-02', 332, 'Twitter', 3.8],
+                ['2024-01-03', 301, 'Twitter', -9.3],
+                ['2024-01-04', 334, 'Twitter', 11.0],
+                ['2024-01-05', 390, 'Twitter', 16.8],
+                ['2024-01-06', 330, 'Twitter', -15.4],
+                ['2024-01-07', 320, 'Twitter', -3.0],
+                ['2024-01-01', 820, 'Others', 12.5],
+                ['2024-01-02', 932, 'Others', 13.7],
+                ['2024-01-03', 901, 'Others', -3.3],
+                ['2024-01-04', 934, 'Others', 3.7],
+                ['2024-01-05', 1290, 'Others', 38.1],
+                ['2024-01-06', 1330, 'Others', 3.1],
+                ['2024-01-07', 1320, 'Others', -0.8]
+            ],
             platforms: {
-                'Instagram': [1200, 1350, 1100, 1400, 1600, 1800, 1750, 1900, 2100, 2200, 2400, 2600],
-                'TikTok': [800, 950, 1200, 1500, 1800, 2200, 2500, 2800, 3100, 3400, 3600, 3900],
-                'YouTube': [600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300],
-                'Twitter': [400, 420, 380, 450, 500, 520, 480, 510, 550, 580, 600, 620],
-                'Facebook': [300, 280, 320, 350, 380, 400, 420, 450, 480, 500, 520, 550],
-                'LinkedIn': [200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400, 420]
-            }
-        };
-
-        const emotionData = {
-            'Instagram': [
-                { name: 'Positive', value: 48, count: 21600 },
-                { name: 'Neutral', value: 32, count: 14400 },
-                { name: 'Negative', value: 20, count: 9000 }
+                categories: ['TikTok', 'Instagram', 'YouTube', 'Twitter', 'Facebook', 'Others'],
+                series: [
+                    { name: '#music', data: [320, 302, 301, 334, 390, 330], mom: [12.5, -3.2, 8.7, 15.3, 22.1, 5.8] },
+                    { name: '#dance', data: [120, 132, 101, 134, 90, 230], mom: [8.3, 15.7, -12.4, 9.2, -18.5, 25.6] },
+                    { name: '#comedy', data: [220, 182, 191, 234, 290, 330], mom: [5.6, -2.4, 18.9, 7.4, 33.2, 14.7] },
+                    { name: '#lifestyle', data: [150, 232, 201, 154, 190, 330], mom: [12.1, 22.3, -1.2, 0.5, 8.9, 19.3] },
+                    { name: '#food', data: [862, 1018, 964, 1026, 1103, 1256], mom: [3.8, 9.1, 4.2, 6.7, 11.2, 8.5] }
+                ]
+            },
+            countries: {
+                categories: ['TikTok', 'Instagram', 'YouTube', 'Twitter', 'Facebook', 'Others'],
+                series: [
+                    { name: 'USA', data: [420, 402, 401, 434, 490, 530], mom: [15.2, 8.9, 12.3, 18.7, 25.4, 11.6] },
+                    { name: 'UK', data: [220, 232, 201, 234, 290, 330], mom: [7.8, 14.2, -5.6, 9.8, 19.3, 16.7] },
+                    { name: 'Canada', data: [150, 182, 191, 154, 190, 230], mom: [3.4, 12.7, 8.1, -2.3, 15.8, 22.1] },
+                    { name: 'Australia', data: [120, 132, 101, 134, 90, 180], mom: [9.1, 6.5, -8.9, 11.2, -12.4, 28.3] },
+                    { name: 'Others', data: [762, 918, 864, 926, 1003, 1156], mom: [5.7, 13.4, 7.2, 9.8, 14.6, 10.2] }
+                ]
+            },
+            languages: {
+                categories: ['TikTok', 'Instagram', 'YouTube', 'Twitter', 'Facebook', 'Others'],
+                series: [
+                    { name: 'English', data: [520, 502, 501, 534, 590, 630], mom: [12.8, 6.7, 9.4, 16.2, 21.3, 13.5] },
+                    { name: 'Spanish', data: [220, 232, 201, 234, 290, 330], mom: [8.9, 15.6, -3.2, 12.1, 24.7, 18.9] },
+                    { name: 'French', data: [150, 182, 191, 154, 190, 230], mom: [4.3, 11.8, 7.6, -1.8, 14.2, 25.4] },
+                    { name: 'German', data: [120, 132, 101, 134, 90, 180], mom: [6.7, 8.2, -7.4, 9.8, -15.6, 31.2] },
+                    { name: 'Others', data: [662, 818, 764, 826, 903, 1056], mom: [7.1, 12.9, 5.8, 8.4, 16.8, 9.7] }
+                ]
+            },
+            sentiments: {
+                categories: ['TikTok', 'Instagram', 'YouTube', 'Twitter', 'Facebook', 'Others'],
+                series: [
+                    { name: 'Positive', data: [620, 602, 601, 634, 690, 730], mom: [14.3, 8.1, 11.7, 19.2, 23.8, 15.6] },
+                    { name: 'Neutral', data: [320, 332, 301, 334, 390, 430], mom: [6.2, 9.8, 4.5, 12.3, 18.7, 11.4] },
+                    { name: 'Negative', data: [120, 132, 101, 134, 90, 180], mom: [-2.1, 5.4, -8.7, 7.2, -16.3, 24.8] }
+                ]
+            },
+            wordcloud: [
+                { name: 'TikTok', value: 1500 },
+                { name: 'Instagram', value: 1200 },
+                { name: 'YouTube', value: 1000 },
+                { name: 'Twitter', value: 900 },
+                { name: 'Facebook', value: 800 },
+                { name: 'Snapchat', value: 700 },
+                { name: 'LinkedIn', value: 650 },
+                { name: 'Pinterest', value: 600 },
+                { name: 'Reddit', value: 550 },
+                { name: 'Discord', value: 500 }
+                // Add more platforms up to 100
             ],
-            'TikTok': [
-                { name: 'Positive', value: 52, count: 23504 },
-                { name: 'Neutral', value: 30, count: 13560 },
-                { name: 'Negative', value: 18, count: 8136 }
-            ],
-            'YouTube': [
-                { name: 'Positive', value: 45, count: 5760 },
-                { name: 'Neutral', value: 38, count: 4864 },
-                { name: 'Negative', value: 17, count: 2176 }
-            ],
-            'Twitter': [
-                { name: 'Positive', value: 35, count: 12460 },
-                { name: 'Neutral', value: 40, count: 14240 },
-                { name: 'Negative', value: 25, count: 8900 }
-            ],
-            'Facebook': [
-                { name: 'Positive', value: 42, count: 8148 },
-                { name: 'Neutral', value: 35, count: 6790 },
-                { name: 'Negative', value: 23, count: 4462 }
+            table: [
+                { platform: 'TikTok', authors: 15420, authorsMoM: 12.5, posts: 45230, postsMoM: 8.3, interactions: 2340000, interactionsMoM: 15.7, sentiment: 0.75, sentimentMoM: 2.1 },
+                { platform: 'Instagram', authors: 12340, authorsMoM: -3.2, posts: 38920, postsMoM: 5.6, interactions: 1890000, interactionsMoM: -2.4, sentiment: 0.82, sentimentMoM: 1.8 },
+                { platform: 'YouTube', authors: 9870, authorsMoM: 18.9, posts: 32450, postsMoM: 12.1, interactions: 1560000, interactionsMoM: 22.3, sentiment: 0.68, sentimentMoM: -1.2 },
+                { platform: 'Twitter', authors: 8760, authorsMoM: 7.4, posts: 28930, postsMoM: 3.8, interactions: 1230000, interactionsMoM: 9.1, sentiment: 0.71, sentimentMoM: 0.5 },
+                { platform: 'Facebook', authors: 7650, authorsMoM: -1.8, posts: 25670, postsMoM: -0.9, interactions: 1120000, interactionsMoM: 4.2, sentiment: 0.79, sentimentMoM: 3.2 }
             ]
         };
 
-        const countryData = {
-            'Instagram': [
-                { name: 'United States', value: 38, count: 17100 },
-                { name: 'Brazil', value: 22, count: 9900 },
-                { name: 'India', value: 15, count: 6750 },
-                { name: 'Germany', value: 12, count: 5400 },
-                { name: 'France', value: 8, count: 3600 },
-                { name: 'Others', value: 5, count: 2250 }
-            ],
-            'TikTok': [
-                { name: 'United States', value: 32, count: 14464 },
-                { name: 'China', value: 28, count: 12656 },
-                { name: 'India', value: 18, count: 8136 },
-                { name: 'Brazil', value: 12, count: 5424 },
-                { name: 'Mexico', value: 6, count: 2712 },
-                { name: 'Others', value: 4, count: 1808 }
-            ],
-            'YouTube': [
-                { name: 'United States', value: 35, count: 4480 },
-                { name: 'India', value: 25, count: 3200 },
-                { name: 'Brazil', value: 15, count: 1920 },
-                { name: 'Russia', value: 10, count: 1280 },
-                { name: 'Germany', value: 8, count: 1024 },
-                { name: 'Others', value: 7, count: 896 }
-            ],
-            'Twitter': [
-                { name: 'United States', value: 40, count: 14240 },
-                { name: 'Japan', value: 20, count: 7120 },
-                { name: 'United Kingdom', value: 15, count: 5340 },
-                { name: 'India', value: 12, count: 4272 },
-                { name: 'Brazil', value: 8, count: 2848 },
-                { name: 'Others', value: 5, count: 1780 }
-            ],
-            'Facebook': [
-                { name: 'United States', value: 30, count: 5820 },
-                { name: 'India', value: 25, count: 4850 },
-                { name: 'Brazil', value: 18, count: 3492 },
-                { name: 'Indonesia', value: 12, count: 2328 },
-                { name: 'Mexico', value: 10, count: 1940 },
-                { name: 'Others', value: 5, count: 970 }
-            ]
-        };
-
-        const languageData = {
-            'Instagram': [
-                { name: 'English', value: 45, count: 20250 },
-                { name: 'Spanish', value: 20, count: 9000 },
-                { name: 'Portuguese', value: 15, count: 6750 },
-                { name: 'German', value: 10, count: 4500 },
-                { name: 'French', value: 6, count: 2700 },
-                { name: 'Others', value: 4, count: 1800 }
-            ],
-            'TikTok': [
-                { name: 'English', value: 35, count: 15820 },
-                { name: 'Chinese', value: 30, count: 13560 },
-                { name: 'Spanish', value: 15, count: 6780 },
-                { name: 'Hindi', value: 10, count: 4520 },
-                { name: 'Portuguese', value: 6, count: 2712 },
-                { name: 'Others', value: 4, count: 1808 }
-            ],
-            'YouTube': [
-                { name: 'English', value: 40, count: 5120 },
-                { name: 'Hindi', value: 20, count: 2560 },
-                { name: 'Spanish', value: 15, count: 1920 },
-                { name: 'Portuguese', value: 12, count: 1536 },
-                { name: 'Russian', value: 8, count: 1024 },
-                { name: 'Others', value: 5, count: 640 }
-            ],
-            'Twitter': [
-                { name: 'English', value: 50, count: 17800 },
-                { name: 'Japanese', value: 18, count: 6408 },
-                { name: 'Spanish', value: 12, count: 4272 },
-                { name: 'Arabic', value: 8, count: 2848 },
-                { name: 'Portuguese', value: 7, count: 2492 },
-                { name: 'Others', value: 5, count: 1780 }
-            ],
-            'Facebook': [
-                { name: 'English', value: 35, count: 6790 },
-                { name: 'Spanish', value: 25, count: 4850 },
-                { name: 'Portuguese', value: 18, count: 3492 },
-                { name: 'Hindi', value: 12, count: 2328 },
-                { name: 'Arabic', value: 6, count: 1164 },
-                { name: 'Others', value: 4, count: 776 }
-            ]
-        };
-
-        const topAnalysisData = {
-            tags: [
-                { name: '#fashion', value: 1500, category: 'tags' },
-                { name: '#beauty', value: 1200, category: 'tags' },
-                { name: '#lifestyle', value: 1000, category: 'tags' },
-                { name: '#travel', value: 950, category: 'tags' },
-                { name: '#food', value: 900, category: 'tags' },
-                { name: '#fitness', value: 850, category: 'tags' },
-                { name: '#art', value: 800, category: 'tags' },
-                { name: '#music', value: 750, category: 'tags' },
-                { name: '#photography', value: 700, category: 'tags' },
-                { name: '#nature', value: 650, category: 'tags' }
-            ],
-            mentions: [
-                { name: '@influencer1', value: 800, category: 'mentions' },
-                { name: '@brand_official', value: 750, category: 'mentions' },
-                { name: '@celebrity', value: 700, category: 'mentions' },
-                { name: '@company', value: 650, category: 'mentions' },
-                { name: '@artist', value: 600, category: 'mentions' },
-                { name: '@musician', value: 550, category: 'mentions' },
-                { name: '@photographer', value: 500, category: 'mentions' },
-                { name: '@designer', value: 450, category: 'mentions' },
-                { name: '@chef', value: 400, category: 'mentions' },
-                { name: '@athlete', value: 350, category: 'mentions' }
-            ],
-            emojis: [
-                { name: '😍', value: 2000, category: 'emojis' },
-                { name: '❤️', value: 1800, category: 'emojis' },
-                { name: '🔥', value: 1600, category: 'emojis' },
-                { name: '😂', value: 1400, category: 'emojis' },
-                { name: '👏', value: 1200, category: 'emojis' },
-                { name: '🙌', value: 1000, category: 'emojis' },
-                { name: '💯', value: 900, category: 'emojis' },
-                { name: '✨', value: 800, category: 'emojis' },
-                { name: '🎉', value: 700, category: 'emojis' },
-                { name: '💕', value: 600, category: 'emojis' }
-            ]
-        };
-
-        // Platform Statistics Data
-        const platformStatsData = [
-            {
-                platform: 'Instagram',
-                authorCount: 15420,
-                postCount: 28650,
-                engagementRate: 4.8,
-                netSentiment: 0.72,
-                potentialReach: '2.4M'
-            },
-            {
-                platform: 'TikTok',
-                authorCount: 22350,
-                postCount: 45200,
-                engagementRate: 6.2,
-                netSentiment: 0.68,
-                potentialReach: '3.8M'
-            },
-            {
-                platform: 'YouTube',
-                authorCount: 8940,
-                postCount: 12800,
-                engagementRate: 3.5,
-                netSentiment: 0.65,
-                potentialReach: '1.9M'
-            },
-            {
-                platform: 'Twitter',
-                authorCount: 18750,
-                postCount: 35600,
-                engagementRate: 2.8,
-                netSentiment: 0.45,
-                potentialReach: '1.6M'
-            },
-            {
-                platform: 'Facebook',
-                authorCount: 12680,
-                postCount: 19400,
-                engagementRate: 2.1,
-                netSentiment: 0.58,
-                potentialReach: '1.2M'
-            },
-            {
-                platform: 'LinkedIn',
-                authorCount: 6850,
-                postCount: 8900,
-                engagementRate: 1.9,
-                netSentiment: 0.75,
-                potentialReach: '850K'
-            }
-        ];
+        let currentRiverType = 'themeriver';
+        let currentWordType = 'wordcloud';
 
         // Initialize charts
-        let timeChart, emotionChart, countryChart, languageChart, topAnalysisChart;
-        let currentTimeChartType = 'river';
-        let currentTopAnalysisType = 'wordcloud';
-
-        function populatePlatformStatsTable() {
-            const tableBody = document.getElementById('platformStatsTableBody');
-            tableBody.innerHTML = '';
-
-            platformStatsData.forEach(platform => {
-                const row = document.createElement('tr');
-                
-                // Format numbers with commas
-                const formatNumber = (num) => {
-                    return num.toLocaleString();
-                };
-                
-                // Determine sentiment class and display
-                const getSentimentDisplay = (sentiment) => {
-                    if (sentiment >= 0.6) {
-                        return { class: 'sentiment-positive', text: 'Positive', value: `+${(sentiment * 100).toFixed(1)}%` };
-                    } else if (sentiment >= 0.4) {
-                        return { class: 'sentiment-neutral', text: 'Neutral', value: `${(sentiment * 100).toFixed(1)}%` };
-                    } else {
-                        return { class: 'sentiment-negative', text: 'Negative', value: `${(sentiment * 100).toFixed(1)}%` };
-                    }
-                };
-                
-                const sentimentInfo = getSentimentDisplay(platform.netSentiment);
-                
-                row.innerHTML = `
-                    <td class="platform-name">${platform.platform}</td>
-                    <td class="metric-value">${formatNumber(platform.authorCount)}</td>
-                    <td class="metric-value">${formatNumber(platform.postCount)}</td>
-                    <td class="engagement-rate">${platform.engagementRate}%</td>
-                    <td class="${sentimentInfo.class}" title="${sentimentInfo.text}">${sentimentInfo.value}</td>
-                    <td class="reach-value">${platform.potentialReach}</td>
-                `;
-                
-                tableBody.appendChild(row);
-            });
-        }
-
         function initCharts() {
-            timeChart = echarts.init(document.getElementById('timeChart'));
-            emotionChart = echarts.init(document.getElementById('emotionChart'));
-            countryChart = echarts.init(document.getElementById('countryChart'));
-            languageChart = echarts.init(document.getElementById('languageChart'));
-            topAnalysisChart = echarts.init(document.getElementById('topAnalysisChart'));
-
-            updateTimeChart();
-            updateEmotionChart();
-            updateCountryChart();
-            updateLanguageChart();
-            updateTopAnalysisChart();
-            populatePlatformStatsTable();
+            initRiverChart();
+            initStackedCharts();
+            initWordChart();
+            populateDataTable();
         }
 
-        function updateTimeChart() {
-            // Clear the chart before setting new options to prevent duplicate display
-            timeChart.clear();
-            
-            if (currentTimeChartType === 'river') {
-                // ThemeRiver chart implementation
-                const themeRiverData = [];
-                const platforms = Object.keys(timeSeriesData.platforms);
-                
-                // Convert data to ThemeRiver format: [date, value, category]
-                timeSeriesData.dates.forEach((date, dateIndex) => {
-                    platforms.forEach(platform => {
-                        const value = timeSeriesData.platforms[platform][dateIndex];
-                        // Convert date to proper format for ThemeRiver
-                        const formattedDate = date + '-01'; // Add day to make it a valid date
-                        themeRiverData.push([formattedDate, value, platform]);
-                    });
-                });
+        // River Chart / Area Chart
+        function initRiverChart() {
+            const chart = echarts.init(document.getElementById('riverChart'));
+            updateRiverChart(chart);
+        }
 
-                const option = {
+        function updateRiverChart(chart) {
+            // Clear the chart first to prevent overlapping
+            chart.clear();
+            
+            let option;
+            
+            if (currentRiverType === 'themeriver') {
+                option = {
                     tooltip: {
                         trigger: 'axis',
                         axisPointer: {
-                            type: 'line',
-                            lineStyle: {
-                                color: 'rgba(0,0,0,0.2)',
-                                width: 1,
-                                type: 'solid'
-                            }
+                            type: 'line'
                         },
                         formatter: function(params) {
-                            if (params && params.length > 0) {
-                                let result = params[0].axisValueLabel + '<br/>';
-                                params.forEach(param => {
-                                    if (param.data && param.data.length >= 3) {
-                                        result += '<span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:' + param.color + ';"></span>';
-                                        result += param.data[2] + ': ' + param.data[1] + ' posts<br/>';
-                                    }
-                                });
-                                return result;
-                            }
-                            return '';
+                            let result = params[0].data[0] + '<br/>';
+                            params.forEach(param => {
+                                const momValue = param.data[3];
+                                const momClass = momValue >= 0 ? 'positive' : 'negative';
+                                const momSign = momValue >= 0 ? '+' : '';
+                                result += param.data[2] + ': ' + param.data[1] + 
+                                         ' <span style="color: ' + (momValue >= 0 ? '#52c41a' : '#ff4d4f') + '">(' + 
+                                         momSign + momValue + '%)</span><br/>';
+                            });
+                            return result;
                         }
                     },
                     legend: {
-                        data: platforms,
-                        top: 10,
-                        textStyle: {
-                            fontSize: 12
-                        }
+                        data: ['TikTok', 'Instagram', 'YouTube', 'Twitter', 'Others']
                     },
                     singleAxis: {
+                        type: 'time',
                         top: 50,
                         bottom: 50,
-                        axisTick: {
-                            show: true
-                        },
-                        axisLabel: {
-                            show: true,
-                            fontSize: 11,
-                            formatter: function(value) {
-                                return echarts.format.formatTime('yyyy-MM', value);
-                            }
-                        },
-                        type: 'time',
                         axisPointer: {
                             animation: true,
                             label: {
-                                show: true,
-                                formatter: function(params) {
-                                    return echarts.format.formatTime('yyyy-MM', params.value);
-                                }
-                            }
-                        },
-                        splitLine: {
-                            show: true,
-                            lineStyle: {
-                                type: 'dashed',
-                                opacity: 0.2
+                                show: true
                             }
                         }
                     },
-                    color: ['#E4405F', '#000000', '#FF0000', '#1DA1F2', '#1877F2', '#0077B5'],
                     series: [{
                         type: 'themeRiver',
                         emphasis: {
@@ -1005,46 +362,54 @@
                                 shadowColor: 'rgba(0, 0, 0, 0.8)'
                             }
                         },
-                        label: {
-                            show: false
-                        },
-                        itemStyle: {
-                            opacity: 0.8,
-                            borderWidth: 1,
-                            borderColor: '#fff'
-                        },
-                        data: themeRiverData
+                        data: hashtagData.themeRiver
                     }]
                 };
-
-                timeChart.setOption(option);
             } else {
-                // Area chart implementation
-                const series = Object.keys(timeSeriesData.platforms).map(platform => ({
-                    name: platform,
+                // Area chart fallback
+                const processedData = hashtagData.themeRiver.reduce((acc, item) => {
+                    const [date, value, name, mom] = item;
+                    if (!acc[name]) {
+                        acc[name] = [];
+                    }
+                    acc[name].push([date, value, mom]);
+                    return acc;
+                }, {});
+
+                const series = Object.keys(processedData).map(name => ({
+                    name: name,
                     type: 'line',
                     stack: 'Total',
                     areaStyle: {},
-                    smooth: true,
-                    data: timeSeriesData.platforms[platform]
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: processedData[name]
                 }));
 
-                const option = {
+                option = {
                     tooltip: {
                         trigger: 'axis',
                         axisPointer: {
-                            type: 'cross'
+                            type: 'cross',
+                            label: {
+                                backgroundColor: '#6a7985'
+                            }
+                        },
+                        formatter: function(params) {
+                            let result = params[0].axisValue + '<br/>';
+                            params.forEach(param => {
+                                const momValue = param.data[2];
+                                const momSign = momValue >= 0 ? '+' : '';
+                                result += param.seriesName + ': ' + param.data[1] + 
+                                         ' <span style="color: ' + (momValue >= 0 ? '#52c41a' : '#ff4d4f') + '">(' + 
+                                         momSign + momValue + '%)</span><br/>';
+                            });
+                            return result;
                         }
                     },
                     legend: {
-                        data: Object.keys(timeSeriesData.platforms),
-                        top: 10,
-                        textStyle: {
-                            fontSize: 12
-                        },
-                        itemGap: 15,
-                        itemWidth: 25,
-                        itemHeight: 14
+                        data: Object.keys(processedData)
                     },
                     grid: {
                         left: '3%',
@@ -1053,26 +418,46 @@
                         containLabel: true
                     },
                     xAxis: {
-                        type: 'category',
-                        boundaryGap: false,
-                        data: timeSeriesData.dates
+                        type: 'time',
+                        boundaryGap: false
                     },
                     yAxis: {
-                        type: 'value',
-                        name: 'Post Count'
+                        type: 'value'
                     },
                     series: series
                 };
-
-                timeChart.setOption(option);
             }
+            
+            chart.setOption(option);
         }
 
-        function updateEmotionChart() {
-            const platforms = Object.keys(emotionData);
-            const emotions = ['Positive', 'Neutral', 'Negative'];
+        function toggleRiverChart(type) {
+            currentRiverType = type;
+            document.querySelectorAll('.section:first-child .chart-controls .btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
             
+            const chart = echarts.getInstanceByDom(document.getElementById('riverChart'));
+            updateRiverChart(chart);
+        }
+
+        // Stacked Bar Charts
+        function initStackedCharts() {
+            initStackedChart('countryChart', 'Country Distribution', hashtagData.countries);
+            initStackedChart('languageChart', 'Language Distribution', hashtagData.languages);
+            initStackedChart('sentimentChart', 'Sentiment Distribution', hashtagData.sentiments);
+        }
+
+        function initStackedChart(containerId, title, data) {
+            const chart = echarts.init(document.getElementById(containerId));
             const option = {
+                title: {
+                    text: title,
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 16,
+                        fontWeight: 'bold'
+                    }
+                },
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {
@@ -1080,209 +465,64 @@
                     },
                     formatter: function(params) {
                         let result = params[0].name + '<br/>';
-                        params.forEach(param => {
-                            const platform = param.seriesName;
-                            const emotionIndex = param.dataIndex;
-                            const emotionItem = emotionData[platform][emotionIndex];
-                            result += param.marker + ' ' + platform + ': ' + 
-                                     emotionItem.count.toLocaleString() + ' posts (' + 
-                                     emotionItem.value + '%)<br/>';
+                        params.forEach((param, index) => {
+                            const seriesData = data.series.find(s => s.name === param.seriesName);
+                            const momValue = seriesData.mom[param.dataIndex];
+                            const changeClass = momValue >= 0 ? 'positive' : 'negative';
+                            result += param.marker + param.seriesName + ': ' + param.value + 
+                                     ' <span class="' + changeClass + '">(' + (momValue >= 0 ? '+' : '') + momValue + '%)</span><br/>';
                         });
                         return result;
                     }
                 },
                 legend: {
-                    data: platforms,
-                    top: 15,
-                    textStyle: {
-                        fontSize: 12
-                    },
-                    itemGap: 15,
-                    itemWidth: 25,
-                    itemHeight: 14
+                    bottom: 0,
+                    data: data.series.map(item => item.name)
                 },
                 grid: {
-                    left: '5%',
+                    left: '3%',
                     right: '4%',
-                    bottom: '10%',
-                    top: '35%',
+                    bottom: '15%',
+                    top: '15%',
                     containLabel: true
                 },
                 xAxis: {
-                    type: 'category',
-                    data: emotions
+                    type: 'value'
                 },
                 yAxis: {
-                    type: 'value',
-                    name: 'Percentage (%)'
+                    type: 'category',
+                    data: data.categories
                 },
-                series: platforms.map(platform => ({
-                    name: platform,
+                series: data.series.map(item => ({
+                    name: item.name,
                     type: 'bar',
-                    data: emotionData[platform].map(item => item.value)
+                    stack: 'total',
+                    label: {
+                        show: true,
+                        position: 'insideRight'
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: item.data
                 }))
             };
-
-            emotionChart.setOption(option);
+            chart.setOption(option);
         }
 
-        function updateCountryChart() {
-            const platforms = Object.keys(countryData);
-            // Get all unique countries across all platforms
-            const allCountries = [...new Set(platforms.flatMap(platform => 
-                countryData[platform].map(item => item.name)
-            ))];
+        // Word Cloud / Sunburst Chart
+        function initWordChart() {
+            const chart = echarts.init(document.getElementById('wordChart'));
+            updateWordChart(chart);
+        }
+
+        function updateWordChart(chart) {
+            let option;
             
-            const option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    },
-                    formatter: function(params) {
-                        let result = params[0].name + '<br/>';
-                        params.forEach(param => {
-                            const platform = param.seriesName;
-                            const countryName = param.name;
-                            const countryItem = countryData[platform].find(d => d.name === countryName);
-                            if (countryItem && param.value > 0) {
-                                result += param.marker + ' ' + platform + ': ' + 
-                                         countryItem.count.toLocaleString() + ' posts (' + 
-                                         countryItem.value + '%)<br/>';
-                            }
-                        });
-                        return result;
-                    }
-                },
-                legend: {
-                    data: platforms,
-                    top: 15,
-                    textStyle: {
-                        fontSize: 12
-                    },
-                    itemGap: 15,
-                    itemWidth: 25,
-                    itemHeight: 14
-                },
-                grid: {
-                    left: '10%',
-                    right: '4%',
-                    bottom: '10%',
-                    top: '35%',
-                    containLabel: true
-                },
-                xAxis: {
-                    type: 'value',
-                    name: 'Percentage (%)'
-                },
-                yAxis: {
-                    type: 'category',
-                    data: allCountries
-                },
-                series: platforms.map(platform => ({
-                    name: platform,
-                    type: 'bar',
-                    data: allCountries.map(country => {
-                        const item = countryData[platform].find(d => d.name === country);
-                        return item ? item.value : 0;
-                    })
-                }))
-            };
-
-            countryChart.setOption(option);
-        }
-
-        function updateLanguageChart() {
-            const platforms = Object.keys(languageData);
-            // Get all unique languages across all platforms
-            const allLanguages = [...new Set(platforms.flatMap(platform => 
-                languageData[platform].map(item => item.name)
-            ))];
-            
-            const option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    },
-                    formatter: function(params) {
-                        let result = params[0].name + '<br/>';
-                        params.forEach(param => {
-                            const platform = param.seriesName;
-                            const languageName = param.name;
-                            const languageItem = languageData[platform].find(d => d.name === languageName);
-                            if (languageItem && param.value > 0) {
-                                result += param.marker + ' ' + platform + ': ' + 
-                                         languageItem.count.toLocaleString() + ' posts (' + 
-                                         languageItem.value + '%)<br/>';
-                            }
-                        });
-                        return result;
-                    }
-                },
-                legend: {
-                    data: platforms,
-                    top: 15,
-                    textStyle: {
-                        fontSize: 12
-                    },
-                    itemGap: 15,
-                    itemWidth: 25,
-                    itemHeight: 14
-                },
-                grid: {
-                    left: '8%',
-                    right: '4%',
-                    bottom: '25%',
-                    top: '35%',
-                    containLabel: true
-                },
-                xAxis: {
-                    type: 'category',
-                    data: allLanguages,
-                    axisLabel: {
-                        rotate: 45,
-                        interval: 0
-                    }
-                },
-                yAxis: {
-                    type: 'value',
-                    name: 'Percentage (%)'
-                },
-                series: platforms.map(platform => ({
-                    name: platform,
-                    type: 'bar',
-                    data: allLanguages.map(language => {
-                        const item = languageData[platform].find(d => d.name === language);
-                        return item ? item.value : 0;
-                    })
-                }))
-            };
-
-            languageChart.setOption(option);
-        }
-
-        function updateTopAnalysisChart() {
-            const container = document.getElementById('topAnalysisChart');
-            const tableContainer = document.getElementById('topAnalysisTable');
-            const listContainer = document.getElementById('topAnalysisList');
-
-            // Hide all containers first
-            container.style.display = 'block';
-            tableContainer.style.display = 'none';
-            listContainer.style.display = 'none';
-
-            // Clear the chart before setting new options to prevent display issues
-            topAnalysisChart.clear();
-
-            const allData = [...topAnalysisData.tags, ...topAnalysisData.mentions, ...topAnalysisData.emojis];
-
-            if (currentTopAnalysisType === 'wordcloud') {
-                const option = {
+            if (currentWordType === 'wordcloud') {
+                option = {
                     tooltip: {
-                        formatter: function(params) {
-                            return params.name + ': ' + params.value;
-                        }
+                        show: true
                     },
                     series: [{
                         type: 'wordCloud',
@@ -1310,357 +550,77 @@
                                 shadowColor: '#333'
                             }
                         },
-                        data: allData.map(item => ({
-                            name: item.name,
-                            value: item.value
-                        }))
+                        data: hashtagData.wordcloud
                     }]
                 };
-                topAnalysisChart.setOption(option);
-            } else if (currentTopAnalysisType === 'bar') {
-                const top20 = allData.sort((a, b) => b.value - a.value).slice(0, 20);
-                const option = {
-                    tooltip: {
-                        trigger: 'axis',
-                        axisPointer: {
-                            type: 'shadow'
-                        }
-                    },
-                    legend: {
-                        data: ['Tags', 'Mentions', 'Emojis'],
-                        top: 10,
-                        textStyle: {
-                            fontSize: 12
-                        },
-                        itemGap: 15,
-                        itemWidth: 25,
-                        itemHeight: 14
-                    },
-                    grid: {
-                        left: '3%',
-                        right: '4%',
-                        bottom: '15%',
-                        top: '15%',
-                        containLabel: true
-                    },
-                    xAxis: {
-                        type: 'category',
-                        data: top20.map(item => item.name),
-                        axisLabel: {
-                            rotate: 45,
-                            interval: 0
-                        }
-                    },
-                    yAxis: {
-                        type: 'value',
-                        name: 'Count'
-                    },
-                    series: [
-                        {
-                            name: 'Tags',
-                            type: 'bar',
-                            stack: 'total',
-                            data: top20.map(item => item.category === 'tags' ? item.value : 0),
-                            itemStyle: { color: '#5470c6' }
-                        },
-                        {
-                            name: 'Mentions',
-                            type: 'bar',
-                            stack: 'total',
-                            data: top20.map(item => item.category === 'mentions' ? item.value : 0),
-                            itemStyle: { color: '#91cc75' }
-                        },
-                        {
-                            name: 'Emojis',
-                            type: 'bar',
-                            stack: 'total',
-                            data: top20.map(item => item.category === 'emojis' ? item.value : 0),
-                            itemStyle: { color: '#fac858' }
-                        }
-                    ]
-                };
-                topAnalysisChart.setOption(option);
-            } else if (currentTopAnalysisType === 'sunburst') {
+            } else {
+                // Sunburst chart
                 const sunburstData = [
                     {
-                        name: 'Tags',
-                        children: topAnalysisData.tags.slice(0, 10).map(item => ({
-                            name: item.name,
-                            value: item.value
-                        }))
-                    },
-                    {
-                        name: 'Mentions',
-                        children: topAnalysisData.mentions.slice(0, 10).map(item => ({
-                            name: item.name,
-                            value: item.value
-                        }))
-                    },
-                    {
-                        name: 'Emojis',
-                        children: topAnalysisData.emojis.slice(0, 10).map(item => ({
+                        name: 'Social Media Platforms',
+                        children: hashtagData.wordcloud.map(item => ({
                             name: item.name,
                             value: item.value
                         }))
                     }
                 ];
-
-                const option = {
+                
+                option = {
                     tooltip: {
                         trigger: 'item',
-                        formatter: '{a} <br/>{b}: {c}'
+                        formatter: '{b}: {c}'
                     },
-                    series: {
+                    series: [{
                         type: 'sunburst',
                         data: sunburstData,
                         radius: [0, '90%'],
+                        itemStyle: {
+                            borderRadius: 7,
+                            borderWidth: 2
+                        },
                         label: {
-                            fontSize: 12,
-                            minAngle: 4
+                            show: false
                         }
-                    }
+                    }]
                 };
-                topAnalysisChart.setOption(option);
-            } else if (currentTopAnalysisType === 'table') {
-                container.style.display = 'none';
-                tableContainer.style.display = 'block';
-                
-                const tableHTML = `
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>Item</th>
-                                <th>Category</th>
-                                <th>Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${allData.sort((a, b) => b.value - a.value).slice(0, 30).map((item, index) => `
-                                <tr>
-                                    <td>${index + 1}</td>
-                                    <td>${item.name}</td>
-                                    <td>${item.category}</td>
-                                    <td>${item.value}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-                tableContainer.innerHTML = tableHTML;
-            } else if (currentTopAnalysisType === 'list') {
-                container.style.display = 'none';
-                listContainer.style.display = 'block';
-                
-                const listHTML = `
-                    <div class="data-list">
-                        ${allData.sort((a, b) => b.value - a.value).slice(0, 50).map((item, index) => `
-                            <div class="list-item">
-                                <span class="item-rank">#${index + 1}</span>
-                                <span class="item-name">${item.name} (${item.category})</span>
-                                <span class="item-value">${item.value}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                listContainer.innerHTML = listHTML;
             }
+            
+            chart.setOption(option);
         }
 
-        function toggleTimeChart(type) {
-            currentTimeChartType = type;
-            updateTimeChart();
-            
-            // Update button states
-            document.querySelectorAll('.toggle-buttons .toggle-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+        function toggleWordChart(type) {
+            currentWordType = type;
+            document.querySelectorAll('.section:nth-child(3) .chart-controls .btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
+            
+            const chart = echarts.getInstanceByDom(document.getElementById('wordChart'));
+            updateWordChart(chart);
         }
 
-        function toggleTopAnalysis(type) {
-            currentTopAnalysisType = type;
-            updateTopAnalysisChart();
+        // Data Table
+        function populateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+            
+            hashtagData.table.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.platform}</td>
+                    <td>${row.authors.toLocaleString()}</td>
+                    <td class="${row.authorsMoM >= 0 ? 'positive' : 'negative'}">${row.authorsMoM >= 0 ? '+' : ''}${row.authorsMoM}%</td>
+                    <td>${row.posts.toLocaleString()}</td>
+                    <td class="${row.postsMoM >= 0 ? 'positive' : 'negative'}">${row.postsMoM >= 0 ? '+' : ''}${row.postsMoM}%</td>
+                    <td>${row.interactions.toLocaleString()}</td>
+                    <td class="${row.interactionsMoM >= 0 ? 'positive' : 'negative'}">${row.interactionsMoM >= 0 ? '+' : ''}${row.interactionsMoM}%</td>
+                    <td>${row.sentiment.toFixed(2)}</td>
+                    <td class="${row.sentimentMoM >= 0 ? 'positive' : 'negative'}">${row.sentimentMoM >= 0 ? '+' : ''}${row.sentimentMoM}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
-        // Initialize on page load
+        // Initialize everything when page loads
         window.addEventListener('load', initCharts);
-
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            timeChart.resize();
-            emotionChart.resize();
-            countryChart.resize();
-            languageChart.resize();
-            topAnalysisChart.resize();
-        });
-
-        // Download functionality
-        function toggleDownloadDropdown(chartId) {
-            const dropdown = document.getElementById(chartId + '-dropdown');
-            const allDropdowns = document.querySelectorAll('.download-dropdown');
-            
-            // Close all other dropdowns
-            allDropdowns.forEach(dd => {
-                if (dd !== dropdown) {
-                    dd.classList.remove('show');
-                }
-            });
-            
-            // Toggle current dropdown
-            dropdown.classList.toggle('show');
-        }
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(event) {
-            if (!event.target.closest('.download-container') && !event.target.closest('.table-download-container')) {
-                document.querySelectorAll('.download-dropdown').forEach(dropdown => {
-                    dropdown.classList.remove('show');
-                });
-            }
-        });
-
-        // Download chart as image
-        function downloadChart(chartId, format) {
-            const chart = getChartInstance(chartId);
-            if (!chart) return;
-
-            const fileName = getChartFileName(chartId);
-            
-            if (format === 'png') {
-                const url = chart.getDataURL({
-                    type: 'png',
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                downloadFile(url, fileName + '.png');
-            } else if (format === 'svg') {
-                const url = chart.getDataURL({
-                    type: 'svg',
-                    backgroundColor: '#fff'
-                });
-                downloadFile(url, fileName + '.svg');
-            }
-            
-            // Close dropdown
-            document.getElementById(chartId + '-dropdown').classList.remove('show');
-        }
-
-        // Get chart instance by ID
-        function getChartInstance(chartId) {
-            switch(chartId) {
-                case 'timeChart': return timeChart;
-                case 'emotionChart': return emotionChart;
-                case 'countryChart': return countryChart;
-                case 'languageChart': return languageChart;
-                case 'topAnalysisChart': return topAnalysisChart;
-                default: return null;
-            }
-        }
-
-        // Get chart file name
-        function getChartFileName(chartId) {
-            const names = {
-                'timeChart': 'post_count_trends',
-                'emotionChart': 'emotion_distribution',
-                'countryChart': 'country_distribution',
-                'languageChart': 'language_distribution',
-                'topAnalysisChart': 'hot_topic_analysis'
-            };
-            return names[chartId] || 'chart';
-        }
-
-        // Download Top Analysis data
-        function downloadTopAnalysisData(format) {
-            const data = {
-                tags: topAnalysisData.tags,
-                mentions: topAnalysisData.mentions,
-                emojis: topAnalysisData.emojis,
-                exportTime: new Date().toISOString()
-            };
-
-            if (format === 'csv') {
-                const csv = convertToCSV(data);
-                downloadFile('data:text/csv;charset=utf-8,' + encodeURIComponent(csv), 'hot_topic_data.csv');
-            } else if (format === 'json') {
-                const json = JSON.stringify(data, null, 2);
-                downloadFile('data:application/json;charset=utf-8,' + encodeURIComponent(json), 'hot_topic_data.json');
-            }
-            
-            document.getElementById('topAnalysisChart-dropdown').classList.remove('show');
-        }
-
-        // Download table data
-        function downloadTableData(format) {
-            const data = {
-                headers: ['Platform', 'Author Count', 'Post Count', 'Engagement Rate', 'Net Sentiment', 'Potential Reach'],
-                data: platformStatsData,
-                exportTime: new Date().toISOString()
-            };
-
-            if (format === 'csv') {
-                const csv = convertTableToCSV(data);
-                downloadFile('data:text/csv;charset=utf-8,' + encodeURIComponent(csv), 'platform_statistics.csv');
-            } else if (format === 'excel') {
-                // For Excel, we'll use CSV format with .xlsx extension
-                // In a real implementation, you might want to use a library like SheetJS
-                const csv = convertTableToCSV(data);
-                downloadFile('data:text/csv;charset=utf-8,' + encodeURIComponent(csv), 'platform_statistics.xlsx');
-            } else if (format === 'json') {
-                const json = JSON.stringify(data, null, 2);
-                downloadFile('data:application/json;charset=utf-8,' + encodeURIComponent(json), 'platform_statistics.json');
-            }
-            
-            document.getElementById('platformStatsTable-dropdown').classList.remove('show');
-        }
-
-        // Convert Top Analysis data to CSV
-        function convertToCSV(data) {
-            let csv = 'Type,Name,Value\n';
-            
-            data.tags.forEach(item => {
-                csv += `Tags,"${item.name}",${item.value}\n`;
-            });
-            
-            data.mentions.forEach(item => {
-                csv += `Mentions,"${item.name}",${item.value}\n`;
-            });
-            
-            data.emojis.forEach(item => {
-                csv += `Emojis,"${item.name}",${item.value}\n`;
-            });
-            
-            return csv;
-        }
-
-        // Convert table data to CSV
-        function convertTableToCSV(data) {
-            let csv = data.headers.join(',') + '\n';
-            
-            data.data.forEach(row => {
-                const values = [
-                    row.platform,
-                    row.authorCount,
-                    row.postCount,
-                    row.engagementRate,
-                    row.netSentiment,
-                    row.potentialReach
-                ];
-                csv += values.map(value => `"${value}"`).join(',') + '\n';
-            });
-            
-            return csv;
-        }
-
-        // Download file helper
-        function downloadFile(url, filename) {
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
     </script>
 </body>
 </html>
