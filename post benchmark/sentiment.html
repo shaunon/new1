@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentiment Analysis Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <script>
+        // Register themeRiver chart
+        if (typeof echarts !== 'undefined') {
+            echarts.registerChart = echarts.registerChart || function() {};
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -25,112 +30,63 @@
             padding: 20px;
         }
         
-        .chart-section {
+        .section {
             margin-bottom: 40px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 20px;
-            position: relative;
         }
         
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .chart-title {
-            font-size: 18px;
+        .section-title {
+            font-size: 24px;
             font-weight: 600;
+            margin-bottom: 20px;
             color: #2c3e50;
-        }
-        
-        .chart-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .toggle-btn {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-        
-        .toggle-btn:hover {
-            background: #e9ecef;
-        }
-        
-        .toggle-btn.active {
-            background: #007bff;
-            color: white;
-            border-color: #007bff;
-        }
-        
-        .download-btn {
-            background: #28a745;
-            border: none;
-            border-radius: 6px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: white;
-        }
-        
-        .download-btn:hover {
-            background: #218838;
-        }
-
-        .content-select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background: white;
-            font-size: 14px;
-            cursor: pointer;
-            margin-right: 10px;
-            min-width: 150px;
-        }
-
-        .content-select:focus {
-            outline: none;
-            border-color: #5470c6;
-            box-shadow: 0 0 0 2px rgba(84, 112, 198, 0.2);
-        }
-
-        .content-select option {
-            padding: 8px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
         }
         
         .chart-container {
             width: 100%;
-            height: 400px;
+            height: 500px;
+            margin-bottom: 20px;
         }
         
-        .bar-charts-row {
+        .chart-controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+        }
+        
+        .btn.active {
+            background: #e74c3c;
+        }
+        
+        .stacked-charts {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
         
-        .bar-chart-item {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            position: relative;
-        }
-        
-        .bar-chart-container {
-            width: 100%;
-            height: 300px;
+        .stacked-chart {
+            height: 400px;
         }
         
         .data-table {
@@ -141,359 +97,247 @@
         
         .data-table th,
         .data-table td {
+            border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #dee2e6;
         }
         
         .data-table th {
             background-color: #f8f9fa;
             font-weight: 600;
-            color: #495057;
+            color: #2c3e50;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
         }
         
         .data-table tr:hover {
-            background-color: #f8f9fa;
+            background-color: #e8f4f8;
         }
         
-        .positive { color: #28a745; }
-        .negative { color: #dc3545; }
-        .neutral { color: #6c757d; }
-        
-        .icon {
-            width: 16px;
-            height: 16px;
-            display: inline-block;
-            margin-right: 5px;
+        .positive {
+            color: #27ae60;
+            font-weight: 600;
         }
         
-        .top-content-container {
-            display: none;
+        .negative {
+            color: #e74c3c;
+            font-weight: 600;
         }
         
-        .top-content-container.active {
-            display: block;
-        }
-        
-        .list-view {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .list-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .list-item:hover {
-            background-color: #f8f9fa;
+        @media (max-width: 768px) {
+            .stacked-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 400px;
+            }
+            
+            .stacked-chart {
+                height: 300px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Time Series Chart -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <h3 class="chart-title">Sentiment Over Time</h3>
-                <div class="chart-controls">
-                    <button class="toggle-btn active" onclick="toggleTimeChart('river')">
-                        <span class="icon">📊</span>River Chart
-                    </button>
-                    <button class="toggle-btn" onclick="toggleTimeChart('area')">
-                        <span class="icon">📈</span>Area Chart
-                    </button>
-                    <button class="download-btn" onclick="downloadChart('timeChart')">⬇</button>
-                </div>
+        <!-- River Chart / Area Chart Section -->
+        <div class="section">
+            <h2 class="section-title">Sentiments - Post Count & Period-over-Period Comparison</h2>
+            <div class="chart-controls">
+                <button class="btn active" onclick="toggleRiverChart('themeriver')">Theme River</button>
+                <button class="btn" onclick="toggleRiverChart('area')">Area Chart</button>
             </div>
-            <div id="timeChart" class="chart-container"></div>
+            <div id="riverChart" class="chart-container"></div>
         </div>
 
-        <!-- Bar Charts Row -->
-        <div class="bar-charts-row">
-            <div class="bar-chart-item">
-                <div class="chart-header">
-                    <h3 class="chart-title">Platform Distribution</h3>
-                    <button class="download-btn" onclick="downloadChart('platformChart')">⬇</button>
-                </div>
-                <div id="platformChart" class="bar-chart-container"></div>
-            </div>
-            
-            <div class="bar-chart-item">
-                <div class="chart-header">
-                    <h3 class="chart-title">Country Distribution</h3>
-                    <button class="download-btn" onclick="downloadChart('countryChart')">⬇</button>
-                </div>
-                <div id="countryChart" class="bar-chart-container"></div>
-            </div>
-            
-            <div class="bar-chart-item">
-                <div class="chart-header">
-                    <h3 class="chart-title">Language Distribution</h3>
-                    <button class="download-btn" onclick="downloadChart('languageChart')">⬇</button>
-                </div>
-                <div id="languageChart" class="bar-chart-container"></div>
+        <!-- Stacked Bar Charts Section -->
+        <div class="section">
+            <h2 class="section-title">Distribution Analysis</h2>
+            <div class="stacked-charts">
+                <div id="platformChart" class="stacked-chart"></div>
+                <div id="countryChart" class="stacked-chart"></div>
+                <div id="languageChart" class="stacked-chart"></div>
             </div>
         </div>
 
-        <!-- Top Content Analysis -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <h3 class="chart-title">Top 100 Content Analysis</h3>
-                <div class="chart-controls">
-                    <select id="topContentSelect" onchange="toggleTopContentBySelect(this.value)" class="content-select">
-                        <option value="wordcloud">☁️ Word Cloud</option>
-                        <option value="sunburst">☀️ Sunburst</option>
-                    </select>
-                    <button class="download-btn" onclick="downloadTopContent()">⬇</button>
-                </div>
+        <!-- Word Cloud / Sunburst Chart Section -->
+        <div class="section">
+            <h2 class="section-title">Top 100 Sentiments Visualization</h2>
+            <div class="chart-controls">
+                <button class="btn active" onclick="toggleWordChart('wordcloud')">Word Cloud</button>
+                <button class="btn" onclick="toggleWordChart('sunburst')">Sunburst Chart</button>
             </div>
-            
-            <div id="topContentWordcloud" class="top-content-container active">
-                <div id="wordcloudChart" class="chart-container"></div>
-            </div>
-            
-            <div id="topContentBar" class="top-content-container">
-                <div id="topBarChart" class="chart-container"></div>
-            </div>
-            
-            <div id="topContentTable" class="top-content-container">
-                <table class="data-table" id="topContentTableData">
-                    <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Content</th>
-                            <th>Type</th>
-                            <th>Sentiment</th>
-                            <th>Count</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-            
-            <div id="topContentList" class="top-content-container">
-                <div class="list-view" id="topContentListData"></div>
-            </div>
-            
-            <div id="topContentSunburst" class="top-content-container">
-                <div id="sunburstChart" class="chart-container"></div>
-            </div>
+            <div id="wordChart" class="chart-container"></div>
         </div>
 
-        <!-- Data Summary Table -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <h3 class="chart-title">Sentiment Analysis Summary</h3>
-                <button class="download-btn" onclick="downloadTable('summaryTable')">⬇</button>
-            </div>
-            <table class="data-table" id="summaryTable">
+        <!-- Data Table Section -->
+        <div class="section">
+            <h2 class="section-title">Sentiment Performance Metrics</h2>
+            <table class="data-table">
                 <thead>
                     <tr>
                         <th>Sentiment</th>
                         <th>Authors</th>
+                        <th>Authors (MoM %)</th>
                         <th>Posts</th>
-                        <th>Engagement</th>
+                        <th>Posts (MoM %)</th>
+                        <th>Interactions</th>
+                        <th>Interactions (MoM %)</th>
                         <th>Net Sentiment</th>
-                        <th>Potential Reach</th>
+                        <th>Sentiment (MoM %)</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td class="positive">Positive</td>
-                        <td>12,543</td>
-                        <td>45,678</td>
-                        <td>2.3M</td>
-                        <td>+0.72</td>
-                        <td>15.6M</td>
-                    </tr>
-                    <tr>
-                        <td class="negative">Negative</td>
-                        <td>8,921</td>
-                        <td>23,456</td>
-                        <td>1.1M</td>
-                        <td>-0.58</td>
-                        <td>8.2M</td>
-                    </tr>
-                    <tr>
-                        <td class="neutral">Neutral</td>
-                        <td>15,234</td>
-                        <td>67,890</td>
-                        <td>3.8M</td>
-                        <td>0.05</td>
-                        <td>22.1M</td>
-                    </tr>
+                <tbody id="dataTableBody">
+                    <!-- Data will be populated by JavaScript -->
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // Sample data
-        const timeSeriesData = {
-            dates: ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'],
-            positive: [1200, 1350, 1100, 1400, 1600, 1800],
-            negative: [800, 750, 900, 650, 700, 600],
-            neutral: [2000, 2200, 1900, 2100, 2300, 2500]
+        // Sample data - replace with actual data
+        const hashtagData = {
+            themeRiver: [
+                ['2024-01-01', 120, 'Positive', 14.3],
+                ['2024-01-02', 132, 'Positive', 10.0],
+                ['2024-01-03', 101, 'Positive', -23.5],
+                ['2024-01-04', 134, 'Positive', 32.7],
+                ['2024-01-05', 90, 'Positive', -32.8],
+                ['2024-01-06', 230, 'Positive', 155.6],
+                ['2024-01-07', 210, 'Positive', -8.7],
+                ['2024-01-01', 220, 'Negative', -2.1],
+                ['2024-01-02', 182, 'Negative', -17.3],
+                ['2024-01-03', 191, 'Negative', 4.9],
+                ['2024-01-04', 234, 'Negative', 22.5],
+                ['2024-01-05', 290, 'Negative', 23.9],
+                ['2024-01-06', 330, 'Negative', 13.8],
+                ['2024-01-07', 310, 'Negative', -6.1],
+                ['2024-01-01', 150, 'Neutral', 6.2],
+                ['2024-01-02', 232, 'Neutral', 54.7],
+                ['2024-01-03', 201, 'Neutral', -13.4],
+                ['2024-01-04', 154, 'Neutral', -23.4],
+                ['2024-01-05', 190, 'Neutral', 23.4],
+                ['2024-01-06', 330, 'Neutral', 73.7],
+                ['2024-01-07', 410, 'Neutral', 24.2],
+
+            ],
+            platforms: {
+                categories: ['Positive', 'Negative', 'Neutral'],
+                series: [
+                    { name: 'TikTok', data: [320, 302, 301], mom: [12.5, -3.2, 8.7] },
+                    { name: 'Instagram', data: [120, 132, 101], mom: [8.3, 15.7, -12.4] },
+                    { name: 'YouTube', data: [220, 182, 191], mom: [5.6, -2.4, 18.9] },
+                    { name: 'Twitter', data: [150, 232, 201], mom: [12.1, 22.3, -1.2] },
+                    { name: 'Others', data: [862, 1018, 964], mom: [3.8, 9.1, 4.2] }
+                ]
+            },
+            countries: {
+                categories: ['Positive', 'Negative', 'Neutral'],
+                series: [
+                    { name: 'USA', data: [420, 402, 401], mom: [15.2, 8.9, 12.3] },
+                    { name: 'UK', data: [220, 232, 201], mom: [7.8, 14.2, -5.6] },
+                    { name: 'Canada', data: [150, 182, 191], mom: [3.4, 12.7, 8.1] },
+                    { name: 'Australia', data: [120, 132, 101], mom: [9.1, 6.5, -8.9] },
+                    { name: 'Others', data: [762, 918, 864], mom: [5.7, 13.4, 7.2] }
+                ]
+            },
+            languages: {
+                categories: ['Positive', 'Negative', 'Neutral'],
+                series: [
+                    { name: 'English', data: [520, 502, 501], mom: [12.8, 6.7, 9.4] },
+                    { name: 'Spanish', data: [220, 232, 201], mom: [8.9, 15.6, -3.2] },
+                    { name: 'French', data: [150, 182, 191], mom: [4.3, 11.8, 7.6] },
+                    { name: 'German', data: [120, 132, 101], mom: [6.7, 8.2, -7.4] },
+                    { name: 'Others', data: [662, 818, 764], mom: [7.1, 12.9, 5.8] }
+                ]
+            },
+            sentiments: {
+                categories: ['Positive', 'Negative', 'Neutral'],
+                series: [
+                    { name: 'Positive', data: [620, 602, 601], mom: [14.3, 8.1, 11.7] },
+                    { name: 'Neutral', data: [320, 332, 301], mom: [6.2, 9.8, 4.5] },
+                    { name: 'Negative', data: [120, 132, 101], mom: [-2.1, 5.4, -8.7] }
+                ]
+            },
+            wordcloud: [
+                { name: 'Positive', value: 1500 },
+                { name: 'Negative', value: 1200 },
+                { name: 'Neutral', value: 1000 },
+                { name: 'Joy', value: 700 },
+                { name: 'Anger', value: 650 },
+                { name: 'Sadness', value: 600 },
+                { name: 'Fear', value: 550 },
+                { name: 'Surprise', value: 500 }
+                // Add more sentiments up to 100
+            ],
+            table: [
+                { sentiment: 'Positive', authors: 15420, authorsMoM: 12.5, posts: 45230, postsMoM: 8.3, interactions: 2340000, interactionsMoM: 15.7, sentiment: 0.75, sentimentMoM: 2.1 },
+                { sentiment: 'Negative', authors: 12340, authorsMoM: -3.2, posts: 38920, postsMoM: 5.6, interactions: 1890000, interactionsMoM: -2.4, sentiment: 0.82, sentimentMoM: 1.8 },
+                { sentiment: 'Neutral', authors: 9870, authorsMoM: 18.9, posts: 32450, postsMoM: 12.1, interactions: 1560000, interactionsMoM: 22.3, sentiment: 0.68, sentimentMoM: -1.2 }
+            ]
         };
 
-        const platformData = [
-            {name: 'Instagram', positive: 45, negative: 25, neutral: 30, positiveCount: 21600, negativeCount: 12000, neutralCount: 14400},
-            {name: 'Twitter', positive: 35, negative: 40, neutral: 25, positiveCount: 15750, negativeCount: 18000, neutralCount: 11250},
-            {name: 'Facebook', positive: 50, negative: 20, neutral: 30, positiveCount: 18500, negativeCount: 7400, neutralCount: 11100},
-            {name: 'TikTok', positive: 60, negative: 15, neutral: 25, positiveCount: 24000, negativeCount: 6000, neutralCount: 10000},
-            {name: 'YouTube', positive: 55, negative: 20, neutral: 25, positiveCount: 19250, negativeCount: 7000, neutralCount: 8750}
-        ];
-
-        const countryData = [
-            {name: 'USA', positive: 40, negative: 30, neutral: 30, positiveCount: 18000, negativeCount: 13500, neutralCount: 13500},
-            {name: 'UK', positive: 45, negative: 25, neutral: 30, positiveCount: 17100, negativeCount: 9500, neutralCount: 11400},
-            {name: 'Canada', positive: 50, negative: 20, neutral: 30, positiveCount: 15000, negativeCount: 6000, neutralCount: 9000},
-            {name: 'Australia', positive: 48, negative: 22, neutral: 30, positiveCount: 14400, negativeCount: 6600, neutralCount: 9000},
-            {name: 'Germany', positive: 42, negative: 28, neutral: 30, positiveCount: 12600, negativeCount: 8400, neutralCount: 9000}
-        ];
-
-        const languageData = [
-            {name: 'English', positive: 45, negative: 25, neutral: 30, positiveCount: 20250, negativeCount: 11250, neutralCount: 13500},
-            {name: 'Spanish', positive: 50, negative: 20, neutral: 30, positiveCount: 16500, negativeCount: 6600, neutralCount: 9900},
-            {name: 'French', positive: 40, negative: 30, neutral: 30, positiveCount: 12000, negativeCount: 9000, neutralCount: 9000},
-            {name: 'German', positive: 42, negative: 28, neutral: 30, positiveCount: 10920, negativeCount: 7280, neutralCount: 7800},
-            {name: 'Chinese', positive: 55, negative: 15, neutral: 30, positiveCount: 14850, negativeCount: 4050, neutralCount: 8100}
-        ];
-
-        const topContentData = [
-            {content: '#love', type: 'hashtag', sentiment: 'positive', count: 15420},
-            {content: '#happy', type: 'hashtag', sentiment: 'positive', count: 12350},
-            {content: '#sad', type: 'hashtag', sentiment: 'negative', count: 8900},
-            {content: '@brand', type: 'mention', sentiment: 'neutral', count: 7650},
-            {content: '😊', type: 'emoji', sentiment: 'positive', count: 18900},
-            {content: '😢', type: 'emoji', sentiment: 'negative', count: 6700},
-            {content: '#amazing', type: 'hashtag', sentiment: 'positive', count: 9800},
-            {content: '#disappointed', type: 'hashtag', sentiment: 'negative', count: 5400},
-            {content: '#beautiful', type: 'hashtag', sentiment: 'positive', count: 8200},
-            {content: '#awesome', type: 'hashtag', sentiment: 'positive', count: 7800},
-            {content: '#terrible', type: 'hashtag', sentiment: 'negative', count: 4900},
-            {content: '#wonderful', type: 'hashtag', sentiment: 'positive', count: 6500},
-            {content: '#boring', type: 'hashtag', sentiment: 'negative', count: 3800},
-            {content: '#fantastic', type: 'hashtag', sentiment: 'positive', count: 5900},
-            {content: '#awful', type: 'hashtag', sentiment: 'negative', count: 3200},
-            {content: '#excellent', type: 'hashtag', sentiment: 'positive', count: 5100},
-            {content: '#horrible', type: 'hashtag', sentiment: 'negative', count: 2800},
-            {content: '#perfect', type: 'hashtag', sentiment: 'positive', count: 4700},
-            {content: '#disgusting', type: 'hashtag', sentiment: 'negative', count: 2400},
-            {content: '#brilliant', type: 'hashtag', sentiment: 'positive', count: 4200},
-            {content: '#pathetic', type: 'hashtag', sentiment: 'negative', count: 2100},
-            {content: '#outstanding', type: 'hashtag', sentiment: 'positive', count: 3800},
-            {content: '#dreadful', type: 'hashtag', sentiment: 'negative', count: 1900},
-            {content: '#superb', type: 'hashtag', sentiment: 'positive', count: 3500},
-            {content: '#appalling', type: 'hashtag', sentiment: 'negative', count: 1600},
-            {content: '#marvelous', type: 'hashtag', sentiment: 'positive', count: 3200},
-            {content: '#atrocious', type: 'hashtag', sentiment: 'negative', count: 1400},
-            {content: '#splendid', type: 'hashtag', sentiment: 'positive', count: 2900},
-            {content: '#abysmal', type: 'hashtag', sentiment: 'negative', count: 1200},
-            {content: '#magnificent', type: 'hashtag', sentiment: 'positive', count: 2600},
-            {content: '#deplorable', type: 'hashtag', sentiment: 'negative', count: 1100},
-            {content: '#phenomenal', type: 'hashtag', sentiment: 'positive', count: 2400},
-            {content: '#repulsive', type: 'hashtag', sentiment: 'negative', count: 1000},
-            {content: '#exceptional', type: 'hashtag', sentiment: 'positive', count: 2200},
-            {content: '#revolting', type: 'hashtag', sentiment: 'negative', count: 900},
-            {content: '#remarkable', type: 'hashtag', sentiment: 'positive', count: 2000},
-            {content: '#detestable', type: 'hashtag', sentiment: 'negative', count: 800},
-            {content: '#incredible', type: 'hashtag', sentiment: 'positive', count: 1800},
-            {content: '#loathsome', type: 'hashtag', sentiment: 'negative', count: 700},
-            {content: '#fabulous', type: 'hashtag', sentiment: 'positive', count: 1600},
-            {content: '#vile', type: 'hashtag', sentiment: 'negative', count: 650},
-            {content: '#glorious', type: 'hashtag', sentiment: 'positive', count: 1500},
-            {content: '#hideous', type: 'hashtag', sentiment: 'negative', count: 600},
-            {content: '#divine', type: 'hashtag', sentiment: 'positive', count: 1400},
-            {content: '#ghastly', type: 'hashtag', sentiment: 'negative', count: 550},
-            {content: '#sublime', type: 'hashtag', sentiment: 'positive', count: 1300},
-            {content: '#horrid', type: 'hashtag', sentiment: 'negative', count: 500},
-            {content: '#exquisite', type: 'hashtag', sentiment: 'positive', count: 1200},
-            {content: '#foul', type: 'hashtag', sentiment: 'negative', count: 450},
-            {content: '#delightful', type: 'hashtag', sentiment: 'positive', count: 1100},
-            {content: '#nasty', type: 'hashtag', sentiment: 'negative', count: 400}
-        ];
-
-        // Chart instances
-        let timeChart, platformChart, countryChart, languageChart, wordcloudChart, topBarChart, sunburstChart;
-        let currentTimeChartType = 'river';
-        let currentTopContentType = 'wordcloud';
+        let currentRiverType = 'themeriver';
+        let currentWordType = 'wordcloud';
 
         // Initialize charts
         function initCharts() {
-            timeChart = echarts.init(document.getElementById('timeChart'));
-            platformChart = echarts.init(document.getElementById('platformChart'));
-            countryChart = echarts.init(document.getElementById('countryChart'));
-            languageChart = echarts.init(document.getElementById('languageChart'));
-            wordcloudChart = echarts.init(document.getElementById('wordcloudChart'));
-            topBarChart = echarts.init(document.getElementById('topBarChart'));
-            sunburstChart = echarts.init(document.getElementById('sunburstChart'));
-
-            updateTimeChart();
-            updateBarCharts();
-            updateTopContent();
+            initRiverChart();
+            initStackedCharts();
+            initWordChart();
+            populateDataTable();
         }
 
-        // Time series chart
-        function updateTimeChart() {
-            const option = currentTimeChartType === 'river' ? getRiverChartOption() : getAreaChartOption();
-            // Use notMerge=true to completely replace the chart configuration and prevent overlap
-            timeChart.setOption(option, true);
+        // River Chart / Area Chart
+        function initRiverChart() {
+            const chart = echarts.init(document.getElementById('riverChart'));
+            updateRiverChart(chart);
         }
 
-        function getRiverChartOption() {
-            // Prepare data for ThemeRiver
-            const riverData = [];
-            timeSeriesData.dates.forEach((date, index) => {
-                riverData.push([date, timeSeriesData.positive[index], 'Positive']);
-                riverData.push([date, timeSeriesData.negative[index], 'Negative']);
-                riverData.push([date, timeSeriesData.neutral[index], 'Neutral']);
-            });
-
-            return {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'line',
-                        lineStyle: {
-                            color: 'rgba(0,0,0,0.2)',
-                            width: 1,
-                            type: 'solid'
-                        }
-                    }
-                },
-                legend: {
-                    data: ['Positive', 'Negative', 'Neutral']
-                },
-                xAxis: null, // Explicitly clear xAxis from area chart
-                yAxis: null, // Explicitly clear yAxis from area chart
-                grid: null,  // Explicitly clear grid from area chart
-                singleAxis: {
-                    top: 50,
-                    bottom: 50,
-                    axisTick: {},
-                    axisLabel: {},
-                    type: 'time',
-                    axisPointer: {
-                        animation: true,
-                        label: {
-                            show: true
+        function updateRiverChart(chart) {
+            // Clear the chart first to prevent overlapping
+            chart.clear();
+            
+            let option;
+            
+            if (currentRiverType === 'themeriver') {
+                option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'line'
+                        },
+                        formatter: function(params) {
+                            let result = params[0].data[0] + '<br/>';
+                            params.forEach(param => {
+                                const momValue = param.data[3];
+                                const momClass = momValue >= 0 ? 'positive' : 'negative';
+                                const momSign = momValue >= 0 ? '+' : '';
+                                result += param.data[2] + ': ' + param.data[1] + 
+                                         ' <span style="color: ' + (momValue >= 0 ? '#52c41a' : '#ff4d4f') + '">(' + 
+                                         momSign + momValue + '%)</span><br/>';
+                            });
+                            return result;
                         }
                     },
-                    splitLine: {
-                        show: true,
-                        lineStyle: {
-                            type: 'dashed',
-                            opacity: 0.2
+                    legend: {
+                        data: ['Positive', 'Negative', 'Neutral']
+                    },
+                    singleAxis: {
+                        type: 'time',
+                        top: 50,
+                        bottom: 50,
+                        axisPointer: {
+                            animation: true,
+                            label: {
+                                show: true
+                            }
                         }
-                    }
-                },
-                series: [
-                    {
+                    },
+                    series: [{
                         type: 'themeRiver',
                         emphasis: {
                             itemStyle: {
@@ -501,79 +345,102 @@
                                 shadowColor: 'rgba(0, 0, 0, 0.8)'
                             }
                         },
-                        data: riverData
+                        data: hashtagData.themeRiver
+                    }]
+                };
+            } else {
+                // Area chart fallback
+                const processedData = hashtagData.themeRiver.reduce((acc, item) => {
+                    const [date, value, name, mom] = item;
+                    if (!acc[name]) {
+                        acc[name] = [];
                     }
-                ]
-            };
+                    acc[name].push([date, value, mom]);
+                    return acc;
+                }, {});
+
+                const series = Object.keys(processedData).map(name => ({
+                    name: name,
+                    type: 'line',
+                    stack: 'Total',
+                    areaStyle: {},
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: processedData[name]
+                }));
+
+                option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'cross',
+                            label: {
+                                backgroundColor: '#6a7985'
+                            }
+                        },
+                        formatter: function(params) {
+                            let result = params[0].axisValue + '<br/>';
+                            params.forEach(param => {
+                                const momValue = param.data[2];
+                                const momSign = momValue >= 0 ? '+' : '';
+                                result += param.seriesName + ': ' + param.data[1] + 
+                                         ' <span style="color: ' + (momValue >= 0 ? '#52c41a' : '#ff4d4f') + '">(' + 
+                                         momSign + momValue + '%)</span><br/>';
+                            });
+                            return result;
+                        }
+                    },
+                    legend: {
+                        data: Object.keys(processedData)
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'time',
+                        boundaryGap: false
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: series
+                };
+            }
+            
+            chart.setOption(option);
         }
 
-        function getAreaChartOption() {
-            return {
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: ['Positive', 'Negative', 'Neutral']
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                singleAxis: null, // Explicitly clear singleAxis from river chart
-                xAxis: {
-                    type: 'category',
-                    boundaryGap: false,
-                    data: timeSeriesData.dates
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [
-                    {
-                        name: 'Positive',
-                        type: 'line',
-                        smooth: true,
-                        areaStyle: {},
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: timeSeriesData.positive
-                    },
-                    {
-                        name: 'Negative',
-                        type: 'line',
-                        smooth: true,
-                        areaStyle: {},
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: timeSeriesData.negative
-                    },
-                    {
-                        name: 'Neutral',
-                        type: 'line',
-                        smooth: true,
-                        areaStyle: {},
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: timeSeriesData.neutral
+        function toggleRiverChart(type) {
+            currentRiverType = type;
+            document.querySelectorAll('.section:first-child .chart-controls .btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const chart = echarts.getInstanceByDom(document.getElementById('riverChart'));
+            updateRiverChart(chart);
+        }
+
+        // Stacked Bar Charts
+        function initStackedCharts() {
+            initStackedChart('platformChart', 'Platform Distribution', hashtagData.platforms);
+            initStackedChart('countryChart', 'Country Distribution', hashtagData.countries);
+            initStackedChart('languageChart', 'Language Distribution', hashtagData.languages);
+        }
+
+        function initStackedChart(containerId, title, data) {
+            const chart = echarts.init(document.getElementById(containerId));
+            const option = {
+                title: {
+                    text: title,
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 16,
+                        fontWeight: 'bold'
                     }
-                ]
-            };
-        }
-
-        // Bar charts
-        function updateBarCharts() {
-            updatePlatformChart();
-            updateCountryChart();
-            updateLanguageChart();
-        }
-
-        function getBarChartOption(data, title) {
-            return {
+                },
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {
@@ -581,32 +448,25 @@
                     },
                     formatter: function(params) {
                         let result = params[0].name + '<br/>';
-                        const item = data.find(d => d.name === params[0].name);
-                        
-                        params.forEach(param => {
-                            if (param.value > 0) {
-                                let count = 0;
-                                if (param.seriesName === 'Positive') {
-                                    count = item.positiveCount;
-                                } else if (param.seriesName === 'Negative') {
-                                    count = item.negativeCount;
-                                } else if (param.seriesName === 'Neutral') {
-                                    count = item.neutralCount;
-                                }
-                                result += param.marker + ' ' + param.seriesName + ': ' + 
-                                         count.toLocaleString() + ' posts (' + param.value + '%)<br/>';
-                            }
+                        params.forEach((param, index) => {
+                            const seriesData = data.series.find(s => s.name === param.seriesName);
+                            const momValue = seriesData.mom[param.dataIndex];
+                            const changeClass = momValue >= 0 ? 'positive' : 'negative';
+                            result += param.marker + param.seriesName + ': ' + param.value + 
+                                     ' <span class="' + changeClass + '">(' + (momValue >= 0 ? '+' : '') + momValue + '%)</span><br/>';
                         });
                         return result;
                     }
                 },
                 legend: {
-                    data: ['Positive', 'Negative', 'Neutral']
+                    bottom: 0,
+                    data: data.series.map(item => item.name)
                 },
                 grid: {
                     left: '3%',
                     right: '4%',
-                    bottom: '3%',
+                    bottom: '15%',
+                    top: '15%',
                     containLabel: true
                 },
                 xAxis: {
@@ -614,428 +474,134 @@
                 },
                 yAxis: {
                     type: 'category',
-                    data: data.map(item => item.name)
+                    data: data.categories
                 },
-                series: [
-                    {
-                        name: 'Positive',
-                        type: 'bar',
-                        stack: 'total',
-                        label: {
-                            show: true
-                        },
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: data.map(item => item.positive)
-                    },
-                    {
-                        name: 'Negative',
-                        type: 'bar',
-                        stack: 'total',
-                        label: {
-                            show: true
-                        },
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: data.map(item => item.negative)
-                    },
-                    {
-                        name: 'Neutral',
-                        type: 'bar',
-                        stack: 'total',
-                        label: {
-                            show: true
-                        },
-                        emphasis: {
-                            focus: 'series'
-                        },
-                        data: data.map(item => item.neutral)
-                    }
-                ]
-            };
-        }
-
-        function updatePlatformChart() {
-            platformChart.setOption(getBarChartOption(platformData, 'Platform Distribution'));
-        }
-
-        function updateCountryChart() {
-            countryChart.setOption(getBarChartOption(countryData, 'Country Distribution'));
-        }
-
-        function updateLanguageChart() {
-            languageChart.setOption(getBarChartOption(languageData, 'Language Distribution'));
-        }
-
-        // Top content analysis
-        function updateTopContent() {
-            switch(currentTopContentType) {
-                case 'wordcloud':
-                    updateWordCloud();
-                    break;
-                case 'bar':
-                    updateTopBarChart();
-                    break;
-                case 'table':
-                    updateTopTable();
-                    break;
-                case 'list':
-                    updateTopList();
-                    break;
-                case 'sunburst':
-                    updateSunburst();
-                    break;
-            }
-        }
-
-        function updateWordCloud() {
-            const wordCloudData = topContentData.map(item => ({
-                name: item.content,
-                value: item.count,
-                textStyle: {
-                    color: item.sentiment === 'positive' ? '#28a745' : 
-                           item.sentiment === 'negative' ? '#dc3545' : '#6c757d'
-                }
-            }));
-
-            const option = {
-                tooltip: {
-                    show: true
-                },
-                series: [{
-                    type: 'wordCloud',
-                    gridSize: 2,
-                    sizeRange: [12, 50],
-                    rotationRange: [-90, 90],
-                    shape: 'pentagon',
-                    width: '100%',
-                    height: '100%',
-                    drawOutOfBound: true,
-                    textStyle: {
-                        fontFamily: 'sans-serif',
-                        fontWeight: 'bold'
+                series: data.series.map(item => ({
+                    name: item.name,
+                    type: 'bar',
+                    stack: 'total',
+                    label: {
+                        show: true,
+                        position: 'insideRight'
                     },
                     emphasis: {
+                        focus: 'series'
+                    },
+                    data: item.data
+                }))
+            };
+            chart.setOption(option);
+        }
+
+        // Word Cloud / Sunburst Chart
+        function initWordChart() {
+            const chart = echarts.init(document.getElementById('wordChart'));
+            updateWordChart(chart);
+        }
+
+        function updateWordChart(chart) {
+            let option;
+            
+            if (currentWordType === 'wordcloud') {
+                option = {
+                    tooltip: {
+                        show: true
+                    },
+                    series: [{
+                        type: 'wordCloud',
+                        gridSize: 2,
+                        sizeRange: [12, 50],
+                        rotationRange: [-90, 90],
+                        shape: 'pentagon',
+                        width: '100%',
+                        height: '100%',
+                        drawOutOfBound: true,
                         textStyle: {
-                            shadowBlur: 10,
-                            shadowColor: '#333'
-                        }
-                    },
-                    data: wordCloudData
-                }]
-            };
-            wordcloudChart.setOption(option);
-        }
+                            fontFamily: 'sans-serif',
+                            fontWeight: 'bold',
+                            color: function () {
+                                return 'rgb(' + [
+                                    Math.round(Math.random() * 160),
+                                    Math.round(Math.random() * 160),
+                                    Math.round(Math.random() * 160)
+                                ].join(',') + ')';
+                            }
+                        },
+                        emphasis: {
+                            textStyle: {
+                                shadowBlur: 10,
+                                shadowColor: '#333'
+                            }
+                        },
+                        data: hashtagData.wordcloud
+                    }]
+                };
+            } else {
+                // Sunburst chart
+                const sunburstData = hashtagData.wordcloud.map(item => ({
+                    name: item.name,
+                    value: item.value
+                }));
 
-        function updateTopBarChart() {
-            const option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    }
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis: {
-                    type: 'value'
-                },
-                yAxis: {
-                    type: 'category',
-                    data: topContentData.map(item => item.content)
-                },
-                series: [{
-                    type: 'bar',
-                    data: topContentData.map(item => ({
-                        value: item.count,
+                option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}: {c}'
+                    },
+                    series: [{
+                        type: 'sunburst',
+                        data: [{
+                            name: 'Sentiments',
+                            children: sunburstData
+                        }],
+                        radius: [0, '90%'],
                         itemStyle: {
-                            color: item.sentiment === 'positive' ? '#28a745' : 
-                                   item.sentiment === 'negative' ? '#dc3545' : '#6c757d'
+                            borderRadius: 7,
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false
                         }
-                    }))
-                }]
-            };
-            topBarChart.setOption(option);
+                    }]
+                };
+            }
+            
+            chart.setOption(option);
         }
 
-        function updateTopTable() {
-            const tbody = document.querySelector('#topContentTableData tbody');
-            tbody.innerHTML = '';
-            
-            topContentData.forEach((item, index) => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${item.content}</td>
-                    <td>${item.type}</td>
-                    <td class="${item.sentiment}">${item.sentiment}</td>
-                    <td>${item.count.toLocaleString()}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function updateTopList() {
-            const container = document.getElementById('topContentListData');
-            container.innerHTML = '';
-            
-            topContentData.forEach((item, index) => {
-                const listItem = document.createElement('div');
-                listItem.className = 'list-item';
-                listItem.innerHTML = `
-                    <div>
-                        <strong>#${index + 1}</strong> ${item.content} 
-                        <span class="badge ${item.sentiment}">${item.type}</span>
-                    </div>
-                    <div class="${item.sentiment}">
-                        ${item.count.toLocaleString()}
-                    </div>
-                `;
-                container.appendChild(listItem);
-            });
-        }
-
-        function updateSunburst() {
-            const sunburstData = {
-                name: 'Content',
-                children: [
-                    {
-                        name: 'Hashtags',
-                        children: topContentData.filter(item => item.type === 'hashtag').map(item => ({
-                            name: item.content,
-                            value: item.count,
-                            itemStyle: {
-                                color: item.sentiment === 'positive' ? '#28a745' : 
-                                       item.sentiment === 'negative' ? '#dc3545' : '#6c757d'
-                            }
-                        }))
-                    },
-                    {
-                        name: 'Mentions',
-                        children: topContentData.filter(item => item.type === 'mention').map(item => ({
-                            name: item.content,
-                            value: item.count,
-                            itemStyle: {
-                                color: item.sentiment === 'positive' ? '#28a745' : 
-                                       item.sentiment === 'negative' ? '#dc3545' : '#6c757d'
-                            }
-                        }))
-                    },
-                    {
-                        name: 'Emojis',
-                        children: topContentData.filter(item => item.type === 'emoji').map(item => ({
-                            name: item.content,
-                            value: item.count,
-                            itemStyle: {
-                                color: item.sentiment === 'positive' ? '#28a745' : 
-                                       item.sentiment === 'negative' ? '#dc3545' : '#6c757d'
-                            }
-                        }))
-                    }
-                ]
-            };
-
-            const option = {
-                series: {
-                    type: 'sunburst',
-                    data: [sunburstData],
-                    radius: [0, '90%'],
-                    label: {
-                        fontSize: 12,
-                        minAngle: 4
-                    }
-                }
-            };
-            sunburstChart.setOption(option);
-        }
-
-        // Toggle functions
-        function toggleTimeChart(type) {
-            currentTimeChartType = type;
-            document.querySelectorAll('.chart-controls .toggle-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
-            updateTimeChart();
-        }
-
-        function toggleTopContentBySelect(type) {
-            currentTopContentType = type;
-            
-            // Hide all containers
-            document.querySelectorAll('.top-content-container').forEach(container => {
-                container.classList.remove('active');
-            });
-            
-            // Show selected container
-            document.getElementById(`topContent${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
-            
-            updateTopContent();
-            
-            // Resize charts after container becomes visible
-            setTimeout(() => {
-                if (type === 'bar' && topBarChart) {
-                    topBarChart.resize();
-                } else if (type === 'sunburst' && sunburstChart) {
-                    sunburstChart.resize();
-                } else if (type === 'wordcloud' && wordcloudChart) {
-                    wordcloudChart.resize();
-                }
-            }, 100);
-        }
-
-        function toggleTopContent(type) {
-            currentTopContentType = type;
-            
-            // Update button states
-            document.querySelectorAll('#topContent .toggle-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+        function toggleWordChart(type) {
+            currentWordType = type;
+            document.querySelectorAll('.section:nth-child(3) .chart-controls .btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            // Hide all containers
-            document.querySelectorAll('.top-content-container').forEach(container => {
-                container.classList.remove('active');
+            const chart = echarts.getInstanceByDom(document.getElementById('wordChart'));
+            updateWordChart(chart);
+        }
+
+        // Data Table
+        function populateDataTable() {
+            const tableBody = document.getElementById('dataTableBody');
+            tableBody.innerHTML = '';
+            
+            hashtagData.table.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.sentiment}</td>
+                    <td>${row.authors.toLocaleString()}</td>
+                    <td class="${row.authorsMoM >= 0 ? 'positive' : 'negative'}">${row.authorsMoM >= 0 ? '+' : ''}${row.authorsMoM}%</td>
+                    <td>${row.posts.toLocaleString()}</td>
+                    <td class="${row.postsMoM >= 0 ? 'positive' : 'negative'}">${row.postsMoM >= 0 ? '+' : ''}${row.postsMoM}%</td>
+                    <td>${row.interactions.toLocaleString()}</td>
+                    <td class="${row.interactionsMoM >= 0 ? 'positive' : 'negative'}">${row.interactionsMoM >= 0 ? '+' : ''}${row.interactionsMoM}%</td>
+                    <td>${row.sentiment}</td>
+                    <td class="${row.sentimentMoM >= 0 ? 'positive' : 'negative'}">${row.sentimentMoM >= 0 ? '+' : ''}${row.sentimentMoM}%</td>
+                `;
+                tableBody.appendChild(tr);
             });
-            
-            // Show selected container
-            document.getElementById(`topContent${type.charAt(0).toUpperCase() + type.slice(1)}`).classList.add('active');
-            
-            updateTopContent();
-            
-            // Resize charts after container becomes visible
-            setTimeout(() => {
-                if (type === 'bar' && topBarChart) {
-                    topBarChart.resize();
-                } else if (type === 'sunburst' && sunburstChart) {
-                    sunburstChart.resize();
-                } else if (type === 'wordcloud' && wordcloudChart) {
-                    wordcloudChart.resize();
-                }
-            }, 100);
         }
 
-        // Download functions
-        function downloadChart(chartId) {
-            let chart;
-            switch(chartId) {
-                case 'timeChart':
-                    chart = timeChart;
-                    break;
-                case 'platformChart':
-                    chart = platformChart;
-                    break;
-                case 'countryChart':
-                    chart = countryChart;
-                    break;
-                case 'languageChart':
-                    chart = languageChart;
-                    break;
-            }
-            
-            if (chart) {
-                const url = chart.getDataURL({
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `${chartId}.png`;
-                link.click();
-            }
-        }
-
-        function downloadTopContent() {
-            let chart;
-            switch(currentTopContentType) {
-                case 'wordcloud':
-                    chart = wordcloudChart;
-                    break;
-                case 'bar':
-                    chart = topBarChart;
-                    break;
-                case 'sunburst':
-                    chart = sunburstChart;
-                    break;
-                case 'table':
-                    downloadTableAsCSV('topContentTableData', 'top_content.csv');
-                    return;
-                case 'list':
-                    downloadListAsText();
-                    return;
-            }
-            
-            if (chart) {
-                const url = chart.getDataURL({
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `top_content_${currentTopContentType}.png`;
-                link.click();
-            }
-        }
-
-        function downloadTable(tableId) {
-            downloadTableAsCSV(tableId, 'sentiment_summary.csv');
-        }
-
-        function downloadTableAsCSV(tableId, filename) {
-            const table = document.getElementById(tableId);
-            const rows = table.querySelectorAll('tr');
-            let csv = '';
-            
-            rows.forEach(row => {
-                const cols = row.querySelectorAll('th, td');
-                const rowData = Array.from(cols).map(col => col.textContent.trim());
-                csv += rowData.join(',') + '\n';
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = filename;
-            link.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        function downloadListAsText() {
-            const listItems = document.querySelectorAll('#topContentListData .list-item');
-            let text = 'Top Content List\n\n';
-            
-            listItems.forEach((item, index) => {
-                const content = item.textContent.trim();
-                text += `${index + 1}. ${content}\n`;
-            });
-            
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'top_content_list.txt';
-            link.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        // Initialize on page load
+        // Initialize everything when page loads
         window.addEventListener('load', initCharts);
-        window.addEventListener('resize', () => {
-            timeChart.resize();
-            platformChart.resize();
-            countryChart.resize();
-            languageChart.resize();
-            wordcloudChart.resize();
-            topBarChart.resize();
-            sunburstChart.resize();
-        });
     </script>
 </body>
 </html>
