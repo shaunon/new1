@@ -386,7 +386,7 @@
                 </div>
                 
                 <div class="stat-card">
-                    <h2>POTENTIAL REACH</h2>
+                    <h2>ENGAGEMENT RATE</h2>
                     <div class="stat-value">1.6B</div>
                     <div class="stat-change positive">
                         <div class="arrow-up"></div>
@@ -634,29 +634,86 @@
             { name: 'haul', value: 99, sentiment: 'positive' }
         ];
 
-        // Time trend chart
+        // Time trend chart with comparison data
+        const timeLabels = ['2023-12-25', '2024-01-21', '2024-02-18', '2024-03-16', '2024-04-13', '2024-05-11', '2024-06-08', '2024-07-06', '2024-08-03', '2024-08-31', '2024-09-22'];
+        const timeData = [0, 0, 0, 0, 0, 0, 1000, 2000, 1000, 2000, 5000];
+        
+        // Engagement rate data (互动率数据)
+        const engagementRateData = [0, 0, 0, 0, 0, 0, 2.5, 3.2, 2.8, 3.5, 4.1];
+        
+        // Calculate comparison data (vs previous period)
+        const timeComparison = timeData.map((current, index) => {
+            if (index === 0) return 'N/A';
+            const previous = timeData[index - 1];
+            if (previous === 0) return current > 0 ? '+∞%' : '0%';
+            const change = ((current - previous) / previous * 100).toFixed(1);
+            return change >= 0 ? `+${change}%` : `${change}%`;
+        });
+
+        // Calculate engagement rate comparison data
+        const engagementComparison = engagementRateData.map((current, index) => {
+            if (index === 0) return 'N/A';
+            const previous = engagementRateData[index - 1];
+            if (previous === 0) return current > 0 ? '+∞%' : '0%';
+            const change = ((current - previous) / previous * 100).toFixed(1);
+            return change >= 0 ? `+${change}%` : `${change}%`;
+        });
+
         const timeCtx = document.getElementById('timeChart').getContext('2d');
         const timeChart = new Chart(timeCtx, {
             type: 'line',
             data: {
-                labels: ['2023-12-25', '2024-01-21', '2024-02-18', '2024-03-16', '2024-04-13', '2024-05-11', '2024-06-08', '2024-07-06', '2024-08-03', '2024-08-31', '2024-09-22'],
+                labels: timeLabels,
                 datasets: [{
                     label: 'Posts',
-                    data: [0, 0, 0, 0, 0, 0, 1000, 2000, 1000, 2000, 5000],
+                    data: timeData,
                     fill: true,
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    tension: 0.4
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Engagement Rate (%)',
+                    data: engagementRateData,
+                    fill: false,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    tension: 0.4,
+                    yAxisID: 'y1'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 scales: {
                     y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                         beginAtZero: true,
                         grid: {
                             color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Posts Count'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        title: {
+                            display: true,
+                            text: 'Engagement Rate (%)'
                         }
                     },
                     x: {
@@ -669,6 +726,24 @@
                     legend: {
                         display: true,
                         position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const value = context.parsed.y;
+                                
+                                if (context.datasetIndex === 0) {
+                                    // Posts dataset
+                                    const comparison = timeComparison[index];
+                                    return `Posts: ${value.toLocaleString()} (${comparison} vs previous)`;
+                                } else {
+                                    // Engagement rate dataset
+                                    const comparison = engagementComparison[index];
+                                    return `Engagement Rate: ${value}% (${comparison} vs previous)`;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -687,41 +762,146 @@
             negative: ((sentimentCounts.negative || 0) / totalTerms * 100).toFixed(1)
         };
 
-        // Sentiment chart
+        // Add mock post count data for sentiment
+        const sentimentPostCounts = {
+            positive: 1250,
+            neutral: 890,
+            negative: 460
+        };
+
+        // Add mock comparison data for sentiment (环比数据)
+        const sentimentComparison = {
+            positive: '+5.2%',
+            neutral: '-2.1%', 
+            negative: '-3.1%'
+        };
+
+        // Sentiment chart - changed to bar chart
         const sentimentCtx = document.getElementById('sentimentChart').getContext('2d');
         const sentimentChart = new Chart(sentimentCtx, {
-            type: 'doughnut',
+            type: 'bar',
             data: {
                 labels: ['Positive', 'Neutral', 'Negative'],
                 datasets: [{
+                    label: 'Percentage (%)',
                     data: [sentimentPercentages.positive, sentimentPercentages.neutral, sentimentPercentages.negative],
                     backgroundColor: [
                         '#4CAF50',
                         '#FFC107',
                         '#F44336'
                     ],
-                    borderWidth: 0
+                    borderWidth: 0,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Post Count',
+                    data: [sentimentPostCounts.positive, sentimentPostCounts.neutral, sentimentPostCounts.negative],
+                    backgroundColor: [
+                        'rgba(76, 175, 80, 0.6)',
+                        'rgba(255, 193, 7, 0.6)',
+                        'rgba(244, 67, 54, 0.6)'
+                    ],
+                    borderColor: [
+                        '#4CAF50',
+                        '#FFC107',
+                        '#F44336'
+                    ],
+                    borderWidth: 2,
+                    yAxisID: 'y1'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Sentiment'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
+                        },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Post Count'
+                        },
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                },
                 plugins: {
                     legend: {
                         position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label;
+                                const value = context.parsed.y;
+                                const sentimentLabel = context.label.toLowerCase();
+                                const comparison = sentimentComparison[sentimentLabel];
+                                
+                                if (label === 'Percentage (%)') {
+                                    return `${label}: ${value}% (${comparison} vs previous)`;
+                                } else {
+                                    return `${label}: ${value} posts (${comparison} vs previous)`;
+                                }
+                            }
+                        }
                     }
-                },
-                cutout: '60%'
+                }
             }
         });
         
-        // Countries/regions chart
+        // Add mock post count data for countries
+        const countriesPostCounts = {
+            'United States': 2890,
+            'India': 1440,
+            'South Korea': 795,
+            'Thailand': 738,
+            'Brazil': 555,
+            'Bangladesh': 481,
+            'Other': 1383
+        };
+
+        // Add mock comparison data for countries (环比数据)
+        const countriesComparison = {
+            'United States': '+2.3%',
+            'India': '+8.7%',
+            'South Korea': '+1.2%',
+            'Thailand': '+4.5%',
+            'Brazil': '+3.1%',
+            'Bangladesh': '+6.8%',
+            'Other': '-1.5%'
+        };
+
+        // Countries/regions chart - changed to bar chart
         const countriesCtx = document.getElementById('countriesChart').getContext('2d');
         const countriesChart = new Chart(countriesCtx, {
-            type: 'doughnut',
+            type: 'bar',
             data: {
                 labels: ['United States', 'India', 'South Korea', 'Thailand', 'Brazil', 'Bangladesh', 'Other'],
                 datasets: [{
+                    label: 'Percentage (%)',
                     data: [34.9, 17.4, 9.6, 8.9, 6.7, 5.8, 16.7],
                     backgroundColor: [
                         '#1E3A8A',
@@ -732,28 +912,132 @@
                         '#10B981',
                         '#6B7280'
                     ],
-                    borderWidth: 0
+                    borderWidth: 0,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Post Count',
+                    data: [
+                        countriesPostCounts['United States'],
+                        countriesPostCounts['India'],
+                        countriesPostCounts['South Korea'],
+                        countriesPostCounts['Thailand'],
+                        countriesPostCounts['Brazil'],
+                        countriesPostCounts['Bangladesh'],
+                        countriesPostCounts['Other']
+                    ],
+                    backgroundColor: [
+                        'rgba(30, 58, 138, 0.6)',
+                        'rgba(59, 130, 246, 0.6)',
+                        'rgba(147, 197, 253, 0.6)',
+                        'rgba(236, 72, 153, 0.6)',
+                        'rgba(245, 158, 11, 0.6)',
+                        'rgba(16, 185, 129, 0.6)',
+                        'rgba(107, 114, 128, 0.6)'
+                    ],
+                    borderColor: [
+                        '#1E3A8A',
+                        '#3B82F6',
+                        '#93C5FD',
+                        '#EC4899',
+                        '#F59E0B',
+                        '#10B981',
+                        '#6B7280'
+                    ],
+                    borderWidth: 2,
+                    yAxisID: 'y1'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Countries/Regions'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
+                        },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Post Count'
+                        },
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                },
                 plugins: {
                     legend: {
                         position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label;
+                                const value = context.parsed.y;
+                                const countryLabel = context.label;
+                                const comparison = countriesComparison[countryLabel];
+                                
+                                if (label === 'Percentage (%)') {
+                                    return `${label}: ${value}% (${comparison} vs previous)`;
+                                } else {
+                                    return `${label}: ${value} posts (${comparison} vs previous)`;
+                                }
+                            }
+                        }
                     }
-                },
-                cutout: '60%'
+                }
             }
         });
         
-        // Languages chart
+        // Add mock post count data for languages
+        const languagesPostCounts = {
+            'English': 5270,
+            'Thai': 1418,
+            'Korean': 796,
+            'Spanish': 431,
+            'Portuguese': 174,
+            'Other': 207
+        };
+
+        // Add mock comparison data for languages (环比数据)
+        const languagesComparison = {
+            'English': '+1.8%',
+            'Thai': '+3.2%',
+            'Korean': '+0.9%',
+            'Spanish': '+2.7%',
+            'Portuguese': '+4.1%',
+            'Other': '-0.5%'
+        };
+
+        // Languages chart - changed to bar chart
         const languagesCtx = document.getElementById('languagesChart').getContext('2d');
         const languagesChart = new Chart(languagesCtx, {
-            type: 'doughnut',
+            type: 'bar',
             data: {
                 labels: ['English', 'Thai', 'Korean', 'Spanish', 'Portuguese', 'Other'],
                 datasets: [{
+                    label: 'Percentage (%)',
                     data: [63.5, 17.1, 9.6, 5.2, 2.1, 2.5],
                     backgroundColor: [
                         '#F97316',
@@ -763,28 +1047,129 @@
                         '#F59E0B',
                         '#6B7280'
                     ],
-                    borderWidth: 0
+                    borderWidth: 0,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Post Count',
+                    data: [
+                        languagesPostCounts['English'],
+                        languagesPostCounts['Thai'],
+                        languagesPostCounts['Korean'],
+                        languagesPostCounts['Spanish'],
+                        languagesPostCounts['Portuguese'],
+                        languagesPostCounts['Other']
+                    ],
+                    backgroundColor: [
+                        'rgba(249, 115, 22, 0.6)',
+                        'rgba(167, 139, 250, 0.6)',
+                        'rgba(59, 130, 246, 0.6)',
+                        'rgba(16, 185, 129, 0.6)',
+                        'rgba(245, 158, 11, 0.6)',
+                        'rgba(107, 114, 128, 0.6)'
+                    ],
+                    borderColor: [
+                        '#F97316',
+                        '#A78BFA',
+                        '#3B82F6',
+                        '#10B981',
+                        '#F59E0B',
+                        '#6B7280'
+                    ],
+                    borderWidth: 2,
+                    yAxisID: 'y1'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Languages'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
+                        },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Post Count'
+                        },
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                },
                 plugins: {
                     legend: {
                         position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label;
+                                const value = context.parsed.y;
+                                const languageLabel = context.label;
+                                const comparison = languagesComparison[languageLabel];
+                                
+                                if (label === 'Percentage (%)') {
+                                    return `${label}: ${value}% (${comparison} vs previous)`;
+                                } else {
+                                    return `${label}: ${value} posts (${comparison} vs previous)`;
+                                }
+                            }
+                        }
                     }
-                },
-                cutout: '60%'
+                }
             }
         });
         
-        // Media types chart
+        // Add mock post count data for media types
+        const mediaTypesPostCounts = {
+            'X': 3569,
+            'YouTube': 2017,
+            'TikTok': 805,
+            'Instagram': 631,
+            'Facebook': 490,
+            'Other': 788
+        };
+
+        // Add mock comparison data for media types (环比数据)
+        const mediaTypesComparison = {
+            'X': '+1.2%',
+            'YouTube': '+3.8%',
+            'TikTok': '+7.5%',
+            'Instagram': '+2.1%',
+            'Facebook': '-1.3%',
+            'Other': '+0.8%'
+        };
+
+        // Media types chart - changed to bar chart
         const mediaTypesCtx = document.getElementById('mediaTypesChart').getContext('2d');
         const mediaTypesChart = new Chart(mediaTypesCtx, {
-            type: 'doughnut',
+            type: 'bar',
             data: {
                 labels: ['X', 'YouTube', 'TikTok', 'Instagram', 'Facebook', 'Other'],
                 datasets: [{
+                    label: 'Percentage (%)',
                     data: [43, 24.3, 9.7, 7.6, 5.9, 9.5],
                     backgroundColor: [
                         '#000000',
@@ -794,18 +1179,98 @@
                         '#1877F2',
                         '#6B7280'
                     ],
-                    borderWidth: 0
+                    borderWidth: 0,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Post Count',
+                    data: [
+                        mediaTypesPostCounts['X'],
+                        mediaTypesPostCounts['YouTube'],
+                        mediaTypesPostCounts['TikTok'],
+                        mediaTypesPostCounts['Instagram'],
+                        mediaTypesPostCounts['Facebook'],
+                        mediaTypesPostCounts['Other']
+                    ],
+                    backgroundColor: [
+                        'rgba(0, 0, 0, 0.6)',
+                        'rgba(255, 0, 0, 0.6)',
+                        'rgba(37, 244, 238, 0.6)',
+                        'rgba(225, 48, 108, 0.6)',
+                        'rgba(24, 119, 242, 0.6)',
+                        'rgba(107, 114, 128, 0.6)'
+                    ],
+                    borderColor: [
+                        '#000000',
+                        '#FF0000',
+                        '#25F4EE',
+                        '#E1306C',
+                        '#1877F2',
+                        '#6B7280'
+                    ],
+                    borderWidth: 2,
+                    yAxisID: 'y1'
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        title: {
+                            display: true,
+                            text: 'Media Types'
+                        }
+                    },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Percentage (%)'
+                        },
+                        beginAtZero: true
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Post Count'
+                        },
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                },
                 plugins: {
                     legend: {
                         position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label;
+                                const value = context.parsed.y;
+                                const mediaLabel = context.label;
+                                const comparison = mediaTypesComparison[mediaLabel];
+                                
+                                if (label === 'Percentage (%)') {
+                                    return `${label}: ${value}% (${comparison} vs previous)`;
+                                } else {
+                                    return `${label}: ${value} posts (${comparison} vs previous)`;
+                                }
+                            }
+                        }
                     }
-                },
-                cutout: '60%'
+                }
             }
         });
 
