@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hashtag Analysis Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <script>
+        // Register themeRiver chart
+        if (typeof echarts !== 'undefined') {
+            echarts.registerChart = echarts.registerChart || function() {};
+        }
+    </script>
     <style>
         * {
             margin: 0;
@@ -25,166 +30,63 @@
             padding: 20px;
         }
         
-        .chart-section {
+        .section {
             margin-bottom: 40px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             padding: 20px;
-            position: relative;
         }
         
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .chart-title {
-            font-size: 18px;
+        .section-title {
+            font-size: 24px;
             font-weight: 600;
+            margin-bottom: 20px;
             color: #2c3e50;
-        }
-        
-        .chart-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        .toggle-btn, .download-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.3s;
-        }
-        
-        .toggle-btn:hover, .download-btn:hover {
-            background: #2980b9;
-        }
-        
-        .toggle-btn.active {
-            background: #e74c3c;
-        }
-        
-        .download-btn {
-            background: #27ae60;
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .download-btn:hover {
-            background: #229954;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
         }
         
         .chart-container {
             width: 100%;
-            height: 400px;
+            height: 500px;
+            margin-bottom: 20px;
         }
         
-        .distribution-charts {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
+        .chart-controls {
+            margin-bottom: 20px;
+            text-align: center;
         }
         
-        .distribution-chart {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            position: relative;
-        }
-        
-        .distribution-chart .chart-container {
-            height: 300px;
-        }
-        
-        .top-hashtags-section {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 40px;
-        }
-        
-        .view-dropdown {
-            background: #fff;
-            color: #2c3e50;
-            border: 2px solid #3498db;
-            padding: 8px 12px;
-            border-radius: 4px;
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
-            transition: all 0.3s;
-            outline: none;
-            min-width: 120px;
+            transition: background 0.3s;
         }
         
-        .view-dropdown:hover {
-            border-color: #2980b9;
-            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.2);
+        .btn:hover {
+            background: #2980b9;
         }
         
-        .view-dropdown:focus {
-            border-color: #2980b9;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        .btn.active {
+            background: #e74c3c;
         }
         
-        .view-dropdown option {
-            padding: 8px;
-            background: #fff;
-            color: #2c3e50;
-        }
-        
-        .hashtag-view {
-            display: none;
-        }
-        
-        .hashtag-view.active {
-            display: block;
-        }
-        
-        .hashtag-list {
+        .stacked-charts {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-            max-height: 400px;
-            overflow-y: auto;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
         }
         
-        .hashtag-item {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 4px;
-            border-left: 4px solid #3498db;
-        }
-        
-        .hashtag-name {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .hashtag-count {
-            font-size: 12px;
-            color: #7f8c8d;
-        }
-        
-        .data-table-section {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            overflow-x: auto;
+        .stacked-chart {
+            height: 400px;
         }
         
         .data-table {
@@ -195,390 +97,304 @@
         
         .data-table th,
         .data-table td {
+            border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        
-        .sentiment-positive {
-            color: #27ae60;
-            font-weight: 600;
-        }
-        
-        .sentiment-negative {
-            color: #e74c3c;
-            font-weight: 600;
-        }
-        
-        .sentiment-neutral {
-            color: #95a5a6;
-            font-weight: 600;
-        }
-        
-        .positive-growth {
-            color: #27ae60;
-            font-weight: 600;
-        }
-        
-        .negative-growth {
-            color: #e74c3c;
-            font-weight: 600;
         }
         
         .data-table th {
-            background: #f8f9fa;
+            background-color: #f8f9fa;
             font-weight: 600;
             color: #2c3e50;
         }
         
-        .data-table tr:hover {
-            background: #f8f9fa;
+        .data-table tr:nth-child(even) {
+            background-color: #f8f9fa;
         }
         
-        .sentiment-positive {
+        .data-table tr:hover {
+            background-color: #e8f4f8;
+        }
+        
+        .positive {
             color: #27ae60;
             font-weight: 600;
         }
         
-        .sentiment-negative {
+        .negative {
             color: #e74c3c;
             font-weight: 600;
         }
         
-        .sentiment-neutral {
-            color: #f39c12;
-            font-weight: 600;
+        @media (max-width: 768px) {
+            .stacked-charts {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 400px;
+            }
+            
+            .stacked-chart {
+                height: 300px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Time Series Chart Section -->
-        <div class="chart-section">
-            <div class="chart-header">
-                <h2 class="chart-title">Hashtag Post Count Over Time</h2>
-                <div class="chart-controls">
-                    <button class="toggle-btn active" id="riverBtn" onclick="switchToRiver()">ThemeRiver</button>
-                    <button class="toggle-btn" id="areaBtn" onclick="switchToArea()">Area Chart</button>
-                    <button class="download-btn" onclick="downloadChart('timeSeriesChart')" title="Download Chart">⬇</button>
-                </div>
+        <!-- River Chart / Area Chart Section -->
+        <div class="section">
+            <h2 class="section-title">Top 5 Hashtags - Post Count & Period-over-Period Comparison</h2>
+            <div class="chart-controls">
+                <button class="btn active" onclick="toggleRiverChart('themeriver')">Theme River</button>
+                <button class="btn" onclick="toggleRiverChart('area')">Area Chart</button>
             </div>
-            <div class="chart-container" id="timeSeriesChart"></div>
+            <div id="riverChart" class="chart-container"></div>
         </div>
 
-        <!-- Distribution Charts Section -->
-        <div class="distribution-charts">
-            <div class="distribution-chart">
-                <div class="chart-header">
-                    <h3 class="chart-title">Platform Distribution</h3>
-                    <button class="download-btn" onclick="downloadChart('platformChart')" title="Download Chart">⬇</button>
-                </div>
-                <div class="chart-container" id="platformChart"></div>
-            </div>
-            
-            <div class="distribution-chart">
-                <div class="chart-header">
-                    <h3 class="chart-title">Country Distribution</h3>
-                    <button class="download-btn" onclick="downloadChart('countryChart')" title="Download Chart">⬇</button>
-                </div>
-                <div class="chart-container" id="countryChart"></div>
-            </div>
-            
-            <div class="distribution-chart">
-                <div class="chart-header">
-                    <h3 class="chart-title">Language Distribution</h3>
-                    <button class="download-btn" onclick="downloadChart('languageChart')" title="Download Chart">⬇</button>
-                </div>
-                <div class="chart-container" id="languageChart"></div>
+        <!-- Stacked Bar Charts Section -->
+        <div class="section">
+            <h2 class="section-title">Hashtag Distribution Analysis</h2>
+            <div class="stacked-charts">
+                <div id="platformChart" class="stacked-chart"></div>
+                <div id="countryChart" class="stacked-chart"></div>
+                <div id="languageChart" class="stacked-chart"></div>
+                <div id="sentimentChart" class="stacked-chart"></div>
             </div>
         </div>
 
-        <!-- Top 100 Hashtags Section -->
-        <div class="top-hashtags-section">
-            <div class="chart-header">
-                <h2 class="chart-title">Top 100 Hashtags Analysis</h2>
-                <div class="chart-controls">
-                    <select class="view-dropdown" id="viewDropdown" onchange="switchHashtagViewFromDropdown()">
-                        <option value="wordcloud" selected>Word Cloud</option>
-                        <option value="sunburst">Sunburst</option>
-                    </select>
-                    <button class="download-btn" onclick="downloadHashtagView()" title="Download View">⬇</button>
-                </div>
+        <!-- Word Cloud / Sunburst Chart Section -->
+        <div class="section">
+            <h2 class="section-title">Top 100 Hashtags Visualization</h2>
+            <div class="chart-controls">
+                <button class="btn active" onclick="toggleWordChart('wordcloud')">Word Cloud</button>
+                <button class="btn" onclick="toggleWordChart('sunburst')">Sunburst Chart</button>
             </div>
-            
-            <div class="hashtag-view active" id="wordcloudView">
-                <div class="chart-container" id="wordcloudChart"></div>
-            </div>
-            
-            <div class="hashtag-view" id="barView">
-                <div class="chart-container" id="hashtagBarChart"></div>
-            </div>
-            
-            <div class="hashtag-view" id="tableView">
-                <div class="data-table-section">
-                    <table class="data-table" id="hashtagTable">
-                        <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>Hashtag</th>
-                                <th>Positive %</th>
-                                <th>Negative %</th>
-                                <th>Neutral %</th>
-                                <th>Growth %</th>
-                            </tr>
-                        </thead>
-                        <tbody id="hashtagTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="hashtag-view" id="listView">
-                <div class="hashtag-list" id="hashtagList"></div>
-            </div>
-            
-            <div class="hashtag-view" id="sunburstView">
-                <div class="chart-container" id="sunburstChart"></div>
-            </div>
+            <div id="wordChart" class="chart-container"></div>
         </div>
 
-        <!-- Data Summary Table Section -->
-        <div class="data-table-section">
-            <div class="chart-header">
-                <h2 class="chart-title">Hashtag Statistics Summary</h2>
-                <button class="download-btn" onclick="downloadTable('summaryTable')" title="Download Table">⬇</button>
-            </div>
-            <table class="data-table" id="summaryTable">
+        <!-- Data Table Section -->
+        <div class="section">
+            <h2 class="section-title">Hashtag Performance Metrics</h2>
+            <table class="data-table">
                 <thead>
                     <tr>
                         <th>Hashtag</th>
-                        <th>Author Count</th>
-                        <th>Post Count</th>
-                        <th>Engagement</th>
+                        <th>Authors</th>
+                        <th>Authors (MoM %)</th>
+                        <th>Posts</th>
+                        <th>Posts (MoM %)</th>
+                        <th>Interactions</th>
+                        <th>Interactions (MoM %)</th>
                         <th>Net Sentiment</th>
-                        <th>Potential Reach</th>
+                        <th>Sentiment (MoM %)</th>
                     </tr>
                 </thead>
-                <tbody id="summaryTableBody"></tbody>
+                <tbody id="dataTableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // Sample data for demonstration - expanded to 50 hashtags for word cloud
-        const timeSeriesData = [
-            { date: '2024-01-01', hashtags: { '#travel': 1200, '#food': 800, '#fashion': 600, '#tech': 400, '#fitness': 300 } },
-            { date: '2024-01-02', hashtags: { '#travel': 1100, '#food': 900, '#fashion': 650, '#tech': 450, '#fitness': 320 } },
-            { date: '2024-01-03', hashtags: { '#travel': 1300, '#food': 850, '#fashion': 700, '#tech': 500, '#fitness': 280 } },
-            { date: '2024-01-04', hashtags: { '#travel': 1400, '#food': 950, '#fashion': 720, '#tech': 480, '#fitness': 350 } },
-            { date: '2024-01-05', hashtags: { '#travel': 1250, '#food': 1000, '#fashion': 680, '#tech': 520, '#fitness': 380 } },
-            { date: '2024-01-06', hashtags: { '#travel': 1350, '#food': 920, '#fashion': 750, '#tech': 550, '#fitness': 400 } },
-            { date: '2024-01-07', hashtags: { '#travel': 1500, '#food': 1100, '#fashion': 800, '#tech': 600, '#fitness': 420 } }
-        ];
+        // Sample data - replace with actual data
+        const hashtagData = {
+            themeRiver: [
+                ['2024-01-01', 120, '#music'],
+                ['2024-01-02', 132, '#music'],
+                ['2024-01-03', 101, '#music'],
+                ['2024-01-04', 134, '#music'],
+                ['2024-01-05', 90, '#music'],
+                ['2024-01-06', 230, '#music'],
+                ['2024-01-07', 210, '#music'],
+                ['2024-01-01', 220, '#dance'],
+                ['2024-01-02', 182, '#dance'],
+                ['2024-01-03', 191, '#dance'],
+                ['2024-01-04', 234, '#dance'],
+                ['2024-01-05', 290, '#dance'],
+                ['2024-01-06', 330, '#dance'],
+                ['2024-01-07', 310, '#dance'],
+                ['2024-01-01', 150, '#comedy'],
+                ['2024-01-02', 232, '#comedy'],
+                ['2024-01-03', 201, '#comedy'],
+                ['2024-01-04', 154, '#comedy'],
+                ['2024-01-05', 190, '#comedy'],
+                ['2024-01-06', 330, '#comedy'],
+                ['2024-01-07', 410, '#comedy'],
+                ['2024-01-01', 320, '#lifestyle'],
+                ['2024-01-02', 332, '#lifestyle'],
+                ['2024-01-03', 301, '#lifestyle'],
+                ['2024-01-04', 334, '#lifestyle'],
+                ['2024-01-05', 390, '#lifestyle'],
+                ['2024-01-06', 330, '#lifestyle'],
+                ['2024-01-07', 320, '#lifestyle'],
+                ['2024-01-01', 820, '#food'],
+                ['2024-01-02', 932, '#food'],
+                ['2024-01-03', 901, '#food'],
+                ['2024-01-04', 934, '#food'],
+                ['2024-01-05', 1290, '#food'],
+                ['2024-01-06', 1330, '#food'],
+                ['2024-01-07', 1320, '#food']
+            ],
+            platforms: {
+                categories: ['#music', '#dance', '#comedy', '#lifestyle', '#food', 'Others'],
+                series: [
+                    { name: 'TikTok', data: [320, 302, 301, 334, 390, 330], mom: [12.5, -3.2, 8.7, 15.3, 22.1, 5.8] },
+                    { name: 'Instagram', data: [120, 132, 101, 134, 90, 230], mom: [8.3, 15.7, -12.4, 9.2, -18.5, 25.6] },
+                    { name: 'YouTube', data: [220, 182, 191, 234, 290, 330], mom: [5.6, -2.4, 18.9, 7.4, 33.2, 14.7] },
+                    { name: 'Twitter', data: [150, 232, 201, 154, 190, 330], mom: [12.1, 22.3, -1.2, 0.5, 8.9, 19.3] },
+                    { name: 'Others', data: [862, 1018, 964, 1026, 1103, 1256], mom: [3.8, 9.1, 4.2, 6.7, 11.2, 8.5] }
+                ]
+            },
+            countries: {
+                categories: ['#music', '#dance', '#comedy', '#lifestyle', '#food', 'Others'],
+                series: [
+                    { name: 'USA', data: [420, 402, 401, 434, 490, 530], mom: [15.2, 8.9, 12.3, 18.7, 25.4, 11.6] },
+                    { name: 'UK', data: [220, 232, 201, 234, 290, 330], mom: [7.8, 14.2, -5.6, 9.8, 19.3, 16.7] },
+                    { name: 'Canada', data: [150, 182, 191, 154, 190, 230], mom: [3.4, 12.7, 8.1, -2.3, 15.8, 22.1] },
+                    { name: 'Australia', data: [120, 132, 101, 134, 90, 180], mom: [9.1, 6.5, -8.9, 11.2, -12.4, 28.3] },
+                    { name: 'Others', data: [762, 918, 864, 926, 1003, 1156], mom: [5.7, 13.4, 7.2, 9.8, 14.6, 10.2] }
+                ]
+            },
+            languages: {
+                categories: ['#music', '#dance', '#comedy', '#lifestyle', '#food', 'Others'],
+                series: [
+                    { name: 'English', data: [520, 502, 501, 534, 590, 630], mom: [12.8, 6.7, 9.4, 16.2, 21.3, 13.5] },
+                    { name: 'Spanish', data: [220, 232, 201, 234, 290, 330], mom: [8.9, 15.6, -3.2, 12.1, 24.7, 18.9] },
+                    { name: 'French', data: [150, 182, 191, 154, 190, 230], mom: [4.3, 11.8, 7.6, -1.8, 14.2, 25.4] },
+                    { name: 'German', data: [120, 132, 101, 134, 90, 180], mom: [6.7, 8.2, -7.4, 9.8, -15.6, 31.2] },
+                    { name: 'Others', data: [662, 818, 764, 826, 903, 1056], mom: [7.1, 12.9, 5.8, 8.4, 16.8, 9.7] }
+                ]
+            },
+            sentiments: {
+                categories: ['#music', '#dance', '#comedy', '#lifestyle', '#food', 'Others'],
+                series: [
+                    { name: 'Positive', data: [620, 602, 601, 634, 690, 730], mom: [14.3, 8.1, 11.7, 19.2, 23.8, 15.6] },
+                    { name: 'Neutral', data: [320, 332, 301, 334, 390, 430], mom: [6.2, 9.8, 4.5, 12.3, 18.7, 11.4] },
+                    { name: 'Negative', data: [120, 132, 101, 134, 90, 180], mom: [-2.1, 5.4, -8.7, 7.2, -16.3, 24.8] }
+                ]
+            },
+            wordcloud: [
+                { name: '#music', value: 1500 },
+                { name: '#dance', value: 1200 },
+                { name: '#comedy', value: 1000 },
+                { name: '#lifestyle', value: 900 },
+                { name: '#food', value: 800 },
+                { name: '#fashion', value: 700 },
+                { name: '#travel', value: 650 },
+                { name: '#fitness', value: 600 },
+                { name: '#art', value: 550 },
+                { name: '#gaming', value: 500 }
+                // Add more hashtags up to 100
+            ],
+            table: [
+                { hashtag: '#music', authors: 15420, authorsMoM: 12.5, posts: 45230, postsMoM: 8.3, interactions: 2340000, interactionsMoM: 15.7, sentiment: 0.75, sentimentMoM: 2.1 },
+                { hashtag: '#dance', authors: 12340, authorsMoM: -3.2, posts: 38920, postsMoM: 5.6, interactions: 1890000, interactionsMoM: -2.4, sentiment: 0.82, sentimentMoM: 1.8 },
+                { hashtag: '#comedy', authors: 9870, authorsMoM: 18.9, posts: 32450, postsMoM: 12.1, interactions: 1560000, interactionsMoM: 22.3, sentiment: 0.68, sentimentMoM: -1.2 },
+                { hashtag: '#lifestyle', authors: 8760, authorsMoM: 7.4, posts: 28930, postsMoM: 3.8, interactions: 1230000, interactionsMoM: 9.1, sentiment: 0.71, sentimentMoM: 0.5 },
+                { hashtag: '#food', authors: 7650, authorsMoM: -1.8, posts: 25670, postsMoM: -0.9, interactions: 1120000, interactionsMoM: 4.2, sentiment: 0.79, sentimentMoM: 3.2 }
+            ]
+        };
 
-        const platformData = [
-            { name: 'Instagram', '#travel': 45, '#food': 35, '#fashion': 40, '#tech': 25, '#fitness': 30, '#beauty': 38, '#lifestyle': 42, '#art': 28, '#music': 32, '#sports': 35, other: 15 },
-            { name: 'TikTok', '#travel': 30, '#food': 40, '#fashion': 35, '#tech': 45, '#fitness': 40, '#beauty': 35, '#lifestyle': 30, '#art': 25, '#music': 45, '#sports': 40, other: 20 },
-            { name: 'Twitter', '#travel': 15, '#food': 15, '#fashion': 15, '#tech': 20, '#fitness': 20, '#beauty': 17, '#lifestyle': 18, '#art': 30, '#music': 15, '#sports': 15, other: 25 },
-            { name: 'Facebook', '#travel': 8, '#food': 8, '#fashion': 8, '#tech': 8, '#fitness': 8, '#beauty': 8, '#lifestyle': 8, '#art': 15, '#music': 6, '#sports': 8, other: 35 },
-            { name: 'Other', '#travel': 2, '#food': 2, '#fashion': 2, '#tech': 2, '#fitness': 2, '#beauty': 2, '#lifestyle': 2, '#art': 2, '#music': 2, '#sports': 2, other: 5 }
-        ];
+        let currentRiverType = 'themeriver';
+        let currentWordType = 'wordcloud';
 
-        const countryData = [
-            { name: 'United States', '#travel': 25, '#food': 30, '#fashion': 28, '#tech': 35, '#fitness': 32, '#beauty': 30, '#lifestyle': 28, '#art': 20, '#music': 25, '#sports': 30, other: 20 },
-            { name: 'United Kingdom', '#travel': 15, '#food': 12, '#fashion': 18, '#tech': 15, '#fitness': 15, '#beauty': 16, '#lifestyle': 15, '#art': 18, '#music': 15, '#sports': 12, other: 12 },
-            { name: 'Canada', '#travel': 12, '#food': 10, '#fashion': 12, '#tech': 12, '#fitness': 13, '#beauty': 12, '#lifestyle': 12, '#art': 10, '#music': 12, '#sports': 15, other: 10 },
-            { name: 'Australia', '#travel': 18, '#food': 8, '#fashion': 10, '#tech': 8, '#fitness': 12, '#beauty': 10, '#lifestyle': 15, '#art': 8, '#music': 8, '#sports': 18, other: 8 },
-            { name: 'Germany', '#travel': 8, '#food': 12, '#fashion': 8, '#tech': 10, '#fitness': 8, '#beauty': 8, '#lifestyle': 8, '#art': 15, '#music': 12, '#sports': 8, other: 10 },
-            { name: 'France', '#travel': 10, '#food': 15, '#fashion': 12, '#tech': 6, '#fitness': 8, '#beauty': 12, '#lifestyle': 10, '#art': 12, '#music': 10, '#sports': 6, other: 8 },
-            { name: 'Japan', '#travel': 6, '#food': 8, '#fashion': 6, '#tech': 8, '#fitness': 6, '#beauty': 6, '#lifestyle': 6, '#art': 8, '#music': 8, '#sports': 6, other: 6 },
-            { name: 'Brazil', '#travel': 4, '#food': 3, '#fashion': 4, '#tech': 4, '#fitness': 4, '#beauty': 4, '#lifestyle': 4, '#art': 3, '#music': 8, '#sports': 3, other: 4 },
-            { name: 'India', '#travel': 2, '#food': 2, '#fashion': 2, '#tech': 2, '#fitness': 2, '#beauty': 2, '#lifestyle': 2, '#art': 6, '#music': 2, '#sports': 2, other: 2 },
-            { name: 'Other', '#travel': 0, '#food': 0, '#fashion': 0, '#tech': 0, '#fitness': 0, '#beauty': 0, '#lifestyle': 0, '#art': 0, '#music': 0, '#sports': 0, other: 20 }
-        ];
-
-        const languageData = [
-            { name: 'English', '#travel': 70, '#food': 65, '#fashion': 68, '#tech': 75, '#fitness': 72, '#beauty': 70, '#lifestyle': 68, '#art': 60, '#music': 65, '#sports': 70, other: 60 },
-            { name: 'Spanish', '#travel': 12, '#food': 15, '#fashion': 12, '#tech': 8, '#fitness': 10, '#beauty': 12, '#lifestyle': 12, '#art': 15, '#music': 18, '#sports': 12, other: 15 },
-            { name: 'French', '#travel': 8, '#food': 10, '#fashion': 10, '#tech': 6, '#fitness': 8, '#beauty': 8, '#lifestyle': 8, '#art': 10, '#music': 8, '#sports': 6, other: 8 },
-            { name: 'German', '#travel': 4, '#food': 4, '#fashion': 4, '#tech': 5, '#fitness': 4, '#beauty': 4, '#lifestyle': 4, '#art': 6, '#music': 4, '#sports': 4, other: 5 },
-            { name: 'Portuguese', '#travel': 3, '#food': 3, '#fashion': 3, '#tech': 3, '#fitness': 3, '#beauty': 3, '#lifestyle': 3, '#art': 4, '#music': 3, '#sports': 4, other: 4 },
-            { name: 'Japanese', '#travel': 2, '#food': 2, '#fashion': 2, '#tech': 2, '#fitness': 2, '#beauty': 2, '#lifestyle': 2, '#art': 3, '#music': 1, '#sports': 2, other: 3 },
-            { name: 'Korean', '#travel': 1, '#food': 1, '#fashion': 1, '#tech': 1, '#fitness': 1, '#beauty': 1, '#lifestyle': 1, '#art': 2, '#music': 1, '#sports': 2, other: 2 },
-            { name: 'Other', '#travel': 0, '#food': 0, '#fashion': 0, '#tech': 0, '#fitness': 0, '#beauty': 0, '#lifestyle': 2, '#art': 0, '#music': 0, '#sports': 0, other: 3 }
-        ];
-
-        // Expanded to 50 hashtags for word cloud
-        const top100Hashtags = [
-            { name: '#travel', count: 15420, engagement: 89.2, positive: 72.5, negative: 8.3, neutral: 19.2, growth: 15.6 },
-            { name: '#food', count: 12850, engagement: 76.8, positive: 68.9, negative: 12.1, neutral: 19.0, growth: 8.3 },
-            { name: '#fashion', count: 11200, engagement: 82.5, positive: 75.2, negative: 6.8, neutral: 18.0, growth: 22.1 },
-            { name: '#tech', count: 9800, engagement: 71.3, positive: 45.6, negative: 18.4, neutral: 36.0, growth: -3.2 },
-            { name: '#fitness', count: 8900, engagement: 85.7, positive: 78.3, negative: 5.2, neutral: 16.5, growth: 12.7 },
-            { name: '#beauty', count: 8200, engagement: 79.4, positive: 71.8, negative: 9.6, neutral: 18.6, growth: 18.9 },
-            { name: '#lifestyle', count: 7800, engagement: 73.6, positive: 58.4, negative: 11.2, neutral: 30.4, growth: 6.5 },
-            { name: '#art', count: 7200, engagement: 68.9, positive: 69.7, negative: 8.9, neutral: 21.4, growth: 4.8 },
-            { name: '#music', count: 6800, engagement: 81.2, positive: 74.6, negative: 7.1, neutral: 18.3, growth: 9.2 },
-            { name: '#sports', count: 6400, engagement: 77.8, positive: 66.3, negative: 14.7, neutral: 19.0, growth: 11.4 },
-            { name: '#photography', count: 6100, engagement: 74.5, positive: 76.8, negative: 5.4, neutral: 17.8, growth: 14.3 },
-            { name: '#nature', count: 5800, engagement: 72.1, positive: 81.2, negative: 3.6, neutral: 15.2, growth: 7.9 },
-            { name: '#love', count: 5600, engagement: 88.3, positive: 85.4, negative: 2.8, neutral: 11.8, growth: 19.6 },
-            { name: '#health', count: 5400, engagement: 76.9, positive: 64.7, negative: 13.5, neutral: 21.8, growth: 5.2 },
-            { name: '#business', count: 5200, engagement: 69.7, positive: 52.3, negative: 16.9, neutral: 30.8, growth: -1.8 },
-            { name: '#design', count: 5000, engagement: 75.2, positive: 67.4, negative: 8.7, neutral: 23.9, growth: 8.7 },
-            { name: '#motivation', count: 4800, engagement: 83.1, positive: 82.6, negative: 4.1, neutral: 13.3, growth: 16.2 },
-            { name: '#education', count: 4600, engagement: 71.8, positive: 59.8, negative: 12.4, neutral: 27.8, growth: 3.6 },
-            { name: '#gaming', count: 4400, engagement: 79.6, positive: 61.5, negative: 15.8, neutral: 22.7, growth: 13.9 },
-            { name: '#books', count: 4200, engagement: 67.4, positive: 73.2, negative: 6.9, neutral: 19.9, growth: 2.1 },
-            { name: '#movies', count: 4000, engagement: 73.9, positive: 58.7, negative: 18.3, neutral: 23.0, growth: 7.4 },
-            { name: '#cooking', count: 3800, engagement: 78.2, positive: 76.9, negative: 7.8, neutral: 15.3, growth: 10.8 },
-            { name: '#pets', count: 3600, engagement: 85.6, positive: 88.4, negative: 2.1, neutral: 9.5, growth: 21.3 },
-            { name: '#cars', count: 3400, engagement: 72.3, positive: 54.6, negative: 19.7, neutral: 25.7, growth: 4.9 },
-            { name: '#home', count: 3200, engagement: 74.7, positive: 69.8, negative: 8.4, neutral: 21.8, growth: 6.2 },
-            { name: '#wedding', count: 3000, engagement: 86.1, positive: 89.7, negative: 1.8, neutral: 8.5, growth: 24.6 },
-            { name: '#baby', count: 2800, engagement: 89.4, positive: 91.2, negative: 1.4, neutral: 7.4, growth: 18.7 },
-            { name: '#diy', count: 2600, engagement: 71.5, positive: 65.3, negative: 11.9, neutral: 22.8, growth: 5.8 },
-            { name: '#garden', count: 2400, engagement: 68.8, positive: 72.4, negative: 8.6, neutral: 19.0, growth: 3.4 },
-            { name: '#yoga', count: 2200, engagement: 82.7, positive: 79.6, negative: 4.7, neutral: 15.7, growth: 12.1 },
-            { name: '#dance', count: 2000, engagement: 84.3, positive: 83.8, negative: 3.9, neutral: 12.3, growth: 15.4 },
-            { name: '#coffee', count: 1900, engagement: 76.1, positive: 71.5, negative: 9.2, neutral: 19.3, growth: 7.6 },
-            { name: '#wine', count: 1800, engagement: 73.4, positive: 64.7, negative: 12.8, neutral: 22.5, growth: 2.9 },
-            { name: '#beach', count: 1700, engagement: 81.9, positive: 84.2, negative: 3.1, neutral: 12.7, growth: 19.8 },
-            { name: '#sunset', count: 1600, engagement: 79.2, positive: 86.9, negative: 2.4, neutral: 10.7, growth: 11.3 },
-            { name: '#flowers', count: 1500, engagement: 77.6, positive: 88.6, negative: 2.8, neutral: 8.6, growth: 8.9 },
-            { name: '#cats', count: 1400, engagement: 88.7, positive: 92.4, negative: 1.2, neutral: 6.4, growth: 23.7 },
-            { name: '#dogs', count: 1350, engagement: 87.3, positive: 91.8, negative: 1.6, neutral: 6.6, growth: 20.4 },
-            { name: '#running', count: 1300, engagement: 75.8, positive: 73.2, negative: 8.9, neutral: 17.9, growth: 9.7 },
-            { name: '#cycling', count: 1250, engagement: 74.2, positive: 69.4, negative: 11.3, neutral: 19.3, growth: 6.8 },
-            { name: '#hiking', count: 1200, engagement: 78.5, positive: 81.7, negative: 4.2, neutral: 14.1, growth: 13.2 },
-            { name: '#swimming', count: 1150, engagement: 76.9, positive: 76.8, negative: 6.7, neutral: 16.5, growth: 8.4 },
-            { name: '#meditation', count: 1100, engagement: 83.4, positive: 85.9, negative: 2.8, neutral: 11.3, growth: 17.6 },
-            { name: '#mindfulness', count: 1050, engagement: 81.7, positive: 84.3, negative: 3.1, neutral: 12.6, growth: 14.8 },
-            { name: '#startup', count: 1000, engagement: 72.6, positive: 48.7, negative: 21.4, neutral: 29.9, growth: -5.3 },
-            { name: '#entrepreneur', count: 950, engagement: 70.8, positive: 51.2, negative: 18.6, neutral: 30.2, growth: -2.1 },
-            { name: '#marketing', count: 900, engagement: 68.3, positive: 46.8, negative: 19.7, neutral: 33.5, growth: -4.6 },
-            { name: '#socialmedia', count: 850, engagement: 71.1, positive: 49.3, negative: 17.2, neutral: 33.5, growth: 1.8 },
-            { name: '#innovation', count: 800, engagement: 69.5, positive: 52.6, negative: 15.9, neutral: 31.5, growth: 0.7 },
-            { name: '#sustainability', count: 750, engagement: 74.8, positive: 67.4, negative: 9.8, neutral: 22.8, growth: 12.4 }
-        ];
-
-        const summaryData = [
-            { hashtag: '#travel', authors: 2840, posts: 15420, engagement: '89.2%', sentiment: 'Positive', reach: '2.8M' },
-            { hashtag: '#food', authors: 2150, posts: 12850, engagement: '76.8%', sentiment: 'Positive', reach: '2.1M' },
-            { hashtag: '#fashion', authors: 1980, posts: 11200, engagement: '82.5%', sentiment: 'Positive', reach: '1.9M' },
-            { hashtag: '#tech', authors: 1650, posts: 9800, engagement: '71.3%', sentiment: 'Neutral', reach: '1.7M' },
-            { hashtag: '#fitness', authors: 1420, posts: 8900, engagement: '85.7%', sentiment: 'Positive', reach: '1.5M' },
-            { hashtag: '#beauty', authors: 1380, posts: 8200, engagement: '79.4%', sentiment: 'Positive', reach: '1.4M' },
-            { hashtag: '#lifestyle', authors: 1250, posts: 7800, engagement: '73.6%', sentiment: 'Neutral', reach: '1.3M' },
-            { hashtag: '#art', authors: 1180, posts: 7200, engagement: '68.9%', sentiment: 'Positive', reach: '1.2M' },
-            { hashtag: '#music', authors: 1120, posts: 6800, engagement: '81.2%', sentiment: 'Positive', reach: '1.1M' },
-            { hashtag: '#sports', authors: 980, posts: 6400, engagement: '77.8%', sentiment: 'Positive', reach: '1.0M' }
-        ];
-
-        // Chart instances
-        let timeSeriesChart, platformChart, countryChart, languageChart;
-        let wordcloudChart, hashtagBarChart, sunburstChart;
-        let chartType = 'themeRiver'; // 'themeRiver' or 'area'
-
-        // Initialize all charts
+        // Initialize charts
         function initCharts() {
-            initTimeSeriesChart();
-            initDistributionCharts();
-            initHashtagViews();
-            populateTables();
+            initRiverChart();
+            initStackedCharts();
+            initWordChart();
+            populateDataTable();
         }
 
-        function initTimeSeriesChart() {
-            timeSeriesChart = echarts.init(document.getElementById('timeSeriesChart'));
-            updateTimeSeriesChart();
+        // River Chart / Area Chart
+        function initRiverChart() {
+            const chart = echarts.init(document.getElementById('riverChart'));
+            updateRiverChart(chart);
         }
 
-        function updateTimeSeriesChart() {
-            const dates = timeSeriesData.map(d => d.date);
-            const hashtags = ['#travel', '#food', '#fashion', '#tech', '#fitness'];
+        function updateRiverChart(chart) {
+            // Clear the chart first to prevent overlapping
+            chart.clear();
             
             let option;
             
-            if (chartType === 'themeRiver') {
-                // ThemeRiver implementation
-                const data = [];
-                hashtags.forEach((hashtag, hashtagIndex) => {
-                    timeSeriesData.forEach((item, dateIndex) => {
-                        data.push([dateIndex, item.hashtags[hashtag] || 0, hashtagIndex]);
-                    });
-                });
-
+            if (currentRiverType === 'themeriver') {
                 option = {
                     tooltip: {
                         trigger: 'axis',
                         axisPointer: {
-                            type: 'line',
-                            lineStyle: {
-                                color: 'rgba(0,0,0,0.2)',
-                                width: 1,
-                                type: 'solid'
-                            }
+                            type: 'line'
+                        },
+                        formatter: function(params) {
+                            let result = params[0].data[0] + '<br/>';
+                            params.forEach(param => {
+                                result += param.data[2] + ': ' + param.data[1] + '<br/>';
+                            });
+                            return result;
                         }
                     },
                     legend: {
-                        data: hashtags
+                        data: ['#TechTrends', '#Innovation', '#AI', '#Blockchain', '#Sustainability']
                     },
                     singleAxis: {
+                        type: 'time',
                         top: 50,
                         bottom: 50,
-                        axisTick: {},
-                        axisLabel: {},
-                        type: 'time',
                         axisPointer: {
                             animation: true,
                             label: {
                                 show: true
                             }
-                        },
-                        splitLine: {
-                            show: true,
-                            lineStyle: {
-                                type: 'dashed',
-                                opacity: 0.2
-                            }
                         }
                     },
-                    series: [
-                        {
-                            type: 'themeRiver',
+                    series: [{
+                        type: 'themeRiver',
+                        emphasis: {
                             itemStyle: {
-                                emphasis: {
-                                    shadowBlur: 20,
-                                    shadowColor: 'rgba(0, 0, 0, 0.8)'
-                                }
-                            },
-                            data: data.map((item, index) => [
-                                dates[item[0]], 
-                                item[1], 
-                                hashtags[item[2]]
-                            ])
-                        }
-                    ]
+                                shadowBlur: 20,
+                                shadowColor: 'rgba(0, 0, 0, 0.8)'
+                            }
+                        },
+                        data: hashtagData.themeRiver
+                    }]
                 };
             } else {
-                // Area chart implementation
-                const series = hashtags.map(hashtag => ({
-                    name: hashtag,
+                // Area chart fallback
+                const processedData = hashtagData.themeRiver.reduce((acc, item) => {
+                    const [date, value, name] = item;
+                    if (!acc[name]) {
+                        acc[name] = [];
+                    }
+                    acc[name].push([date, value]);
+                    return acc;
+                }, {});
+
+                const series = Object.keys(processedData).map(name => ({
+                    name: name,
                     type: 'line',
-                    stack: 'total',
+                    stack: 'Total',
                     areaStyle: {},
-                    data: timeSeriesData.map(d => d.hashtags[hashtag] || 0),
-                    smooth: true
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: processedData[name]
                 }));
 
                 option = {
                     tooltip: {
                         trigger: 'axis',
                         axisPointer: {
-                            type: 'cross'
+                            type: 'cross',
+                            label: {
+                                backgroundColor: '#6a7985'
+                            }
                         }
                     },
                     legend: {
-                        data: hashtags
+                        data: Object.keys(processedData)
                     },
                     grid: {
                         left: '3%',
@@ -587,9 +403,8 @@
                         containLabel: true
                     },
                     xAxis: {
-                        type: 'category',
-                        boundaryGap: false,
-                        data: dates
+                        type: 'time',
+                        boundaryGap: false
                     },
                     yAxis: {
                         type: 'value'
@@ -597,63 +412,64 @@
                     series: series
                 };
             }
-
-            timeSeriesChart.setOption(option);
-        }
-
-        function switchToRiver() {
-            chartType = 'themeRiver';
-            document.getElementById('riverBtn').classList.add('active');
-            document.getElementById('areaBtn').classList.remove('active');
-            updateTimeSeriesChart();
-        }
-
-        function switchToArea() {
-            chartType = 'area';
-            document.getElementById('areaBtn').classList.add('active');
-            document.getElementById('riverBtn').classList.remove('active');
-            updateTimeSeriesChart();
-        }
-
-        function initDistributionCharts() {
-            platformChart = echarts.init(document.getElementById('platformChart'));
-            countryChart = echarts.init(document.getElementById('countryChart'));
-            languageChart = echarts.init(document.getElementById('languageChart'));
-
-            updateDistributionChart(platformChart, platformData, 'Platform Distribution');
-            updateDistributionChart(countryChart, countryData, 'Country Distribution');
-            updateDistributionChart(languageChart, languageData, 'Language Distribution');
-        }
-
-        function updateDistributionChart(chart, data, title) {
-            const hashtags = ['#travel', '#food', '#fashion', '#tech', '#fitness', '#beauty', '#lifestyle', '#art', '#music', '#sports'];
-            const topData = data.slice(0, 10);
             
-            const series = hashtags.map(hashtag => ({
-                name: hashtag,
-                type: 'bar',
-                stack: 'total',
-                data: topData.map(item => item[hashtag] || 0)
-            }));
+            chart.setOption(option);
+        }
 
+        function toggleRiverChart(type) {
+            currentRiverType = type;
+            document.querySelectorAll('.section:first-child .chart-controls .btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const chart = echarts.getInstanceByDom(document.getElementById('riverChart'));
+            updateRiverChart(chart);
+        }
+
+        // Stacked Bar Charts
+        function initStackedCharts() {
+            initStackedChart('platformChart', 'Platform Distribution', hashtagData.platforms);
+            initStackedChart('countryChart', 'Country Distribution', hashtagData.countries);
+            initStackedChart('languageChart', 'Language Distribution', hashtagData.languages);
+            initStackedChart('sentimentChart', 'Sentiment Distribution', hashtagData.sentiments);
+        }
+
+        function initStackedChart(containerId, title, data) {
+            const chart = echarts.init(document.getElementById(containerId));
             const option = {
+                title: {
+                    text: title,
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 16,
+                        fontWeight: 'bold'
+                    }
+                },
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {
                         type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        params.forEach((param, index) => {
+                            const seriesData = data.series.find(s => s.name === param.seriesName);
+                            const momValue = seriesData.mom[param.dataIndex];
+                            const changeClass = momValue >= 0 ? 'positive' : 'negative';
+                            result += param.marker + param.seriesName + ': ' + param.value + 
+                                     ' <span class="' + changeClass + '">(' + (momValue >= 0 ? '+' : '') + momValue + '%)</span><br/>';
+                        });
+                        return result;
                     }
                 },
                 legend: {
-                    data: hashtags,
-                    type: 'scroll',
-                    orient: 'horizontal',
-                    bottom: 0
+                    bottom: 0,
+                    data: data.series.map(item => item.name)
                 },
                 grid: {
                     left: '3%',
                     right: '4%',
                     bottom: '15%',
-                    top: '3%',
+                    top: '15%',
                     containLabel: true
                 },
                 xAxis: {
@@ -661,300 +477,141 @@
                 },
                 yAxis: {
                     type: 'category',
-                    data: topData.map(item => item.name)
+                    data: data.categories
                 },
-                series: series
+                series: data.series.map(item => ({
+                    name: item.name,
+                    type: 'bar',
+                    stack: 'total',
+                    label: {
+                        show: true,
+                        position: 'insideRight'
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    },
+                    data: item.data
+                }))
             };
-
             chart.setOption(option);
         }
 
-        function initHashtagViews() {
-            wordcloudChart = echarts.init(document.getElementById('wordcloudChart'));
-            hashtagBarChart = echarts.init(document.getElementById('hashtagBarChart'));
-            sunburstChart = echarts.init(document.getElementById('sunburstChart'));
-
-            updateWordcloud();
-            updateHashtagBarChart();
-            updateSunburstChart();
+        // Word Cloud / Sunburst Chart
+        function initWordChart() {
+            const chart = echarts.init(document.getElementById('wordChart'));
+            updateWordChart(chart);
         }
 
-        function updateWordcloud() {
-            // Use all 50 hashtags for word cloud
-            const wordData = top100Hashtags.map(item => ({
-                name: item.name,
-                value: item.count
-            }));
-
-            const option = {
-                tooltip: {
-                    formatter: function(params) {
-                        return params.name + ': ' + params.value.toLocaleString() + ' posts';
-                    }
-                },
-                series: [{
-                    type: 'wordCloud',
-                    gridSize: 2,
-                    sizeRange: [12, 50],
-                    rotationRange: [-90, 90],
-                    shape: 'pentagon',
-                    width: '100%',
-                    height: '100%',
-                    drawOutOfBound: true,
-                    textStyle: {
-                        fontFamily: 'sans-serif',
-                        fontWeight: 'bold',
-                        color: function () {
-                            return 'rgb(' + [
-                                Math.round(Math.random() * 160),
-                                Math.round(Math.random() * 160),
-                                Math.round(Math.random() * 160)
-                            ].join(',') + ')';
-                        }
+        function updateWordChart(chart) {
+            let option;
+            
+            if (currentWordType === 'wordcloud') {
+                option = {
+                    tooltip: {
+                        show: true
                     },
-                    emphasis: {
+                    series: [{
+                        type: 'wordCloud',
+                        gridSize: 2,
+                        sizeRange: [12, 50],
+                        rotationRange: [-90, 90],
+                        shape: 'pentagon',
+                        width: '100%',
+                        height: '100%',
+                        drawOutOfBound: true,
                         textStyle: {
-                            shadowBlur: 10,
-                            shadowColor: '#333'
-                        }
+                            fontFamily: 'sans-serif',
+                            fontWeight: 'bold',
+                            color: function () {
+                                return 'rgb(' + [
+                                    Math.round(Math.random() * 160),
+                                    Math.round(Math.random() * 160),
+                                    Math.round(Math.random() * 160)
+                                ].join(',') + ')';
+                            }
+                        },
+                        emphasis: {
+                            textStyle: {
+                                shadowBlur: 10,
+                                shadowColor: '#333'
+                            }
+                        },
+                        data: hashtagData.wordcloud
+                    }]
+                };
+            } else {
+                // Sunburst chart
+                option = {
+                    tooltip: {
+                        trigger: 'item'
                     },
-                    data: wordData
-                }]
-            };
-
-            wordcloudChart.setOption(option);
-        }
-
-        function updateHashtagBarChart() {
-            const option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
+                    series: {
+                        type: 'sunburst',
+                        data: [{
+                            name: 'Hashtags',
+                            children: hashtagData.wordcloud.slice(0, 20).map(item => ({
+                                name: item.name,
+                                value: item.value
+                            }))
+                        }],
+                        radius: [0, '90%'],
+                        itemStyle: {
+                            borderRadius: 7,
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false
+                        }
                     }
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis: {
-                    type: 'category',
-                    data: top100Hashtags.slice(0, 10).map(item => item.name),
-                    axisLabel: {
-                        rotate: 45
-                    }
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [{
-                    name: 'Post Count',
-                    type: 'bar',
-                    data: top100Hashtags.slice(0, 10).map(item => item.count)
-                }]
-            };
-
-            hashtagBarChart.setOption(option);
-        }
-
-        function updateSunburstChart() {
-            const data = [{
-                name: 'Hashtags',
-                children: top100Hashtags.slice(0, 10).map(item => ({
-                    name: item.name,
-                    value: item.count
-                }))
-            }];
-
-            const option = {
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{b}: {c} posts'
-                },
-                series: {
-                    type: 'sunburst',
-                    data: data,
-                    radius: [0, '90%'],
-                    label: {
-                        rotate: 'radial'
-                    }
-                }
-            };
-
-            sunburstChart.setOption(option);
-        }
-
-        function switchHashtagView(viewType) {
-            // Hide all views
-            document.querySelectorAll('.hashtag-view').forEach(view => view.classList.remove('active'));
-            
-            // Show selected view
-            document.getElementById(viewType + 'View').classList.add('active');
-
-            // Resize charts if needed
-            if (viewType === 'wordcloud') {
-                setTimeout(() => wordcloudChart.resize(), 100);
-            } else if (viewType === 'bar') {
-                setTimeout(() => hashtagBarChart.resize(), 100);
-            } else if (viewType === 'sunburst') {
-                setTimeout(() => sunburstChart.resize(), 100);
+                };
             }
+            
+            chart.setOption(option);
         }
 
-        function switchHashtagViewFromDropdown() {
-            const dropdown = document.getElementById('viewDropdown');
-            const selectedValue = dropdown.value;
-            switchHashtagView(selectedValue);
+        function toggleWordChart(type) {
+            currentWordType = type;
+            document.querySelectorAll('.section:nth-child(3) .chart-controls .btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const chart = echarts.getInstanceByDom(document.getElementById('wordChart'));
+            updateWordChart(chart);
         }
 
-        function populateTables() {
-            // Populate hashtag table - show all 50 hashtags
-            const hashtagTableBody = document.getElementById('hashtagTableBody');
-            top100Hashtags.forEach((item, index) => {
-                const row = document.createElement('tr');
-                const growthClass = item.growth >= 0 ? 'positive-growth' : 'negative-growth';
-                const growthSymbol = item.growth >= 0 ? '+' : '';
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${item.name}</td>
-                    <td><span class="sentiment-positive">${item.positive}%</span></td>
-                    <td><span class="sentiment-negative">${item.negative}%</span></td>
-                    <td><span class="sentiment-neutral">${item.neutral}%</span></td>
-                    <td><span class="${growthClass}">${growthSymbol}${item.growth}%</span></td>
+        // Data Table
+        function populateDataTable() {
+            const tbody = document.getElementById('dataTableBody');
+            tbody.innerHTML = '';
+            
+            hashtagData.table.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.hashtag}</td>
+                    <td>${row.authors.toLocaleString()}</td>
+                    <td class="${row.authorsMoM >= 0 ? 'positive' : 'negative'}">${row.authorsMoM >= 0 ? '+' : ''}${row.authorsMoM}%</td>
+                    <td>${row.posts.toLocaleString()}</td>
+                    <td class="${row.postsMoM >= 0 ? 'positive' : 'negative'}">${row.postsMoM >= 0 ? '+' : ''}${row.postsMoM}%</td>
+                    <td>${row.interactions.toLocaleString()}</td>
+                    <td class="${row.interactionsMoM >= 0 ? 'positive' : 'negative'}">${row.interactionsMoM >= 0 ? '+' : ''}${row.interactionsMoM}%</td>
+                    <td>${row.sentiment.toFixed(2)}</td>
+                    <td class="${row.sentimentMoM >= 0 ? 'positive' : 'negative'}">${row.sentimentMoM >= 0 ? '+' : ''}${row.sentimentMoM}%</td>
                 `;
-                hashtagTableBody.appendChild(row);
-            });
-
-            // Populate hashtag list - show all 50 hashtags
-            const hashtagList = document.getElementById('hashtagList');
-            top100Hashtags.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'hashtag-item';
-                div.innerHTML = `
-                    <div class="hashtag-name">${item.name}</div>
-                    <div class="hashtag-count">${item.count.toLocaleString()} posts</div>
-                `;
-                hashtagList.appendChild(div);
-            });
-
-            // Populate summary table
-            const summaryTableBody = document.getElementById('summaryTableBody');
-            summaryData.forEach(item => {
-                const row = document.createElement('tr');
-                const sentimentClass = item.sentiment.toLowerCase() === 'positive' ? 'sentiment-positive' : 
-                                     item.sentiment.toLowerCase() === 'negative' ? 'sentiment-negative' : 'sentiment-neutral';
-                
-                row.innerHTML = `
-                    <td>${item.hashtag}</td>
-                    <td>${item.authors.toLocaleString()}</td>
-                    <td>${item.posts.toLocaleString()}</td>
-                    <td>${item.engagement}</td>
-                    <td class="${sentimentClass}">${item.sentiment}</td>
-                    <td>${item.reach}</td>
-                `;
-                summaryTableBody.appendChild(row);
+                tbody.appendChild(tr);
             });
         }
 
-        // Download functions
-        function downloadChart(chartId) {
-            let chart;
-            switch(chartId) {
-                case 'timeSeriesChart':
-                    chart = timeSeriesChart;
-                    break;
-                case 'platformChart':
-                    chart = platformChart;
-                    break;
-                case 'countryChart':
-                    chart = countryChart;
-                    break;
-                case 'languageChart':
-                    chart = languageChart;
-                    break;
-            }
-            
-            if (chart) {
-                const url = chart.getDataURL({
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                const link = document.createElement('a');
-                link.download = chartId + '.png';
-                link.href = url;
-                link.click();
-            }
-        }
-
-        function downloadHashtagView() {
-            const activeView = document.querySelector('.hashtag-view.active');
-            const viewId = activeView.id;
-            
-            if (viewId === 'wordcloudView') {
-                const url = wordcloudChart.getDataURL({
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                const link = document.createElement('a');
-                link.download = 'wordcloud.png';
-                link.href = url;
-                link.click();
-            } else if (viewId === 'barView') {
-                const url = hashtagBarChart.getDataURL({
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                const link = document.createElement('a');
-                link.download = 'hashtag-bar-chart.png';
-                link.href = url;
-                link.click();
-            } else if (viewId === 'sunburstView') {
-                const url = sunburstChart.getDataURL({
-                    pixelRatio: 2,
-                    backgroundColor: '#fff'
-                });
-                const link = document.createElement('a');
-                link.download = 'sunburst-chart.png';
-                link.href = url;
-                link.click();
-            } else if (viewId === 'tableView' || viewId === 'listView') {
-                downloadTable('hashtagTable');
-            }
-        }
-
-        function downloadTable(tableId) {
-            const table = document.getElementById(tableId);
-            const csv = tableToCSV(table);
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.download = tableId + '.csv';
-            link.href = url;
-            link.click();
-            window.URL.revokeObjectURL(url);
-        }
-
-        function tableToCSV(table) {
-            const rows = Array.from(table.querySelectorAll('tr'));
-            return rows.map(row => {
-                const cells = Array.from(row.querySelectorAll('th, td'));
-                return cells.map(cell => '"' + cell.textContent.replace(/"/g, '""') + '"').join(',');
-            }).join('\n');
-        }
-
-        // Initialize everything when page loads
-        window.addEventListener('load', initCharts);
-        window.addEventListener('resize', () => {
-            timeSeriesChart?.resize();
-            platformChart?.resize();
-            countryChart?.resize();
-            languageChart?.resize();
-            wordcloudChart?.resize();
-            hashtagBarChart?.resize();
-            sunburstChart?.resize();
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            echarts.getInstanceByDom(document.getElementById('riverChart'))?.resize();
+            echarts.getInstanceByDom(document.getElementById('platformChart'))?.resize();
+            echarts.getInstanceByDom(document.getElementById('countryChart'))?.resize();
+            echarts.getInstanceByDom(document.getElementById('languageChart'))?.resize();
+            echarts.getInstanceByDom(document.getElementById('sentimentChart'))?.resize();
+            echarts.getInstanceByDom(document.getElementById('wordChart'))?.resize();
         });
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initCharts);
     </script>
 </body>
 </html>
