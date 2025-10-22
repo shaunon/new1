@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post Category Analysis - Gender Distribution</title>
+    <title>Category Gender Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -11,577 +11,771 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Arial', sans-serif;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
         }
-
-        .chart-section {
-            display: flex;
-            align-items: center;
-            margin-bottom: 40px;
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
         }
-
-        .data-card {
-            background: #f8f9fa;
-            border-radius: 12px;
+        
+        .stat-card {
+            background: #fff;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-left: 4px solid #007bff;
-            min-width: 280px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .data-card.engagement {
-            border-left-color: #28a745;
-        }
-
-        .data-card.rate {
-            border-left-color: #ffc107;
-        }
-
-        .data-card.views {
-            border-left-color: #dc3545;
-        }
-
-        .data-card-header {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .download-icon {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            transition: color 0.2s ease;
-        }
-
-        .download-icon:hover {
-            color: #007bff;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .metric-row:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-
-        .metric-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: #6c757d;
-            margin-bottom: 2px;
-            font-weight: 500;
-        }
-
-        .metric-value {
-            font-size: 20px;
+        
+        .stat-value {
+            font-size: 2em;
             font-weight: bold;
-            color: #212529;
+            color: #007bff;
         }
-
-        .metric-change {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
+        
+        .stat-label {
+            color: #666;
+            margin-bottom: 5px;
         }
-
-        .change-positive {
-            color: #28a745;
-            background-color: #d4edda;
+        
+        .stat-change {
+            font-size: 0.9em;
+            margin-top: 5px;
         }
-
-        .change-negative {
-            color: #dc3545;
-            background-color: #f8d7da;
+        
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        
+        .chart-section {
+            background: #fff;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-
-        .chart-container {
-            flex: 1;
-            height: 400px;
-            position: relative;
-        }
-
+        
         .chart-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
         }
-
+        
         .chart-title {
-            font-size: 16px;
+            font-size: 1.2em;
             font-weight: 600;
-            color: #2c3e50;
         }
-
-        .chart-download {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            padding: 5px;
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #fff;
             border-radius: 4px;
-            transition: all 0.2s ease;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-
-        .chart-download:hover {
-            color: #007bff;
-            background-color: #f8f9fa;
+        
+        .btn:hover {
+            background: #f8f9fa;
         }
-
-        .chart {
-            width: 100%;
-            height: 100%;
+        
+        .btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
         }
-
-        .data-table {
+        
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .download-btn:hover {
+            background: #218838;
+        }
+        
+        .chart-container {
+            height: 400px;
+            padding: 20px;
+        }
+        
+        .gender-selector {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .table-section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            padding: 20px;
+        }
+        
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.9em;
         }
-
-        .data-table th {
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
             background: #f8f9fa;
             font-weight: 600;
             color: #495057;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-            padding: 15px 12px;
-            text-align: center;
         }
-
-        .gender-header {
-            background: #fce4ec !important;
-            color: #c2185b !important;
-            font-weight: 700;
-            min-width: 100px;
+        
+        tr:hover {
+            background: #f8f9fa;
         }
-
-        .category-header {
-            background: #f3e5f5 !important;
-            color: #7b1fa2 !important;
-            font-weight: 700;
-            min-width: 120px;
-        }
-
-        .posts-header {
-            background: #fff3e0 !important;
-            color: #f57c00 !important;
-            font-weight: 700;
-            min-width: 80px;
-        }
-
-        .engagement-header {
-            background: #e8f5e8 !important;
-            color: #2e7d32 !important;
-            font-weight: 700;
-            min-width: 100px;
-        }
-
-        .rate-header {
-            background: #e1f5fe !important;
-            color: #0277bd !important;
-            font-weight: 700;
-            min-width: 120px;
-        }
-
-        .data-table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-            background: white;
-        }
-
-        .data-table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-
-        .data-table tbody tr:hover {
-            background-color: #edf2f7;
-        }
-
-        .gender-name {
-            background-color: #e2e8f0;
-            font-weight: 600;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        @media (max-width: 768px) {
-            .chart-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .data-card {
-                min-width: auto;
-                margin-bottom: 20px;
-            }
-
-            .metric-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
+        
+        .merged-cell {
+            background: #e9ecef;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
-
-    <!-- Chart 1: Category Distribution by Gender -->
-    <div class="chart-section">
-        <div class="data-card">
-            <div class="data-card-header">
-                Gender Distribution Overview
-                <span class="download-icon" onclick="downloadData('gender-distribution')" title="Download Data">📥</span>
+    <div class="container">
+        <!-- Statistics Section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Posts</div>
+                <div class="stat-value">18,234</div>
+                <div class="stat-change positive">+12.3% QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Female Creators</div>
-                    <div class="metric-value">58.3%</div>
-                </div>
-                <div class="metric-change change-positive">↑ 3.2%</div>
+            <div class="stat-card">
+                <div class="stat-label">Categories</div>
+                <div class="stat-value">15</div>
+                <div class="stat-change positive">+2 QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Male Creators</div>
-                    <div class="metric-value">41.7%</div>
-                </div>
-                <div class="metric-change change-negative">↓ 3.2%</div>
+            <div class="stat-card">
+                <div class="stat-label">Top Gender (Posts)</div>
+                <div class="stat-value">Female</div>
+                <div class="stat-change">9,456 posts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Top Gender (Engagement)</div>
+                <div class="stat-value">Male</div>
+                <div class="stat-change positive">14.2% rate</div>
             </div>
         </div>
-        <div class="chart-container">
+
+        <!-- Stacked Bar Charts Section -->
+        <div class="chart-section">
             <div class="chart-header">
-                <div class="chart-title">Post Category Distribution by Gender</div>
-                <span class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</span>
+                <div class="chart-title">Posts by Gender and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('posts', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('posts', 'line')">Trending</button>
+                    <select class="gender-selector" id="postsChartCategory" onchange="updateChartByCategory('posts', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('postsChart')">Download</button>
+                </div>
             </div>
-            <div id="chart1" class="chart"></div>
+            <div class="chart-container">
+                <div id="postsChart" style="width: 100%; height: 100%;"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Chart 2: Engagement by Gender and Category -->
-    <div class="chart-section">
-        <div class="data-card engagement">
-            <div class="data-card-header">
-                Engagement by Gender
-                <span class="download-icon" onclick="downloadData('gender-engagement')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Female Engagement</div>
-                    <div class="metric-value">1.9M</div>
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Views by Gender and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('views', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('views', 'line')">Trending</button>
+                    <select class="gender-selector" id="viewsChartCategory" onchange="updateChartByCategory('views', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('viewsChart')">Download</button>
                 </div>
-                <div class="metric-change change-positive">↑ 12.8%</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Male Engagement</div>
-                    <div class="metric-value">1.4M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 4.2%</div>
+            <div class="chart-container">
+                <div id="viewsChart" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
-        <div class="chart-container">
+
+        <div class="chart-section">
             <div class="chart-header">
                 <div class="chart-title">Engagement Rate by Gender and Category</div>
-                <span class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</span>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('engagement', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('engagement', 'line')">Trending</button>
+                    <select class="gender-selector" id="engagementChartCategory" onchange="updateChartByCategory('engagement', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('engagementChart')">Download</button>
+                </div>
             </div>
-            <div id="chart2" class="chart"></div>
+            <div class="chart-container">
+                <div id="engagementChart" style="width: 100%; height: 100%;"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Chart 3: Gender Performance Comparison -->
-    <div class="chart-section">
-        <div class="data-card rate">
-            <div class="data-card-header">
-                Gender Performance
-                <span class="download-icon" onclick="downloadData('gender-performance')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Female Avg Rate</div>
-                    <div class="metric-value">44.2%</div>
-                </div>
-                <div class="metric-change change-positive">↑ 1.8%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Male Avg Rate</div>
-                    <div class="metric-value">39.1%</div>
-                </div>
-                <div class="metric-change change-negative">↓ 0.9%</div>
-            </div>
-        </div>
-        <div class="chart-container">
+        <!-- Data Table Section -->
+        <div class="table-section">
             <div class="chart-header">
-                <div class="chart-title">Category Performance by Gender</div>
-                <span class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</span>
+                <div class="chart-title">Gender Category Data</div>
+                <div class="chart-controls">
+                    <button class="btn download-btn" onclick="downloadTable()">Download CSV</button>
+                </div>
             </div>
-            <div id="chart3" class="chart"></div>
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Gender</th>
+                            <th>Category</th>
+                            <th>Posts</th>
+                            <th>Posts QoQ</th>
+                            <th>Engagement</th>
+                            <th>Engagement QoQ</th>
+                            <th>Views</th>
+                            <th>Views QoQ</th>
+                            <th>Engagement Rate</th>
+                            <th>Engagement Rate QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">Female</td>
+                            <td>Fashion</td>
+                            <td>2,456</td>
+                            <td class="positive">+18.5%</td>
+                            <td>89,678</td>
+                            <td class="positive">+22.3%</td>
+                            <td>3.2M</td>
+                            <td class="positive">+25.2%</td>
+                            <td>11.8%</td>
+                            <td class="positive">+3.1%</td>
+                        </tr>
+                        <tr>
+                            <td>Dance</td>
+                            <td>2,187</td>
+                            <td class="positive">+24.7%</td>
+                            <td>78,456</td>
+                            <td class="positive">+28.1%</td>
+                            <td>2.9M</td>
+                            <td class="positive">+31.4%</td>
+                            <td>13.2%</td>
+                            <td class="positive">+4.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Food</td>
+                            <td>1,813</td>
+                            <td class="positive">+15.4%</td>
+                            <td>65,341</td>
+                            <td class="positive">+18.9%</td>
+                            <td>2.1M</td>
+                            <td class="positive">+21.3%</td>
+                            <td>10.2%</td>
+                            <td class="positive">+2.7%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">Male</td>
+                            <td>Gaming</td>
+                            <td>1,956</td>
+                            <td class="positive">+28.2%</td>
+                            <td>127,892</td>
+                            <td class="positive">+32.6%</td>
+                            <td>4.8M</td>
+                            <td class="positive">+35.8%</td>
+                            <td>14.2%</td>
+                            <td class="positive">+5.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Comedy</td>
+                            <td>1,743</td>
+                            <td class="positive">+19.8%</td>
+                            <td>95,123</td>
+                            <td class="positive">+22.4%</td>
+                            <td>3.7M</td>
+                            <td class="positive">+25.7%</td>
+                            <td>12.8%</td>
+                            <td class="positive">+3.3%</td>
+                        </tr>
+                        <tr>
+                            <td>Music</td>
+                            <td>1,612</td>
+                            <td class="positive">+16.2%</td>
+                            <td>84,567</td>
+                            <td class="positive">+19.1%</td>
+                            <td>3.1M</td>
+                            <td class="positive">+22.9%</td>
+                            <td>11.5%</td>
+                            <td class="positive">+2.8%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="merged-cell">Non-Binary</td>
+                            <td>Education</td>
+                            <td>434</td>
+                            <td class="positive">+35.3%</td>
+                            <td>89,456</td>
+                            <td class="positive">+41.2%</td>
+                            <td>2.6M</td>
+                            <td class="positive">+38.9%</td>
+                            <td>9.8%</td>
+                            <td class="positive">+4.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Travel</td>
+                            <td>289</td>
+                            <td class="positive">+26.7%</td>
+                            <td>67,234</td>
+                            <td class="positive">+28.5%</td>
+                            <td>1.8M</td>
+                            <td class="positive">+31.3%</td>
+                            <td>8.2%</td>
+                            <td class="positive">+3.9%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <!-- Data Table -->
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="gender-header">Gender <span class="download-icon" onclick="downloadTableData()" title="Download Table Data">📥</span></th>
-                <th class="category-header">Top Category</th>
-                <th class="posts-header">Posts</th>
-                <th class="engagement-header">Engagement</th>
-                <th class="rate-header">Engagement Rate (%)</th>
-            </tr>
-        </thead>
-        <tbody id="dataTableBody">
-            <!-- Data will be populated by JavaScript -->
-        </tbody>
-    </table>
 
     <script>
-        // Sample data for gender analysis
-        const genderData = {
-            genders: ['Female', 'Male', 'Non-binary'],
-            categories: ['Entertainment', 'Education', 'Lifestyle', 'Technology', 'Fashion'],
-            topCategories: ['Lifestyle', 'Technology', 'Entertainment'],
-            posts: [44900, 32100, 0],
-            engagement: [1920000, 1380000, 0],
-            engagementRate: [44.2, 39.1, 0],
-            categoryDistribution: {
-                'Female': [12800, 8200, 15200, 3800, 4900],
-                'Male': [8900, 11200, 4200, 6800, 1000],
-                'Non-binary': [0, 0, 0, 0, 0]
-            }
+        // Sample data - Updated for genders
+        const genders = ['Female', 'Male', 'Non-Binary'];
+        const categories = ['Music', 'Dance', 'Comedy', 'Fashion', 'Food', 'Travel', 'Gaming', 'Education'];
+        const dates = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
+
+        // Chart instances
+        let charts = {};
+        let currentChartTypes = {
+            posts: 'bar',
+            views: 'bar',
+            engagement: 'bar'
         };
 
-        // Chart 1: Category Distribution by Gender (Grouped Bar)
-        const chart1 = echarts.init(document.getElementById('chart1'));
-        const option1 = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                }
-            },
-            legend: {
-                data: genderData.genders.filter(g => g !== 'Non-binary')
-            },
-            xAxis: {
-                type: 'category',
-                data: genderData.categories
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Posts Count'
-            },
-            series: genderData.genders.filter(g => g !== 'Non-binary').map((gender, index) => ({
-                name: gender,
-                type: 'bar',
-                data: genderData.categories.map((_, catIndex) => genderData.categoryDistribution[gender][catIndex]),
-                itemStyle: {
-                    color: index === 0 ? '#ff69b4' : '#4169e1'
-                }
-            }))
-        };
-        chart1.setOption(option1);
+        // Initialize all charts
+        function initCharts() {
+            initStackedBarChart('postsChart', 'Posts', generatePostsData());
+            initStackedBarChart('viewsChart', 'Views', generateViewsData());
+            initStackedBarChart('engagementChart', 'Engagement Rate (%)', generateEngagementData());
+            
+            initTrendChart('postsTrendChart', 'Posts', generateTrendData('posts', 'music'));
+            initTrendChart('viewsTrendChart', 'Views', generateTrendData('views', 'music'));
+            initTrendChart('engagementTrendChart', 'Engagement Rate (%)', generateTrendData('engagement', 'music'));
+        }
 
-        // Chart 2: Engagement Rate Comparison (Radar Chart)
-        const chart2 = echarts.init(document.getElementById('chart2'));
-        const option2 = {
-            tooltip: {},
-            legend: {
-                data: genderData.genders.filter(g => g !== 'Non-binary')
-            },
-            radar: {
-                indicator: genderData.categories.map(cat => ({
-                    name: cat,
-                    max: 60
-                }))
-            },
-            series: [{
-                name: 'Engagement Rate by Category',
-                type: 'radar',
-                data: genderData.genders.filter(g => g !== 'Non-binary').map((gender, index) => ({
-                    value: [52.1, 48.3, 58.2, 45.8, 38.9].map(v => v + (index === 0 ? 2 : -2)),
+        // Generate sample data with MoM changes - Bar charts now use categories as series, genders as x-axis
+        function generatePostsData() {
+            return categories.slice(0, 8).map(category => {
+                const currentData = genders.map(() => Math.floor(Math.random() * 1000) + 200);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4))); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData,
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateViewsData() {
+            return categories.slice(0, 8).map(category => {
+                const currentData = genders.map(() => Math.floor(Math.random() * 5000000) + 500000);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4))); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData,
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateEngagementData() {
+            return categories.slice(0, 8).map(category => {
+                const currentData = genders.map(() => (Math.random() * 15 + 2).toFixed(1));
+                const previousData = currentData.map(val => (parseFloat(val) * (0.8 + Math.random() * 0.4)).toFixed(1)); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((parseFloat(current) - parseFloat(previousData[index])) / parseFloat(previousData[index]) * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData.map(val => parseFloat(val)),
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateTrendData(type, category) {
+            const trendData = genders.map(gender => {
+                let currentData, previousData, momChanges;
+                
+                if (type === 'posts') {
+                    currentData = dates.map(() => Math.floor(Math.random() * 500) + 100);
+                    previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                } else if (type === 'views') {
+                    currentData = dates.map(() => Math.floor(Math.random() * 2000000) + 200000);
+                    previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                } else {
+                    currentData = dates.map(() => (Math.random() * 10 + 3).toFixed(1));
+                    previousData = currentData.map(val => (parseFloat(val) * (0.8 + Math.random() * 0.4)).toFixed(1));
+                }
+                
+                momChanges = currentData.map((current, index) => {
+                    const prev = type === 'engagement' ? parseFloat(previousData[index]) : previousData[index];
+                    const curr = type === 'engagement' ? parseFloat(current) : current;
+                    const change = ((curr - prev) / prev * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
                     name: gender,
-                    itemStyle: {
-                        color: index === 0 ? '#ff69b4' : '#4169e1'
+                    data: type === 'engagement' ? currentData.map(val => parseFloat(val)) : currentData,
+                    momChanges: momChanges
+                };
+            });
+            
+            return {
+                series: trendData,
+                dates: dates
+            };
+        }
+
+        // Initialize stacked bar chart
+        function initStackedBarChart(containerId, yAxisLabel, data) {
+            const chartDom = document.getElementById(containerId);
+            const myChart = echarts.init(chartDom);
+            charts[containerId] = myChart;
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        params.forEach(param => {
+                            const seriesData = data.find(d => d.name === param.seriesName);
+                            const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                            const changeColor = momChange >= 0 ? '#28a745' : '#dc3545';
+                            const changeSymbol = momChange >= 0 ? '+' : '';
+                            result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            result += `<span style="color: ${changeColor}; margin-left: 20px;">QoQ: ${changeSymbol}${momChange}%</span><br/>`;
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: data.map(d => d.name),
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: genders
+                },
+                yAxis: {
+                    type: 'value',
+                    name: yAxisLabel,
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (yAxisLabel.includes('%')) {
+                                return value + '%';
+                            } else if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                series: data.map(d => ({
+                    name: d.name,
+                    type: 'bar',
+                    stack: 'total',
+                    data: d.data,
+                    emphasis: {
+                        focus: 'series'
                     }
                 }))
-            }]
-        };
-        chart2.setOption(option2);
+            };
 
-        // Chart 3: Gender Performance Pie Chart
-        const chart3 = echarts.init(document.getElementById('chart3'));
-        const option3 = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b}: {c} ({d}%)'
-            },
-            legend: {
-                orient: 'vertical',
-                left: 'left',
-                data: genderData.genders.filter(g => g !== 'Non-binary')
-            },
-            series: [
-                {
-                    name: 'Posts Distribution',
-                    type: 'pie',
-                    radius: ['40%', '70%'],
-                    center: ['50%', '60%'],
-                    data: genderData.genders.filter(g => g !== 'Non-binary').map((gender, index) => ({
-                        value: genderData.posts[index],
-                        name: gender,
-                        itemStyle: {
-                            color: index === 0 ? '#ff69b4' : '#4169e1'
-                        }
-                    })),
-                    emphasis: {
-                        itemStyle: {
-                            shadowBlur: 10,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+            myChart.setOption(option);
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+
+        // Initialize trend chart
+        function initTrendChart(containerId, yAxisLabel, data) {
+            const chartDom = document.getElementById(containerId);
+            if (!chartDom) return;
+            
+            const myChart = echarts.init(chartDom);
+            charts[containerId] = myChart;
+
+            // Calculate overall average across all series and time periods
+            let totalSum = 0;
+            let totalCount = 0;
+            data.series.forEach(d => {
+                d.data.forEach(value => {
+                    totalSum += value;
+                    totalCount++;
+                });
+            });
+            const overallAverage = totalSum / totalCount;
+
+            // Create series array with line series and one overall average line
+            const allSeries = [];
+            
+            // Add main line series
+            data.series.forEach(d => {
+                allSeries.push({
+                    name: d.name,
+                    type: 'line',
+                    data: d.data,
+                    smooth: true,
+                    lineStyle: {
+                        width: 2
+                    }
+                });
+            });
+            
+            // Add single overall average line
+            allSeries.push({
+                name: 'Overall Average',
+                type: 'line',
+                data: new Array(data.dates.length).fill(overallAverage),
+                lineStyle: {
+                    type: 'dashed',
+                    width: 2,
+                    opacity: 0.8,
+                    color: '#666666'
+                },
+                symbol: 'none',
+                silent: true, // Don't trigger tooltip
+                emphasis: {
+                    disabled: true
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        let result = params[0].axisValue + '<br/>';
+                        // Filter out average lines from tooltip
+                        const mainParams = params.filter(param => param.seriesName !== 'Overall Average');
+                        mainParams.forEach(param => {
+                            const seriesData = data.series.find(d => d.name === param.seriesName);
+                            const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                            const changeColor = momChange >= 0 ? '#28a745' : '#dc3545';
+                            const changeSymbol = momChange >= 0 ? '+' : '';
+                            result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            result += `<span style="color: ${changeColor}; margin-left: 20px;">MoM: ${changeSymbol}${momChange}%</span><br/>`;
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: allSeries.map(d => d.name),
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.dates
+                },
+                yAxis: {
+                    type: 'value',
+                    name: yAxisLabel,
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (yAxisLabel.includes('%')) {
+                                return value + '%';
+                            } else if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
                         }
                     }
+                },
+                series: allSeries
+            };
+
+            myChart.setOption(option);
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+
+        // Toggle chart type
+        function toggleChartType(chartType, type) {
+            currentChartTypes[chartType] = type;
+            
+            // Dispose existing chart instance to prevent overlap
+            const chartId = `${chartType}Chart`;
+            if (charts[chartId]) {
+                charts[chartId].dispose();
+                delete charts[chartId];
+            }
+            
+            // Update button states - find the correct parent container
+            const chartContainer = document.getElementById(chartId).closest('.chart-section');
+            const buttons = chartContainer.querySelectorAll('.chart-controls .btn:not(.download-btn)');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the correct button
+            buttons.forEach(btn => {
+                if ((type === 'bar' && btn.textContent === 'Total') || 
+                    (type === 'line' && btn.textContent === 'Trending')) {
+                    btn.classList.add('active');
                 }
-            ]
-        };
-        chart3.setOption(option3);
+            });
+            
+            // Show/hide category selector for trending view
+            const selector = document.getElementById(`${chartType}ChartCategory`);
+            if (type === 'line') {
+                selector.style.display = 'inline-block';
+                // Initialize trend chart
+                const category = selector.value;
+                const trendData = generateTrendData(chartType, category);
+                initTrendChart(chartId, chartType === 'engagement' ? 'Engagement Rate (%)' : chartType.charAt(0).toUpperCase() + chartType.slice(1), trendData);
+            } else {
+                selector.style.display = 'none';
+                // Initialize stacked bar chart
+                let data;
+                if (chartType === 'posts') data = generatePostsData();
+                else if (chartType === 'views') data = generateViewsData();
+                else data = generateEngagementData();
+                
+                initStackedBarChart(chartId, chartType === 'engagement' ? 'Engagement Rate (%)' : chartType.charAt(0).toUpperCase() + chartType.slice(1), data);
+            }
+        }
+
+        // Update chart by category (for trending view)
+        function updateChartByCategory(chartType, category) {
+            if (currentChartTypes[chartType] === 'line') {
+                const trendData = generateTrendData(chartType, category);
+                initTrendChart(`${chartType}Chart`, chartType === 'engagement' ? 'Engagement Rate (%)' : chartType.charAt(0).toUpperCase() + chartType.slice(1), trendData);
+            }
+        }
 
         // Download chart as image
         function downloadChart(chartId) {
-            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
-            const url = chart.getDataURL({
-                pixelRatio: 2,
-                backgroundColor: '#fff'
-            });
-            
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `post-category-gender-${chartId}.png`;
-            link.click();
+            const chart = charts[chartId];
+            if (chart) {
+                const url = chart.getDataURL({
+                    pixelRatio: 2,
+                    backgroundColor: '#fff'
+                });
+                const link = document.createElement('a');
+                link.download = chartId + '.png';
+                link.href = url;
+                link.click();
+            }
         }
 
-        function downloadData(type) {
-            let csvContent = '';
-            let filename = '';
+        // Download table as CSV
+        function downloadTable() {
+            const table = document.getElementById('dataTable');
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
             
-            if (type === 'gender-distribution') {
-                csvContent = 'Gender,Entertainment,Education,Lifestyle,Technology,Fashion\n';
-                genderData.genders.filter(g => g !== 'Non-binary').forEach((gender, index) => {
-                    const row = [gender, ...genderData.categoryDistribution[gender]];
-                    csvContent += row.join(',') + '\n';
-                });
-                filename = 'gender-category-distribution.csv';
-            } else if (type === 'gender-engagement') {
-                csvContent = 'Gender,Posts,Engagement,Engagement Rate (%)\n';
-                genderData.genders.filter(g => g !== 'Non-binary').forEach((gender, index) => {
-                    csvContent += `${gender},${genderData.posts[index]},${genderData.engagement[index]},${genderData.engagementRate[index]}\n`;
-                });
-                filename = 'gender-engagement-data.csv';
-            } else if (type === 'gender-performance') {
-                csvContent = 'Gender,Top Category,Posts,Engagement,Engagement Rate (%)\n';
-                genderData.genders.filter(g => g !== 'Non-binary').forEach((gender, index) => {
-                    csvContent += `${gender},${genderData.topCategories[index]},${genderData.posts[index]},${genderData.engagement[index]},${genderData.engagementRate[index]}\n`;
-                });
-                filename = 'gender-performance-data.csv';
+            for (let i = 0; i < rows.length; i++) {
+                const row = [], cols = rows[i].querySelectorAll('td, th');
+                for (let j = 0; j < cols.length; j++) {
+                    row.push(cols[j].innerText);
+                }
+                csv.push(row.join(','));
             }
             
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+            const downloadLink = document.createElement('a');
+            downloadLink.download = 'gender_category_data.csv';
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.click();
         }
 
-        // Populate data table
-        function populateDataTable() {
-            const tableBody = document.getElementById('dataTableBody');
-            let html = '';
-
-            genderData.genders.filter(g => g !== 'Non-binary').forEach((gender, index) => {
-                const topCategory = genderData.topCategories[index];
-                const posts = genderData.posts[index];
-                const engagement = genderData.engagement[index];
-                const engagementRate = genderData.engagementRate[index];
-                
-                html += `
-                    <tr>
-                        <td class="gender-name">${gender}</td>
-                        <td>${topCategory}</td>
-                        <td>${posts.toLocaleString()}</td>
-                        <td>${engagement.toLocaleString()}</td>
-                        <td>${engagementRate}%</td>
-                    </tr>
-                `;
-            });
-            
-            tableBody.innerHTML = html;
-        }
-
-        function downloadTableData() {
-            let csvContent = 'Gender,Top Category,Posts,Engagement,Engagement Rate (%)\n';
-            genderData.genders.filter(g => g !== 'Non-binary').forEach((gender, index) => {
-                csvContent += `${gender},${genderData.topCategories[index]},${genderData.posts[index]},${genderData.engagement[index]},${genderData.engagementRate[index]}\n`;
-            });
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'gender-category-analysis-data.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Initialize data table
-        populateDataTable();
-
-        // Make charts responsive
-        window.addEventListener('resize', function() {
-            chart1.resize();
-            chart2.resize();
-            chart3.resize();
+        // Initialize charts when page loads
+        window.addEventListener('load', function() {
+            initCharts();
         });
     </script>
 </body>
