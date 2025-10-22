@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post Category Analysis - Platform Distribution</title>
+    <title>Category Platform Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -11,613 +11,907 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Arial', sans-serif;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
         }
-
-        .chart-section {
-            display: flex;
-            align-items: center;
-            margin-bottom: 40px;
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
         }
-
-        .data-card {
-            background: #f8f9fa;
-            border-radius: 12px;
+        
+        .stat-card {
+            background: #fff;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-left: 4px solid #007bff;
-            min-width: 280px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .data-card.engagement {
-            border-left-color: #28a745;
-        }
-
-        .data-card.rate {
-            border-left-color: #ffc107;
-        }
-
-        .data-card.views {
-            border-left-color: #dc3545;
-        }
-
-        .data-card-header {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .download-icon {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            transition: color 0.2s ease;
-        }
-
-        .download-icon:hover {
-            color: #007bff;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .metric-row:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-
-        .metric-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: #6c757d;
-            margin-bottom: 2px;
-            font-weight: 500;
-        }
-
-        .metric-value {
-            font-size: 20px;
+        
+        .stat-value {
+            font-size: 2em;
             font-weight: bold;
-            color: #212529;
+            color: #007bff;
         }
-
-        .metric-change {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
+        
+        .stat-label {
+            color: #666;
+            margin-bottom: 5px;
         }
-
-        .change-positive {
-            color: #28a745;
-            background-color: #d4edda;
+        
+        .stat-change {
+            font-size: 0.9em;
+            margin-top: 5px;
         }
-
-        .change-negative {
-            color: #dc3545;
-            background-color: #f8d7da;
+        
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        
+        .chart-section {
+            background: #fff;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-
-        .chart-container {
-            flex: 1;
-            height: 400px;
-            position: relative;
-        }
-
+        
         .chart-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
         }
-
+        
         .chart-title {
-            font-size: 16px;
+            font-size: 1.2em;
             font-weight: 600;
-            color: #2c3e50;
         }
-
-        .chart-download {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            padding: 5px;
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #fff;
             border-radius: 4px;
-            transition: all 0.2s ease;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-
-        .chart-download:hover {
-            color: #007bff;
-            background-color: #f8f9fa;
+        
+        .btn:hover {
+            background: #f8f9fa;
         }
-
-        .chart {
-            width: 100%;
-            height: 100%;
+        
+        .btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
         }
-
-        .data-table {
+        
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .download-btn:hover {
+            background: #218838;
+        }
+        
+        .chart-container {
+            height: 400px;
+            padding: 20px;
+        }
+        
+        .platform-selector {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .table-section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            padding: 20px;
+        }
+        
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.9em;
         }
-
-        .data-table th {
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
             background: #f8f9fa;
             font-weight: 600;
             color: #495057;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-            padding: 15px 12px;
-            text-align: center;
         }
-
-        .platform-header {
-            background: #e3f2fd !important;
-            color: #1976d2 !important;
-            font-weight: 700;
-            min-width: 100px;
+        
+        tr:hover {
+            background: #f8f9fa;
         }
-
-        .category-header {
-            background: #f3e5f5 !important;
-            color: #7b1fa2 !important;
-            font-weight: 700;
-            min-width: 120px;
-        }
-
-        .posts-header {
-            background: #fff3e0 !important;
-            color: #f57c00 !important;
-            font-weight: 700;
-            min-width: 80px;
-        }
-
-        .engagement-header {
-            background: #e8f5e8 !important;
-            color: #2e7d32 !important;
-            font-weight: 700;
-            min-width: 100px;
-        }
-
-        .rate-header {
-            background: #e1f5fe !important;
-            color: #0277bd !important;
-            font-weight: 700;
-            min-width: 120px;
-        }
-
-        .data-table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-            background: white;
-        }
-
-        .data-table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-
-        .data-table tbody tr:hover {
-            background-color: #edf2f7;
-        }
-
-        .platform-name {
-            background-color: #e2e8f0;
-            font-weight: 600;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        @media (max-width: 768px) {
-            .chart-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .data-card {
-                min-width: auto;
-                margin-bottom: 20px;
-            }
-
-            .metric-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
+        
+        .merged-cell {
+            background: #e9ecef;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
-
-    <!-- Chart 1: Category Distribution by Platform -->
-    <div class="chart-section">
-        <div class="data-card">
-            <div class="data-card-header">
-                Platform Distribution Overview
-                <span class="download-icon" onclick="downloadData('platform-distribution')" title="Download Data">📥</span>
+    <div class="container">
+        <!-- Statistics Section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Posts</div>
+                <div class="stat-value">12,456</div>
+                <div class="stat-change positive">+8.5% QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Platforms</div>
-                    <div class="metric-value">5</div>
-                </div>
-                <div class="metric-change change-positive">↑ 25%</div>
+            <div class="stat-card">
+                <div class="stat-label">Categories</div>
+                <div class="stat-value">15</div>
+                <div class="stat-change positive">+2 QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Top Platform</div>
-                    <div class="metric-value">TikTok</div>
-                </div>
-                <div class="metric-change change-positive">↑ 18.5%</div>
+            <div class="stat-card">
+                <div class="stat-label">Top Platform (Posts)</div>
+                <div class="stat-value">TikTok</div>
+                <div class="stat-change">3,892 posts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Top Platform (Engagement)</div>
+                <div class="stat-value">Instagram</div>
+                <div class="stat-change positive">12.8% rate</div>
             </div>
         </div>
-        <div class="chart-container">
+
+        <!-- Stacked Bar Charts Section -->
+        <div class="chart-section">
             <div class="chart-header">
-                <div class="chart-title">Post Category Distribution by Platform</div>
-                <span class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</span>
+                <div class="chart-title">Posts by Platform and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('posts', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('posts', 'line')">Trending</button>
+                    <select class="platform-selector" id="postsChartCategory" onchange="updateChartByCategory('posts', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('postsChart')">Download</button>
+                </div>
             </div>
-            <div id="chart1" class="chart"></div>
+            <div class="chart-container">
+                <div id="postsChart" style="width: 100%; height: 100%;"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Chart 2: Engagement by Platform and Category -->
-    <div class="chart-section">
-        <div class="data-card engagement">
-            <div class="data-card-header">
-                Engagement by Platform
-                <span class="download-icon" onclick="downloadData('platform-engagement')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Engagement</div>
-                    <div class="metric-value">3.3M</div>
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Views by Platform and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('views', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('views', 'line')">Trending</button>
+                    <select class="platform-selector" id="viewsChartCategory" onchange="updateChartByCategory('views', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('viewsChart')">Download</button>
                 </div>
-                <div class="metric-change change-positive">↑ 8.7%</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Best Platform</div>
-                    <div class="metric-value">Instagram</div>
-                </div>
-                <div class="metric-change change-positive">↑ 12.3%</div>
+            <div class="chart-container">
+                <div id="viewsChart" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
-        <div class="chart-container">
+
+        <div class="chart-section">
             <div class="chart-header">
                 <div class="chart-title">Engagement Rate by Platform and Category</div>
-                <span class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</span>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('engagement', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('engagement', 'line')">Trending</button>
+                    <select class="platform-selector" id="engagementChartCategory" onchange="updateChartByCategory('engagement', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('engagementChart')">Download</button>
+                </div>
             </div>
-            <div id="chart2" class="chart"></div>
+            <div class="chart-container">
+                <div id="engagementChart" style="width: 100%; height: 100%;"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Chart 3: Platform Performance Comparison -->
-    <div class="chart-section">
-        <div class="data-card rate">
-            <div class="data-card-header">
-                Platform Performance
-                <span class="download-icon" onclick="downloadData('platform-performance')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Avg Engagement Rate</div>
-                    <div class="metric-value">42.0%</div>
-                </div>
-                <div class="metric-change change-negative">↓ 2.3%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Top Category</div>
-                    <div class="metric-value">Entertainment</div>
-                </div>
-                <div class="metric-change change-positive">↑ 5.8%</div>
-            </div>
-        </div>
-        <div class="chart-container">
+        <!-- Data Table Section -->
+        <div class="table-section">
             <div class="chart-header">
-                <div class="chart-title">Platform Performance Comparison</div>
-                <span class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</span>
+                <div class="chart-title">Platform Category Data</div>
+                <div class="chart-controls">
+                    <button class="btn download-btn" onclick="downloadTable()">Download CSV</button>
+                </div>
             </div>
-            <div id="chart3" class="chart"></div>
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Platform</th>
+                            <th>Category</th>
+                            <th>Posts</th>
+                            <th>Posts QoQ</th>
+                            <th>Engagement</th>
+                            <th>Engagement QoQ</th>
+                            <th>Views</th>
+                            <th>Views QoQ</th>
+                            <th>Engagement Rate</th>
+                            <th>Engagement Rate QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">TikTok</td>
+                            <td>Music</td>
+                            <td>1,234</td>
+                            <td class="positive">+12.5%</td>
+                            <td>45,678</td>
+                            <td class="positive">+8.3%</td>
+                            <td>2.3M</td>
+                            <td class="positive">+15.2%</td>
+                            <td>8.5%</td>
+                            <td class="negative">-2.1%</td>
+                        </tr>
+                        <tr>
+                            <td>Dance</td>
+                            <td>987</td>
+                            <td class="positive">+18.7%</td>
+                            <td>38,456</td>
+                            <td class="positive">+22.1%</td>
+                            <td>1.9M</td>
+                            <td class="positive">+28.4%</td>
+                            <td>9.2%</td>
+                            <td class="positive">+3.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Comedy</td>
+                            <td>1,671</td>
+                            <td class="positive">+5.4%</td>
+                            <td>52,341</td>
+                            <td class="positive">+7.9%</td>
+                            <td>2.8M</td>
+                            <td class="positive">+11.3%</td>
+                            <td>7.8%</td>
+                            <td class="positive">+1.2%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">Instagram</td>
+                            <td>Fashion</td>
+                            <td>856</td>
+                            <td class="positive">+14.2%</td>
+                            <td>67,892</td>
+                            <td class="positive">+19.6%</td>
+                            <td>1.2M</td>
+                            <td class="positive">+16.8%</td>
+                            <td>12.8%</td>
+                            <td class="positive">+4.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Food</td>
+                            <td>743</td>
+                            <td class="positive">+9.8%</td>
+                            <td>45,123</td>
+                            <td class="positive">+12.4%</td>
+                            <td>987K</td>
+                            <td class="positive">+8.7%</td>
+                            <td>11.2%</td>
+                            <td class="positive">+2.3%</td>
+                        </tr>
+                        <tr>
+                            <td>Travel</td>
+                            <td>612</td>
+                            <td class="negative">-3.2%</td>
+                            <td>34,567</td>
+                            <td class="positive">+5.1%</td>
+                            <td>756K</td>
+                            <td class="positive">+7.9%</td>
+                            <td>10.5%</td>
+                            <td class="positive">+1.8%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="merged-cell">YouTube</td>
+                            <td>Gaming</td>
+                            <td>234</td>
+                            <td class="positive">+25.3%</td>
+                            <td>123,456</td>
+                            <td class="positive">+31.2%</td>
+                            <td>5.6M</td>
+                            <td class="positive">+28.9%</td>
+                            <td>6.8%</td>
+                            <td class="positive">+2.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Education</td>
+                            <td>189</td>
+                            <td class="positive">+16.7%</td>
+                            <td>89,234</td>
+                            <td class="positive">+18.5%</td>
+                            <td>3.4M</td>
+                            <td class="positive">+21.3%</td>
+                            <td>7.2%</td>
+                            <td class="positive">+1.9%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <!-- Data Table -->
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="platform-header">Platform <span class="download-icon" onclick="downloadTableData()" title="Download Table Data">📥</span></th>
-                <th class="category-header">Top Category</th>
-                <th class="posts-header">Posts</th>
-                <th class="engagement-header">Engagement</th>
-                <th class="rate-header">Engagement Rate (%)</th>
-            </tr>
-        </thead>
-        <tbody id="dataTableBody">
-            <!-- Data will be populated by JavaScript -->
-        </tbody>
-    </table>
 
     <script>
-        // Sample data for platform analysis
-        const platformData = {
-            platforms: ['TikTok', 'Instagram', 'YouTube', 'Twitter', 'Facebook'],
-            categories: ['Entertainment', 'Education', 'Lifestyle', 'Technology', 'Fashion'],
-            topCategories: ['Entertainment', 'Lifestyle', 'Education', 'Technology', 'Entertainment'],
-            posts: [28500, 18200, 12800, 9200, 8300],
-            engagement: [1250000, 890000, 620000, 380000, 180000],
-            engagementRate: [43.9, 48.9, 48.4, 41.3, 21.7],
-            categoryDistribution: {
-                'TikTok': [8500, 4200, 6800, 3200, 5800],
-                'Instagram': [5200, 3800, 4100, 2800, 2300],
-                'YouTube': [3800, 4200, 2100, 1800, 900],
-                'Twitter': [2800, 2100, 1800, 1900, 600],
-                'Facebook': [2400, 1200, 1800, 1400, 1500]
-            }
+        // Sample data
+        const platforms = ['TikTok', 'Instagram', 'YouTube', 'Facebook'];
+        const categories = ['Music', 'Dance', 'Comedy', 'Fashion', 'Food', 'Travel', 'Gaming', 'Education'];
+        const dates = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
+
+        // Chart instances
+        let charts = {};
+        let currentChartTypes = {
+            posts: 'bar',
+            views: 'bar',
+            engagement: 'bar'
         };
 
-        // Chart 1: Category Distribution by Platform (Stacked Bar)
-        const chart1 = echarts.init(document.getElementById('chart1'));
-        const option1 = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                }
-            },
-            legend: {
-                data: platformData.categories
-            },
-            xAxis: {
-                type: 'category',
-                data: platformData.platforms
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Posts Count'
-            },
-            series: platformData.categories.map((category, index) => ({
-                name: category,
-                type: 'bar',
-                stack: 'total',
-                data: platformData.platforms.map(platform => platformData.categoryDistribution[platform][index]),
-                itemStyle: {
-                    color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de'][index]
-                }
-            }))
-        };
-        chart1.setOption(option1);
+        // Initialize all charts
+        function initCharts() {
+            initStackedBarChart('postsChart', 'Posts', generatePostsData());
+            initStackedBarChart('viewsChart', 'Views', generateViewsData());
+            initStackedBarChart('engagementChart', 'Engagement Rate (%)', generateEngagementData());
+            
+            initTrendChart('postsTrendChart', 'Posts', generateTrendData('posts', 'music'));
+            initTrendChart('viewsTrendChart', 'Views', generateTrendData('views', 'music'));
+            initTrendChart('engagementTrendChart', 'Engagement Rate (%)', generateTrendData('engagement', 'music'));
+        }
 
-        // Chart 2: Engagement Rate Heatmap
-        const chart2 = echarts.init(document.getElementById('chart2'));
-        const heatmapData = [];
-        platformData.platforms.forEach((platform, i) => {
-            platformData.categories.forEach((category, j) => {
-                const value = Math.round(platformData.engagementRate[i] * (0.8 + Math.random() * 0.4));
-                heatmapData.push([j, i, value]);
+        // Generate sample data with MoM changes - Bar charts now use categories as series, platforms as x-axis
+        function generatePostsData() {
+            return categories.slice(0, 8).map(category => {
+                const currentData = platforms.map(() => Math.floor(Math.random() * 1000) + 200);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4))); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData,
+                    momChanges: momChanges
+                };
             });
-        });
+        }
 
-        const option2 = {
-            tooltip: {
-                position: 'top',
-                formatter: function (params) {
-                    return `${platformData.categories[params.data[0]]}<br/>${platformData.platforms[params.data[1]]}<br/>Engagement Rate: ${params.data[2]}%`;
+        function generateViewsData() {
+            return categories.slice(0, 8).map(category => {
+                const currentData = platforms.map(() => Math.floor(Math.random() * 5000000) + 500000);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4))); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData,
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateEngagementData() {
+            return categories.slice(0, 8).map(category => {
+                const currentData = platforms.map(() => (Math.random() * 15 + 2).toFixed(1));
+                const previousData = currentData.map(val => (parseFloat(val) * (0.8 + Math.random() * 0.4)).toFixed(1)); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((parseFloat(current) - parseFloat(previousData[index])) / parseFloat(previousData[index]) * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData.map(val => parseFloat(val)),
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateTrendData(type, category) {
+            const trendData = platforms.map(platform => {
+                let currentData, previousData, momChanges;
+                
+                if (type === 'posts') {
+                    currentData = dates.map(() => Math.floor(Math.random() * 500) + 100);
+                    previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                } else if (type === 'views') {
+                    currentData = dates.map(() => Math.floor(Math.random() * 2000000) + 200000);
+                    previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                } else {
+                    currentData = dates.map(() => (Math.random() * 10 + 3).toFixed(1));
+                    previousData = currentData.map(val => (parseFloat(val) * (0.8 + Math.random() * 0.4)).toFixed(1));
                 }
-            },
-            grid: {
-                height: '50%',
-                top: '10%'
-            },
-            xAxis: {
-                type: 'category',
-                data: platformData.categories,
-                splitArea: {
-                    show: true
-                }
-            },
-            yAxis: {
-                type: 'category',
-                data: platformData.platforms,
-                splitArea: {
-                    show: true
-                }
-            },
-            visualMap: {
-                min: 0,
-                max: 80,
-                calculable: true,
-                orient: 'horizontal',
-                left: 'center',
-                bottom: '15%',
-                inRange: {
-                    color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
-                }
-            },
-            series: [{
-                name: 'Engagement Rate',
-                type: 'heatmap',
-                data: heatmapData,
-                label: {
-                    show: true,
-                    formatter: '{c}%'
-                },
-                emphasis: {
-                    itemStyle: {
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                
+                momChanges = currentData.map((current, index) => {
+                    const prev = type === 'engagement' ? parseFloat(previousData[index]) : previousData[index];
+                    const curr = type === 'engagement' ? parseFloat(current) : current;
+                    const change = ((curr - prev) / prev * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: platform,
+                    data: type === 'engagement' ? currentData.map(val => parseFloat(val)) : currentData,
+                    momChanges: momChanges
+                };
+            });
+            
+            // Calculate overall average (total average across all data points)
+            let totalSum = 0;
+            let totalCount = 0;
+            trendData.forEach(series => {
+                series.data.forEach(value => {
+                    totalSum += (typeof value === 'string' ? parseFloat(value) : value);
+                    totalCount++;
+                });
+            });
+            const overallAverage = totalSum / totalCount;
+            const avgValue = type === 'engagement' ? parseFloat(overallAverage.toFixed(1)) : parseInt(overallAverage);
+            
+            // Create horizontal line data (same value for all dates)
+            const avgData = new Array(dates.length).fill(avgValue);
+            
+            // Add average line to the data
+            trendData.push({
+                name: 'Average',
+                data: avgData,
+                momChanges: new Array(dates.length).fill(0), // No MoM for average line
+                isAverage: true
+            });
+            
+            return trendData;
+        }
+
+        // Initialize stacked bar chart
+        function initStackedBarChart(containerId, title, data) {
+            const chart = echarts.init(document.getElementById(containerId));
+            charts[containerId] = chart;
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        let result = `<strong>${params[0].axisValue}</strong><br/>`;
+                        params.forEach((param, index) => {
+                            const seriesData = data.find(d => d.name === param.seriesName);
+                            const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                            const changeColor = momChange >= 0 ? '#52c41a' : '#ff4d4f';
+                            const changeSymbol = momChange >= 0 ? '+' : '';
+                            
+                            result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}`;
+                            result += ` <span style="color: ${changeColor};">(${changeSymbol}${momChange}%)</span><br/>`;
+                        });
+                        return result;
                     }
-                }
-            }]
-        };
-        chart2.setOption(option2);
-
-        // Chart 3: Platform Performance Radar
-        const chart3 = echarts.init(document.getElementById('chart3'));
-        const option3 = {
-            tooltip: {},
-            legend: {
-                data: platformData.platforms
-            },
-            radar: {
-                indicator: [
-                    { name: 'Posts Volume', max: 30000 },
-                    { name: 'Engagement', max: 1500000 },
-                    { name: 'Engagement Rate', max: 60 },
-                    { name: 'Category Diversity', max: 10 },
-                    { name: 'Growth Rate', max: 50 }
-                ]
-            },
-            series: [{
-                name: 'Platform Performance',
-                type: 'radar',
-                data: platformData.platforms.map((platform, index) => ({
-                    value: [
-                        platformData.posts[index],
-                        platformData.engagement[index],
-                        platformData.engagementRate[index],
-                        5 + Math.random() * 3,
-                        10 + Math.random() * 30
-                    ],
-                    name: platform
+                },
+                legend: {
+                    data: data.map(item => item.name),
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: platforms
+                },
+                yAxis: {
+                    type: 'value',
+                    name: title
+                },
+                series: data.map(item => ({
+                    name: item.name,
+                    type: 'bar',
+                    stack: 'total',
+                    data: item.data,
+                    itemStyle: {
+                        borderRadius: [2, 2, 0, 0]
+                    }
                 }))
-            }]
-        };
-        chart3.setOption(option3);
+            };
+
+            chart.setOption(option);
+            
+            // Handle resize
+            window.addEventListener('resize', () => {
+                chart.resize();
+            });
+        }
+
+        // Initialize trend chart
+        function initTrendChart(containerId, title, data) {
+            const chart = echarts.init(document.getElementById(containerId));
+            charts[containerId] = chart;
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        let result = `<strong>${params[0].axisValue}</strong><br/>`;
+                        params.forEach((param, index) => {
+                            const seriesData = data.find(d => d.name === param.seriesName);
+                            
+                            // Skip MoM display for average line
+                            if (seriesData && seriesData.isAverage) {
+                                result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            } else {
+                                const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                                const changeColor = momChange >= 0 ? '#52c41a' : '#ff4d4f';
+                                const changeSymbol = momChange >= 0 ? '+' : '';
+                                result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}`;
+                                result += ` <span style="color: ${changeColor};">(${changeSymbol}${momChange}%)</span><br/>`;
+                            }
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: data.map(item => item.name),
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates
+                },
+                yAxis: {
+                    type: 'value',
+                    name: title
+                },
+                series: data.map(item => ({
+                    name: item.name,
+                    type: 'line',
+                    data: item.data,
+                    smooth: true,
+                    lineStyle: {
+                        width: item.isAverage ? 4 : 3,
+                        type: item.isAverage ? 'dashed' : 'solid',
+                        dashArray: item.isAverage ? [10, 5] : undefined
+                    },
+                    symbolSize: item.isAverage ? 10 : 8,
+                    itemStyle: {
+                        color: item.isAverage ? '#ff6b35' : undefined
+                    }
+                }))
+            };
+
+            chart.setOption(option);
+            
+            // Handle resize
+            window.addEventListener('resize', () => {
+                chart.resize();
+            });
+        }
+
+        // Toggle chart type between bar and line
+        function toggleChartType(chartType, type) {
+            currentChartTypes[chartType] = type;
+            
+            // Update button states
+            const buttons = event.target.parentElement.querySelectorAll('.btn:not(.download-btn)');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Show/hide category selector based on chart type
+            const categorySelector = document.getElementById(chartType + 'ChartCategory');
+            if (type === 'line') {
+                categorySelector.style.display = 'inline-block';
+            } else {
+                categorySelector.style.display = 'none';
+            }
+
+            let chartId, title, data;
+            
+            if (chartType === 'posts') {
+                chartId = 'postsChart';
+                title = 'Posts';
+                data = type === 'bar' ? generatePostsData() : generateTrendData('posts', 'music');
+            } else if (chartType === 'views') {
+                chartId = 'viewsChart';
+                title = 'Views';
+                data = type === 'bar' ? generateViewsData() : generateTrendData('views', 'music');
+            } else if (chartType === 'engagement') {
+                chartId = 'engagementChart';
+                title = 'Engagement Rate (%)';
+                data = type === 'bar' ? generateEngagementData() : generateTrendData('engagement', 'music');
+            }
+
+            const chart = charts[chartId];
+            
+            if (type === 'bar') {
+                // 柱状图配置
+                const option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        },
+                        formatter: function(params) {
+                            let result = `<strong>${params[0].axisValue}</strong><br/>`;
+                            params.forEach((param, index) => {
+                                const seriesData = data.find(d => d.name === param.seriesName);
+                                const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                                const changeColor = momChange >= 0 ? '#52c41a' : '#ff4d4f';
+                                const changeSymbol = momChange >= 0 ? '+' : '';
+                                
+                                result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}`;
+                                result += ` <span style="color: ${changeColor};">(${changeSymbol}${momChange}%)</span><br/>`;
+                            });
+                            return result;
+                        }
+                    },
+                    legend: {
+                        data: data.map(item => item.name),
+                        top: 10
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: platforms
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: title
+                    },
+                    series: data.map(item => ({
+                        name: item.name,
+                        type: 'bar',
+                        stack: 'total',
+                        data: item.data,
+                        itemStyle: {
+                            borderRadius: [2, 2, 0, 0]
+                        }
+                    }))
+                };
+                chart.setOption(option, true);
+            } else {
+                // 折线图配置 - 使用与下面趋势图相同的样式
+                const option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: function(params) {
+                            let result = `<strong>${params[0].axisValue}</strong><br/>`;
+                            params.forEach((param, index) => {
+                                const seriesData = data.find(d => d.name === param.seriesName);
+                                
+                                // Skip MoM display for average line
+                                if (seriesData && seriesData.isAverage) {
+                                    result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                                } else {
+                                    const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                                    const changeColor = momChange >= 0 ? '#52c41a' : '#ff4d4f';
+                                    const changeSymbol = momChange >= 0 ? '+' : '';
+                                    result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}`;
+                                    result += ` <span style="color: ${changeColor};">(${changeSymbol}${momChange}%)</span><br/>`;
+                                }
+                            });
+                            return result;
+                        }
+                    },
+                    legend: {
+                        data: data.map(item => item.name),
+                        top: 10
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: dates
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: title
+                    },
+                    series: data.map(item => ({
+                        name: item.name,
+                        type: 'line',
+                        data: item.data,
+                        smooth: true,
+                        lineStyle: {
+                            width: item.isAverage ? 4 : 3,
+                            type: item.isAverage ? 'dashed' : 'solid',
+                            dashArray: item.isAverage ? [10, 5] : undefined
+                        },
+                        symbolSize: item.isAverage ? 10 : 8,
+                        itemStyle: {
+                            color: item.isAverage ? '#ff6b35' : undefined
+                        }
+                    }))
+                };
+                chart.setOption(option, true);
+            }
+        }
+
+        // Update chart based on category selection for toggled line charts
+        function updateChartByCategory(chartType, category) {
+            let chartId, title, data;
+            
+            if (chartType === 'posts') {
+                chartId = 'postsChart';
+                title = 'Posts';
+                data = generateTrendData('posts', category);
+            } else if (chartType === 'views') {
+                chartId = 'viewsChart';
+                title = 'Views';
+                data = generateTrendData('views', category);
+            } else if (chartType === 'engagement') {
+                chartId = 'engagementChart';
+                title = 'Engagement Rate (%)';
+                data = generateTrendData('engagement', category);
+            }
+
+            const chart = charts[chartId];
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        let result = `<strong>${params[0].axisValue}</strong><br/>`;
+                        params.forEach((param, index) => {
+                            const seriesData = data.find(d => d.name === param.seriesName);
+                            
+                            // Skip MoM display for average line
+                            if (seriesData && seriesData.isAverage) {
+                                result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            } else {
+                                const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                                const changeColor = momChange >= 0 ? '#52c41a' : '#ff4d4f';
+                                const changeSymbol = momChange >= 0 ? '+' : '';
+                                result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}`;
+                                result += ` <span style="color: ${changeColor};">(${changeSymbol}${momChange}%)</span><br/>`;
+                            }
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: data.map(item => item.name)
+                },
+                series: data.map(item => ({
+                    name: item.name,
+                    type: 'line',
+                    data: item.data,
+                    smooth: true,
+                    lineStyle: {
+                        width: item.isAverage ? 4 : 3,
+                        type: item.isAverage ? 'dashed' : 'solid',
+                        dashArray: item.isAverage ? [10, 5] : undefined
+                    },
+                    symbolSize: item.isAverage ? 10 : 8,
+                    itemStyle: {
+                        color: item.isAverage ? '#ff6b35' : undefined
+                    }
+                }))
+            };
+            
+            chart.setOption(option);
+        }
 
         // Download chart as image
         function downloadChart(chartId) {
-            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
-            const url = chart.getDataURL({
-                pixelRatio: 2,
-                backgroundColor: '#fff'
+            const chart = charts[chartId];
+            if (chart) {
+                const url = chart.getDataURL({
+                    pixelRatio: 2,
+                    backgroundColor: '#fff'
+                });
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${chartId}_${new Date().toISOString().split('T')[0]}.png`;
+                link.click();
+            }
+        }
+
+        // Download table as CSV
+        function downloadTable() {
+            const table = document.getElementById('dataTable');
+            let csv = [];
+            
+            // Get headers
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+            csv.push(headers.join(','));
+            
+            // Get data rows
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('td')).map(td => {
+                    return `"${td.textContent.replace(/"/g, '""')}"`;
+                });
+                csv.push(cells.join(','));
             });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
             
             const link = document.createElement('a');
             link.href = url;
-            link.download = `post-category-platform-${chartId}.png`;
+            link.download = `category_platform_data_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
+            
+            window.URL.revokeObjectURL(url);
         }
 
-        function downloadData(type) {
-            let csvContent = '';
-            let filename = '';
-            
-            if (type === 'platform-distribution') {
-                csvContent = 'Platform,Entertainment,Education,Lifestyle,Technology,Fashion\n';
-                platformData.platforms.forEach((platform, index) => {
-                    const row = [platform, ...platformData.categoryDistribution[platform]];
-                    csvContent += row.join(',') + '\n';
-                });
-                filename = 'platform-category-distribution.csv';
-            } else if (type === 'platform-engagement') {
-                csvContent = 'Platform,Posts,Engagement,Engagement Rate (%)\n';
-                platformData.platforms.forEach((platform, index) => {
-                    csvContent += `${platform},${platformData.posts[index]},${platformData.engagement[index]},${platformData.engagementRate[index]}\n`;
-                });
-                filename = 'platform-engagement-data.csv';
-            } else if (type === 'platform-performance') {
-                csvContent = 'Platform,Top Category,Posts,Engagement,Engagement Rate (%)\n';
-                platformData.platforms.forEach((platform, index) => {
-                    csvContent += `${platform},${platformData.topCategories[index]},${platformData.posts[index]},${platformData.engagement[index]},${platformData.engagementRate[index]}\n`;
-                });
-                filename = 'platform-performance-data.csv';
-            }
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Populate data table
-        function populateDataTable() {
-            const tableBody = document.getElementById('dataTableBody');
-            let html = '';
-
-            platformData.platforms.forEach((platform, index) => {
-                const topCategory = platformData.topCategories[index];
-                const posts = platformData.posts[index];
-                const engagement = platformData.engagement[index];
-                const engagementRate = platformData.engagementRate[index];
-                
-                html += `
-                    <tr>
-                        <td class="platform-name">${platform}</td>
-                        <td>${topCategory}</td>
-                        <td>${posts.toLocaleString()}</td>
-                        <td>${engagement.toLocaleString()}</td>
-                        <td>${engagementRate}%</td>
-                    </tr>
-                `;
-            });
-            
-            tableBody.innerHTML = html;
-        }
-
-        function downloadTableData() {
-            let csvContent = 'Platform,Top Category,Posts,Engagement,Engagement Rate (%)\n';
-            platformData.platforms.forEach((platform, index) => {
-                csvContent += `${platform},${platformData.topCategories[index]},${platformData.posts[index]},${platformData.engagement[index]},${platformData.engagementRate[index]}\n`;
-            });
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'platform-category-analysis-data.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Initialize data table
-        populateDataTable();
-
-        // Make charts responsive
-        window.addEventListener('resize', function() {
-            chart1.resize();
-            chart2.resize();
-            chart3.resize();
+        // Initialize charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
         });
     </script>
 </body>
