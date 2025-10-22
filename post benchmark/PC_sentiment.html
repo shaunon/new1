@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Content Type Sentiment Analysis</title>
+    <title>Sentiment Category Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -11,834 +11,799 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Arial', sans-serif;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
         }
         
-        h1, h2, h3 {
-            color: #333;
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
         }
-
-        .chart-section {
-            display: flex;
-            align-items: center;
-            margin-bottom: 40px;
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
         }
-
-        .data-card {
-            background: #f8f9fa;
-            border-radius: 12px;
+        
+        .stat-card {
+            background: #fff;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-left: 4px solid #007bff;
-            min-width: 280px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .data-card.positive {
-            border-left-color: #28a745;
-        }
-
-        .data-card.negative {
-            border-left-color: #dc3545;
-        }
-
-        .data-card.neutral {
-            border-left-color: #6c757d;
-        }
-
-        .data-card.rate {
-            border-left-color: #ffc107;
-        }
-
-        .data-card.views {
-            border-left-color: #17a2b8;
-        }
-
-        .data-card-header {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .metric-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .metric-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: #6c757d;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            font-weight: 500;
-        }
-
-        .metric-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #2c3e50;
-        }
-
-        .metric-change {
-            font-size: 14px;
-            font-weight: 600;
-            padding: 4px 8px;
-            border-radius: 4px;
-            white-space: nowrap;
-        }
-
-        .change-positive {
-            color: #28a745;
-            background-color: #d4edda;
-        }
-
-        .change-negative {
-            color: #dc3545;
-            background-color: #f8d7da;
-        }
-
-        .download-icon {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            padding: 5px;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-
-        .download-icon:hover {
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
             color: #007bff;
-            background-color: #f8f9fa;
         }
-
-        .chart-container {
-            flex: 1;
-            height: 400px;
-            position: relative;
+        
+        .stat-label {
+            color: #666;
+            margin-bottom: 5px;
         }
-
+        
+        .stat-change {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        
+        .chart-section {
+            background: #fff;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
         .chart-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
         }
-
+        
         .chart-title {
-            font-size: 16px;
+            font-size: 1.2em;
             font-weight: 600;
-            color: #2c3e50;
         }
-
-        .chart-download {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            padding: 5px;
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #fff;
             border-radius: 4px;
-            transition: all 0.2s ease;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-
-        .chart-download:hover {
-            color: #007bff;
-            background-color: #f8f9fa;
+        
+        .btn:hover {
+            background: #f8f9fa;
         }
-
-        .chart {
-            width: 100%;
-            height: 100%;
+        
+        .btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
         }
-        .radar-container {
-            height: 500px;
-            background-color: white;
+        
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .download-btn:hover {
+            background: #218838;
+        }
+        
+        .chart-container {
+            height: 400px;
+            padding: 20px;
+        }
+        
+        .sentiment-selector {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .table-section {
+            background: #fff;
             border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
+        
         .table-container {
-            background-color: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             overflow-x: auto;
+            padding: 20px;
         }
+        
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.9em;
         }
+        
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-            position: sticky;
-            top: 0;
-        }
-        .sentiment-header {
-            background-color: #e9ecef;
-            font-weight: bold;
-            text-align: center;
-        }
-        .metric-name {
-            font-weight: bold;
-        }
-        .positive {
-            color: #28a745;
-        }
-        .negative {
-            color: #dc3545;
-        }
-
-        .engagement-header {
-            background: #e8f5e8 !important;
-            color: #388e3c !important;
-            font-weight: 700;
-            min-width: 100px;
-        }
-
-        .views-header {
-            background: #ffebee !important;
-            color: #d32f2f !important;
-            font-weight: 700;
-            min-width: 80px;
-        }
-
-        .rate-header {
-            background: #fff3e0 !important;
-            color: #f57c00 !important;
-            font-weight: 700;
-            min-width: 100px;
-        }
-
-        .sentiment-header {
-            background: #e1f5fe !important;
-            color: #0277bd !important;
-            font-weight: 700;
-            min-width: 120px;
-        }
-
-        .data-table td {
             padding: 12px;
-            text-align: center;
-            border: 1px solid #dee2e6;
-            font-size: 14px;
-            vertical-align: middle;
+            text-align: left;
+            border-bottom: 1px solid #eee;
         }
-
-        .data-table tbody tr:nth-child(even) {
-            background-color: #f8f9fa;
-        }
-
-        .data-table tbody tr:hover {
-            background-color: #e3f2fd;
-            transition: background-color 0.2s ease;
-        }
-
-        .content-type {
+        
+        th {
+            background: #f8f9fa;
             font-weight: 600;
             color: #495057;
-            text-align: left !important;
-            padding-left: 20px !important;
         }
-
-        .positive {
-            color: #28a745;
-            font-weight: 600;
+        
+        tr:hover {
+            background: #f8f9fa;
         }
-
-        .negative {
-            color: #dc3545;
-            font-weight: 600;
-        }
-
-        .neutral {
-            color: #6c757d;
-            font-weight: 600;
-        }
-
-        .number-cell {
-            font-family: 'Courier New', monospace;
+        
+        .merged-cell {
+            background: #e9ecef;
             font-weight: 500;
-        }
-
-        .percentage-cell {
-            font-weight: 600;
-        }
-
-        .content-type-icon {
-            margin-right: 8px;
-            font-size: 16px;
-        }
-
-        .emotion-radar-container {
-            height: 500px;
-            margin-bottom: 40px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
         }
     </style>
 </head>
 <body>
-    <!-- Chart 1: Interaction Volume by Sentiment -->
-    <div class="chart-section">
-        <div class="data-card positive">
-            <div class="data-card-header">
-                Sentiment Analysis Overview
-                <span class="download-icon" onclick="downloadData('sentiment-overview')" title="Download Data">📥</span>
+    <div class="container">
+        <!-- Statistics Section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Posts</div>
+                <div class="stat-value">12,456</div>
+                <div class="stat-change positive">+8.5% QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Positive Sentiment</div>
-                    <div class="metric-value">45.2%</div>
-                </div>
-                <div class="metric-change change-positive">↑ 3.1%</div>
+            <div class="stat-card">
+                <div class="stat-label">Categories</div>
+                <div class="stat-value">15</div>
+                <div class="stat-change positive">+2 QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Negative Sentiment</div>
-                    <div class="metric-value">28.7%</div>
-                </div>
-                <div class="metric-change change-negative">↓ 1.8%</div>
+            <div class="stat-card">
+                <div class="stat-label">Top Sentiment (Posts)</div>
+                <div class="stat-value">Positive</div>
+                <div class="stat-change">5,892 posts</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Neutral Sentiment</div>
-                    <div class="metric-value">26.1%</div>
-                </div>
-                <div class="metric-change change-negative">↓ 1.3%</div>
+            <div class="stat-card">
+                <div class="stat-label">Top Sentiment (Engagement)</div>
+                <div class="stat-value">Neutral</div>
+                <div class="stat-change positive">14.2% rate</div>
             </div>
         </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">Interaction Volume by Content Type and Sentiment</div>
-                <span class="chart-download" onclick="downloadChart('interactionChart')" title="Download Chart">📊</span>
-            </div>
-            <div id="interactionChart" class="chart"></div>
-        </div>
-    </div>
 
-    <!-- Chart 2: Interaction Rate by Sentiment -->
-    <div class="chart-section">
-        <div class="data-card rate">
-            <div class="data-card-header">
-                Engagement Rate Analysis
-                <span class="download-icon" onclick="downloadData('engagement-rate')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Avg Engagement Rate</div>
-                    <div class="metric-value">6.8%</div>
-                </div>
-                <div class="metric-change change-positive">↑ 0.5%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Best Performing</div>
-                    <div class="metric-value">Positive</div>
-                </div>
-                <div class="metric-change change-positive">↑ 12.3%</div>
-            </div>
-        </div>
-        <div class="chart-container">
+        <!-- Stacked Bar Charts Section -->
+        <div class="chart-section">
             <div class="chart-header">
-                <div class="chart-title">Interaction Rate by Content Type and Sentiment</div>
-                <span class="chart-download" onclick="downloadChart('interactionRateChart')" title="Download Chart">📊</span>
+                <div class="chart-title">Posts by Sentiment and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('posts', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('posts', 'line')">Trending</button>
+                    <select class="sentiment-selector" id="postsChartCategory" onchange="updateChartByCategory('posts', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('postsChart')">Download</button>
+                </div>
             </div>
-            <div id="interactionRateChart" class="chart"></div>
+            <div class="chart-container">
+                <div id="postsChart" style="width: 100%; height: 100%;"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Chart 3: Views by Sentiment -->
-    <div class="chart-section">
-        <div class="data-card views">
-            <div class="data-card-header">
-                Views Analysis
-                <span class="download-icon" onclick="downloadData('views-analysis')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Views</div>
-                    <div class="metric-value">45.2M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 15.7%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Top Sentiment</div>
-                    <div class="metric-value">Positive</div>
-                </div>
-                <div class="metric-change change-positive">↑ 8.9%</div>
-            </div>
-        </div>
-        <div class="chart-container">
+        <div class="chart-section">
             <div class="chart-header">
-                <div class="chart-title">Views by Content Type and Sentiment</div>
-                <span class="chart-download" onclick="downloadChart('viewsChart')" title="Download Chart">📊</span>
+                <div class="chart-title">Views by Sentiment and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('views', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('views', 'line')">Trending</button>
+                    <select class="sentiment-selector" id="viewsChartCategory" onchange="updateChartByCategory('views', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('viewsChart')">Download</button>
+                </div>
             </div>
-            <div id="viewsChart" class="chart"></div>
+            <div class="chart-container">
+                <div id="viewsChart" style="width: 100%; height: 100%;"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Chart 4: Post Count by Sentiment -->
-    <div class="chart-section">
-        <div class="data-card neutral">
-            <div class="data-card-header">
-                Content Volume Analysis
-                <span class="download-icon" onclick="downloadData('content-volume')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Posts</div>
-                    <div class="metric-value">77.0K</div>
-                </div>
-                <div class="metric-change change-positive">↑ 12.5%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Most Active Type</div>
-                    <div class="metric-value">Entertainment</div>
-                </div>
-                <div class="metric-change change-positive">↑ 5.2%</div>
-            </div>
-        </div>
-        <div class="chart-container">
+        <div class="chart-section">
             <div class="chart-header">
-                <div class="chart-title">Post Count by Content Type and Sentiment</div>
-                <span class="chart-download" onclick="downloadChart('postCountChart')" title="Download Chart">📊</span>
+                <div class="chart-title">Engagement Rate by Sentiment and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('engagement', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('engagement', 'line')">Trending</button>
+                    <select class="sentiment-selector" id="engagementChartCategory" onchange="updateChartByCategory('engagement', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('engagementChart')">Download</button>
+                </div>
             </div>
-            <div id="postCountChart" class="chart"></div>
+            <div class="chart-container">
+                <div id="engagementChart" style="width: 100%; height: 100%;"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Emotion Radar Chart -->
-    <div class="chart-section">
-        <div class="data-card">
-            <div class="data-card-header">
-                Emotion Distribution
-                <span class="download-icon" onclick="downloadData('emotion-distribution')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Dominant Emotion</div>
-                    <div class="metric-value">Joy</div>
-                </div>
-                <div class="metric-change change-positive">↑ 7.3%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Secondary Emotion</div>
-                    <div class="metric-value">Pleasure</div>
-                </div>
-                <div class="metric-change change-positive">↑ 2.1%</div>
-            </div>
-        </div>
-        <div class="chart-container">
+        <!-- Data Table Section -->
+        <div class="table-section">
             <div class="chart-header">
-                <div class="chart-title">Emotion Distribution by Content Type</div>
-                <span class="chart-download" onclick="downloadChart('emotionRadarChart')" title="Download Chart">📊</span>
+                <div class="chart-title">Sentiment Category Data</div>
+                <div class="chart-controls">
+                    <button class="btn download-btn" onclick="downloadTable()">Download CSV</button>
+                </div>
             </div>
-            <div id="emotionRadarChart" class="chart"></div>
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Sentiment</th>
+                            <th>Category</th>
+                            <th>Posts</th>
+                            <th>Posts QoQ</th>
+                            <th>Engagement</th>
+                            <th>Engagement QoQ</th>
+                            <th>Views</th>
+                            <th>Views QoQ</th>
+                            <th>Engagement Rate</th>
+                            <th>Engagement Rate QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">Positive</td>
+                            <td>Music</td>
+                            <td>1,834</td>
+                            <td class="positive">+15.2%</td>
+                            <td>65,478</td>
+                            <td class="positive">+18.3%</td>
+                            <td>3.2M</td>
+                            <td class="positive">+22.1%</td>
+                            <td>12.5%</td>
+                            <td class="positive">+3.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Dance</td>
+                            <td>1,287</td>
+                            <td class="positive">+21.7%</td>
+                            <td>58,456</td>
+                            <td class="positive">+25.1%</td>
+                            <td>2.8M</td>
+                            <td class="positive">+28.4%</td>
+                            <td>13.2%</td>
+                            <td class="positive">+4.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Comedy</td>
+                            <td>2,171</td>
+                            <td class="positive">+12.4%</td>
+                            <td>72,341</td>
+                            <td class="positive">+16.9%</td>
+                            <td>3.5M</td>
+                            <td class="positive">+19.3%</td>
+                            <td>11.8%</td>
+                            <td class="positive">+2.1%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">Neutral</td>
+                            <td>Fashion</td>
+                            <td>1,456</td>
+                            <td class="positive">+8.2%</td>
+                            <td>87,892</td>
+                            <td class="positive">+12.6%</td>
+                            <td>2.1M</td>
+                            <td class="positive">+14.8%</td>
+                            <td>14.2%</td>
+                            <td class="positive">+3.5%</td>
+                        </tr>
+                        <tr>
+                            <td>Food</td>
+                            <td>1,243</td>
+                            <td class="positive">+6.8%</td>
+                            <td>65,123</td>
+                            <td class="positive">+9.4%</td>
+                            <td>1.8M</td>
+                            <td class="positive">+11.7%</td>
+                            <td>13.2%</td>
+                            <td class="positive">+2.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Travel</td>
+                            <td>912</td>
+                            <td class="positive">+4.2%</td>
+                            <td>54,567</td>
+                            <td class="positive">+7.1%</td>
+                            <td>1.5M</td>
+                            <td class="positive">+8.9%</td>
+                            <td>12.5%</td>
+                            <td class="positive">+1.8%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="merged-cell">Negative</td>
+                            <td>Gaming</td>
+                            <td>534</td>
+                            <td class="negative">-5.3%</td>
+                            <td>43,456</td>
+                            <td class="negative">-2.2%</td>
+                            <td>1.2M</td>
+                            <td class="positive">+3.9%</td>
+                            <td>8.8%</td>
+                            <td class="negative">-1.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Education</td>
+                            <td>389</td>
+                            <td class="negative">-8.7%</td>
+                            <td>29,234</td>
+                            <td class="negative">-6.5%</td>
+                            <td>987K</td>
+                            <td class="negative">-1.3%</td>
+                            <td>7.2%</td>
+                            <td class="negative">-2.9%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    
-    <div class="table-container">
-        <table id="metricsTable"></table>
     </div>
 
     <script>
-        // Download functions
-        function downloadData(type) {
-            console.log('Downloading data for:', type);
-            // Implementation for data download
+        // Sample data
+        const sentiments = ['Positive', 'Neutral', 'Negative'];
+        const categories = ['Music', 'Dance', 'Comedy', 'Fashion', 'Food', 'Travel', 'Gaming', 'Education'];
+        const dates = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
+
+        // Chart instances
+        let charts = {};
+        let currentChartTypes = {
+            posts: 'bar',
+            views: 'bar',
+            engagement: 'bar'
+        };
+
+        // Initialize all charts
+        function initCharts() {
+            initStackedBarChart('postsChart', 'Posts', generatePostsData());
+            initStackedBarChart('viewsChart', 'Views', generateViewsData());
+            initStackedBarChart('engagementChart', 'Engagement Rate (%)', generateEngagementData());
+            
+            initTrendChart('postsTrendChart', 'Posts', generateTrendData('posts', 'music'));
+            initTrendChart('viewsTrendChart', 'Views', generateTrendData('views', 'music'));
+            initTrendChart('engagementTrendChart', 'Engagement Rate (%)', generateTrendData('engagement', 'music'));
         }
 
-        function downloadChart(chartId) {
-            console.log('Downloading chart:', chartId);
-            // Implementation for chart download
-        }
-        // Define video duration categories
-        const durationCategories = ['Entertainment', 'Education', 'Lifestyle', 'Technology', 'Fashion', 'Food', 'Travel', 'Sports', 'Music', 'Gaming'];
-        
-        // Define sentiment categories
-        const sentiments = ['Positive', 'Negative', 'Neutral'];
-        
-        // Define emotion dimensions for radar chart
-        const emotions = ['Joy', 'Pleasure', 'Sadness', 'Fear', 'Surprise', 'Anger'];
-        
-        // Generate sample data for demonstration
-        function generateData() {
-            const data = {};
-            
-            sentiments.forEach(sentiment => {
-                data[sentiment] = {
-                    interaction: [],
-                    interactionRate: [],
-                    views: [],
-                    postCount: [],
-                    percentages: {},
-                    periodOverPeriod: {}
-                };
-                
-                durationCategories.forEach((_, index) => {
-                    // Generate random values for each metric
-                    data[sentiment].interaction.push(Math.floor(Math.random() * 1000000) + 100000);
-                    data[sentiment].interactionRate.push((Math.random() * 10 + 1).toFixed(2));
-                    data[sentiment].views.push(Math.floor(Math.random() * 10000000) + 1000000);
-                    data[sentiment].postCount.push(Math.floor(Math.random() * 10000) + 1000);
+        // Generate sample data with MoM changes
+        function generatePostsData() {
+            // Generate data for each category (now as series) across sentiments (now as x-axis)
+            return categories.map(category => {
+                const currentData = sentiments.map(() => Math.floor(Math.random() * 1000) + 200);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4))); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
                 });
                 
-                // Calculate percentages
-                const totalInteraction = data[sentiment].interaction.reduce((a, b) => a + b, 0);
-                const totalViews = data[sentiment].views.reduce((a, b) => a + b, 0);
-                const totalPosts = data[sentiment].postCount.reduce((a, b) => a + b, 0);
-                
-                data[sentiment].percentages = {
-                    interaction: data[sentiment].interaction.map(val => ((val / totalInteraction) * 100).toFixed(2)),
-                    views: data[sentiment].views.map(val => ((val / totalViews) * 100).toFixed(2)),
-                    postCount: data[sentiment].postCount.map(val => ((val / totalPosts) * 100).toFixed(2))
-                };
-                
-                // Generate period-over-period changes (e.g., month-over-month)
-                data[sentiment].periodOverPeriod = {
-                    interaction: data[sentiment].interaction.map(() => ((Math.random() * 40) - 20).toFixed(2)),
-                    interactionRate: data[sentiment].interactionRate.map(() => ((Math.random() * 40) - 20).toFixed(2)),
-                    views: data[sentiment].views.map(() => ((Math.random() * 40) - 20).toFixed(2)),
-                    postCount: data[sentiment].postCount.map(() => ((Math.random() * 40) - 20).toFixed(2))
+                return {
+                    name: category,
+                    data: currentData,
+                    momChanges: momChanges
                 };
             });
-            
-            // Generate radar chart data for emotions across video durations
-            const radarData = {};
-            durationCategories.forEach(duration => {
-                radarData[duration] = [];
-                emotions.forEach(() => {
-                    // Generate random percentage for each emotion dimension
-                    radarData[duration].push(Math.floor(Math.random() * 100));
-                });
-            });
-            
-            return { sentimentData: data, radarData: radarData };
         }
-        
-        const { sentimentData, radarData } = generateData();
-        
-        // Initialize ECharts instances
-        const interactionChart = echarts.init(document.getElementById('interactionChart'));
-        const interactionRateChart = echarts.init(document.getElementById('interactionRateChart'));
-        const viewsChart = echarts.init(document.getElementById('viewsChart'));
-        const postCountChart = echarts.init(document.getElementById('postCountChart'));
-        const emotionRadarChart = echarts.init(document.getElementById('emotionRadarChart'));
-        
-        // Prepare series data for each chart
-        function prepareSeries(metricName) {
-            return sentiments.map(sentiment => {
+
+        function generateViewsData() {
+            // Generate data for each category (now as series) across sentiments (now as x-axis)
+            return categories.map(category => {
+                const currentData = sentiments.map(() => Math.floor(Math.random() * 5000000) + 500000);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4))); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData,
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateEngagementData() {
+            // Generate data for each category (now as series) across sentiments (now as x-axis)
+            return categories.map(category => {
+                const currentData = sentiments.map(() => (Math.random() * 15 + 2).toFixed(1));
+                const previousData = currentData.map(val => (parseFloat(val) * (0.8 + Math.random() * 0.4)).toFixed(1)); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((parseFloat(current) - parseFloat(previousData[index])) / parseFloat(previousData[index]) * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData.map(val => parseFloat(val)),
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateTrendData(type, category) {
+            // Generate trend data for each sentiment (now as series) for the selected category
+            const trendData = sentiments.map(sentiment => {
+                let currentData, previousData, momChanges;
+                
+                if (type === 'posts') {
+                    currentData = dates.map(() => Math.floor(Math.random() * 500) + 100);
+                    previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                } else if (type === 'views') {
+                    currentData = dates.map(() => Math.floor(Math.random() * 2000000) + 200000);
+                    previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                } else {
+                    currentData = dates.map(() => (Math.random() * 10 + 3).toFixed(1));
+                    previousData = currentData.map(val => (parseFloat(val) * (0.8 + Math.random() * 0.4)).toFixed(1));
+                }
+                
+                momChanges = currentData.map((current, index) => {
+                    const prev = type === 'engagement' ? parseFloat(previousData[index]) : previousData[index];
+                    const curr = type === 'engagement' ? parseFloat(current) : current;
+                    const change = ((curr - prev) / prev * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
                 return {
                     name: sentiment,
-                    type: 'bar',
-                    stack: 'total',
-                    emphasis: {
-                        focus: 'series'
-                    },
-                    data: sentimentData[sentiment][metricName]
+                    data: type === 'engagement' ? currentData.map(val => parseFloat(val)) : currentData,
+                    momChanges: momChanges
                 };
             });
+            
+            // Calculate overall average (total average across all data points)
+            let totalSum = 0;
+            let totalCount = 0;
+            trendData.forEach(series => {
+                series.data.forEach(value => {
+                    totalSum += (typeof value === 'string' ? parseFloat(value) : value);
+                    totalCount++;
+                });
+            });
+            const overallAverage = totalSum / totalCount;
+            const avgValue = type === 'engagement' ? parseFloat(overallAverage.toFixed(1)) : parseInt(overallAverage);
+            
+            // Create horizontal line data (same value for all dates)
+            const avgData = new Array(dates.length).fill(avgValue);
+            
+            // Add average line to the data
+            trendData.push({
+                name: 'Average',
+                data: avgData,
+                momChanges: new Array(dates.length).fill(0), // No MoM for average line
+                isAverage: true
+            });
+            
+            return trendData;
         }
-        
-        // Chart options
-        const interactionChartOption = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                }
-            },
-            legend: {
-                data: sentiments
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                data: durationCategories
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Interaction Volume'
-            },
-            series: prepareSeries('interaction')
-        };
-        
-        const interactionRateChartOption = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                }
-            },
-            legend: {
-                data: sentiments
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                data: durationCategories
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Interaction Rate (%)'
-            },
-            series: prepareSeries('interactionRate')
-        };
-        
-        const viewsChartOption = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                }
-            },
-            legend: {
-                data: sentiments
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                data: durationCategories
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Views'
-            },
-            series: prepareSeries('views')
-        };
-        
-        const postCountChartOption = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
-                }
-            },
-            legend: {
-                data: sentiments
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis: {
-                type: 'category',
-                data: durationCategories
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Post Count'
-            },
-            series: prepareSeries('postCount')
-        };
-        
-        // Prepare radar chart series
-        const radarSeries = durationCategories.map(duration => {
-            return {
-                name: duration,
-                type: 'radar',
-                data: [
-                    {
-                        value: radarData[duration],
-                        name: duration
+
+        // Initialize stacked bar chart
+        function initStackedBarChart(chartId, yAxisLabel, data) {
+            const chartDom = document.getElementById(chartId);
+            if (!chartDom) return;
+            
+            // Dispose existing chart instance if exists
+            if (charts[chartId]) {
+                charts[chartId].dispose();
+                delete charts[chartId];
+            }
+            
+            const myChart = echarts.init(chartDom);
+            charts[chartId] = myChart;
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        params.forEach(param => {
+                            const seriesData = data.find(d => d.name === param.seriesName);
+                            const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                            const changeColor = momChange >= 0 ? '#28a745' : '#dc3545';
+                            const changeSymbol = momChange >= 0 ? '+' : '';
+                            result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            result += `<span style="color: ${changeColor}; margin-left: 20px;">MoM: ${changeSymbol}${momChange}%</span><br/>`;
+                        });
+                        return result;
                     }
-                ]
+                },
+                legend: {
+                    data: data.map(d => d.name),
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: sentiments
+                },
+                yAxis: {
+                    type: 'value',
+                    name: yAxisLabel,
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                series: data.map(d => ({
+                    name: d.name,
+                    type: 'bar',
+                    stack: 'total',
+                    data: d.data,
+                    itemStyle: {
+                        color: getSentimentColor(d.name)
+                    }
+                }))
             };
-        });
-        
-        // Radar chart option
-        const emotionRadarChartOption = {
-            tooltip: {
-                trigger: 'item'
-            },
-            legend: {
-                type: 'scroll',
-                bottom: 10,
-                data: durationCategories
-            },
-            radar: {
-                indicator: emotions.map(emotion => {
-                    return { name: emotion, max: 100 };
-                }),
-                radius: '65%'
-            },
-            series: radarSeries
-        };
-        
-        // Render charts
-        interactionChart.setOption(interactionChartOption);
-        interactionRateChart.setOption(interactionRateChartOption);
-        viewsChart.setOption(viewsChartOption);
-        postCountChart.setOption(postCountChartOption);
-        emotionRadarChart.setOption(emotionRadarChartOption);
-        
-        // Create data table
-        function createDataTable() {
-            const table = document.getElementById('metricsTable');
-            let html = '';
+
+            myChart.setOption(option);
             
-            // Header row with duration categories
-            html += '<tr><th>Sentiment</th><th>Metric</th>';
-            durationCategories.forEach(category => {
-                html += `<th>${category}</th>`;
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                myChart.resize();
             });
-            html += '<th>Total</th></tr>';
-            
-            // Data rows for each sentiment
-            sentiments.forEach(sentiment => {
-                // Sentiment header
-                html += `<tr><td colspan="${durationCategories.length + 3}" class="sentiment-header">${sentiment}</td></tr>`;
-                
-                // Interaction Volume
-                html += '<tr><td rowspan="3" class="metric-name">Interaction Volume</td><td>Value</td>';
-                const totalInteraction = sentimentData[sentiment].interaction.reduce((a, b) => a + b, 0);
-                sentimentData[sentiment].interaction.forEach(value => {
-                    html += `<td>${value.toLocaleString()}</td>`;
-                });
-                html += `<td>${totalInteraction.toLocaleString()}</td></tr>`;
-                
-                // Interaction Volume Percentage
-                html += '<tr><td>Percentage (%)</td>';
-                sentimentData[sentiment].percentages.interaction.forEach(value => {
-                    html += `<td>${value}%</td>`;
-                });
-                html += '<td>100%</td></tr>';
-                
-                // Interaction Volume Period-over-Period
-                html += '<tr><td>Period-over-Period (%)</td>';
-                sentimentData[sentiment].periodOverPeriod.interaction.forEach(value => {
-                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
-                    html += `<td class="${cellClass}">${value}%</td>`;
-                });
-                html += '<td>-</td></tr>';
-                
-                // Views
-                html += '<tr><td rowspan="3" class="metric-name">Views</td><td>Value</td>';
-                const totalViews = sentimentData[sentiment].views.reduce((a, b) => a + b, 0);
-                sentimentData[sentiment].views.forEach(value => {
-                    html += `<td>${value.toLocaleString()}</td>`;
-                });
-                html += `<td>${totalViews.toLocaleString()}</td></tr>`;
-                
-                // Views Percentage
-                html += '<tr><td>Percentage (%)</td>';
-                sentimentData[sentiment].percentages.views.forEach(value => {
-                    html += `<td>${value}%</td>`;
-                });
-                html += '<td>100%</td></tr>';
-                
-                // Views Period-over-Period
-                html += '<tr><td>Period-over-Period (%)</td>';
-                sentimentData[sentiment].periodOverPeriod.views.forEach(value => {
-                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
-                    html += `<td class="${cellClass}">${value}%</td>`;
-                });
-                html += '<td>-</td></tr>';
-                
-                // Interaction Rate
-                html += '<tr><td rowspan="2" class="metric-name">Interaction Rate (%)</td><td>Value</td>';
-                sentimentData[sentiment].interactionRate.forEach(value => {
-                    html += `<td>${value}%</td>`;
-                });
-                const avgInteractionRate = (sentimentData[sentiment].interactionRate.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / sentimentData[sentiment].interactionRate.length).toFixed(2);
-                html += `<td>${avgInteractionRate}%</td></tr>`;
-                
-                // Interaction Rate Period-over-Period
-                html += '<tr><td>Period-over-Period (%)</td>';
-                sentimentData[sentiment].periodOverPeriod.interactionRate.forEach(value => {
-                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
-                    html += `<td class="${cellClass}">${value}%</td>`;
-                });
-                html += '<td>-</td></tr>';
-                
-                // Post Count
-                html += '<tr><td rowspan="3" class="metric-name">Post Count</td><td>Value</td>';
-                const totalPosts = sentimentData[sentiment].postCount.reduce((a, b) => a + b, 0);
-                sentimentData[sentiment].postCount.forEach(value => {
-                    html += `<td>${value.toLocaleString()}</td>`;
-                });
-                html += `<td>${totalPosts.toLocaleString()}</td></tr>`;
-                
-                // Post Count Percentage
-                html += '<tr><td>Percentage (%)</td>';
-                sentimentData[sentiment].percentages.postCount.forEach(value => {
-                    html += `<td>${value}%</td>`;
-                });
-                html += '<td>100%</td></tr>';
-                
-                // Post Count Period-over-Period
-                html += '<tr><td>Period-over-Period (%)</td>';
-                sentimentData[sentiment].periodOverPeriod.postCount.forEach(value => {
-                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
-                    html += `<td class="${cellClass}">${value}%</td>`;
-                });
-                html += '<td>-</td></tr>';
-            });
-            
-            table.innerHTML = html;
         }
-        
-        createDataTable();
-        
-        // Handle window resize
-        window.addEventListener('resize', function() {
-            interactionChart.resize();
-            interactionRateChart.resize();
-            viewsChart.resize();
-            postCountChart.resize();
-            emotionRadarChart.resize();
-        });
+
+        // Initialize trend chart
+        function initTrendChart(chartId, yAxisLabel, data) {
+            const chartDom = document.getElementById(chartId);
+            if (!chartDom) return;
+            
+            // Dispose existing chart instance if exists
+            if (charts[chartId]) {
+                charts[chartId].dispose();
+                delete charts[chartId];
+            }
+            
+            const myChart = echarts.init(chartDom);
+            charts[chartId] = myChart;
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        params.forEach(param => {
+                            const seriesData = data.find(d => d.name === param.seriesName);
+                            if (seriesData && !seriesData.isAverage) {
+                                const momChange = seriesData.momChanges[param.dataIndex];
+                                const changeColor = momChange >= 0 ? '#28a745' : '#dc3545';
+                                const changeSymbol = momChange >= 0 ? '+' : '';
+                                result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                                result += `<span style="color: ${changeColor}; margin-left: 20px;">MoM: ${changeSymbol}${momChange}%</span><br/>`;
+                            } else {
+                                result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            }
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: data.map(d => d.name),
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates
+                },
+                yAxis: {
+                    type: 'value',
+                    name: yAxisLabel,
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                series: data.map(d => ({
+                    name: d.name,
+                    type: d.isAverage ? 'line' : 'line',
+                    data: d.data,
+                    lineStyle: d.isAverage ? {
+                        type: 'dashed',
+                        width: 2,
+                        color: '#999'
+                    } : undefined,
+                    itemStyle: {
+                        color: d.isAverage ? '#999' : getSentimentColor(d.name)
+                    }
+                }))
+            };
+
+            myChart.setOption(option);
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+
+        // Get color for category
+        function getSentimentColor(category) {
+            const colors = {
+                'Music': '#FF6B6B',
+                'Dance': '#4ECDC4', 
+                'Comedy': '#45B7D1',
+                'Fashion': '#96CEB4',
+                'Food': '#FFEAA7',
+                'Travel': '#DDA0DD',
+                'Gaming': '#98D8C8',
+                'Education': '#F7DC6F'
+            };
+            return colors[category] || '#007bff';
+        }
+
+        // Toggle chart type
+        function toggleChartType(chartType, type) {
+            currentChartTypes[chartType] = type;
+            
+            // Dispose existing chart instance to prevent overlapping
+            const chartId = `${chartType}Chart`;
+            if (charts[chartId]) {
+                charts[chartId].dispose();
+                delete charts[chartId];
+            }
+            
+            // Update button states - find the correct parent container
+            const chartSection = document.querySelector(`#${chartType}Chart`).closest('.chart-section');
+            const buttons = chartSection.querySelectorAll('.chart-controls .btn:not(.download-btn)');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide category selector for trending view
+            const selector = document.getElementById(`${chartType}ChartCategory`);
+            if (type === 'line') {
+                selector.style.display = 'inline-block';
+                updateChartByCategory(chartType, selector.value);
+            } else {
+                selector.style.display = 'none';
+                // Reinitialize with stacked bar chart
+                let data;
+                if (chartType === 'posts') data = generatePostsData();
+                else if (chartType === 'views') data = generateViewsData();
+                else data = generateEngagementData();
+                
+                const yAxisLabel = chartType === 'engagement' ? 'Engagement Rate (%)' : 
+                                 chartType === 'views' ? 'Views' : 'Posts';
+                initStackedBarChart(`${chartType}Chart`, yAxisLabel, data);
+            }
+        }
+
+        // Update chart by category (for trending view)
+        function updateChartByCategory(chartType, category) {
+            // Dispose existing chart instance to prevent overlapping
+            const chartId = `${chartType}Chart`;
+            if (charts[chartId]) {
+                charts[chartId].dispose();
+                delete charts[chartId];
+            }
+            
+            const data = generateTrendData(chartType, category.toLowerCase());
+            const yAxisLabel = chartType === 'engagement' ? 'Engagement Rate (%)' : 
+                             chartType === 'views' ? 'Views' : 'Posts';
+            initTrendChart(`${chartType}Chart`, yAxisLabel, data);
+        }
+
+        // Download chart
+        function downloadChart(chartId) {
+            const chart = charts[chartId];
+            if (chart) {
+                const url = chart.getDataURL({
+                    pixelRatio: 2,
+                    backgroundColor: '#fff'
+                });
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${chartId}.png`;
+                link.click();
+            }
+        }
+
+        // Download table as CSV
+        function downloadTable() {
+            const table = document.getElementById('dataTable');
+            let csv = [];
+            
+            // Get headers
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+            csv.push(headers.join(','));
+            
+            // Get data rows
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cells = Array.from(row.cells).map(cell => {
+                    // Handle merged cells
+                    if (cell.hasAttribute('rowspan')) {
+                        return `"${cell.textContent}"`;
+                    }
+                    return `"${cell.textContent}"`;
+                });
+                csv.push(cells.join(','));
+            });
+            
+            // Download
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'sentiment_category_data.csv';
+            link.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize charts when page loads
+        window.addEventListener('load', initCharts);
     </script>
 </body>
 </html>
