@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post Category Analysis - BGM Type Distribution</title>
+    <title>Category BGM Type Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -11,690 +11,771 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Arial', sans-serif;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
         }
-
-        .chart-section {
-            display: flex;
-            align-items: center;
-            margin-bottom: 40px;
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
         }
-
-        .data-card {
-            background: #f8f9fa;
-            border-radius: 12px;
+        
+        .stat-card {
+            background: #fff;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-left: 4px solid #007bff;
-            min-width: 280px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .data-card.engagement {
-            border-left-color: #28a745;
-        }
-
-        .data-card.rate {
-            border-left-color: #ffc107;
-        }
-
-        .data-card.views {
-            border-left-color: #dc3545;
-        }
-
-        .data-card-header {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .download-icon {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            transition: color 0.2s ease;
-        }
-
-        .download-icon:hover {
-            color: #007bff;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .metric-row:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-
-        .metric-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: #6c757d;
-            margin-bottom: 2px;
-            font-weight: 500;
-        }
-
-        .metric-value {
-            font-size: 20px;
+        
+        .stat-value {
+            font-size: 2em;
             font-weight: bold;
-            color: #212529;
+            color: #007bff;
         }
-
-        .metric-change {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
+        
+        .stat-label {
+            color: #666;
+            margin-bottom: 5px;
         }
-
-        .change-positive {
-            color: #28a745;
-            background-color: #d4edda;
+        
+        .stat-change {
+            font-size: 0.9em;
+            margin-top: 5px;
         }
-
-        .change-negative {
-            color: #dc3545;
-            background-color: #f8d7da;
+        
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        
+        .chart-section {
+            background: #fff;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-
-        .chart-container {
-            flex: 1;
-            height: 400px;
-            position: relative;
-        }
-
+        
         .chart-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
         }
-
+        
         .chart-title {
-            font-size: 16px;
+            font-size: 1.2em;
             font-weight: 600;
-            color: #2c3e50;
         }
-
-        .chart-download {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            padding: 5px;
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #fff;
             border-radius: 4px;
-            transition: all 0.2s ease;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-
-        .chart-download:hover {
-            color: #007bff;
-            background-color: #f8f9fa;
+        
+        .btn:hover {
+            background: #f8f9fa;
         }
-
-        .chart {
-            width: 100%;
-            height: 100%;
+        
+        .btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
         }
-
-        .data-table {
+        
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .download-btn:hover {
+            background: #218838;
+        }
+        
+        .chart-container {
+            height: 400px;
+            padding: 20px;
+        }
+        
+        .bgmtype-selector {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .table-section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            padding: 20px;
+        }
+        
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.9em;
         }
-
-        .data-table th {
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
             background: #f8f9fa;
             font-weight: 600;
             color: #495057;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-            padding: 15px 12px;
-            text-align: center;
         }
-
-        .type-header {
-            background: #e8eaf6 !important;
-            color: #3f51b5 !important;
-            font-weight: 700;
-            min-width: 100px;
+        
+        tr:hover {
+            background: #f8f9fa;
         }
-
-        .category-header {
-            background: #f3e5f5 !important;
-            color: #7b1fa2 !important;
-            font-weight: 700;
-            min-width: 120px;
-        }
-
-        .posts-header {
-            background: #fff3e0 !important;
-            color: #f57c00 !important;
-            font-weight: 700;
-            min-width: 80px;
-        }
-
-        .engagement-header {
-            background: #e8f5e8 !important;
-            color: #2e7d32 !important;
-            font-weight: 700;
-            min-width: 100px;
-        }
-
-        .rate-header {
-            background: #fce4ec !important;
-            color: #c2185b !important;
-            font-weight: 700;
-            min-width: 120px;
-        }
-
-        .data-table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-            background: white;
-        }
-
-        .data-table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-
-        .data-table tbody tr:hover {
-            background-color: #edf2f7;
-        }
-
-        .type-name {
-            background-color: #e2e8f0;
-            font-weight: 600;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        @media (max-width: 768px) {
-            .chart-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .data-card {
-                min-width: auto;
-                margin-bottom: 20px;
-            }
-
-            .metric-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
+        
+        .merged-cell {
+            background: #e9ecef;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
-
-    <!-- Chart 1: Category Distribution by BGM Type -->
-    <div class="chart-section">
-        <div class="data-card">
-            <div class="data-card-header">
-                BGM Type Distribution Overview
-                <span class="download-icon" onclick="downloadData('type-distribution')" title="Download Data">📥</span>
+    <div class="container">
+        <!-- Statistics Section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Posts</div>
+                <div class="stat-value">15,892</div>
+                <div class="stat-change positive">+11.2% QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Pop Music</div>
-                    <div class="metric-value">31.8%</div>
-                </div>
-                <div class="metric-change change-positive">↑ 3.7%</div>
+            <div class="stat-card">
+                <div class="stat-label">Categories</div>
+                <div class="stat-value">15</div>
+                <div class="stat-change positive">+2 QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Electronic</div>
-                    <div class="metric-value">24.5%</div>
-                </div>
-                <div class="metric-change change-positive">↑ 2.1%</div>
+            <div class="stat-card">
+                <div class="stat-label">Top BGM Type (Posts)</div>
+                <div class="stat-value">Pop</div>
+                <div class="stat-change">4,567 posts</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Instrumental</div>
-                    <div class="metric-value">19.3%</div>
-                </div>
-                <div class="metric-change change-negative">↓ 1.4%</div>
+            <div class="stat-card">
+                <div class="stat-label">Top BGM Type (Engagement)</div>
+                <div class="stat-value">Electronic</div>
+                <div class="stat-change positive">13.8% rate</div>
             </div>
         </div>
-        <div class="chart-container">
+
+        <!-- Stacked Bar Charts Section -->
+        <div class="chart-section">
             <div class="chart-header">
-                <div class="chart-title">Post Category Distribution by BGM Type</div>
-                <span class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</span>
+                <div class="chart-title">Posts by BGM Type and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('posts', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('posts', 'line')">Trending</button>
+                    <select class="bgmtype-selector" id="postsChartCategory" onchange="updateChartByCategory('posts', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('postsChart')">Download</button>
+                </div>
             </div>
-            <div id="chart1" class="chart"></div>
+            <div class="chart-container">
+                <div id="postsChart" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Views by BGM Type and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('views', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('views', 'line')">Trending</button>
+                    <select class="bgmtype-selector" id="viewsChartCategory" onchange="updateChartByCategory('views', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('viewsChart')">Download</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div id="viewsChart" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Engagement Rate by BGM Type and Category</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="toggleChartType('engagement', 'bar')">Total</button>
+                    <button class="btn" onclick="toggleChartType('engagement', 'line')">Trending</button>
+                    <select class="bgmtype-selector" id="engagementChartCategory" onchange="updateChartByCategory('engagement', this.value)" style="display: none;">
+                        <option value="music">Music</option>
+                        <option value="dance">Dance</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="fashion">Fashion</option>
+                        <option value="food">Food</option>
+                        <option value="travel">Travel</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="education">Education</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('engagementChart')">Download</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div id="engagementChart" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="table-section">
+            <div class="chart-header">
+                <div class="chart-title">BGM Type Category Data</div>
+                <div class="chart-controls">
+                    <button class="btn download-btn" onclick="downloadTable()">Download CSV</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>BGM Type</th>
+                            <th>Category</th>
+                            <th>Posts</th>
+                            <th>Posts QoQ</th>
+                            <th>Engagement</th>
+                            <th>Engagement QoQ</th>
+                            <th>Views</th>
+                            <th>Views QoQ</th>
+                            <th>Engagement Rate</th>
+                            <th>Engagement Rate QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">Pop</td>
+                            <td>Music</td>
+                            <td>1,567</td>
+                            <td class="positive">+15.2%</td>
+                            <td>58,934</td>
+                            <td class="positive">+18.7%</td>
+                            <td>2.8M</td>
+                            <td class="positive">+22.1%</td>
+                            <td>9.2%</td>
+                            <td class="positive">+2.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Dance</td>
+                            <td>1,234</td>
+                            <td class="positive">+21.3%</td>
+                            <td>47,856</td>
+                            <td class="positive">+25.4%</td>
+                            <td>2.3M</td>
+                            <td class="positive">+28.9%</td>
+                            <td>10.1%</td>
+                            <td class="positive">+4.2%</td>
+                        </tr>
+                        <tr>
+                            <td>Fashion</td>
+                            <td>1,766</td>
+                            <td class="positive">+12.8%</td>
+                            <td>62,341</td>
+                            <td class="positive">+16.3%</td>
+                            <td>3.1M</td>
+                            <td class="positive">+19.7%</td>
+                            <td>8.7%</td>
+                            <td class="positive">+1.9%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">Electronic</td>
+                            <td>Gaming</td>
+                            <td>987</td>
+                            <td class="positive">+28.5%</td>
+                            <td>89,234</td>
+                            <td class="positive">+32.1%</td>
+                            <td>4.2M</td>
+                            <td class="positive">+35.6%</td>
+                            <td>13.8%</td>
+                            <td class="positive">+5.7%</td>
+                        </tr>
+                        <tr>
+                            <td>Comedy</td>
+                            <td>856</td>
+                            <td class="positive">+19.7%</td>
+                            <td>67,123</td>
+                            <td class="positive">+23.2%</td>
+                            <td>3.5M</td>
+                            <td class="positive">+26.8%</td>
+                            <td>12.4%</td>
+                            <td class="positive">+3.8%</td>
+                        </tr>
+                        <tr>
+                            <td>Education</td>
+                            <td>743</td>
+                            <td class="positive">+16.4%</td>
+                            <td>54,567</td>
+                            <td class="positive">+20.1%</td>
+                            <td>2.9M</td>
+                            <td class="positive">+23.5%</td>
+                            <td>11.2%</td>
+                            <td class="positive">+2.7%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="2" class="merged-cell">Classical</td>
+                            <td>Food</td>
+                            <td>612</td>
+                            <td class="positive">+8.9%</td>
+                            <td>45,678</td>
+                            <td class="positive">+12.3%</td>
+                            <td>1.8M</td>
+                            <td class="positive">+15.7%</td>
+                            <td>7.8%</td>
+                            <td class="positive">+1.4%</td>
+                        </tr>
+                        <tr>
+                            <td>Travel</td>
+                            <td>434</td>
+                            <td class="positive">+14.2%</td>
+                            <td>38,456</td>
+                            <td class="positive">+17.8%</td>
+                            <td>1.5M</td>
+                            <td class="positive">+21.3%</td>
+                            <td>6.9%</td>
+                            <td class="positive">+2.1%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <!-- Chart 2: BGM Type Engagement Comparison -->
-    <div class="chart-section">
-        <div class="data-card engagement">
-            <div class="data-card-header">
-                BGM Type Engagement
-                <span class="download-icon" onclick="downloadData('type-engagement')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Pop Engagement</div>
-                    <div class="metric-value">2.1M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 16.8%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Electronic Engagement</div>
-                    <div class="metric-value">1.7M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 14.2%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Hip-Hop Engagement</div>
-                    <div class="metric-value">1.3M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 21.5%</div>
-            </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">BGM Type Performance Comparison</div>
-                <span class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart2" class="chart"></div>
-        </div>
-    </div>
-
-    <!-- Chart 3: BGM Type Trend Analysis -->
-    <div class="chart-section">
-        <div class="data-card rate">
-            <div class="data-card-header">
-                BGM Type Trends
-                <span class="download-icon" onclick="downloadData('type-trends')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Fastest Growing</div>
-                    <div class="metric-value">Lo-Fi</div>
-                </div>
-                <div class="metric-change change-positive">↑ 34.2%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Most Consistent</div>
-                    <div class="metric-value">Pop</div>
-                </div>
-                <div class="metric-change change-positive">↑ 3.7%</div>
-            </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">BGM Type Trend Over Time</div>
-                <span class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart3" class="chart"></div>
-        </div>
-    </div>
-
-    <!-- Data Table -->
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="type-header">BGM Type <span class="download-icon" onclick="downloadTableData()" title="Download Table Data">📥</span></th>
-                <th class="category-header">Top Category</th>
-                <th class="posts-header">Posts</th>
-                <th class="engagement-header">Engagement</th>
-                <th class="rate-header">Engagement Rate (%)</th>
-            </tr>
-        </thead>
-        <tbody id="dataTableBody">
-            <!-- Data will be populated by JavaScript -->
-        </tbody>
-    </table>
 
     <script>
-        // Sample data for BGM type analysis
-        const typeData = {
-            types: ['Pop', 'Electronic', 'Instrumental', 'Hip-Hop', 'Rock', 'Lo-Fi', 'Classical', 'Jazz'],
-            categories: ['Entertainment', 'Education', 'Lifestyle', 'Technology', 'Fashion'],
-            topCategories: ['Entertainment', 'Technology', 'Education', 'Entertainment', 'Entertainment', 'Lifestyle', 'Education', 'Lifestyle'],
-            posts: [24600, 18900, 14900, 12300, 9800, 7200, 5400, 4200],
-            engagement: [2100000, 1700000, 980000, 1300000, 890000, 650000, 420000, 380000],
-            engagementRate: [54.2, 48.7, 41.3, 59.8, 52.1, 61.4, 44.8, 49.2],
-            categoryDistribution: {
-                'Pop': [14200, 2800, 4100, 2200, 1300],
-                'Electronic': [5800, 4200, 3900, 3800, 1200],
-                'Instrumental': [3200, 6800, 2900, 1400, 600],
-                'Hip-Hop': [8900, 1200, 1800, 300, 100],
-                'Rock': [5200, 1800, 2100, 400, 300],
-                'Lo-Fi': [1800, 2100, 2800, 400, 100],
-                'Classical': [1200, 2800, 900, 300, 200],
-                'Jazz': [900, 1400, 1500, 200, 200]
-            }
+        // Sample data - Updated for BGM types
+        const bgmTypes = ['Pop', 'Electronic', 'Classical', 'Rock', 'Jazz'];
+        const categories = ['Music', 'Dance', 'Comedy', 'Fashion', 'Food', 'Travel', 'Gaming', 'Education'];
+        const dates = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
+
+        // Chart instances
+        let charts = {};
+        let currentChartTypes = {
+            posts: 'bar',
+            views: 'bar',
+            engagement: 'bar'
         };
 
-        // Chart 1: Category Distribution by BGM Type (Nested Pie)
-        const chart1 = echarts.init(document.getElementById('chart1'));
-        const option1 = {
-            tooltip: {
-                trigger: 'item',
-                formatter: '{a} <br/>{b}: {c} ({d}%)'
-            },
-            legend: {
-                top: '5%',
-                left: 'center'
-            },
-            series: [
-                {
-                    name: 'BGM Type',
-                    type: 'pie',
-                    selectedMode: 'single',
-                    radius: [0, '30%'],
-                    label: {
-                        position: 'inner',
-                        fontSize: 14
-                    },
-                    labelLine: {
-                        show: false
-                    },
-                    data: typeData.types.slice(0, 5).map((type, index) => ({
-                        value: typeData.posts[index],
-                        name: type,
-                        itemStyle: {
-                            color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'][index]
-                        }
-                    }))
-                },
-                {
-                    name: 'Category',
-                    type: 'pie',
-                    radius: ['40%', '55%'],
-                    labelLine: {
-                        length: 30
-                    },
-                    label: {
-                        formatter: '{a|{a}}{abg|}\n{hr|}\n  {b|{b}：}{c}  {per|{d}%}  ',
-                        backgroundColor: '#F6F8FC',
-                        borderColor: '#8C8D8E',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        rich: {
-                            a: {
-                                color: '#6E7079',
-                                lineHeight: 22,
-                                align: 'center'
-                            },
-                            hr: {
-                                borderColor: '#8C8D8E',
-                                width: '100%',
-                                borderWidth: 1,
-                                height: 0
-                            },
-                            b: {
-                                color: '#4C5058',
-                                fontSize: 14,
-                                fontWeight: 'bold',
-                                lineHeight: 33
-                            },
-                            per: {
-                                color: '#fff',
-                                backgroundColor: '#4C5058',
-                                padding: [3, 4],
-                                borderRadius: 4
-                            }
-                        }
-                    },
-                    data: (() => {
-                        let data = [];
-                        typeData.types.slice(0, 5).forEach((type, typeIndex) => {
-                            typeData.categories.forEach((cat, catIndex) => {
-                                data.push({
-                                    value: typeData.categoryDistribution[type][catIndex],
-                                    name: `${type} - ${cat}`,
-                                    itemStyle: {
-                                        color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'][typeIndex]
-                                    }
-                                });
-                            });
-                        });
-                        return data;
-                    })()
-                }
-            ]
-        };
-        chart1.setOption(option1);
+        // Initialize all charts
+        function initCharts() {
+            initStackedBarChart('postsChart', 'Posts', generatePostsData());
+            initStackedBarChart('viewsChart', 'Views', generateViewsData());
+            initStackedBarChart('engagementChart', 'Engagement Rate (%)', generateEngagementData());
+            
+            initTrendChart('postsTrendChart', 'Posts', generateTrendData('posts', 'music'));
+            initTrendChart('viewsTrendChart', 'Views', generateTrendData('views', 'music'));
+            initTrendChart('engagementTrendChart', 'Engagement Rate (%)', generateTrendData('engagement', 'music'));
+        }
 
-        // Chart 2: BGM Type Performance Bar Chart
-        const chart2 = echarts.init(document.getElementById('chart2'));
-        const option2 = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'shadow'
+        // Generate sample data with MoM changes - Bar charts now use categories as series, BGM types as x-axis
+        function generatePostsData() {
+            return categories.slice(0, 8).map(category => {
+                const currentData = bgmTypes.map(() => Math.floor(Math.random() * 1000) + 200);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4))); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData,
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateViewsData() {
+            return categories.slice(0, 8).map(category => {
+                const currentData = bgmTypes.map(() => Math.floor(Math.random() * 5000000) + 500000);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4))); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData,
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateEngagementData() {
+            return categories.slice(0, 8).map(category => {
+                const currentData = bgmTypes.map(() => (Math.random() * 15 + 2).toFixed(1));
+                const previousData = currentData.map(val => (parseFloat(val) * (0.8 + Math.random() * 0.4)).toFixed(1)); // ±20% variation
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((parseFloat(current) - parseFloat(previousData[index])) / parseFloat(previousData[index]) * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: category,
+                    data: currentData.map(val => parseFloat(val)),
+                    momChanges: momChanges
+                };
+            });
+        }
+
+        function generateTrendData(type, category) {
+            const trendData = bgmTypes.map(bgmType => {
+                let currentData, previousData, momChanges;
+                
+                if (type === 'posts') {
+                    currentData = dates.map(() => Math.floor(Math.random() * 500) + 100);
+                    previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                } else if (type === 'views') {
+                    currentData = dates.map(() => Math.floor(Math.random() * 2000000) + 200000);
+                    previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                } else {
+                    currentData = dates.map(() => (Math.random() * 10 + 3).toFixed(1));
+                    previousData = currentData.map(val => (parseFloat(val) * (0.8 + Math.random() * 0.4)).toFixed(1));
                 }
-            },
-            legend: {
-                data: ['Posts', 'Engagement Rate']
-            },
-            xAxis: [
-                {
-                    type: 'category',
-                    data: typeData.types,
+                
+                momChanges = currentData.map((current, index) => {
+                    const prev = type === 'engagement' ? parseFloat(previousData[index]) : previousData[index];
+                    const curr = type === 'engagement' ? parseFloat(current) : current;
+                    const change = ((curr - prev) / prev * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: bgmType,
+                    data: type === 'engagement' ? currentData.map(val => parseFloat(val)) : currentData,
+                    momChanges: momChanges
+                };
+            });
+            
+            return {
+                series: trendData,
+                dates: dates
+            };
+        }
+
+        // Initialize stacked bar chart
+        function initStackedBarChart(containerId, yAxisLabel, data) {
+            const chartDom = document.getElementById(containerId);
+            const myChart = echarts.init(chartDom);
+            charts[containerId] = myChart;
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
                     axisPointer: {
                         type: 'shadow'
-                    }
-                }
-            ],
-            yAxis: [
-                {
-                    type: 'value',
-                    name: 'Posts',
-                    min: 0,
-                    max: 30000,
-                    interval: 5000,
-                    axisLabel: {
-                        formatter: '{value}'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        params.forEach(param => {
+                            const seriesData = data.find(d => d.name === param.seriesName);
+                            const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                            const changeColor = momChange >= 0 ? '#28a745' : '#dc3545';
+                            const changeSymbol = momChange >= 0 ? '+' : '';
+                            result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            result += `<span style="color: ${changeColor}; margin-left: 20px;">QoQ: ${changeSymbol}${momChange}%</span><br/>`;
+                        });
+                        return result;
                     }
                 },
-                {
+                legend: {
+                    data: data.map(d => d.name),
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: bgmTypes
+                },
+                yAxis: {
                     type: 'value',
-                    name: 'Engagement Rate (%)',
-                    min: 0,
-                    max: 70,
-                    interval: 10,
+                    name: yAxisLabel,
                     axisLabel: {
-                        formatter: '{value}%'
+                        formatter: function(value) {
+                            if (yAxisLabel.includes('%')) {
+                                return value + '%';
+                            } else if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
                     }
-                }
-            ],
-            series: [
-                {
-                    name: 'Posts',
+                },
+                series: data.map(d => ({
+                    name: d.name,
                     type: 'bar',
-                    data: typeData.posts,
-                    itemStyle: {
-                        color: '#4ecdc4'
+                    stack: 'total',
+                    data: d.data,
+                    emphasis: {
+                        focus: 'series'
+                    }
+                }))
+            };
+
+            myChart.setOption(option);
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+
+        // Initialize trend chart
+        function initTrendChart(containerId, yAxisLabel, data) {
+            const chartDom = document.getElementById(containerId);
+            if (!chartDom) return;
+            
+            const myChart = echarts.init(chartDom);
+            charts[containerId] = myChart;
+
+            // Calculate overall average across all series and time periods
+            let totalSum = 0;
+            let totalCount = 0;
+            data.series.forEach(d => {
+                d.data.forEach(value => {
+                    totalSum += value;
+                    totalCount++;
+                });
+            });
+            const overallAverage = totalSum / totalCount;
+
+            // Create series array with line series and one overall average line
+            const allSeries = [];
+            
+            // Add main line series
+            data.series.forEach(d => {
+                allSeries.push({
+                    name: d.name,
+                    type: 'line',
+                    data: d.data,
+                    smooth: true,
+                    lineStyle: {
+                        width: 2
+                    }
+                });
+            });
+            
+            // Add single overall average line
+            allSeries.push({
+                name: 'Overall Average',
+                type: 'line',
+                data: new Array(data.dates.length).fill(overallAverage),
+                lineStyle: {
+                    type: 'dashed',
+                    width: 2,
+                    opacity: 0.8,
+                    color: '#666666'
+                },
+                symbol: 'none',
+                silent: true, // Don't trigger tooltip
+                emphasis: {
+                    disabled: true
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        let result = params[0].axisValue + '<br/>';
+                        // Filter out average lines from tooltip
+                        const mainParams = params.filter(param => param.seriesName !== 'Overall Average');
+                        mainParams.forEach(param => {
+                            const seriesData = data.series.find(d => d.name === param.seriesName);
+                            const momChange = seriesData ? seriesData.momChanges[param.dataIndex] : 0;
+                            const changeColor = momChange >= 0 ? '#28a745' : '#dc3545';
+                            const changeSymbol = momChange >= 0 ? '+' : '';
+                            result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            result += `<span style="color: ${changeColor}; margin-left: 20px;">MoM: ${changeSymbol}${momChange}%</span><br/>`;
+                        });
+                        return result;
                     }
                 },
-                {
-                    name: 'Engagement Rate',
-                    type: 'line',
-                    yAxisIndex: 1,
-                    data: typeData.engagementRate,
-                    itemStyle: {
-                        color: '#ff6b6b'
+                legend: {
+                    data: allSeries.map(d => d.name),
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.dates
+                },
+                yAxis: {
+                    type: 'value',
+                    name: yAxisLabel,
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (yAxisLabel.includes('%')) {
+                                return value + '%';
+                            } else if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(1) + 'K';
+                            }
+                            return value;
+                        }
                     }
-                }
-            ]
-        };
-        chart2.setOption(option2);
+                },
+                series: allSeries
+            };
 
-        // Chart 3: BGM Type Trend Line Chart
-        const chart3 = echarts.init(document.getElementById('chart3'));
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-        const option3 = {
-            tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: typeData.types.slice(0, 5) // Show top 5 types
-            },
-            xAxis: {
-                type: 'category',
-                data: months
-            },
-            yAxis: {
-                type: 'value',
-                name: 'Posts Count (K)'
-            },
-            series: typeData.types.slice(0, 5).map((type, index) => ({
-                name: type,
-                type: 'line',
-                smooth: true,
-                data: months.map((_, monthIndex) => {
-                    const base = typeData.posts[index] / 1000;
-                    return Math.round(base * (0.7 + monthIndex * 0.05 + Math.random() * 0.15));
-                }),
-                itemStyle: {
-                    color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57'][index]
+            myChart.setOption(option);
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+
+        // Toggle chart type
+        function toggleChartType(chartType, type) {
+            currentChartTypes[chartType] = type;
+            
+            // Dispose existing chart instance to prevent overlap
+            const chartId = `${chartType}Chart`;
+            if (charts[chartId]) {
+                charts[chartId].dispose();
+                delete charts[chartId];
+            }
+            
+            // Update button states - find the correct parent container
+            const chartContainer = document.getElementById(chartId).closest('.chart-section');
+            const buttons = chartContainer.querySelectorAll('.chart-controls .btn:not(.download-btn)');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the correct button
+            buttons.forEach(btn => {
+                if ((type === 'bar' && btn.textContent === 'Total') || 
+                    (type === 'line' && btn.textContent === 'Trending')) {
+                    btn.classList.add('active');
                 }
-            }))
-        };
-        chart3.setOption(option3);
+            });
+            
+            // Show/hide category selector for trending view
+            const selector = document.getElementById(`${chartType}ChartCategory`);
+            if (type === 'line') {
+                selector.style.display = 'inline-block';
+                // Initialize trend chart
+                const category = selector.value;
+                const trendData = generateTrendData(chartType, category);
+                initTrendChart(chartId, chartType === 'engagement' ? 'Engagement Rate (%)' : chartType.charAt(0).toUpperCase() + chartType.slice(1), trendData);
+            } else {
+                selector.style.display = 'none';
+                // Initialize stacked bar chart
+                let data;
+                if (chartType === 'posts') data = generatePostsData();
+                else if (chartType === 'views') data = generateViewsData();
+                else data = generateEngagementData();
+                
+                initStackedBarChart(chartId, chartType === 'engagement' ? 'Engagement Rate (%)' : chartType.charAt(0).toUpperCase() + chartType.slice(1), data);
+            }
+        }
+
+        // Update chart by category (for trending view)
+        function updateChartByCategory(chartType, category) {
+            if (currentChartTypes[chartType] === 'line') {
+                const trendData = generateTrendData(chartType, category);
+                initTrendChart(`${chartType}Chart`, chartType === 'engagement' ? 'Engagement Rate (%)' : chartType.charAt(0).toUpperCase() + chartType.slice(1), trendData);
+            }
+        }
 
         // Download chart as image
         function downloadChart(chartId) {
-            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
-            const url = chart.getDataURL({
-                pixelRatio: 2,
-                backgroundColor: '#fff'
-            });
-            
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `post-category-bgmtype-${chartId}.png`;
-            link.click();
+            const chart = charts[chartId];
+            if (chart) {
+                const url = chart.getDataURL({
+                    pixelRatio: 2,
+                    backgroundColor: '#fff'
+                });
+                const link = document.createElement('a');
+                link.download = chartId + '.png';
+                link.href = url;
+                link.click();
+            }
         }
 
-        function downloadData(type) {
-            let csvContent = '';
-            let filename = '';
+        // Download table as CSV
+        function downloadTable() {
+            const table = document.getElementById('dataTable');
+            let csv = [];
+            const rows = table.querySelectorAll('tr');
             
-            if (type === 'type-distribution') {
-                csvContent = 'BGM Type,Entertainment,Education,Lifestyle,Technology,Fashion\n';
-                typeData.types.forEach((bgmType, index) => {
-                    const row = [bgmType, ...typeData.categoryDistribution[bgmType]];
-                    csvContent += row.join(',') + '\n';
-                });
-                filename = 'bgmtype-category-distribution.csv';
-            } else if (type === 'type-engagement') {
-                csvContent = 'BGM Type,Posts,Engagement,Engagement Rate (%)\n';
-                typeData.types.forEach((bgmType, index) => {
-                    csvContent += `${bgmType},${typeData.posts[index]},${typeData.engagement[index]},${typeData.engagementRate[index]}\n`;
-                });
-                filename = 'bgmtype-engagement-data.csv';
-            } else if (type === 'type-trends') {
-                csvContent = 'BGM Type,Top Category,Posts,Engagement,Engagement Rate (%)\n';
-                typeData.types.forEach((bgmType, index) => {
-                    csvContent += `${bgmType},${typeData.topCategories[index]},${typeData.posts[index]},${typeData.engagement[index]},${typeData.engagementRate[index]}\n`;
-                });
-                filename = 'bgmtype-trends-data.csv';
+            for (let i = 0; i < rows.length; i++) {
+                const row = [], cols = rows[i].querySelectorAll('td, th');
+                for (let j = 0; j < cols.length; j++) {
+                    row.push(cols[j].innerText);
+                }
+                csv.push(row.join(','));
             }
             
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+            const downloadLink = document.createElement('a');
+            downloadLink.download = 'bgmtype_category_data.csv';
+            downloadLink.href = window.URL.createObjectURL(csvFile);
+            downloadLink.click();
         }
 
-        // Populate data table
-        function populateDataTable() {
-            const tableBody = document.getElementById('dataTableBody');
-            let html = '';
-
-            typeData.types.forEach((bgmType, index) => {
-                const topCategory = typeData.topCategories[index];
-                const posts = typeData.posts[index];
-                const engagement = typeData.engagement[index];
-                const engagementRate = typeData.engagementRate[index];
-                
-                html += `
-                    <tr>
-                        <td class="type-name">${bgmType}</td>
-                        <td>${topCategory}</td>
-                        <td>${posts.toLocaleString()}</td>
-                        <td>${engagement.toLocaleString()}</td>
-                        <td>${engagementRate}%</td>
-                    </tr>
-                `;
-            });
-            
-            tableBody.innerHTML = html;
-        }
-
-        function downloadTableData() {
-            let csvContent = 'BGM Type,Top Category,Posts,Engagement,Engagement Rate (%)\n';
-            typeData.types.forEach((bgmType, index) => {
-                csvContent += `${bgmType},${typeData.topCategories[index]},${typeData.posts[index]},${typeData.engagement[index]},${typeData.engagementRate[index]}\n`;
-            });
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'bgmtype-category-analysis-data.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Initialize data table
-        populateDataTable();
-
-        // Make charts responsive
-        window.addEventListener('resize', function() {
-            chart1.resize();
-            chart2.resize();
-            chart3.resize();
+        // Initialize charts when page loads
+        window.addEventListener('load', function() {
+            initCharts();
         });
     </script>
 </body>
