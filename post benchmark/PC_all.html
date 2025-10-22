@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post Category Analysis - Overall Overview</title>
+    <title>Category ALL Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -11,634 +11,575 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: 'Arial', sans-serif;
-            padding: 20px;
-            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            line-height: 1.6;
         }
-
-        .chart-section {
-            display: flex;
-            align-items: center;
-            margin-bottom: 40px;
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
         }
-
-        .data-card {
-            background: #f8f9fa;
-            border-radius: 12px;
+        
+        .stat-card {
+            background: #fff;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             border-left: 4px solid #007bff;
-            min-width: 280px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-
-        .data-card.engagement {
-            border-left-color: #28a745;
-        }
-
-        .data-card.rate {
-            border-left-color: #ffc107;
-        }
-
-        .data-card.views {
-            border-left-color: #dc3545;
-        }
-
-        .data-card-header {
-            font-size: 14px;
-            color: #6c757d;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .download-icon {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            transition: color 0.2s ease;
-        }
-
-        .download-icon:hover {
-            color: #007bff;
-        }
-
-        .metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 8px 0;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .metric-row:last-child {
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-
-        .metric-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: #6c757d;
-            margin-bottom: 2px;
-            font-weight: 500;
-        }
-
-        .metric-value {
-            font-size: 20px;
+        
+        .stat-value {
+            font-size: 2em;
             font-weight: bold;
-            color: #212529;
+            color: #007bff;
         }
-
-        .metric-change {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 4px;
-            white-space: nowrap;
+        
+        .stat-label {
+            color: #666;
+            margin-bottom: 5px;
         }
-
-        .change-positive {
-            color: #28a745;
-            background-color: #d4edda;
+        
+        .stat-change {
+            font-size: 0.9em;
+            margin-top: 5px;
         }
-
-        .change-negative {
-            color: #dc3545;
-            background-color: #f8d7da;
+        
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        
+        .chart-section {
+            background: #fff;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-
-        .chart-container {
-            flex: 1;
-            height: 400px;
-            position: relative;
-        }
-
+        
         .chart-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
         }
-
+        
         .chart-title {
-            font-size: 16px;
+            font-size: 1.2em;
             font-weight: 600;
-            color: #2c3e50;
         }
-
-        .chart-download {
-            cursor: pointer;
-            color: #6c757d;
-            font-size: 16px;
-            padding: 5px;
+        
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #fff;
             border-radius: 4px;
-            transition: all 0.2s ease;
+            cursor: pointer;
+            transition: all 0.3s;
         }
-
-        .chart-download:hover {
-            color: #007bff;
-            background-color: #f8f9fa;
+        
+        .btn:hover {
+            background: #f8f9fa;
         }
-
-        .chart {
-            width: 100%;
-            height: 100%;
+        
+        .btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
         }
-
-        .data-table {
+        
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .download-btn:hover {
+            background: #218838;
+        }
+        
+        .chart-container {
+            height: 400px;
+            padding: 20px;
+        }
+        
+        .metric-selector {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+        }
+        
+        .table-section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            padding: 20px;
+        }
+        
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            font-size: 0.9em;
         }
-
-        .data-table th {
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
             background: #f8f9fa;
             font-weight: 600;
             color: #495057;
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            border: 1px solid #dee2e6;
-            vertical-align: middle;
-            padding: 15px 12px;
-            text-align: center;
         }
-
-        .category-header {
-            background: #e3f2fd !important;
-            color: #1976d2 !important;
-            font-weight: 700;
-            min-width: 120px;
-        }
-
-        .posts-header {
-            background: #f3e5f5 !important;
-            color: #7b1fa2 !important;
-            font-weight: 700;
-            min-width: 80px;
-        }
-
-        .engagement-header {
-            background: #fff3e0 !important;
-            color: #f57c00 !important;
-            font-weight: 700;
-            min-width: 100px;
-        }
-
-        .views-header {
-            background: #e8f5e8 !important;
-            color: #2e7d32 !important;
-            font-weight: 700;
-            min-width: 100px;
-        }
-
-        .rate-header {
-            background: #e1f5fe !important;
-            color: #0277bd !important;
-            font-weight: 700;
-            min-width: 120px;
-        }
-
-        .data-table td {
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #e2e8f0;
-            background: white;
-        }
-
-        .data-table tbody tr:nth-child(even) {
-            background-color: #f8fafc;
-        }
-
-        .data-table tbody tr:hover {
-            background-color: #edf2f7;
-        }
-
-        .category-name {
-            background-color: #e2e8f0;
-            font-weight: 600;
-            text-align: center;
-            vertical-align: middle;
-        }
-
-        @media (max-width: 768px) {
-            .chart-section {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .data-card {
-                min-width: auto;
-                margin-bottom: 20px;
-            }
-
-            .metric-row {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
+        
+        tr:hover {
+            background: #f8f9fa;
         }
     </style>
 </head>
 <body>
-
-    <!-- Chart 1: Posts Count and Engagement by Category -->
-    <div class="chart-section">
-        <div class="data-card">
-            <div class="data-card-header">
-                Posts & Engagement Overview
-                <span class="download-icon" onclick="downloadData('posts-engagement')" title="Download Data">📥</span>
+    <div class="container">
+        <!-- Statistics Section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Posts</div>
+                <div class="stat-value" id="totalPosts">45,678</div>
+                <div class="stat-change positive" id="postsQoQ">+15.3% QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Posts</div>
-                    <div class="metric-value">77.0K</div>
-                </div>
-                <div class="metric-change change-positive">↑ 12.5%</div>
+            <div class="stat-card">
+                <div class="stat-label">Total Categories</div>
+                <div class="stat-value" id="totalCategories">12</div>
+                <div class="stat-change positive" id="categoriesQoQ">+2 QoQ</div>
             </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Engagement</div>
-                    <div class="metric-value">3.3M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 8.7%</div>
+            <div class="stat-card">
+                <div class="stat-label">Top Category (Posts)</div>
+                <div class="stat-value" id="topCategoryPosts">Music</div>
+                <div class="stat-change" id="topCategoryPostsCount">8,234 posts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Top Category (Engagement)</div>
+                <div class="stat-value" id="topCategoryEngagement">Comedy</div>
+                <div class="stat-change positive" id="topCategoryEngagementRate">16.8% rate</div>
             </div>
         </div>
-        <div class="chart-container">
+
+        <!-- Scatter Plot Section -->
+        <div class="chart-section">
             <div class="chart-header">
-                <div class="chart-title">Posts Count vs Engagement by Category</div>
-                <span class="chart-download" onclick="downloadChart('chart1')" title="Download Chart">📊</span>
+                <div class="chart-title">Category Performance Overview</div>
+                <div class="chart-controls">
+                    <button class="btn download-btn" onclick="downloadChart('scatterChart')">Download</button>
+                </div>
             </div>
-            <div id="chart1" class="chart"></div>
+            <div class="chart-container">
+                <div id="scatterChart" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+
+        <!-- Line Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Category Trends Over Time</div>
+                <div class="chart-controls">
+                    <select class="metric-selector" id="metricSelector" onchange="updateTrendChart()">
+                        <option value="engagement_rate">Engagement Rate</option>
+                        <option value="views">Views</option>
+                        <option value="posts">Posts Count</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('trendChart')">Download</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div id="trendChart" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+
+        <!-- Data Table Section -->
+        <div class="table-section">
+            <div class="chart-header">
+                <div class="chart-title">Category Performance Data</div>
+                <div class="chart-controls">
+                    <button class="btn download-btn" onclick="downloadTable()">Download CSV</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Posts</th>
+                            <th>Posts QoQ</th>
+                            <th>Engagement</th>
+                            <th>Engagement QoQ</th>
+                            <th>Views</th>
+                            <th>Views QoQ</th>
+                            <th>Engagement Rate</th>
+                            <th>Engagement Rate QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Data will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
-    <!-- Chart 2: Posts Count and Engagement Rate by Category -->
-    <div class="chart-section">
-        <div class="data-card rate">
-            <div class="data-card-header">
-                Posts & Engagement Rate
-                <span class="download-icon" onclick="downloadData('posts-rate')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Posts</div>
-                    <div class="metric-value">77.0K</div>
-                </div>
-                <div class="metric-change change-positive">↑ 12.5%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Avg Engagement Rate</div>
-                    <div class="metric-value">42.0%</div>
-                </div>
-                <div class="metric-change change-negative">↓ 2.3%</div>
-            </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">Posts Count vs Engagement Rate by Category</div>
-                <span class="chart-download" onclick="downloadChart('chart2')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart2" class="chart"></div>
-        </div>
-    </div>
-
-    <!-- Chart 3: Posts Count and Views by Category -->
-    <div class="chart-section">
-        <div class="data-card views">
-            <div class="data-card-header">
-                Posts & Views Overview
-                <span class="download-icon" onclick="downloadData('posts-views')" title="Download Data">📥</span>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Posts</div>
-                    <div class="metric-value">77.0K</div>
-                </div>
-                <div class="metric-change change-positive">↑ 12.5%</div>
-            </div>
-            <div class="metric-row">
-                <div class="metric-info">
-                    <div class="metric-label">Total Views</div>
-                    <div class="metric-value">7.8M</div>
-                </div>
-                <div class="metric-change change-positive">↑ 15.2%</div>
-            </div>
-        </div>
-        <div class="chart-container">
-            <div class="chart-header">
-                <div class="chart-title">Posts Count vs Views by Category</div>
-                <span class="chart-download" onclick="downloadChart('chart3')" title="Download Chart">📊</span>
-            </div>
-            <div id="chart3" class="chart"></div>
-        </div>
-    </div>
-
-    <!-- Data Table -->
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th class="category-header">Post Category <span class="download-icon" onclick="downloadTableData()" title="Download Table Data">📥</span></th>
-                <th class="posts-header">Posts</th>
-                <th class="engagement-header">Engagement</th>
-                <th class="views-header">Views</th>
-                <th class="rate-header">Engagement Rate (%)</th>
-            </tr>
-        </thead>
-        <tbody id="dataTableBody">
-            <!-- Data will be populated by JavaScript -->
-        </tbody>
-    </table>
 
     <script>
-        // Sample data for post categories
-        const categoryData = {
-            categories: ['Entertainment', 'Education', 'Lifestyle', 'Technology', 'Fashion', 'Food', 'Travel', 'Sports', 'Music', 'Gaming'],
-            posts: [15420, 12850, 11200, 9800, 8650, 7200, 6100, 4800, 3900, 2080],
-            engagement: [892000, 745000, 658000, 542000, 478000, 395000, 321000, 267000, 198000, 124000],
-            views: [1850000, 1520000, 1340000, 1180000, 980000, 820000, 650000, 520000, 410000, 280000],
-            engagementRate: [48.2, 58.0, 58.8, 55.3, 55.2, 54.9, 52.6, 55.6, 50.8, 59.6]
-        };
+        // Global variables
+        const charts = {};
+        const categories = ['Music', 'Dance', 'Comedy', 'Fashion', 'Food', 'Travel', 'Gaming', 'Education', 'Sports', 'Beauty', 'Tech', 'Lifestyle'];
+        const dates = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06', '2024-07', '2024-08', '2024-09', '2024-10', '2024-11', '2024-12'];
 
-        // Chart 1: Posts Count and Engagement
-        const chart1 = echarts.init(document.getElementById('chart1'));
-        const option1 = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'cross'
-                }
-            },
-            legend: {
-                data: ['Posts Count', 'Engagement']
-            },
-            xAxis: {
-                type: 'category',
-                data: categoryData.categories,
-                axisLabel: {
-                    rotate: 45
-                }
-            },
-            yAxis: [
-                {
-                    type: 'value',
-                    name: 'Posts Count',
-                    position: 'left'
-                },
-                {
-                    type: 'value',
-                    name: 'Engagement',
-                    position: 'right'
-                }
-            ],
-            series: [
-                {
-                    name: 'Posts Count',
-                    type: 'bar',
-                    data: categoryData.posts,
-                    itemStyle: {
-                        color: '#5470c6'
-                    }
-                },
-                {
-                    name: 'Engagement',
-                    type: 'line',
-                    yAxisIndex: 1,
-                    data: categoryData.engagement,
-                    itemStyle: {
-                        color: '#91cc75'
-                    }
-                }
-            ]
-        };
-        chart1.setOption(option1);
-
-        // Chart 2: Posts Count and Engagement Rate
-        const chart2 = echarts.init(document.getElementById('chart2'));
-        const option2 = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'cross'
-                }
-            },
-            legend: {
-                data: ['Posts Count', 'Engagement Rate (%)']
-            },
-            xAxis: {
-                type: 'category',
-                data: categoryData.categories,
-                axisLabel: {
-                    rotate: 45
-                }
-            },
-            yAxis: [
-                {
-                    type: 'value',
-                    name: 'Posts Count',
-                    position: 'left'
-                },
-                {
-                    type: 'value',
-                    name: 'Engagement Rate (%)',
-                    position: 'right'
-                }
-            ],
-            series: [
-                {
-                    name: 'Posts Count',
-                    type: 'bar',
-                    data: categoryData.posts,
-                    itemStyle: {
-                        color: '#fac858'
-                    }
-                },
-                {
-                    name: 'Engagement Rate (%)',
-                    type: 'line',
-                    yAxisIndex: 1,
-                    data: categoryData.engagementRate,
-                    itemStyle: {
-                        color: '#ee6666'
-                    }
-                }
-            ]
-        };
-        chart2.setOption(option2);
-
-        // Chart 3: Posts Count and Views
-        const chart3 = echarts.init(document.getElementById('chart3'));
-        const option3 = {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'cross'
-                }
-            },
-            legend: {
-                data: ['Posts Count', 'Views']
-            },
-            xAxis: {
-                type: 'category',
-                data: categoryData.categories,
-                axisLabel: {
-                    rotate: 45
-                }
-            },
-            yAxis: [
-                {
-                    type: 'value',
-                    name: 'Posts Count',
-                    position: 'left'
-                },
-                {
-                    type: 'value',
-                    name: 'Views',
-                    position: 'right'
-                }
-            ],
-            series: [
-                {
-                    name: 'Posts Count',
-                    type: 'bar',
-                    data: categoryData.posts,
-                    itemStyle: {
-                        color: '#73c0de'
-                    }
-                },
-                {
-                    name: 'Views',
-                    type: 'line',
-                    yAxisIndex: 1,
-                    data: categoryData.views,
-                    itemStyle: {
-                        color: '#3ba272'
-                    }
-                }
-            ]
-        };
-        chart3.setOption(option3);
-
-        // Download chart as image
-        function downloadChart(chartId) {
-            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
-            const url = chart.getDataURL({
-                pixelRatio: 2,
-                backgroundColor: '#fff'
+        // Sample data generation
+        function generateCategoryData() {
+            return categories.map(category => {
+                const posts = Math.floor(Math.random() * 5000) + 1000;
+                const engagement = Math.floor(Math.random() * 50000) + 10000;
+                const views = Math.floor(Math.random() * 2000000) + 500000;
+                const engagementRate = (engagement / views * 100);
+                
+                return {
+                    category: category,
+                    posts: posts,
+                    postsQoQ: (Math.random() * 40 - 20).toFixed(1), // -20% to +20%
+                    engagement: engagement,
+                    engagementQoQ: (Math.random() * 30 - 15).toFixed(1), // -15% to +15%
+                    views: views,
+                    viewsQoQ: (Math.random() * 25 - 12.5).toFixed(1), // -12.5% to +12.5%
+                    engagementRate: engagementRate.toFixed(2),
+                    engagementRateQoQ: (Math.random() * 20 - 10).toFixed(1) // -10% to +10%
+                };
             });
+        }
+
+        function generateTrendData(metric) {
+            return categories.map(category => {
+                let data;
+                if (metric === 'engagement_rate') {
+                    data = dates.map(() => (Math.random() * 10 + 5).toFixed(2)); // 5-15%
+                } else if (metric === 'views') {
+                    data = dates.map(() => Math.floor(Math.random() * 1000000) + 200000); // 200K-1.2M
+                } else { // posts
+                    data = dates.map(() => Math.floor(Math.random() * 800) + 200); // 200-1000
+                }
+                
+                return {
+                    name: category,
+                    type: 'line',
+                    data: data,
+                    smooth: true
+                };
+            });
+        }
+
+        // Initialize all charts
+        function initCharts() {
+            const categoryData = generateCategoryData();
+            
+            // Update statistics
+            updateStatistics(categoryData);
+            
+            // Initialize charts
+            initScatterChart(categoryData);
+            initTrendChart('engagement_rate');
+            
+            // Populate table
+            populateTable(categoryData);
+        }
+
+        function updateStatistics(data) {
+            const totalPosts = data.reduce((sum, item) => sum + item.posts, 0);
+            const totalCategories = data.length;
+            
+            // Find top category by posts
+            const topPostsCategory = data.reduce((max, item) => item.posts > max.posts ? item : max);
+            
+            // Find top category by engagement rate
+            const topEngagementCategory = data.reduce((max, item) => parseFloat(item.engagementRate) > parseFloat(max.engagementRate) ? item : max);
+            
+            document.getElementById('totalPosts').textContent = totalPosts.toLocaleString();
+            document.getElementById('topCategoryPosts').textContent = topPostsCategory.category;
+            document.getElementById('topCategoryPostsCount').textContent = `${topPostsCategory.posts.toLocaleString()} posts`;
+            document.getElementById('topCategoryEngagement').textContent = topEngagementCategory.category;
+            document.getElementById('topCategoryEngagementRate').textContent = `${topEngagementCategory.engagementRate}% rate`;
+        }
+
+        function initScatterChart(data) {
+            const chartDom = document.getElementById('scatterChart');
+            const myChart = echarts.init(chartDom);
+            charts['scatterChart'] = myChart;
+
+            const scatterData = data.map(item => [
+                item.engagement, // x-axis: interaction volume
+                item.views, // y-axis: views
+                item.posts, // bubble size: posts
+                item.category // category name for tooltip
+            ]);
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        const data = params.data;
+                        return `Category: ${data[3]}<br/>
+                                Engagement: ${data[0].toLocaleString()}<br/>
+                                Views: ${data[1].toLocaleString()}<br/>
+                                Posts: ${data[2].toLocaleString()}`;
+                    }
+                },
+                xAxis: {
+                    type: 'value',
+                    name: 'Interaction Volume',
+                    nameLocation: 'middle',
+                    nameGap: 30,
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000) {
+                                return (value / 1000).toFixed(0) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: 'Views',
+                    nameLocation: 'middle',
+                    nameGap: 50,
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (value >= 1000000) {
+                                return (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return (value / 1000).toFixed(0) + 'K';
+                            }
+                            return value;
+                        }
+                    }
+                },
+                series: [{
+                    type: 'scatter',
+                    data: scatterData,
+                    symbolSize: function(data) {
+                        return Math.sqrt(data[2]) / 3; // Scale bubble size based on posts
+                    },
+                    itemStyle: {
+                        color: function(params) {
+                            const colors = ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc', '#ff9f7f', '#87ceeb', '#dda0dd'];
+                            return colors[params.dataIndex % colors.length];
+                        },
+                        opacity: 0.7
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            opacity: 1
+                        }
+                    }
+                }]
+            };
+
+            myChart.setOption(option);
+            
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+
+        function initTrendChart(metric) {
+            const chartDom = document.getElementById('trendChart');
+            const myChart = echarts.init(chartDom);
+            charts['trendChart'] = myChart;
+
+            const trendData = generateTrendData(metric);
+            
+            // Calculate average line
+            const allValues = [];
+            trendData.forEach(series => {
+                series.data.forEach(value => {
+                    allValues.push(parseFloat(value));
+                });
+            });
+            const average = allValues.reduce((sum, val) => sum + val, 0) / allValues.length;
+            
+            // Add average line
+            const avgLine = {
+                name: 'Average',
+                type: 'line',
+                data: dates.map(() => average),
+                lineStyle: {
+                    type: 'dashed',
+                    color: '#ff6b6b',
+                    width: 2
+                },
+                itemStyle: {
+                    color: '#ff6b6b'
+                }
+            };
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                legend: {
+                    data: [...categories, 'Average'],
+                    top: 10,
+                    type: 'scroll'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates,
+                    boundaryGap: false
+                },
+                yAxis: {
+                    type: 'value',
+                    name: getYAxisLabel(metric),
+                    axisLabel: {
+                        formatter: function(value) {
+                            if (metric === 'engagement_rate') {
+                                return value.toFixed(1) + '%';
+                            } else if (metric === 'views') {
+                                if (value >= 1000000) {
+                                    return (value / 1000000).toFixed(1) + 'M';
+                                } else if (value >= 1000) {
+                                    return (value / 1000).toFixed(0) + 'K';
+                                }
+                            }
+                            return value;
+                        }
+                    }
+                },
+                series: [...trendData, avgLine]
+            };
+
+            myChart.setOption(option);
+            
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+
+        function getYAxisLabel(metric) {
+            switch(metric) {
+                case 'engagement_rate': return 'Engagement Rate (%)';
+                case 'views': return 'Views';
+                case 'posts': return 'Posts Count';
+                default: return '';
+            }
+        }
+
+        function updateTrendChart() {
+            const metric = document.getElementById('metricSelector').value;
+            initTrendChart(metric);
+        }
+
+        function populateTable(data) {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            data.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.category}</td>
+                    <td>${item.posts.toLocaleString()}</td>
+                    <td class="${parseFloat(item.postsQoQ) >= 0 ? 'positive' : 'negative'}">${parseFloat(item.postsQoQ) >= 0 ? '+' : ''}${item.postsQoQ}%</td>
+                    <td>${item.engagement.toLocaleString()}</td>
+                    <td class="${parseFloat(item.engagementQoQ) >= 0 ? 'positive' : 'negative'}">${parseFloat(item.engagementQoQ) >= 0 ? '+' : ''}${item.engagementQoQ}%</td>
+                    <td>${item.views.toLocaleString()}</td>
+                    <td class="${parseFloat(item.viewsQoQ) >= 0 ? 'positive' : 'negative'}">${parseFloat(item.viewsQoQ) >= 0 ? '+' : ''}${item.viewsQoQ}%</td>
+                    <td>${item.engagementRate}%</td>
+                    <td class="${parseFloat(item.engagementRateQoQ) >= 0 ? 'positive' : 'negative'}">${parseFloat(item.engagementRateQoQ) >= 0 ? '+' : ''}${item.engagementRateQoQ}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Download functions
+        function downloadChart(chartId) {
+            const chart = charts[chartId];
+            if (chart) {
+                const url = chart.getDataURL({
+                    type: 'png',
+                    pixelRatio: 2,
+                    backgroundColor: '#fff'
+                });
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${chartId}_chart.png`;
+                link.click();
+            }
+        }
+
+        function downloadTable() {
+            const table = document.getElementById('dataTable');
+            let csv = [];
+            
+            // Get headers
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+            csv.push(headers.join(','));
+            
+            // Get data rows
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            rows.forEach(row => {
+                const cells = Array.from(row.querySelectorAll('td')).map(td => {
+                    let text = td.textContent.replace(/,/g, ''); // Remove commas from numbers
+                    if (text.includes('%')) {
+                        text = text.replace('%', '');
+                    }
+                    return `"${text}"`;
+                });
+                csv.push(cells.join(','));
+            });
+            
+            const csvContent = csv.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
             
             const link = document.createElement('a');
             link.href = url;
-            link.download = `post-category-analysis-${chartId}.png`;
+            link.download = 'category_data.csv';
             link.click();
+            
+            window.URL.revokeObjectURL(url);
         }
 
-        function downloadData(type) {
-            let csvContent = '';
-            let filename = '';
-            
-            if (type === 'posts-engagement') {
-                csvContent = 'Category,Posts Count,Engagement\n';
-                categoryData.categories.forEach((category, index) => {
-                    csvContent += `${category},${categoryData.posts[index]},${categoryData.engagement[index]}\n`;
-                });
-                filename = 'post-category-posts-engagement.csv';
-            } else if (type === 'posts-rate') {
-                csvContent = 'Category,Posts Count,Engagement Rate (%)\n';
-                categoryData.categories.forEach((category, index) => {
-                    csvContent += `${category},${categoryData.posts[index]},${categoryData.engagementRate[index]}\n`;
-                });
-                filename = 'post-category-posts-rate.csv';
-            } else if (type === 'posts-views') {
-                csvContent = 'Category,Posts Count,Views\n';
-                categoryData.categories.forEach((category, index) => {
-                    csvContent += `${category},${categoryData.posts[index]},${categoryData.views[index]}\n`;
-                });
-                filename = 'post-category-posts-views.csv';
-            }
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Populate data table
-        function populateDataTable() {
-            const tableBody = document.getElementById('dataTableBody');
-            let html = '';
-
-            categoryData.categories.forEach((category, index) => {
-                const posts = categoryData.posts[index];
-                const engagement = categoryData.engagement[index];
-                const views = categoryData.views[index];
-                const engagementRate = categoryData.engagementRate[index];
-                
-                html += `
-                    <tr>
-                        <td class="category-name">${category}</td>
-                        <td>${posts.toLocaleString()}</td>
-                        <td>${engagement.toLocaleString()}</td>
-                        <td>${views.toLocaleString()}</td>
-                        <td>${engagementRate}%</td>
-                    </tr>
-                `;
-            });
-            
-            tableBody.innerHTML = html;
-        }
-
-        function downloadTableData() {
-            let csvContent = 'Category,Posts,Engagement,Views,Engagement Rate (%)\n';
-            categoryData.categories.forEach((category, index) => {
-                csvContent += `${category},${categoryData.posts[index]},${categoryData.engagement[index]},${categoryData.views[index]},${categoryData.engagementRate[index]}\n`;
-            });
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', 'post-category-analysis-data.csv');
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        // Initialize data table
-        populateDataTable();
-
-        // Make charts responsive
-        window.addEventListener('resize', function() {
-            chart1.resize();
-            chart2.resize();
-            chart3.resize();
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
         });
     </script>
 </body>
