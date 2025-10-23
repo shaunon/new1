@@ -478,11 +478,11 @@
                         const data = params.data;
                         const qoqChange = (Math.random() * 20 - 10).toFixed(1);
                         return `Platform: ${platforms[params.dataIndex]}<br/>
-                                Min: ${(data[0]/60).toFixed(1)} min<br/>
-                                Q1: ${(data[1]/60).toFixed(1)} min<br/>
-                                Median: ${(data[2]/60).toFixed(1)} min<br/>
-                                Q3: ${(data[3]/60).toFixed(1)} min<br/>
-                                Max: ${(data[4]/60).toFixed(1)} min<br/>
+                                Min: ${data[0].toFixed(1)} sec<br/>
+                                Q1: ${data[1].toFixed(1)} sec<br/>
+                                Median: ${data[2].toFixed(1)} sec<br/>
+                                Q3: ${data[3].toFixed(1)} sec<br/>
+                                Max: ${data[4].toFixed(1)} sec<br/>
                                 QoQ Change: ${qoqChange > 0 ? '+' : ''}${qoqChange}%`;
                     }
                 },
@@ -495,10 +495,10 @@
                 },
                 yAxis: {
                     type: 'value',
-                    name: 'Duration (minutes)',
+                    name: 'Duration (seconds)',
                     axisLabel: {
                         formatter: function(value) {
-                            return (value / 60).toFixed(0);
+                            return value.toFixed(0);
                         }
                     }
                 },
