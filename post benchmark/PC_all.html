@@ -187,6 +187,23 @@
             </div>
         </div>
 
+        <!-- Line/Bar Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Category Performance Analysis</div>
+                <div class="chart-controls">
+                    <select class="metric-selector" id="barMetricSelector" onchange="updateCombinationChart()">
+                        <option value="posts">Posts Count</option>
+                        <option value="views">Views</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('combinationChart')">Download</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div id="combinationChart" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+
         <!-- Scatter Plot Section -->
         <div class="chart-section">
             <div class="chart-header">
@@ -279,19 +296,23 @@
 
         function generateTrendData(metric) {
             return categories.map(category => {
-                let data;
+                let data, qoqData;
                 if (metric === 'engagement_rate') {
                     data = dates.map(() => (Math.random() * 10 + 5).toFixed(2)); // 5-15%
+                    qoqData = dates.map(() => (Math.random() * 20 - 10).toFixed(1)); // -10% to +10%
                 } else if (metric === 'views') {
                     data = dates.map(() => Math.floor(Math.random() * 1000000) + 200000); // 200K-1.2M
+                    qoqData = dates.map(() => (Math.random() * 25 - 12.5).toFixed(1)); // -12.5% to +12.5%
                 } else { // posts
                     data = dates.map(() => Math.floor(Math.random() * 800) + 200); // 200-1000
+                    qoqData = dates.map(() => (Math.random() * 40 - 20).toFixed(1)); // -20% to +20%
                 }
                 
                 return {
                     name: category,
                     type: 'line',
                     data: data,
+                    qoqData: qoqData, // Add QoQ data for tooltip
                     smooth: true
                 };
             });
@@ -306,6 +327,7 @@
             
             // Initialize charts
             initScatterChart(categoryData);
+            initCombinationChart('posts');
             initTrendChart('engagement_rate');
             
             // Populate table
@@ -335,10 +357,13 @@
             charts['scatterChart'] = myChart;
 
             const scatterData = data.map(item => [
-                item.engagement, // x-axis: interaction volume
+                item.posts, // x-axis: posts
                 item.views, // y-axis: views
-                item.posts, // bubble size: posts
-                item.category // category name for tooltip
+                item.engagement, // bubble size: engagement volume
+                item.category, // category name for tooltip
+                item.postsQoQ, // posts QoQ
+                item.viewsQoQ, // views QoQ
+                item.engagementQoQ // engagement QoQ
             ]);
 
             const option = {
@@ -346,15 +371,19 @@
                     trigger: 'item',
                     formatter: function(params) {
                         const data = params.data;
+                        const postsQoQ = parseFloat(data[4]);
+                        const viewsQoQ = parseFloat(data[5]);
+                        const engagementQoQ = parseFloat(data[6]);
+                        
                         return `Category: ${data[3]}<br/>
-                                Engagement: ${data[0].toLocaleString()}<br/>
-                                Views: ${data[1].toLocaleString()}<br/>
-                                Posts: ${data[2].toLocaleString()}`;
+                                Posts: ${data[0].toLocaleString()} <span style="color: ${postsQoQ >= 0 ? '#28a745' : '#dc3545'}">(${postsQoQ >= 0 ? '+' : ''}${data[4]}% QoQ)</span><br/>
+                                Views: ${data[1].toLocaleString()} <span style="color: ${viewsQoQ >= 0 ? '#28a745' : '#dc3545'}">(${viewsQoQ >= 0 ? '+' : ''}${data[5]}% QoQ)</span><br/>
+                                Engagement: ${data[2].toLocaleString()} <span style="color: ${engagementQoQ >= 0 ? '#28a745' : '#dc3545'}">(${engagementQoQ >= 0 ? '+' : ''}${data[6]}% QoQ)</span>`;
                     }
                 },
                 xAxis: {
                     type: 'value',
-                    name: 'Interaction Volume',
+                    name: 'Posts',
                     nameLocation: 'middle',
                     nameGap: 30,
                     axisLabel: {
@@ -386,7 +415,7 @@
                     type: 'scatter',
                     data: scatterData,
                     symbolSize: function(data) {
-                        return Math.sqrt(data[2]) / 3; // Scale bubble size based on posts
+                        return Math.sqrt(data[2]) / 5; // Scale bubble size based on engagement
                     },
                     itemStyle: {
                         color: function(params) {
@@ -408,6 +437,130 @@
             window.addEventListener('resize', function() {
                 myChart.resize();
             });
+        }
+
+        function initCombinationChart(metric) {
+            const chartDom = document.getElementById('combinationChart');
+            const myChart = echarts.init(chartDom);
+            charts['combinationChart'] = myChart;
+
+            const categoryData = generateCategoryData();
+            
+            // Prepare data for bars (posts or views)
+            const barData = categoryData.map(item => metric === 'posts' ? item.posts : item.views);
+            
+            // Prepare data for line (engagement rate)
+            const lineData = categoryData.map(item => parseFloat(item.engagementRate));
+            
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].name + '<br/>';
+                        const categoryIndex = categories.indexOf(params[0].name);
+                        const categoryInfo = categoryData[categoryIndex];
+                        
+                        params.forEach(param => {
+                            if (param.seriesName === 'Engagement Rate') {
+                                const engagementRateQoQ = parseFloat(categoryInfo.engagementRateQoQ);
+                                result += `${param.marker} ${param.seriesName}: ${param.value.toFixed(2)}% <span style="color: ${engagementRateQoQ >= 0 ? '#28a745' : '#dc3545'}">(${engagementRateQoQ >= 0 ? '+' : ''}${categoryInfo.engagementRateQoQ}% QoQ)</span><br/>`;
+                            } else {
+                                const qoqValue = metric === 'posts' ? categoryInfo.postsQoQ : categoryInfo.viewsQoQ;
+                                const qoQ = parseFloat(qoqValue);
+                                result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()} <span style="color: ${qoQ >= 0 ? '#28a745' : '#dc3545'}">(${qoQ >= 0 ? '+' : ''}${qoqValue}% QoQ)</span><br/>`;
+                            }
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: [metric === 'posts' ? 'Posts Count' : 'Views', 'Engagement Rate'],
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: categories,
+                    axisLabel: {
+                        rotate: 45
+                    }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: metric === 'posts' ? 'Posts Count' : 'Views',
+                        position: 'left',
+                        axisLabel: {
+                            formatter: function(value) {
+                                if (metric === 'views') {
+                                    if (value >= 1000000) {
+                                        return (value / 1000000).toFixed(1) + 'M';
+                                    } else if (value >= 1000) {
+                                        return (value / 1000).toFixed(0) + 'K';
+                                    }
+                                } else {
+                                    if (value >= 1000) {
+                                        return (value / 1000).toFixed(0) + 'K';
+                                    }
+                                }
+                                return value;
+                            }
+                        }
+                    },
+                    {
+                        type: 'value',
+                        name: 'Engagement Rate (%)',
+                        position: 'right',
+                        axisLabel: {
+                            formatter: '{value}%'
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: metric === 'posts' ? 'Posts Count' : 'Views',
+                        type: 'bar',
+                        yAxisIndex: 0,
+                        data: barData,
+                        itemStyle: {
+                            color: '#5470c6'
+                        }
+                    },
+                    {
+                        name: 'Engagement Rate',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: lineData,
+                        smooth: true,
+                        lineStyle: {
+                            color: '#ee6666',
+                            width: 3
+                        },
+                        itemStyle: {
+                            color: '#ee6666'
+                        }
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+            
+            window.addEventListener('resize', function() {
+                myChart.resize();
+            });
+        }
+
+        function updateCombinationChart() {
+            const metric = document.getElementById('barMetricSelector').value;
+            initCombinationChart(metric);
         }
 
         function initTrendChart(metric) {
@@ -446,6 +599,42 @@
                     trigger: 'axis',
                     axisPointer: {
                         type: 'cross'
+                    },
+                    formatter: function(params) {
+                        let result = params[0].axisValue + '<br/>';
+                        params.forEach(param => {
+                            if (param.seriesName !== 'Average') {
+                                // Find the series data to get QoQ information
+                                const seriesData = trendData.find(series => series.name === param.seriesName);
+                                if (seriesData && seriesData.qoqData) {
+                                    const qoqValue = seriesData.qoqData[param.dataIndex];
+                                    const qoQ = parseFloat(qoqValue);
+                                    let formattedValue = param.value;
+                                    if (metric === 'engagement_rate') {
+                                        formattedValue = parseFloat(param.value).toFixed(2) + '%';
+                                    } else if (metric === 'views') {
+                                        formattedValue = parseInt(param.value).toLocaleString();
+                                    } else {
+                                        formattedValue = parseInt(param.value).toLocaleString();
+                                    }
+                                    result += `${param.marker} ${param.seriesName}: ${formattedValue} <span style="color: ${qoQ >= 0 ? '#28a745' : '#dc3545'}">(${qoQ >= 0 ? '+' : ''}${qoqValue}% QoQ)</span><br/>`;
+                                } else {
+                                    result += `${param.marker} ${param.seriesName}: ${param.value}<br/>`;
+                                }
+                            } else {
+                                // For average line, don't show QoQ
+                                let formattedValue = param.value;
+                                if (metric === 'engagement_rate') {
+                                    formattedValue = parseFloat(param.value).toFixed(2) + '%';
+                                } else if (metric === 'views') {
+                                    formattedValue = parseInt(param.value).toLocaleString();
+                                } else {
+                                    formattedValue = parseInt(param.value).toLocaleString();
+                                }
+                                result += `${param.marker} ${param.seriesName}: ${formattedValue}<br/>`;
+                            }
+                        });
+                        return result;
                     }
                 },
                 legend: {
