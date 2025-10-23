@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Duration BGM Type Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -10,857 +11,986 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #333;
-            padding: 20px;
+            line-height: 1.6;
         }
-
-        .dashboard-container {
+        
+        .container {
             max-width: 1400px;
             margin: 0 auto;
-        }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 40px;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             padding: 20px;
-            position: relative;
         }
-
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #007bff;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-change {
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .positive { color: #28a745; }
+        .negative { color: #dc3545; }
+        
+        .chart-section {
+            background: #fff;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
         .chart-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
         }
-
+        
         .chart-title {
-            font-size: 16px;
+            font-size: 1.2em;
             font-weight: 600;
-            color: #2c3e50;
         }
-
+        
         .chart-controls {
             display: flex;
-            align-items: center;
             gap: 10px;
+            align-items: center;
         }
-
-        .toggle-buttons {
-            display: flex;
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 2px;
-        }
-
-        .toggle-btn {
-            padding: 6px 12px;
-            border: none;
-            background: transparent;
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #fff;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            color: #6c757d;
-            transition: all 0.2s ease;
+            transition: all 0.3s;
         }
-
-        .toggle-btn.active {
+        
+        .btn:hover {
+            background: #f8f9fa;
+        }
+        
+        .btn.active {
             background: #007bff;
             color: white;
+            border-color: #007bff;
         }
-
+        
         .download-btn {
-            padding: 6px 8px;
-            border: none;
-            background: #f8f9fa;
-            border-radius: 4px;
-            cursor: pointer;
-            color: #6c757d;
-            transition: all 0.2s ease;
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
         }
-
+        
         .download-btn:hover {
-            background: #e9ecef;
-            color: #495057;
+            background: #218838;
         }
-
-        .chart {
-            width: 100%;
+        
+        .chart-container {
             height: 400px;
-        }
-
-        .data-section {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             padding: 20px;
-            margin-bottom: 40px;
         }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+        
+        .duration-selector {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
         }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
+        
+        .table-section {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
-
-        .data-table-container {
+        
+        .table-container {
             overflow-x: auto;
+            padding: 20px;
         }
-
-        .data-table {
+        
+        table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 0.9em;
         }
-
-        .data-table th,
-        .data-table td {
-            padding: 12px 8px;
-            text-align: center;
-            border-bottom: 1px solid #e9ecef;
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
         }
-
-        .data-table th {
+        
+        th {
             background: #f8f9fa;
             font-weight: 600;
             color: #495057;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
-
-        .data-table tr:hover {
+        
+        tr:hover {
             background: #f8f9fa;
         }
-
-        .bgm-header {
-            background: #e8f5e8 !important;
-            font-weight: 600;
-            color: #2e7d32;
-            text-align: left;
-            padding-left: 16px;
-        }
-
-        .metric-name {
-            background: #f5f5f5;
-            font-weight: 600;
-            color: #424242;
-            text-align: left;
-            padding-left: 12px;
-        }
-
-        .positive {
-            color: #28a745;
-            font-weight: 500;
-        }
-
-        .negative {
-            color: #dc3545;
-            font-weight: 500;
-        }
-
-        /* Music Section Styles - Updated for integrated display */
-        .expandable-row {
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-
-        .expandable-row:hover {
-            background-color: #f0f8ff !important;
-        }
-
-        .expand-icon {
-            display: inline-block;
-            margin-right: 8px;
-            transition: transform 0.2s ease;
-            font-size: 12px;
-        }
-
-        .expand-icon.expanded {
-            transform: rotate(90deg);
-        }
-
-        .music-details {
-            display: none;
-            background: #f8f9fa;
-            border-left: 3px solid #007bff;
-        }
-
-        .music-details.show {
-            display: table-row;
-        }
-
-        .music-list {
-            padding: 15px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 10px;
-        }
-
-        .music-item {
-            background: white;
-            border-radius: 6px;
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s ease;
-            border: 1px solid #e9ecef;
-        }
-
-        .music-item:hover {
+        
+        .merged-cell {
             background: #e9ecef;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .play-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: none;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-        }
-
-        .play-btn:hover {
-            background: #0056b3;
-            transform: scale(1.05);
-        }
-
-        .play-btn.playing {
-            background: #28a745;
-        }
-
-        .music-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .music-title {
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 12px;
-        }
-
-        .music-artist {
-            font-size: 11px;
-            color: #6c757d;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .music-stats {
-            font-size: 10px;
-            color: #28a745;
             font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .chart {
-                height: 300px;
-            }
-            
-            .chart-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .music-grid {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Charts Grid -->
-        <div class="charts-grid">
-            <!-- Interaction Volume Chart -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div class="chart-title">Interaction Volume by BGM Type and Video Duration</div>
-                    <div class="chart-controls">
-                        <div class="toggle-buttons" id="interactionChartToggle">
-                            <button class="toggle-btn active" data-type="bar">Bar</button>
-                            <button class="toggle-btn" data-type="line">Line</button>
-                        </div>
-                        <button class="download-btn" onclick="downloadChart('interactionChart')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div id="interactionChart" class="chart"></div>
+    <div class="container">
+        <!-- Statistics Section -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Videos</div>
+                <div class="stat-value">18,742</div>
+                <div class="stat-change positive">+12.3% QoQ</div>
             </div>
-
-            <!-- Interaction Rate Chart -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div class="chart-title">Interaction Rate by BGM Type and Video Duration</div>
-                    <div class="chart-controls">
-                        <div class="toggle-buttons" id="interactionRateChartToggle">
-                            <button class="toggle-btn active" data-type="bar">Bar</button>
-                            <button class="toggle-btn" data-type="line">Line</button>
-                        </div>
-                        <button class="download-btn" onclick="downloadChart('interactionRateChart')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div id="interactionRateChart" class="chart"></div>
+            <div class="stat-card">
+                <div class="stat-label">Average Duration</div>
+                <div class="stat-value">2.4 min</div>
+                <div class="stat-change positive">+8.7% QoQ</div>
             </div>
-
-            <!-- Views Chart -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div class="chart-title">Views by BGM Type and Video Duration</div>
-                    <div class="chart-controls">
-                        <div class="toggle-buttons" id="viewsChartToggle">
-                            <button class="toggle-btn active" data-type="bar">Bar</button>
-                            <button class="toggle-btn" data-type="line">Line</button>
-                        </div>
-                        <button class="download-btn" onclick="downloadChart('viewsChart')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div id="viewsChart" class="chart"></div>
+            <div class="stat-card">
+                <div class="stat-label">BGM Type with Most Posts</div>
+                <div class="stat-value">Pop</div>
+                <div class="stat-change">6,234 posts</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-label">BGM Type with Highest Engagement Rate</div>
+                <div class="stat-value">Electronic</div>
+                <div class="stat-change positive">22.1% rate</div>
+            </div>
+        </div>
 
-            <!-- Post Count Chart -->
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div class="chart-title">Post Count by BGM Type and Video Duration</div>
-                    <div class="chart-controls">
-                        <div class="toggle-buttons" id="postCountChartToggle">
-                            <button class="toggle-btn active" data-type="bar">Bar</button>
-                            <button class="toggle-btn" data-type="line">Line</button>
-                        </div>
-                        <button class="download-btn" onclick="downloadChart('postCountChart')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                            </svg>
-                        </button>
-                    </div>
+        <!-- Box Plot Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Video Duration Distribution by BGM Type</div>
+                <div class="chart-controls">
+                    <button class="btn download-btn" onclick="downloadChart('boxPlotChart')">Download</button>
                 </div>
-                <div id="postCountChart" class="chart"></div>
+            </div>
+            <div class="chart-container">
+                <div id="boxPlotChart" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+
+        <!-- Combined Stacked Bar Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">BGM Type and Duration Analysis</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="switchDataType('posts')">Posts</button>
+                    <button class="btn" onclick="switchDataType('engagement')">Engagement</button>
+                    <button class="btn" onclick="switchDataType('views')">Views</button>
+                    <button class="btn download-btn" onclick="downloadChart('combinedChart')">Download</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div id="combinedChart" style="width: 100%; height: 100%;"></div>
+            </div>
+        </div>
+
+        <!-- Trend Line Charts Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Trend Analysis by Duration</div>
+                <div class="chart-controls">
+                    <button class="btn active" onclick="switchTrendMetric('posts')">Posts</button>
+                    <button class="btn" onclick="switchTrendMetric('engagement')">Engagement</button>
+                    <button class="btn" onclick="switchTrendMetric('views')">Views</button>
+                    <button class="btn" onclick="switchTrendMetric('engagementRate')">Engagement Rate</button>
+                    <select class="duration-selector" id="trendDurationSelector" onchange="updateTrendByDuration(this.value)">
+                        <option value="0~15s">0~15s</option>
+                        <option value="15~30s">15~30s</option>
+                        <option value="30~60s">30~60s</option>
+                        <option value="1~3min">1~3min</option>
+                        <option value="3~5min">3~5min</option>
+                        <option value="5~10min">5~10min</option>
+                        <option value="10~20min">10~20min</option>
+                        <option value="20~30min">20~30min</option>
+                        <option value="30~60min">30~60min</option>
+                        <option value=">60min">>60min</option>
+                    </select>
+                    <button class="btn download-btn" onclick="downloadChart('trendChart')">Download</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div id="trendChart" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
 
         <!-- Data Table Section -->
-        <!-- Data Table -->
-        <div class="data-section">
-            <div class="section-header">
-                <h2 class="section-title">BGM Type-Based Video Duration Metrics</h2>
-                <button class="download-btn" onclick="downloadTable()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
-                    </svg>
-                </button>
+        <div class="table-section">
+            <div class="chart-header">
+                <div class="chart-title">BGM Type Duration Data</div>
+                <div class="chart-controls">
+                    <button class="btn download-btn" onclick="downloadTable()">Download CSV</button>
+                </div>
             </div>
-            <div class="data-table-container">
-                <table class="data-table" id="metricsTable">
-                    <!-- Table content will be generated by JavaScript -->
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>BGM Type</th>
+                            <th>Video Duration</th>
+                            <th>Posts</th>
+                            <th>Posts QoQ</th>
+                            <th>Engagement</th>
+                            <th>Engagement QoQ</th>
+                            <th>Views</th>
+                            <th>Views QoQ</th>
+                            <th>Engagement Rate</th>
+                            <th>Engagement Rate QoQ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="4" class="merged-cell">Pop</td>
+                            <td>0~15s</td>
+                            <td>1,856</td>
+                            <td class="positive">+15.3%</td>
+                            <td>67,234</td>
+                            <td class="positive">+18.5%</td>
+                            <td>3.2M</td>
+                            <td class="positive">+22.2%</td>
+                            <td>16.8%</td>
+                            <td class="positive">+3.1%</td>
+                        </tr>
+                        <tr>
+                            <td>15~30s</td>
+                            <td>2,567</td>
+                            <td class="positive">+21.7%</td>
+                            <td>98,567</td>
+                            <td class="positive">+25.9%</td>
+                            <td>4.8M</td>
+                            <td class="positive">+29.1%</td>
+                            <td>19.2%</td>
+                            <td class="positive">+4.3%</td>
+                        </tr>
+                        <tr>
+                            <td>30~60s</td>
+                            <td>1,811</td>
+                            <td class="positive">+13.8%</td>
+                            <td>89,678</td>
+                            <td class="positive">+16.4%</td>
+                            <td>3.9M</td>
+                            <td class="positive">+20.7%</td>
+                            <td>18.1%</td>
+                            <td class="positive">+2.8%</td>
+                        </tr>
+                        <tr>
+                            <td>1~3min</td>
+                            <td>1,278</td>
+                            <td class="positive">+11.2%</td>
+                            <td>67,456</td>
+                            <td class="positive">+14.6%</td>
+                            <td>2.8M</td>
+                            <td class="positive">+17.9%</td>
+                            <td>17.3%</td>
+                            <td class="positive">+2.1%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4" class="merged-cell">Electronic</td>
+                            <td>0~15s</td>
+                            <td>1,434</td>
+                            <td class="positive">+19.4%</td>
+                            <td>78,678</td>
+                            <td class="positive">+23.7%</td>
+                            <td>3.6M</td>
+                            <td class="positive">+27.3%</td>
+                            <td>22.1%</td>
+                            <td class="positive">+5.2%</td>
+                        </tr>
+                        <tr>
+                            <td>15~30s</td>
+                            <td>1,789</td>
+                            <td class="positive">+16.9%</td>
+                            <td>89,234</td>
+                            <td class="positive">+19.8%</td>
+                            <td>4.1M</td>
+                            <td class="positive">+22.4%</td>
+                            <td>21.7%</td>
+                            <td class="positive">+4.8%</td>
+                        </tr>
+                        <tr>
+                            <td>30~60s</td>
+                            <td>1,256</td>
+                            <td class="positive">+14.7%</td>
+                            <td>67,789</td>
+                            <td class="positive">+17.3%</td>
+                            <td>3.1M</td>
+                            <td class="positive">+20.8%</td>
+                            <td>20.9%</td>
+                            <td class="positive">+4.1%</td>
+                        </tr>
+                        <tr>
+                            <td>1~3min</td>
+                            <td>987</td>
+                            <td class="positive">+12.9%</td>
+                            <td>45,567</td>
+                            <td class="positive">+15.2%</td>
+                            <td>2.2M</td>
+                            <td class="positive">+18.7%</td>
+                            <td>19.8%</td>
+                            <td class="positive">+3.6%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4" class="merged-cell">Hip-Hop</td>
+                            <td>0~15s</td>
+                            <td>1,567</td>
+                            <td class="positive">+17.8%</td>
+                            <td>56,789</td>
+                            <td class="positive">+20.4%</td>
+                            <td>2.8M</td>
+                            <td class="positive">+24.1%</td>
+                            <td>17.9%</td>
+                            <td class="positive">+3.7%</td>
+                        </tr>
+                        <tr>
+                            <td>15~30s</td>
+                            <td>2,089</td>
+                            <td class="positive">+22.3%</td>
+                            <td>78,567</td>
+                            <td class="positive">+25.7%</td>
+                            <td>3.7M</td>
+                            <td class="positive">+28.9%</td>
+                            <td>18.6%</td>
+                            <td class="positive">+4.2%</td>
+                        </tr>
+                        <tr>
+                            <td>30~60s</td>
+                            <td>1,433</td>
+                            <td class="positive">+15.2%</td>
+                            <td>56,234</td>
+                            <td class="positive">+18.3%</td>
+                            <td>2.9M</td>
+                            <td class="positive">+21.6%</td>
+                            <td>17.2%</td>
+                            <td class="positive">+3.1%</td>
+                        </tr>
+                        <tr>
+                            <td>1~3min</td>
+                            <td>1,145</td>
+                            <td class="positive">+13.7%</td>
+                            <td>45,678</td>
+                            <td class="positive">+16.9%</td>
+                            <td>2.3M</td>
+                            <td class="positive">+19.8%</td>
+                            <td>16.8%</td>
+                            <td class="positive">+2.7%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">Rock</td>
+                            <td>0~15s</td>
+                            <td>567</td>
+                            <td class="positive">+8.8%</td>
+                            <td>23,456</td>
+                            <td class="positive">+11.4%</td>
+                            <td>1.2M</td>
+                            <td class="positive">+14.1%</td>
+                            <td>15.7%</td>
+                            <td class="positive">+2.5%</td>
+                        </tr>
+                        <tr>
+                            <td>15~30s</td>
+                            <td>789</td>
+                            <td class="positive">+12.3%</td>
+                            <td>34,567</td>
+                            <td class="positive">+15.7%</td>
+                            <td>1.7M</td>
+                            <td class="positive">+18.8%</td>
+                            <td>16.4%</td>
+                            <td class="positive">+3.1%</td>
+                        </tr>
+                        <tr>
+                            <td>30~60s</td>
+                            <td>456</td>
+                            <td class="positive">+6.2%</td>
+                            <td>18,234</td>
+                            <td class="positive">+8.8%</td>
+                            <td>0.9M</td>
+                            <td class="positive">+11.4%</td>
+                            <td>14.8%</td>
+                            <td class="positive">+1.8%</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3" class="merged-cell">Classical</td>
+                            <td>0~15s</td>
+                            <td>234</td>
+                            <td class="positive">+4.8%</td>
+                            <td>12,345</td>
+                            <td class="positive">+7.4%</td>
+                            <td>0.6M</td>
+                            <td class="positive">+9.1%</td>
+                            <td>13.2%</td>
+                            <td class="positive">+1.5%</td>
+                        </tr>
+                        <tr>
+                            <td>15~30s</td>
+                            <td>345</td>
+                            <td class="positive">+6.3%</td>
+                            <td>18,567</td>
+                            <td class="positive">+9.7%</td>
+                            <td>0.9M</td>
+                            <td class="positive">+12.8%</td>
+                            <td>14.1%</td>
+                            <td class="positive">+2.1%</td>
+                        </tr>
+                        <tr>
+                            <td>30~60s</td>
+                            <td>456</td>
+                            <td class="positive">+8.2%</td>
+                            <td>23,456</td>
+                            <td class="positive">+11.8%</td>
+                            <td>1.1M</td>
+                            <td class="positive">+14.7%</td>
+                            <td>15.3%</td>
+                            <td class="positive">+2.8%</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-
-
     <script>
-        // Define video duration categories
-        const durationCategories = ['0-15s', '15-30s', '30-60s', '1-3min', '3-5min', '5-10min', '10-20min', '20-30min', '30-60min', '>60min'];
-        
-        // Define BGM types
-        const bgmTypes = ['Pop', 'Electronic', 'Hip-Hop', 'Rock', 'Classical', 'Jazz', 'Country', 'R&B'];
-        
-        // Sample music data for each BGM type
-        const musicData = {
-            'Pop': [
-                { title: 'Blinding Lights', artist: 'The Weeknd', uses: 2500000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Watermelon Sugar', artist: 'Harry Styles', uses: 2200000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Levitating', artist: 'Dua Lipa', uses: 2100000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Good 4 U', artist: 'Olivia Rodrigo', uses: 1900000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Anti-Hero', artist: 'Taylor Swift', uses: 1800000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
-            ],
-            'Electronic': [
-                { title: 'Midnight City', artist: 'M83', uses: 1500000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Strobe', artist: 'Deadmau5', uses: 1300000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Clarity', artist: 'Zedd ft. Foxes', uses: 1200000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Titanium', artist: 'David Guetta ft. Sia', uses: 1100000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Bangarang', artist: 'Skrillex', uses: 1000000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
-            ],
-            'Hip-Hop': [
-                { title: 'God\'s Plan', artist: 'Drake', uses: 1800000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'HUMBLE.', artist: 'Kendrick Lamar', uses: 1600000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Old Town Road', artist: 'Lil Nas X', uses: 1500000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Sicko Mode', artist: 'Travis Scott', uses: 1400000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Industry Baby', artist: 'Lil Nas X & Jack Harlow', uses: 1300000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
-            ],
-            'Rock': [
-                { title: 'Bohemian Rhapsody', artist: 'Queen', uses: 1200000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Sweet Child O\' Mine', artist: 'Guns N\' Roses', uses: 1100000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Don\'t Stop Believin\'', artist: 'Journey', uses: 1000000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Thunderstruck', artist: 'AC/DC', uses: 950000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Smells Like Teen Spirit', artist: 'Nirvana', uses: 900000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
-            ],
-            'Classical': [
-                { title: 'Canon in D', artist: 'Pachelbel', uses: 800000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Für Elise', artist: 'Beethoven', uses: 750000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'The Four Seasons', artist: 'Vivaldi', uses: 700000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Ave Maria', artist: 'Schubert', uses: 650000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Moonlight Sonata', artist: 'Beethoven', uses: 600000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
-            ],
-            'Jazz': [
-                { title: 'Take Five', artist: 'Dave Brubeck', uses: 500000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Fly Me to the Moon', artist: 'Frank Sinatra', uses: 480000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'What a Wonderful World', artist: 'Louis Armstrong', uses: 460000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Summertime', artist: 'Ella Fitzgerald', uses: 440000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Blue Moon', artist: 'Billie Holiday', uses: 420000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
-            ],
-            'Country': [
-                { title: 'Friends in Low Places', artist: 'Garth Brooks', uses: 600000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Sweet Caroline', artist: 'Neil Diamond', uses: 580000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Wagon Wheel', artist: 'Darius Rucker', uses: 560000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Cruise', artist: 'Florida Georgia Line', uses: 540000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Body Like a Back Road', artist: 'Sam Hunt', uses: 520000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
-            ],
-            'R&B': [
-                { title: 'Blurred Lines', artist: 'Robin Thicke', uses: 700000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Uptown Funk', artist: 'Mark Ronson ft. Bruno Mars', uses: 680000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Happy', artist: 'Pharrell Williams', uses: 660000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'Can\'t Stop the Feeling', artist: 'Justin Timberlake', uses: 640000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' },
-                { title: 'All of Me', artist: 'John Legend', uses: 620000, url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav' }
-            ]
+        // Sample data
+        const bgmTypes = ['Pop', 'Electronic', 'Hip-Hop', 'Rock', 'Classical', 'Jazz'];
+        const durations = ['0~15s', '15~30s', '30~60s', '1~3min', '3~5min', '5~10min', '10~20min', '20~30min', '30~60min', '>60min'];
+        const dates = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
+
+        // Chart instances
+        let charts = {};
+        let currentChartTypes = {
+            combined: 'bar'
         };
-        
-        // Generate sample data for demonstration
-        function generateData() {
-            const data = {};
+        let currentTrendMetric = 'posts';
+        let currentDataType = 'posts';
+        let allChartData = {};
+
+        // Initialize all charts
+        function initCharts() {
+            initBoxPlotChart();
             
-            // Organize data by BGM types, with duration categories as series
-            bgmTypes.forEach(bgmType => {
-                data[bgmType] = {
-                    interaction: [],
-                    interactionRate: [],
-                    views: [],
-                    postCount: [],
-                    percentages: {},
-                    periodOverPeriod: {}
-                };
-                
-                durationCategories.forEach((_, index) => {
-                    // Generate random values for each metric
-                    data[bgmType].interaction.push(Math.floor(Math.random() * 600000) + 100000);
-                    data[bgmType].interactionRate.push((Math.random() * 6 + 1).toFixed(2));
-                    data[bgmType].views.push(Math.floor(Math.random() * 6000000) + 1000000);
-                    data[bgmType].postCount.push(Math.floor(Math.random() * 6000) + 1000);
+            // Generate and store all data
+            allChartData.posts = generatePostsData();
+            allChartData.engagement = generateEngagementData();
+            allChartData.views = generateViewsData();
+            
+            initCombinedChart('posts');
+            initTrendChart('posts');
+        }
+
+        // Box Plot Chart
+        function initBoxPlotChart() {
+            const chart = echarts.init(document.getElementById('boxPlotChart'));
+            
+            // Generate box plot data for each BGM type
+            const boxData = bgmTypes.map(bgmType => {
+                // Generate sample duration data (in seconds for calculation)
+                const durationValues = [];
+                durations.forEach((duration, index) => {
+                    const count = Math.floor(Math.random() * 500) + 100;
+                    let avgDuration;
+                    switch(duration) {
+                        case '0~15s': avgDuration = 7.5; break;
+                        case '15~30s': avgDuration = 22.5; break;
+                        case '30~60s': avgDuration = 45; break;
+                        case '1~3min': avgDuration = 120; break;
+                        case '3~5min': avgDuration = 240; break;
+                        case '5~10min': avgDuration = 450; break;
+                        case '10~20min': avgDuration = 900; break;
+                        case '20~30min': avgDuration = 1500; break;
+                        case '30~60min': avgDuration = 2700; break;
+                        case '>60min': avgDuration = 4200; break;
+                    }
+                    for(let i = 0; i < count; i++) {
+                        durationValues.push(avgDuration + (Math.random() - 0.5) * avgDuration * 0.4);
+                    }
                 });
                 
-                // Calculate percentages
-                const totalInteraction = data[bgmType].interaction.reduce((a, b) => a + b, 0);
-                const totalViews = data[bgmType].views.reduce((a, b) => a + b, 0);
-                const totalPosts = data[bgmType].postCount.reduce((a, b) => a + b, 0);
+                durationValues.sort((a, b) => a - b);
+                const q1 = durationValues[Math.floor(durationValues.length * 0.25)];
+                const median = durationValues[Math.floor(durationValues.length * 0.5)];
+                const q3 = durationValues[Math.floor(durationValues.length * 0.75)];
+                const min = durationValues[0];
+                const max = durationValues[durationValues.length - 1];
                 
-                data[bgmType].percentages = {
-                    interaction: data[bgmType].interaction.map(val => ((val / totalInteraction) * 100).toFixed(2)),
-                    views: data[bgmType].views.map(val => ((val / totalViews) * 100).toFixed(2)),
-                    postCount: data[bgmType].postCount.map(val => ((val / totalPosts) * 100).toFixed(2))
-                };
-                
-                // Generate period-over-period changes
-                data[bgmType].periodOverPeriod = {
-                    interaction: data[bgmType].interaction.map(() => ((Math.random() * 30) - 15).toFixed(2)),
-                    interactionRate: data[bgmType].interactionRate.map(() => ((Math.random() * 30) - 15).toFixed(2)),
-                    views: data[bgmType].views.map(() => ((Math.random() * 30) - 15).toFixed(2)),
-                    postCount: data[bgmType].postCount.map(() => ((Math.random() * 30) - 15).toFixed(2))
-                };
+                return [min, q1, median, q3, max];
             });
-            
-            return data;
-        }
-        
-        const bgmData = generateData();
-        
-        // Initialize ECharts instances
-        const interactionChart = echarts.init(document.getElementById('interactionChart'));
-        const interactionRateChart = echarts.init(document.getElementById('interactionRateChart'));
-        const viewsChart = echarts.init(document.getElementById('viewsChart'));
-        const postCountChart = echarts.init(document.getElementById('postCountChart'));
-        
-        // Chart configuration
-        let chartType = {
-            interaction: 'bar',
-            interactionRate: 'bar',
-            views: 'bar',
-            postCount: 'bar'
-        };
-        
-        // Color palette for BGM types
-        const bgmColors = {
-            'Pop': '#FF6B6B',
-            'Electronic': '#4ECDC4',
-            'Hip-Hop': '#45B7D1',
-            'Rock': '#96CEB4',
-            'Classical': '#FFEAA7',
-            'Jazz': '#DDA0DD',
-            'Country': '#98D8C8',
-            'R&B': '#F7DC6F'
-        };
-        
-        // Audio management
-        let currentAudio = null;
-        let currentPlayingButton = null;
-        
-        // Prepare series data for each chart
-        function prepareSeries(metricName, type) {
-            return durationCategories.map(duration => {
-                return {
-                    name: duration,
-                    type: type,
-                    stack: type === 'bar' ? 'total' : undefined,
-                    emphasis: {
-                        focus: 'series'
-                    },
-                    data: bgmTypes.map(bgmType => bgmData[bgmType][metricName][durationCategories.indexOf(duration)]),
-                    smooth: type === 'line'
-                };
-            });
-        }
-        
-        // Create chart options with enhanced tooltips
-        function createChartOption(title, metricName, yAxisName, type) {
-            return {
+
+            const option = {
                 tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: type === 'bar' ? 'shadow' : 'line'
-                    },
+                    trigger: 'item',
                     formatter: function(params) {
-                        let result = `<strong>${params[0].axisValue}</strong><br/>`;
-                        let total = 0;
-                        
-                        // Calculate total for percentage
-                        params.forEach(param => {
-                            total += param.value;
-                        });
-                        
-                        params.forEach(param => {
-                            const percentage = total > 0 ? ((param.value / total) * 100).toFixed(1) : 0;
-                            result += `${param.marker} ${param.seriesName}: ${param.value.toLocaleString()} (${percentage}%)<br/>`;
-                        });
-                        
-                        return result;
+                        const data = params.data;
+                        const qoqChange = (Math.random() * 20 - 10).toFixed(1);
+                        return `BGM Type: ${bgmTypes[params.dataIndex]}<br/>
+                                Min: ${data[0].toFixed(1)} sec<br/>
+                                Q1: ${data[1].toFixed(1)} sec<br/>
+                                Median: ${data[2].toFixed(1)} sec<br/>
+                                Q3: ${data[3].toFixed(1)} sec<br/>
+                                Max: ${data[4].toFixed(1)} sec<br/>
+                                QoQ Change: ${qoqChange > 0 ? '+' : ''}${qoqChange}%`;
                     }
-                },
-                legend: {
-                    data: durationCategories,
-                    bottom: 0,
-                    itemGap: 15,
-                    type: 'scroll'
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '15%',
-                    containLabel: true
                 },
                 xAxis: {
                     type: 'category',
                     data: bgmTypes,
                     axisLabel: {
-                        rotate: 45,
-                        fontSize: 11
+                        rotate: 0
                     }
                 },
                 yAxis: {
                     type: 'value',
-                    name: yAxisName,
+                    name: 'Duration (seconds)',
                     axisLabel: {
                         formatter: function(value) {
-                            if (value >= 1000000) {
-                                return (value / 1000000).toFixed(1) + 'M';
-                            } else if (value >= 1000) {
-                                return (value / 1000).toFixed(1) + 'K';
-                            }
-                            return value;
+                            return value.toFixed(0);
                         }
                     }
                 },
-                series: prepareSeries(metricName, type)
+                series: [{
+                    name: 'Duration Distribution',
+                    type: 'boxplot',
+                    data: boxData,
+                    itemStyle: {
+                        color: '#007bff'
+                    }
+                }]
             };
+
+            chart.setOption(option);
+            charts['boxPlotChart'] = chart;
         }
-        
-        // Render charts
-        function renderCharts() {
-            interactionChart.setOption(createChartOption('Interaction Volume by BGM Type and Video Duration', 'interaction', 'Interaction Volume', chartType.interaction));
-            interactionRateChart.setOption(createChartOption('Interaction Rate by BGM Type and Video Duration', 'interactionRate', 'Interaction Rate (%)', chartType.interactionRate));
-            viewsChart.setOption(createChartOption('Views by BGM Type and Video Duration', 'views', 'Views', chartType.views));
-            postCountChart.setOption(createChartOption('Post Count by BGM Type and Video Duration', 'postCount', 'Post Count', chartType.postCount));
-        }
-        
-        renderCharts();
-        
-        // Toggle chart type
-        function setupToggleButtons(containerId, chartId) {
-            const container = document.getElementById(containerId);
-            const buttons = container.querySelectorAll('.toggle-btn');
-            
-            buttons.forEach(button => {
-                button.addEventListener('click', function() {
-                    buttons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    const type = this.getAttribute('data-type');
-                    chartType[chartId] = type;
-                    renderCharts();
+
+        // Generate sample data for stacked bar charts
+        function generatePostsData() {
+            return durations.map(duration => {
+                const currentData = bgmTypes.map(() => Math.floor(Math.random() * 1000) + 200);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
                 });
+                
+                return {
+                    name: duration,
+                    data: currentData,
+                    momChanges: momChanges
+                };
             });
         }
-        
-        setupToggleButtons('interactionChartToggle', 'interaction');
-        setupToggleButtons('interactionRateChartToggle', 'interactionRate');
-        setupToggleButtons('viewsChartToggle', 'views');
-        setupToggleButtons('postCountChartToggle', 'postCount');
-        
-        // Create data table with expandable rows
-        function createDataTable() {
-            const table = document.getElementById('metricsTable');
-            let html = '';
-            
-            // Header row with duration categories
-            html += '<tr><th>BGM Type</th><th>Metric</th>';
-            durationCategories.forEach(category => {
-                html += `<th>${category}</th>`;
+
+        function generateEngagementData() {
+            return durations.map(duration => {
+                const currentData = bgmTypes.map(() => Math.floor(Math.random() * 50000) + 10000);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
+                });
+                
+                return {
+                    name: duration,
+                    data: currentData,
+                    momChanges: momChanges
+                };
             });
-            html += '<th>Total</th></tr>';
-            
-            // Data rows for each BGM type
-            bgmTypes.forEach(bgmType => {
-                // BGM type header with expand functionality
-                html += `<tr class="expandable-row" onclick="toggleMusicDetails('${bgmType}')">
-                    <td colspan="${durationCategories.length + 3}" class="bgm-header">
-                        <span class="expand-icon" id="icon-${bgmType}">▶</span>${bgmType}
-                    </td>
-                </tr>`;
-                
-                // Interaction Volume
-                html += '<tr><td rowspan="3" class="metric-name">Interaction Volume</td><td>Value</td>';
-                const totalInteraction = bgmData[bgmType].interaction.reduce((a, b) => a + b, 0);
-                bgmData[bgmType].interaction.forEach(value => {
-                    html += `<td>${value.toLocaleString()}</td>`;
-                });
-                html += `<td>${totalInteraction.toLocaleString()}</td></tr>`;
-                
-                // Interaction Volume Percentage
-                html += '<tr><td>Percentage (%)</td>';
-                bgmData[bgmType].percentages.interaction.forEach(value => {
-                    html += `<td>${value}%</td>`;
-                });
-                html += '<td>100%</td></tr>';
-                
-                // Interaction Volume Period-over-Period
-                html += '<tr><td>Period-over-Period (%)</td>';
-                bgmData[bgmType].periodOverPeriod.interaction.forEach(value => {
-                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
-                    html += `<td class="${cellClass}">${value}%</td>`;
-                });
-                html += '<td>-</td></tr>';
-                
-                // Views
-                html += '<tr><td rowspan="3" class="metric-name">Views</td><td>Value</td>';
-                const totalViews = bgmData[bgmType].views.reduce((a, b) => a + b, 0);
-                bgmData[bgmType].views.forEach(value => {
-                    html += `<td>${value.toLocaleString()}</td>`;
-                });
-                html += `<td>${totalViews.toLocaleString()}</td></tr>`;
-                
-                // Views Percentage
-                html += '<tr><td>Percentage (%)</td>';
-                bgmData[bgmType].percentages.views.forEach(value => {
-                    html += `<td>${value}%</td>`;
-                });
-                html += '<td>100%</td></tr>';
-                
-                // Views Period-over-Period
-                html += '<tr><td>Period-over-Period (%)</td>';
-                bgmData[bgmType].periodOverPeriod.views.forEach(value => {
-                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
-                    html += `<td class="${cellClass}">${value}%</td>`;
-                });
-                html += '<td>-</td></tr>';
-                
-                // Interaction Rate
-                html += '<tr><td rowspan="2" class="metric-name">Interaction Rate (%)</td><td>Value</td>';
-                bgmData[bgmType].interactionRate.forEach(value => {
-                    html += `<td>${value}%</td>`;
-                });
-                const avgInteractionRate = (bgmData[bgmType].interactionRate.reduce((a, b) => parseFloat(a) + parseFloat(b), 0) / bgmData[bgmType].interactionRate.length).toFixed(2);
-                html += `<td>${avgInteractionRate}%</td></tr>`;
-                
-                // Interaction Rate Period-over-Period
-                html += '<tr><td>Period-over-Period (%)</td>';
-                bgmData[bgmType].periodOverPeriod.interactionRate.forEach(value => {
-                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
-                    html += `<td class="${cellClass}">${value}%</td>`;
-                });
-                html += '<td>-</td></tr>';
-                
-                // Post Count
-                html += '<tr><td rowspan="3" class="metric-name">Post Count</td><td>Value</td>';
-                const totalPosts = bgmData[bgmType].postCount.reduce((a, b) => a + b, 0);
-                bgmData[bgmType].postCount.forEach(value => {
-                    html += `<td>${value.toLocaleString()}</td>`;
-                });
-                html += `<td>${totalPosts.toLocaleString()}</td></tr>`;
-                
-                // Post Count Percentage
-                html += '<tr><td>Percentage (%)</td>';
-                bgmData[bgmType].percentages.postCount.forEach(value => {
-                    html += `<td>${value}%</td>`;
-                });
-                html += '<td>100%</td></tr>';
-                
-                // Post Count Period-over-Period
-                html += '<tr><td>Period-over-Period (%)</td>';
-                bgmData[bgmType].periodOverPeriod.postCount.forEach(value => {
-                    const cellClass = parseFloat(value) >= 0 ? 'positive' : 'negative';
-                    html += `<td class="${cellClass}">${value}%</td>`;
-                });
-                html += '<td>-</td></tr>';
-                
-                // Music details row (initially hidden)
-                html += `<tr class="music-details" id="music-${bgmType}">
-                    <td colspan="${durationCategories.length + 3}">
-                        <div class="music-list">`;
-                
-                musicData[bgmType].forEach((track, index) => {
-                    html += `
-                        <div class="music-item">
-                            <button class="play-btn" onclick="togglePlay('${bgmType}', ${index}, this)">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
-                            </button>
-                            <div class="music-info">
-                                <div class="music-title">${track.title}</div>
-                                <div class="music-artist">${track.artist}</div>
-                                <div class="music-stats">${track.uses.toLocaleString()} uses</div>
-                            </div>
-                        </div>`;
+        }
+
+        function generateViewsData() {
+            return durations.map(duration => {
+                const currentData = bgmTypes.map(() => Math.floor(Math.random() * 5000000) + 500000);
+                const previousData = currentData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
+                const momChanges = currentData.map((current, index) => {
+                    const change = ((current - previousData[index]) / previousData[index] * 100).toFixed(1);
+                    return parseFloat(change);
                 });
                 
-                html += `</div></td></tr>`;
+                return {
+                    name: duration,
+                    data: currentData,
+                    momChanges: momChanges
+                };
             });
-            
-            table.innerHTML = html;
         }
-        
-        createDataTable();
-        
-        // Toggle music details in table
-        function toggleMusicDetails(bgmType) {
-            const detailsRow = document.getElementById(`music-${bgmType}`);
-            const icon = document.getElementById(`icon-${bgmType}`);
+
+        // Combined Chart
+        function initCombinedChart(dataType) {
+            const chart = echarts.init(document.getElementById('combinedChart'));
+            const data = allChartData[dataType];
             
-            if (detailsRow.classList.contains('show')) {
-                detailsRow.classList.remove('show');
-                icon.textContent = '▶';
-                icon.classList.remove('expanded');
-            } else {
-                detailsRow.classList.add('show');
-                icon.textContent = '▼';
-                icon.classList.add('expanded');
-            }
+            const series = data.map(item => ({
+                name: item.name,
+                type: 'bar',
+                stack: 'total',
+                data: item.data,
+                momChanges: item.momChanges
+            }));
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        let result = `${params[0].axisValue}<br/>`;
+                        params.forEach(param => {
+                            const momChange = param.data.momChanges ? param.data.momChanges[param.dataIndex] : 
+                                            (param.seriesName && charts['combinedChart'] && charts['combinedChart'].momChanges) ? 
+                                            charts['combinedChart'].momChanges[param.seriesName][param.dataIndex] : 
+                                            (Math.random() * 20 - 10).toFixed(1);
+                            result += `${param.marker}${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            result += `QoQ: ${momChange > 0 ? '+' : ''}${momChange}%<br/>`;
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: data.map(item => item.name),
+                    top: 10
+                },
+                xAxis: {
+                    type: 'category',
+                    data: bgmTypes
+                },
+                yAxis: {
+                    type: 'value',
+                    name: dataType.charAt(0).toUpperCase() + dataType.slice(1)
+                },
+                series: series
+            };
+
+            chart.setOption(option);
+            charts['combinedChart'] = chart;
+            
+            // Store MoM changes for tooltip
+            charts['combinedChart'].momChanges = {};
+            data.forEach(item => {
+                charts['combinedChart'].momChanges[item.name] = item.momChanges;
+            });
         }
-        
-        // Music playback functionality
-        function togglePlay(bgmType, trackIndex, button) {
-            const track = musicData[bgmType][trackIndex];
+
+        // Switch data type in combined chart
+        function switchDataType(dataType) {
+            currentDataType = dataType;
             
-            // Stop current audio if playing
-            if (currentAudio && !currentAudio.paused) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                if (currentPlayingButton) {
-                    currentPlayingButton.classList.remove('playing');
-                    currentPlayingButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+            // Update button states - find buttons in the BGM Type and Duration Analysis section
+            const chartSection = document.querySelector('#combinedChart').closest('.chart-section');
+            const buttons = chartSection.querySelectorAll('.btn:not(.download-btn)');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the correct button
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase() === dataType) {
+                    btn.classList.add('active');
                 }
-            }
-            
-            // If clicking the same button, just stop
-            if (currentPlayingButton === button) {
-                currentPlayingButton = null;
-                currentAudio = null;
-                return;
-            }
-            
-            // Play new audio
-            currentAudio = new Audio(track.url);
-            currentPlayingButton = button;
-            
-            button.classList.add('playing');
-            button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
-            
-            currentAudio.play().catch(e => {
-                console.log('Audio play failed:', e);
-                // Fallback: show playing state for demo purposes
             });
             
-            currentAudio.addEventListener('ended', () => {
-                button.classList.remove('playing');
-                button.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
-                currentPlayingButton = null;
-                currentAudio = null;
-            });
+            initCombinedChart(dataType);
         }
-        
-        // Download functionality
+
+        // Toggle combined chart type
+        function toggleCombinedChartType(type) {
+            const buttons = document.querySelectorAll('#combinedChart').parentNode.parentNode.querySelectorAll('.btn:not(.download-btn)');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (type === 'line') {
+                initCombinedTrendChart(currentDataType);
+            } else {
+                initCombinedChart(currentDataType);
+            }
+            
+            currentChartTypes.combined = type;
+        }
+
+        function initCombinedTrendChart(metric) {
+            const chart = charts['combinedChart'];
+            
+            const series = durations.slice(0, 6).map(duration => {
+                const data = dates.map(() => {
+                    switch(metric) {
+                        case 'posts': return Math.floor(Math.random() * 500) + 100;
+                        case 'engagement': return Math.floor(Math.random() * 20000) + 5000;
+                        case 'views': return Math.floor(Math.random() * 2000000) + 200000;
+                    }
+                });
+                
+                return {
+                    name: duration,
+                    type: 'line',
+                    data: data,
+                    smooth: true
+                };
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        let result = `${params[0].axisValue}<br/>`;
+                        params.forEach(param => {
+                            const qoqChange = (Math.random() * 20 - 10).toFixed(1);
+                            result += `${param.marker}${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            result += `QoQ: ${qoqChange > 0 ? '+' : ''}${qoqChange}%<br/>`;
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: durations.slice(0, 6),
+                    top: 10
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates
+                },
+                yAxis: {
+                    type: 'value',
+                    name: metric.charAt(0).toUpperCase() + metric.slice(1)
+                },
+                series: series
+            };
+
+            chart.setOption(option);
+        }
+
+        // Trend Chart
+        // Trend Analysis Chart
+        function initTrendChart(metric = 'posts') {
+            const chart = echarts.init(document.getElementById('trendChart'));
+            charts['trendChart'] = chart;
+            updateTrendChart(metric, 'all');
+        }
+
+        function updateTrendChart(metric, durationFilter = 'all') {
+            const chart = charts['trendChart'];
+            if (!chart) return;
+            
+            let filteredBgmTypes = bgmTypes;
+            if (durationFilter !== 'all') {
+                // When a specific duration is selected, show all BGM types for that duration
+                filteredBgmTypes = bgmTypes;
+            }
+            
+            const series = filteredBgmTypes.map(bgmType => {
+                const data = dates.map(() => {
+                    switch(metric) {
+                        case 'posts': return Math.floor(Math.random() * 500) + 100;
+                        case 'engagement': return Math.floor(Math.random() * 20000) + 5000;
+                        case 'views': return Math.floor(Math.random() * 2000000) + 200000;
+                        case 'engagementRate': return (Math.random() * 10 + 2).toFixed(2);
+                        default: return Math.floor(Math.random() * 500) + 100;
+                    }
+                });
+                return {
+                    name: bgmType,
+                    type: 'line',
+                    data: data,
+                    smooth: true
+                };
+            });
+
+            // Calculate total average as a straight line
+            const totalSum = series.reduce((acc, s) => {
+                return acc + s.data.reduce((sum, val) => sum + parseFloat(val), 0);
+            }, 0);
+            const totalCount = series.length * dates.length;
+            const overallAverage = (totalSum / totalCount).toFixed(metric === 'engagementRate' ? 2 : 0);
+            
+            // Create straight line with the same value for all dates
+            const avgData = dates.map(() => overallAverage);
+
+            series.push({
+                name: 'Total Average',
+                type: 'line',
+                data: avgData,
+                lineStyle: {
+                    type: 'dashed',
+                    color: '#999',
+                    width: 2
+                },
+                itemStyle: {
+                    color: '#999'
+                },
+                symbol: 'none'
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        let result = `${params[0].axisValue}<br/>`;
+                        if (durationFilter !== 'all') {
+                            result += `Duration: ${durationFilter}<br/>`;
+                        }
+                        params.forEach(param => {
+                            const qoqChange = (Math.random() * 20 - 10).toFixed(1);
+                            const unit = metric === 'engagementRate' ? '%' : '';
+                            result += `${param.marker}${param.seriesName}: ${param.value}${unit}<br/>`;
+                            if (param.seriesName !== 'Total Average') {
+                                result += `QoQ: ${qoqChange > 0 ? '+' : ''}${qoqChange}%<br/>`;
+                            }
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: [...filteredBgmTypes, 'Total Average'],
+                    top: 10
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates
+                },
+                yAxis: {
+                    type: 'value',
+                    name: metric === 'engagementRate' ? 'Engagement Rate (%)' : metric.charAt(0).toUpperCase() + metric.slice(1)
+                },
+                series: series
+            };
+
+            chart.setOption(option);
+        }
+
+        // Chart type toggle functions
+        function toggleChartType(chartType, type) {
+            const chartId = chartType + 'Chart';
+            const buttons = document.querySelectorAll(`#${chartId}`).parentNode.parentNode.querySelectorAll('.btn:not(.download-btn)');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            if (type === 'line') {
+                // Convert to trend line chart
+                initTrendLineChart(chartId, chartType);
+            } else {
+                // Convert back to stacked bar chart
+                let data;
+                switch(chartType) {
+                    case 'posts': data = generatePostsData(); break;
+                    case 'engagement': data = generateEngagementData(); break;
+                    case 'views': data = generateViewsData(); break;
+                }
+                initStackedBarChart(chartId, chartType.charAt(0).toUpperCase() + chartType.slice(1), data);
+            }
+            
+            currentChartTypes[chartType] = type;
+        }
+
+        function initTrendLineChart(chartId, metric) {
+            const chart = charts[chartId];
+            
+            const series = durations.slice(0, 6).map(duration => {
+                const data = dates.map(() => {
+                    switch(metric) {
+                        case 'posts': return Math.floor(Math.random() * 500) + 100;
+                        case 'engagement': return Math.floor(Math.random() * 20000) + 5000;
+                        case 'views': return Math.floor(Math.random() * 2000000) + 200000;
+                    }
+                });
+                
+                return {
+                    name: duration,
+                    type: 'line',
+                    data: data,
+                    smooth: true
+                };
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function(params) {
+                        let result = `${params[0].axisValue}<br/>`;
+                        params.forEach(param => {
+                            const qoqChange = (Math.random() * 20 - 10).toFixed(1);
+                            result += `${param.marker}${param.seriesName}: ${param.value.toLocaleString()}<br/>`;
+                            result += `QoQ: ${qoqChange > 0 ? '+' : ''}${qoqChange}%<br/>`;
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: durations.slice(0, 6),
+                    top: 10
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates
+                },
+                yAxis: {
+                    type: 'value',
+                    name: metric.charAt(0).toUpperCase() + metric.slice(1)
+                },
+                series: series
+            };
+
+            chart.setOption(option);
+        }
+
+        // Trend metric switching
+        function switchTrendMetric(metric) {
+            // Update button states - find buttons in the Trend Analysis section
+            const chartSection = document.querySelector('#trendChart').closest('.chart-section');
+            const buttons = chartSection.querySelectorAll('.btn:not(.download-btn)');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the correct button
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase() === metric.toLowerCase() || 
+                    (metric === 'engagementRate' && btn.textContent === 'Engagement Rate')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            currentTrendMetric = metric;
+            const duration = document.getElementById('trendDurationSelector').value;
+            updateTrendChart(metric, duration);
+        }
+
+        function updateTrendByDuration(duration) {
+            updateTrendChart(currentTrendMetric, duration);
+        }
+
+        // Download functions
         function downloadChart(chartId) {
-            const chart = echarts.getInstanceByDom(document.getElementById(chartId));
+            const chart = charts[chartId];
             if (chart) {
                 const url = chart.getDataURL({
                     type: 'png',
@@ -874,64 +1004,49 @@
                 link.click();
             }
         }
-        
+
         function downloadTable() {
-            const table = document.getElementById('metricsTable');
-            const csv = [];
-            const rows = table.querySelectorAll('tr');
+            const table = document.getElementById('dataTable');
+            let csv = [];
             
+            // Get headers
+            const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+            csv.push(headers.join(','));
+            
+            // Get data rows
+            const rows = table.querySelectorAll('tbody tr');
             rows.forEach(row => {
-                const cols = row.querySelectorAll('td, th');
-                const csvRow = [];
-                cols.forEach(col => {
-                    csvRow.push('"' + col.textContent.replace(/"/g, '""') + '"');
+                const cells = Array.from(row.cells).map(cell => {
+                    return `"${cell.textContent.replace(/"/g, '""')}"`;
                 });
-                csv.push(csvRow.join(','));
+                csv.push(cells.join(','));
             });
             
             const csvContent = csv.join('\n');
             const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
+            const url = URL.createObjectURL(blob);
             
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'bgm_metrics_table.csv';
+            link.download = 'bgmtype_duration_data.csv';
             link.click();
             
-            window.URL.revokeObjectURL(url);
+            URL.revokeObjectURL(url);
         }
-        
-        function downloadMusicData() {
-            const csv = ['BGM Type,Rank,Title,Artist,Uses'];
-            
-            bgmTypes.forEach(bgmType => {
-                musicData[bgmType].forEach((track, index) => {
-                    csv.push(`"${bgmType}",${index + 1},"${track.title}","${track.artist}",${track.uses}`);
-                });
-            });
-            
-            const csvContent = csv.join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'top_music_tracks.csv';
-            link.click();
-            
-            window.URL.revokeObjectURL(url);
-        }
-        
-        // Handle window resize
+
+        // Resize charts on window resize
         window.addEventListener('resize', function() {
-            interactionChart.resize();
-            interactionRateChart.resize();
-            viewsChart.resize();
-            postCountChart.resize();
+            Object.values(charts).forEach(chart => {
+                if (chart && chart.resize) {
+                    chart.resize();
+                }
+            });
         });
-        
-        // Make toggleMusicDetails globally accessible
-        window.toggleMusicDetails = toggleMusicDetails;
+
+        // Initialize charts when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+        });
     </script>
 </body>
 </html>
