@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boolean Query Component</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg-light: #f8fafc;
+            --border: #cbd5e1;
+            --text: #334155;
+            --tag-bg: #e0f2fe;
+            --tag-text: #0284c7;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: white; /* 纯白背景适配组件嵌入 */
+            padding: 20px;
+            color: var(--text);
+        }
+
+        /* Container styling */
+        .component-wrapper {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        /* Row Layout */
+        .query-row {
+            display: flex;
+            gap: 8px;
+            align-items: start;
+            padding: 10px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: border-color 0.2s;
+        }
+
+        .query-row:hover {
+            border-color: var(--primary);
+        }
+
+        /* Common Inputs */
+        select, input.std-input {
+            height: 38px;
+            padding: 0 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            background-color: white;
+            color: var(--text);
+        }
+        
+        select:focus, input:focus {
+            border-color: var(--primary);
+        }
+
+        /* Width Utilities */
+        .w-logic { width: 75px; flex-shrink: 0; font-weight: 600; }
+        .w-field { width: 180px; flex-shrink: 0; }
+        .w-operator { width: 100px; flex-shrink: 0; }
+        
+        /* --- TAG INPUT AREA (Shared by Text & Enum) --- */
+        .multi-input-wrapper {
+            flex-grow: 1;
+            display: flex;
+            gap: 8px;
+            min-width: 300px;
+        }
+
+        .tag-container {
+            flex-grow: 1;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px;
+            min-height: 38px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            align-items: center;
+            background: white;
+            position: relative; /* For dropdown positioning */
+            cursor: text;
+        }
+
+        .tag-container.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        .tag {
+            background-color: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            user-select: none;
+        }
+
+        .tag .close {
+            margin-left: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            opacity: 0.6;
+        }
+        .tag .close:hover { opacity: 1; }
+
+        .ghost-input {
+            border: none;
+            outline: none;
+            flex-grow: 1;
+            min-width: 60px;
+            font-size: 14px;
+            padding: 4px 0;
+            background: transparent;
+        }
+
+        /* --- DROPDOWN MENU (For Enum Fields) --- */
+        .options-dropdown {
+            position: absolute;
+            top: 100%;
+            left: -1px;
+            right: -1px;
+            background: white;
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .option-item {
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .option-item:hover { background-color: #f1f5f9; }
+        .option-item.selected { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+
+        /* Logic Switch (AND/OR) */
+        .inner-logic {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 38px;
+            flex-shrink: 0;
+        }
+        .logic-toggle {
+            display: flex;
+            background: #e2e8f0;
+            border-radius: 4px;
+            padding: 2px;
+            font-size: 12px;
+        }
+        .logic-toggle label {
+            padding: 3px 8px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .logic-toggle input { display: none; }
+        .logic-toggle input:checked + label {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Actions */
+        .btn-add {
+            background: white; border: 1px dashed #94a3b8; color: #64748b;
+            padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500;
+            width: 100%; margin-top: 10px;
+        }
+        .btn-add:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
+
+        .btn-del {
+            background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;
+            padding: 0 8px; height: 38px; display: flex; align-items: center;
+        }
+        .btn-del:hover { color: #ef4444; }
+
+        
+    </style>
+</head>
+<body>
+
+    <div class="component-wrapper">
+        <div id="query-rows"></div>
+        <button class="btn-add" onclick="addRow()">+ Add Condition</button>
+        
+    </div>
+
+<script>
+    // --- 1. Schema Definition (With Fake Data for new Dropdowns) ---
+    const schema = [
+        { key: 'posturl', type: 'keyword', label: 'Post URL' },
+        { key: 'videoduration', type: 'float', label: 'Video Duration' },
+        { key: 'likecount', type: 'long', label: 'Like Count' },
+        { key: 'sharecount', type: 'long', label: 'Share Count' },
+        { key: 'commentcount', type: 'long', label: 'Comment Count' },
+        { key: 'respondcount', type: 'long', label: 'Respond Count' },
+        // Changed to ENUM (Select)
+        { key: 'posttype', type: 'enum', label: 'Post Type', options: ['Video', 'Photo'] },
+        { key: 'language', type: 'keyword', label: 'Language' },
+        { key: 'hashtag', type: 'keyword', label: 'Hashtag' },
+        // Changed to ENUM
+        { key: 'postcategory', type: 'enum', label: 'Post Category', options: ['Entertainment', 'News', 'Sports', 'Tech', 'Lifestyle'] },
+        { key: 'nickname', type: 'text', label: 'Nickname' },
+        { key: 'country', type: 'keyword', label: 'Country' },
+        { key: 'viewcount', type: 'long', label: 'View Count' },
+        { key: 'posttsentiment', type: 'enum', label: 'Sentiment', options: ['Neutral', 'Positive', 'Negative'] },
+        { key: 'brand', type: 'text', label: 'Brand' },
+        // Changed to ENUM
+        { key: 'musicstyle', type: 'enum', label: 'Music Style', options: ['Pop', 'Rock', 'Electronic', 'Classical', 'Hip-hop'] },
+        // Changed to ENUM
+        { key: 'musicmood', type: 'enum', label: 'Music Mood', options: ['Happy', 'Sad', 'Energetic', 'Calm'] },
+        { key: 'mention', type: 'text', label: 'Mention' },
+        // Changed to ENUM
+        { key: 'videotype', type: 'enum', label: 'Video Type', options: ['Short', 'Vlog', 'Live', 'Ad'] },
+        { key: 'authorid', type: 'keyword', label: 'Author ID' },
+        { key: 'fanscount', type: 'long', label: 'Fans Count' },
+        { key: 'authorurl', type: 'keyword', label: 'Author URL' },
+        // Changed to ENUM
+        { key: 'verifytype', type: 'enum', label: 'Verify Type', options: ['Blue V', 'Yellow V', 'None'] },
+        { key: 'postcount', type: 'long', label: 'Post Count' },
+        { key: 'ocr', type: 'text', label: 'OCR Content' },
+        { key: 'asr', type: 'text', label: 'ASR Content' },
+        { key: 'title', type: 'text', label: 'Title' },
+        { key: 'content', type: 'text', label: 'Content' }
+    ];
+
+    let rowCount = 0;
+
+    // Initialize
+    window.onload = function() {
+        addRow();
+    };
+
+    function addRow() {
+        rowCount++;
+        const container = document.getElementById('query-rows');
+        const rowId = `row-${rowCount}`;
+        const isFirst = container.children.length === 0;
+
+        const row = document.createElement('div');
+        row.className = 'query-row';
+        row.id = rowId;
+
+        // Logic Selector
+        let logicHtml = isFirst 
+            ? `<div class="w-logic"></div>` 
+            : `<select class="w-logic on-change-trigger"><option value="AND">AND</option><option value="OR">OR</option><option value="NOT">NOT</option></select>`;
+
+        // Field Selector
+        let fieldOpts = schema.map(f => `<option value="${f.key}">${f.label}</option>`).join('');
+
+        row.innerHTML = `
+            ${logicHtml}
+            <select class="w-field on-change-trigger" onchange="renderInput('${rowId}')">${fieldOpts}</select>
+            <div id="input-area-${rowId}" style="display:contents"></div>
+            <button class="btn-del" onclick="removeRow('${rowId}')">✕</button>
+        `;
+
+        container.appendChild(row);
+        renderInput(rowId);
+        updateOutput();
+        
+        // Add global listener for updates
+        row.querySelectorAll('.on-change-trigger').forEach(el => el.addEventListener('change', updateOutput));
+    }
+
+    function removeRow(id) {
+        document.getElementById(id).remove();
+        updateOutput();
+    }
+
+    // --- Core Rendering Logic ---
+    function renderInput(rowId) {
+        const row = document.getElementById(rowId);
+        const fieldKey = row.querySelector('.w-field').value;
+        const config = schema.find(c => c.key === fieldKey);
+        const area = document.getElementById(`input-area-${rowId}`);
+        
+        area.innerHTML = '';
+
+        // Case 1: Numeric (Long/Float) -> Show Operator + Number Input
+        if (config.type === 'long' || config.type === 'float') {
+            area.innerHTML = `
+                <select class="w-operator on-change-trigger">
+                    <option value="GT">&gt;</option>
+                    <option value="GTE">&ge;</option>
+                    <option value="LT">&lt;</option>
+                    <option value="LTE">&le;</option>
+                    <option value="EQ">=</option>
+                    <option value="NEQ">!=</option>
+                </select>
+                <input type="number" class="std-input on-change-trigger" style="flex-grow:1" placeholder="Enter value">
+            `;
+            // Re-attach listeners
+            area.querySelectorAll('.on-change-trigger').forEach(el => el.addEventListener('input', updateOutput));
+        }
+        
+        // Case 2: Multi-Select ENUM or Multi-Keyword TEXT
+        else {
+            // Need a wrapper for Tag Input + Inner Logic
+            const wrapper = document.createElement('div');
+            wrapper.className = 'multi-input-wrapper';
+
+            // Tag Container
+            const tagContainer = document.createElement('div');
+            tagContainer.className = 'tag-container';
+            tagContainer.id = `tags-${rowId}`;
+            
+            // Hidden Input for typing
+            const ghostInput = document.createElement('input');
+            ghostInput.className = 'ghost-input';
+            
+            // Logic Toggle (AND/OR)
+            const radioName = `logic-${rowId}`;
+            const logicSwitch = document.createElement('div');
+            logicSwitch.className = 'inner-logic';
+            logicSwitch.innerHTML = `
+                <div class="logic-toggle">
+                    <input type="radio" id="${radioName}-and" name="${radioName}" value="AND" checked onchange="updateOutput()">
+                    <label for="${radioName}-and">AND</label>
+                    <input type="radio" id="${radioName}-or" name="${radioName}" value="OR" onchange="updateOutput()">
+                    <label for="${radioName}-or">OR</label>
+                </div>
+            `;
+
+            tagContainer.appendChild(ghostInput);
+            wrapper.appendChild(tagContainer);
+            wrapper.appendChild(logicSwitch);
+            area.appendChild(wrapper);
+
+            // 2A: Enum - Dropdown behavior
+            if (config.type === 'enum') {
+                ghostInput.readOnly = true; // No typing, only selecting
+                ghostInput.placeholder = "Select options...";
+                ghostInput.style.cursor = "pointer";
+
+                // Create Dropdown List
+                const dropdown = document.createElement('div');
+                dropdown.className = 'options-dropdown';
+                config.options.forEach(opt => {
+                    const item = document.createElement('div');
+                    item.className = 'option-item';
+                    item.innerText = opt;
+                    item.onclick = (e) => {
+                        e.stopPropagation();
+                        addTag(tagContainer, ghostInput, opt);
+                        updateOutput();
+                        dropdown.style.display = 'none';
+                    };
+                    dropdown.appendChild(item);
+                });
+                tagContainer.appendChild(dropdown);
+
+                // Toggle Dropdown
+                tagContainer.onclick = (e) => {
+                    if(e.target.classList.contains('close')) return;
+                    // Close others
+                    document.querySelectorAll('.options-dropdown').forEach(d => d.style.display = 'none');
+                    dropdown.style.display = 'block';
+                    tagContainer.classList.add('active');
+                };
+
+                // Click outside to close
+                document.addEventListener('click', (e) => {
+                    if (!tagContainer.contains(e.target)) {
+                        dropdown.style.display = 'none';
+                        tagContainer.classList.remove('active');
+                    }
+                });
+
+            } 
+            // 2B: Text/Keyword - Typing behavior
+            else {
+                ghostInput.placeholder = "Type & Enter...";
+                
+                tagContainer.onclick = () => { ghostInput.focus(); tagContainer.classList.add('active'); };
+                ghostInput.onblur = () => tagContainer.classList.remove('active');
+
+                ghostInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const val = ghostInput.value.trim();
+                        if (val) {
+                            addTag(tagContainer, ghostInput, val);
+                            ghostInput.value = '';
+                            updateOutput();
+                        }
+                    }
+                    if (e.key === 'Backspace' && ghostInput.value === '') {
+                        const tags = tagContainer.querySelectorAll('.tag');
+                        if(tags.length) {
+                            tags[tags.length-1].remove();
+                            updateOutput();
+                        }
+                    }
+                });
+
+                const proxInput = document.createElement('input');
+                proxInput.type = 'number';
+                proxInput.className = 'std-input proximity-input';
+                proxInput.placeholder = 'Proximity';
+                proxInput.min = '1';
+                proxInput.style.width = '100px';
+                proxInput.addEventListener('input', updateOutput);
+                wrapper.appendChild(proxInput);
+
+                const andRadio = logicSwitch.querySelector(`#${radioName}-and`);
+                const orRadio = logicSwitch.querySelector(`#${radioName}-or`);
+                const toggleProximity = () => {
+                    proxInput.style.display = andRadio.checked ? 'block' : 'none';
+                };
+                toggleProximity();
+                andRadio.addEventListener('change', toggleProximity);
+                orRadio.addEventListener('change', toggleProximity);
+            }
+        }
+    }
+
+    function addTag(container, input, text) {
+        // Prevent duplicates
+        const existing = Array.from(container.querySelectorAll('.tag')).map(t => t.dataset.val);
+        if(existing.includes(text)) return;
+
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.dataset.val = text;
+        tag.innerHTML = `${text} <span class="close">×</span>`;
+        tag.querySelector('.close').onclick = (e) => {
+            e.stopPropagation(); // prevent opening dropdown
+            tag.remove();
+            updateOutput();
+        };
+        container.insertBefore(tag, input);
+    }
+
+    // --- JSON Generation ---
+    function updateOutput() {
+        const rows = document.querySelectorAll('.query-row');
+        const data = [];
+
+        rows.forEach((row, index) => {
+            const fieldKey = row.querySelector('.w-field').value;
+            const config = schema.find(c => c.key === fieldKey);
+            
+            // Row Logic
+            let rowLogic = null;
+            if (index > 0) rowLogic = row.querySelector('.w-logic').value;
+
+            let entry = {
+                logic: rowLogic,
+                field: fieldKey,
+                type: config.type
+            };
+
+            // Capture Values
+            if (config.type === 'long' || config.type === 'float') {
+                entry.operator = row.querySelector('.w-operator').value;
+                entry.value = row.querySelector('input[type="number"]').value;
+            } else {
+                const tags = Array.from(row.querySelectorAll('.tag')).map(t => t.dataset.val);
+                entry.value = tags;
+                const innerLogic = row.querySelector('input[type="radio"]:checked').value;
+                entry.inner_logic = innerLogic;
+                const proxEl = row.querySelector('.proximity-input');
+                if (proxEl && innerLogic === 'AND') entry.proximity = proxEl.value;
+            }
+
+            data.push(entry);
+        });
+
+        
+    }
+</script>
+
+</body>
+</html>
