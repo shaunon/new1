@@ -3,101 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Boolean Query Component</title>
+    <title>Advanced Query Builder</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --bg-light: #f8fafc;
-            --border: #cbd5e1;
-            --text: #334155;
-            --tag-bg: #e0f2fe;
-            --tag-text: #0284c7;
+            --primary: #18181b;       
+            --primary-hover: #27272a;
+            --bg-body: #ffffff;
+            --bg-input: #ffffff;
+            --bg-tag: #f3f4f6;        
+            --border: #e4e4e7;
+            --text-main: #09090b;
+            --text-sub: #71717a;
+            --radius-sm: 8px;
+            --radius-lg: 20px;        
+            --shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: white; /* 纯白背景适配组件嵌入 */
-            padding: 20px;
-            color: var(--text);
+            background-color: var(--bg-body);
+            padding: 40px;
+            color: var(--text-main);
         }
 
-        /* Container styling */
         .component-wrapper {
-            max-width: 100%;
+            max-width: 1000px;
             margin: 0 auto;
         }
 
-        /* Row Layout */
+        /* --- Row Layout & Tree Structure --- */
+        #query-rows {
+            position: relative;
+            /* Vertical line for the tree structure */
+            border-left: 2px dashed var(--border); 
+            margin-left: 20px;
+            padding-left: 20px;
+        }
+
         .query-row {
             display: flex;
-            gap: 8px;
-            align-items: start;
-            padding: 10px;
-            background: #fff;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            margin-bottom: 8px;
-            transition: border-color 0.2s;
+            gap: 12px;
+            align-items: flex-start; 
+            margin-bottom: 16px;
+            position: relative;
+            background: transparent;
         }
 
-        .query-row:hover {
-            border-color: var(--primary);
-        }
-
-        /* Common Inputs */
-        select, input.std-input {
-            height: 38px;
-            padding: 0 10px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 14px;
-            outline: none;
-            background-color: white;
-            color: var(--text);
+        /* The "L" connector line */
+        .query-row::before {
+            content: '';
+            position: absolute;
+            left: -22px; 
+            top: 20px;
+            width: 20px;
+            height: 2px;
+            border-bottom: 2px dashed var(--border);
         }
         
-        select:focus, input:focus {
+        /* --- Inputs & Selects --- */
+        select, input.std-input {
+            height: 42px;
+            padding: 0 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg); 
+            font-size: 14px;
+            outline: none;
+            background-color: var(--bg-input);
+            color: var(--text-main);
+            transition: all 0.2s;
+            box-shadow: var(--shadow);
+            appearance: none; 
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px top 50%;
+            background-size: 8px auto;
+        }
+        
+        input.std-input {
+            background-image: none;
+        }
+
+        select:focus, input:focus, .tag-container.active {
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.1);
         }
 
         /* Width Utilities */
-        .w-logic { width: 75px; flex-shrink: 0; font-weight: 600; }
-        .w-field { width: 180px; flex-shrink: 0; }
-        .w-operator { width: 100px; flex-shrink: 0; }
+        .w-logic { 
+            width: 80px; 
+            flex-shrink: 0; 
+            font-weight: 600; 
+            background-color: #f4f4f5; 
+            border-color: #e4e4e7;
+        }
+        .w-field { width: 160px; flex-shrink: 0; font-weight: 500; }
+        .w-operator { width: 90px; flex-shrink: 0; text-align: center; }
         
-        /* --- TAG INPUT AREA (Shared by Text & Enum) --- */
+        /* --- TAG INPUT AREA --- */
         .multi-input-wrapper {
             flex-grow: 1;
             display: flex;
-            gap: 8px;
+            gap: 12px;
             min-width: 300px;
+            align-items: center;
         }
 
         .tag-container {
             flex-grow: 1;
             border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 4px;
-            min-height: 38px;
+            border-radius: var(--radius-lg); 
+            padding: 4px 8px;
+            min-height: 42px;
             display: flex;
             flex-wrap: wrap;
-            gap: 4px;
+            gap: 6px;
             align-items: center;
             background: white;
-            position: relative; /* For dropdown positioning */
+            position: relative;
             cursor: text;
-        }
-
-        .tag-container.active {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+            box-shadow: var(--shadow);
         }
 
         .tag {
-            background-color: var(--tag-bg);
-            color: var(--tag-text);
-            padding: 2px 8px;
-            border-radius: 12px;
+            background-color: var(--bg-tag);
+            color: var(--text-main);
+            padding: 4px 12px;
+            border-radius: 99px;
             font-size: 13px;
             font-weight: 500;
             display: inline-flex;
@@ -106,102 +137,137 @@
         }
 
         .tag .close {
-            margin-left: 6px;
+            margin-left: 8px;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            opacity: 0.6;
+            color: var(--text-sub);
+            font-size: 16px;
+            line-height: 1;
         }
-        .tag .close:hover { opacity: 1; }
+        .tag .close:hover { color: #ef4444; }
 
         .ghost-input {
             border: none;
             outline: none;
             flex-grow: 1;
-            min-width: 60px;
+            min-width: 80px;
             font-size: 14px;
-            padding: 4px 0;
+            padding: 4px 8px;
             background: transparent;
+            color: var(--text-main);
         }
 
-        /* --- DROPDOWN MENU (For Enum Fields) --- */
+        /* --- DROPDOWN MENU --- */
         .options-dropdown {
             position: absolute;
-            top: 100%;
-            left: -1px;
-            right: -1px;
+            top: 110%; 
+            left: 0;
+            right: 0;
             background: white;
             border: 1px solid var(--border);
-            border-top: none;
-            border-radius: 0 0 4px 4px;
-            max-height: 200px;
+            border-radius: 12px;
+            max-height: 220px;
             overflow-y: auto;
-            z-index: 10;
+            z-index: 100;
             display: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            padding: 6px;
         }
 
         .option-item {
             padding: 8px 12px;
             font-size: 14px;
             cursor: pointer;
+            border-radius: 6px;
         }
-        .option-item:hover { background-color: #f1f5f9; }
-        .option-item.selected { background-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+        .option-item:hover { background-color: var(--bg-tag); }
 
-        /* Logic Switch (AND/OR) */
+        /* --- INNER LOGIC (AND/OR) --- */
         .inner-logic {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            height: 38px;
+            height: 42px;
             flex-shrink: 0;
         }
         .logic-toggle {
             display: flex;
-            background: #e2e8f0;
-            border-radius: 4px;
-            padding: 2px;
+            background: #f4f4f5;
+            border-radius: 20px;
+            padding: 3px;
             font-size: 12px;
         }
         .logic-toggle label {
-            padding: 3px 8px;
+            padding: 4px 12px;
             cursor: pointer;
-            border-radius: 3px;
+            border-radius: 16px;
+            font-weight: 600;
+            color: var(--text-sub);
+            transition: all 0.2s;
         }
         .logic-toggle input { display: none; }
         .logic-toggle input:checked + label {
+            background: white;
+            color: black;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* --- ACTIONS --- */
+        .btn-area {
+            margin-left: 42px; 
+            margin-top: 20px;
+        }
+
+        .btn-add {
             background: var(--primary);
             color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: var(--radius-sm); 
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
         }
-
-        /* Actions */
-        .btn-add {
-            background: white; border: 1px dashed #94a3b8; color: #64748b;
-            padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 500;
-            width: 100%; margin-top: 10px;
-        }
-        .btn-add:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
+        .btn-add:hover { background: var(--primary-hover); }
 
         .btn-del {
-            background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 18px;
-            padding: 0 8px; height: 38px; display: flex; align-items: center;
+            background: transparent; border: none; 
+            color: var(--border); 
+            cursor: pointer; font-size: 20px;
+            padding: 0 12px; height: 42px; display: flex; align-items: center;
+            transition: color 0.2s;
         }
         .btn-del:hover { color: #ef4444; }
 
-        
+        /* Placeholder Logic for First Row */
+        .w-logic-placeholder {
+            width: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+        }
+
     </style>
 </head>
 <body>
 
     <div class="component-wrapper">
         <div id="query-rows"></div>
-        <button class="btn-add" onclick="addRow()">+ Add Condition</button>
         
+        <div class="btn-area">
+            <button class="btn-add" onclick="addRow()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Add Condition
+            </button>
+        </div>
     </div>
 
 <script>
-    // --- 1. Schema Definition (With Fake Data for new Dropdowns) ---
+    // --- 1. Schema Definition ---
     const schema = [
         { key: 'posturl', type: 'keyword', label: 'Post URL' },
         { key: 'videoduration', type: 'float', label: 'Video Duration' },
@@ -209,28 +275,22 @@
         { key: 'sharecount', type: 'long', label: 'Share Count' },
         { key: 'commentcount', type: 'long', label: 'Comment Count' },
         { key: 'respondcount', type: 'long', label: 'Respond Count' },
-        // Changed to ENUM (Select)
         { key: 'posttype', type: 'enum', label: 'Post Type', options: ['Video', 'Photo'] },
         { key: 'language', type: 'keyword', label: 'Language' },
         { key: 'hashtag', type: 'keyword', label: 'Hashtag' },
-        // Changed to ENUM
         { key: 'postcategory', type: 'enum', label: 'Post Category', options: ['Entertainment', 'News', 'Sports', 'Tech', 'Lifestyle'] },
         { key: 'nickname', type: 'text', label: 'Nickname' },
         { key: 'country', type: 'keyword', label: 'Country' },
         { key: 'viewcount', type: 'long', label: 'View Count' },
         { key: 'posttsentiment', type: 'enum', label: 'Sentiment', options: ['Neutral', 'Positive', 'Negative'] },
         { key: 'brand', type: 'text', label: 'Brand' },
-        // Changed to ENUM
         { key: 'musicstyle', type: 'enum', label: 'Music Style', options: ['Pop', 'Rock', 'Electronic', 'Classical', 'Hip-hop'] },
-        // Changed to ENUM
         { key: 'musicmood', type: 'enum', label: 'Music Mood', options: ['Happy', 'Sad', 'Energetic', 'Calm'] },
         { key: 'mention', type: 'text', label: 'Mention' },
-        // Changed to ENUM
         { key: 'videotype', type: 'enum', label: 'Video Type', options: ['Short', 'Vlog', 'Live', 'Ad'] },
         { key: 'authorid', type: 'keyword', label: 'Author ID' },
         { key: 'fanscount', type: 'long', label: 'Fans Count' },
         { key: 'authorurl', type: 'keyword', label: 'Author URL' },
-        // Changed to ENUM
         { key: 'verifytype', type: 'enum', label: 'Verify Type', options: ['Blue V', 'Yellow V', 'None'] },
         { key: 'postcount', type: 'long', label: 'Post Count' },
         { key: 'ocr', type: 'text', label: 'OCR Content' },
@@ -241,7 +301,6 @@
 
     let rowCount = 0;
 
-    // Initialize
     window.onload = function() {
         addRow();
     };
@@ -256,9 +315,9 @@
         row.className = 'query-row';
         row.id = rowId;
 
-        // Logic Selector
+        // Logic Selector - Empty placeholder for first row
         let logicHtml = isFirst 
-            ? `<div class="w-logic"></div>` 
+            ? `<div class="w-logic-placeholder"></div>` 
             : `<select class="w-logic on-change-trigger"><option value="AND">AND</option><option value="OR">OR</option><option value="NOT">NOT</option></select>`;
 
         // Field Selector
@@ -268,23 +327,38 @@
             ${logicHtml}
             <select class="w-field on-change-trigger" onchange="renderInput('${rowId}')">${fieldOpts}</select>
             <div id="input-area-${rowId}" style="display:contents"></div>
-            <button class="btn-del" onclick="removeRow('${rowId}')">✕</button>
+            <button class="btn-del" onclick="removeRow('${rowId}')" title="Remove">
+                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
         `;
 
         container.appendChild(row);
         renderInput(rowId);
         updateOutput();
         
-        // Add global listener for updates
         row.querySelectorAll('.on-change-trigger').forEach(el => el.addEventListener('change', updateOutput));
     }
 
     function removeRow(id) {
-        document.getElementById(id).remove();
+        const row = document.getElementById(id);
+        row.remove();
+        
+        // UI cleanup: Ensure first child looks like a root
+        const container = document.getElementById('query-rows');
+        if(container.children.length > 0) {
+             const firstRow = container.children[0];
+             const firstLogic = firstRow.querySelector('.w-logic');
+             if(firstLogic) {
+                 // Replace selector with empty placeholder
+                 const placeholder = document.createElement('div');
+                 placeholder.className = 'w-logic-placeholder';
+                 placeholder.innerText = ''; // No text
+                 firstRow.replaceChild(placeholder, firstLogic);
+             }
+        }
         updateOutput();
     }
 
-    // --- Core Rendering Logic ---
     function renderInput(rowId) {
         const row = document.getElementById(rowId);
         const fieldKey = row.querySelector('.w-field').value;
@@ -293,7 +367,6 @@
         
         area.innerHTML = '';
 
-        // Case 1: Numeric (Long/Float) -> Show Operator + Number Input
         if (config.type === 'long' || config.type === 'float') {
             area.innerHTML = `
                 <select class="w-operator on-change-trigger">
@@ -304,28 +377,21 @@
                     <option value="EQ">=</option>
                     <option value="NEQ">!=</option>
                 </select>
-                <input type="number" class="std-input on-change-trigger" style="flex-grow:1" placeholder="Enter value">
+                <input type="number" class="std-input on-change-trigger" style="flex-grow:1" placeholder="Value">
             `;
-            // Re-attach listeners
             area.querySelectorAll('.on-change-trigger').forEach(el => el.addEventListener('input', updateOutput));
         }
-        
-        // Case 2: Multi-Select ENUM or Multi-Keyword TEXT
         else {
-            // Need a wrapper for Tag Input + Inner Logic
             const wrapper = document.createElement('div');
             wrapper.className = 'multi-input-wrapper';
 
-            // Tag Container
             const tagContainer = document.createElement('div');
             tagContainer.className = 'tag-container';
             tagContainer.id = `tags-${rowId}`;
             
-            // Hidden Input for typing
             const ghostInput = document.createElement('input');
             ghostInput.className = 'ghost-input';
             
-            // Logic Toggle (AND/OR)
             const radioName = `logic-${rowId}`;
             const logicSwitch = document.createElement('div');
             logicSwitch.className = 'inner-logic';
@@ -343,13 +409,11 @@
             wrapper.appendChild(logicSwitch);
             area.appendChild(wrapper);
 
-            // 2A: Enum - Dropdown behavior
             if (config.type === 'enum') {
-                ghostInput.readOnly = true; // No typing, only selecting
-                ghostInput.placeholder = "Select options...";
+                ghostInput.readOnly = true; 
+                ghostInput.placeholder = "Select options";
                 ghostInput.style.cursor = "pointer";
 
-                // Create Dropdown List
                 const dropdown = document.createElement('div');
                 dropdown.className = 'options-dropdown';
                 config.options.forEach(opt => {
@@ -366,16 +430,13 @@
                 });
                 tagContainer.appendChild(dropdown);
 
-                // Toggle Dropdown
                 tagContainer.onclick = (e) => {
                     if(e.target.classList.contains('close')) return;
-                    // Close others
                     document.querySelectorAll('.options-dropdown').forEach(d => d.style.display = 'none');
                     dropdown.style.display = 'block';
                     tagContainer.classList.add('active');
                 };
 
-                // Click outside to close
                 document.addEventListener('click', (e) => {
                     if (!tagContainer.contains(e.target)) {
                         dropdown.style.display = 'none';
@@ -384,9 +445,8 @@
                 });
 
             } 
-            // 2B: Text/Keyword - Typing behavior
             else {
-                ghostInput.placeholder = "Type & Enter...";
+                ghostInput.placeholder = "Type keyword...";
                 
                 tagContainer.onclick = () => { ghostInput.focus(); tagContainer.classList.add('active'); };
                 ghostInput.onblur = () => tagContainer.classList.remove('active');
@@ -413,9 +473,9 @@
                 const proxInput = document.createElement('input');
                 proxInput.type = 'number';
                 proxInput.className = 'std-input proximity-input';
-                proxInput.placeholder = 'Proximity';
+                proxInput.placeholder = 'Prox.';
                 proxInput.min = '1';
-                proxInput.style.width = '100px';
+                proxInput.style.width = '80px';
                 proxInput.addEventListener('input', updateOutput);
                 wrapper.appendChild(proxInput);
 
@@ -432,7 +492,6 @@
     }
 
     function addTag(container, input, text) {
-        // Prevent duplicates
         const existing = Array.from(container.querySelectorAll('.tag')).map(t => t.dataset.val);
         if(existing.includes(text)) return;
 
@@ -441,25 +500,23 @@
         tag.dataset.val = text;
         tag.innerHTML = `${text} <span class="close">×</span>`;
         tag.querySelector('.close').onclick = (e) => {
-            e.stopPropagation(); // prevent opening dropdown
+            e.stopPropagation(); 
             tag.remove();
             updateOutput();
         };
         container.insertBefore(tag, input);
     }
 
-    // --- JSON Generation ---
     function updateOutput() {
         const rows = document.querySelectorAll('.query-row');
         const data = [];
-
         rows.forEach((row, index) => {
             const fieldKey = row.querySelector('.w-field').value;
             const config = schema.find(c => c.key === fieldKey);
-            
-            // Row Logic
             let rowLogic = null;
-            if (index > 0) rowLogic = row.querySelector('.w-logic').value;
+            
+            const logicEl = row.querySelector('.w-logic');
+            if (logicEl) rowLogic = logicEl.value;
 
             let entry = {
                 logic: rowLogic,
@@ -467,23 +524,24 @@
                 type: config.type
             };
 
-            // Capture Values
             if (config.type === 'long' || config.type === 'float') {
                 entry.operator = row.querySelector('.w-operator').value;
-                entry.value = row.querySelector('input[type="number"]').value;
+                const valInput = row.querySelector('input[type="number"]');
+                entry.value = valInput ? valInput.value : '';
             } else {
                 const tags = Array.from(row.querySelectorAll('.tag')).map(t => t.dataset.val);
                 entry.value = tags;
-                const innerLogic = row.querySelector('input[type="radio"]:checked').value;
-                entry.inner_logic = innerLogic;
-                const proxEl = row.querySelector('.proximity-input');
-                if (proxEl && innerLogic === 'AND') entry.proximity = proxEl.value;
+                const checkedRadio = row.querySelector('input[type="radio"]:checked');
+                if(checkedRadio) {
+                    const innerLogic = checkedRadio.value;
+                    entry.inner_logic = innerLogic;
+                    const proxEl = row.querySelector('.proximity-input');
+                    if (proxEl && innerLogic === 'AND') entry.proximity = proxEl.value;
+                }
             }
-
             data.push(entry);
         });
-
-        
+        console.log("Query Data:", data);
     }
 </script>
 
