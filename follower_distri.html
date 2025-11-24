@@ -24,8 +24,15 @@
     <div id="device" class="card"></div>
     <div id="active" class="card"></div>
   </div>
+  <div class="row">
+    <div id="language" class="card"></div>
+    <div id="ethnicity" class="card"></div>
   </div>
-<script>
+  <div class="row">
+    <div id="sentiment" class="card"></div>
+  </div>
+  </div>
+  <script>
 function n(v, d) { if (v === undefined || v === null) return d; if (typeof v === 'string') { if (v.trim() === '') return d; var num = Number(v); if (!isNaN(num)) return num; return v; } return v; }
 function pct(x){ return Math.round(n(x,0)*1000)/10; }
 function byRatioDesc(a,b){ return n(b.ratio,0) - n(a.ratio,0); }
@@ -71,6 +78,20 @@ var fd = {
   active: [
     { active: 'active', ratio: 0.64 },
     { active: 'inactive', ratio: 0.36 }
+  ],
+  language: [
+    { language: 'English', ratio: 0.6759 },
+    { language: 'Russian', ratio: 0.0893 },
+    { language: 'Spanish', ratio: 0.0529 }
+  ],
+  ethnicity: [
+    { race: 'Caucasian', ratio: 0.75 },
+    { race: 'African', ratio: 0.25 }
+  ],
+  sentiment: [
+    { type: 'Positive', ratio: 0.568 },
+    { type: 'Neutral', ratio: 0.3169 },
+    { type: 'Negative', ratio: 0.1151 }
   ]
 };
 
@@ -79,6 +100,9 @@ var age = fd.age || [];
 var region = fd.region || [];
 var deviceBrand = fd.deviceBrand || [];
 var active = fd.active || [];
+var language = fd.language || [];
+var ethnicity = fd.ethnicity || [];
+var sentiment = fd.sentiment || [];
 
 var male = gender.find(function(g){return String(g.gender).toLowerCase()==='male';});
 var female = gender.find(function(g){return String(g.gender).toLowerCase()==='female';});
@@ -173,6 +197,37 @@ init('active', {
   tooltip: { trigger:'item', formatter:'{b}: {d}%' },
   legend: { top:'bottom' },
   series: [{ type:'pie', radius:'65%', data:[ {name:'Active', value: actRate}, {name:'Inactive', value: inactRate} ] }]
+});
+
+var languageCats = language.map(function(l){ return l.language; });
+var languageVals = language.map(function(l){ return pct(l.ratio); });
+if (languageCats.length===0){ languageCats=['English','Russian','Spanish']; languageVals=[67.59,8.93,5.29]; }
+init('language', {
+  title: { text: 'Language Distribution' },
+  tooltip: { trigger:'axis', formatter: function(p){ var x=p[0]; return x.axisValue+': '+x.value+'%'; } },
+  xAxis: { type:'category', data: languageCats },
+  yAxis: { type:'value', axisLabel:{ formatter:'{value}%' } },
+  series: [{ type:'bar', data: languageVals, itemStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[ {offset:0,color:'#83bff6'},{offset:0.5,color:'#188df0'},{offset:1,color:'#0e58ad'} ]) } }]
+});
+
+var ethnicityCats = ethnicity.map(function(e){ return e.race; });
+var ethnicityVals = ethnicity.map(function(e){ return pct(e.ratio); });
+if (ethnicityCats.length===0){ ethnicityCats=['Caucasian','African']; ethnicityVals=[75,25]; }
+init('ethnicity', {
+  title: { text: 'Ethnicity Distribution' },
+  tooltip: { trigger:'axis', formatter: function(p){ var x=p[0]; return x.axisValue+': '+x.value+'%'; } },
+  xAxis: { type:'category', data: ethnicityCats },
+  yAxis: { type:'value', axisLabel:{ formatter:'{value}%' } },
+  series: [{ type:'bar', data: ethnicityVals }]
+});
+
+var sentimentData = sentiment.map(function(s){ return { name: s.type, value: pct(s.ratio) }; });
+if (sentimentData.length===0){ sentimentData=[ {name:'Positive',value:56.8}, {name:'Neutral',value:31.69}, {name:'Negative',value:11.51} ]; }
+init('sentiment', {
+  title: { text: 'Audience Sentiment' },
+  tooltip: { trigger:'item', formatter:'{b}: {c}%' },
+  legend: { top:'bottom' },
+  series: [{ type:'pie', radius:['50%','70%'], data: sentimentData }]
 });
 </script>
 </body>
