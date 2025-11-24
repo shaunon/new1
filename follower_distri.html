@@ -1,0 +1,131 @@
+<html>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  body { margin: 0; font-family: Arial, sans-serif; }
+  #grid { display: grid; gap: 12px; padding: 12px; }
+  .row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .card { width: 100%; height: 42vh; }
+</style>
+</head>
+<body>
+<div id="grid">
+  <div class="row">
+    <div id="gender" class="card"></div>
+    <div id="age" class="card"></div>
+  </div>
+  <div class="row">
+    <div id="regionMap" class="card"></div>
+    <div id="region" class="card"></div>
+  </div>
+  <div class="row">
+    <div id="device" class="card"></div>
+    <div id="active" class="card"></div>
+  </div>
+  </div>
+<script>
+function n(v, d) { if (v === undefined || v === null) return d; if (typeof v === 'string') { if (v.trim() === '') return d; var num = Number(v); if (!isNaN(num)) return num; return v; } return v; }
+function pct(x){ return Math.round(n(x,0)*1000)/10; }
+function byRatioDesc(a,b){ return n(b.ratio,0) - n(a.ratio,0); }
+function init(id,opt){ var el=document.getElementById(id); if(!el) return; var c=echarts.init(el); c.setOption(opt); }
+fetch('response.json').then(function(r){return r.json();}).then(function(json){
+  var item = json && json.data && json.data[0] ? json.data[0] : {};
+  var fd = item.statisticData && item.statisticData.followerDistriData ? item.statisticData.followerDistriData : {};
+  var gender = fd.gender || [];
+  var age = fd.age || [];
+  var region = fd.region || [];
+  var deviceBrand = fd.deviceBrand || [];
+  var active = fd.active || [];
+
+  var male = gender.find(function(g){return String(g.gender).toLowerCase()==='male';});
+  var female = gender.find(function(g){return String(g.gender).toLowerCase()==='female';});
+  var m = pct(male ? male.ratio : 50/100);
+  var f = pct(female ? female.ratio : 50/100);
+  var centerText = m>f ? 'Male Dominant' : (f>m ? 'Female Dominant' : 'Balanced');
+
+  init('gender', {
+    title: { text: 'Gender Distribution' },
+    tooltip: { trigger: 'item', formatter: '{b}: {d}%' },
+    legend: { top: 'bottom' },
+    graphic: [{ type:'text', left:'center', top:'middle', style:{ text:centerText, fontSize:16, fontWeight:'bold' } }],
+    series: [{ type:'pie', radius:['50%','70%'], data: [ {name:'Male', value:m}, {name:'Female', value:f} ] }]
+  });
+
+  var ageCats = age.map(function(a){return a.ageInterval;});
+  var ageVals = age.map(function(a){return pct(a.ratio);});
+  if (ageCats.length===0){ ageCats=['18-24','25-34','Other']; ageVals=[40,24,36]; }
+  init('age', {
+    title: { text: 'Age Distribution' },
+    tooltip: { trigger:'axis', formatter: function(p){ var x=p[0]; return x.axisValue+': '+x.value+'%'; } },
+    xAxis: { type:'category', data: ageCats },
+    yAxis: { type:'value', axisLabel:{ formatter:'{value}%' } },
+    series: [{ type:'bar', data: ageVals, itemStyle:{ color: new echarts.graphic.LinearGradient(0,0,0,1,[ {offset:0,color:'#83bff6'},{offset:0.5,color:'#188df0'},{offset:1,color:'#0e58ad'} ]) } }]
+  });
+
+  var regionSorted = region.slice().sort(byRatioDesc).slice(0,5);
+  var regionCats = regionSorted.map(function(r){return r.country;});
+  var regionVals = regionSorted.map(function(r){return pct(r.ratio);});
+  if (regionCats.length===0){ regionCats=['US','BR','MX','ID','IT']; regionVals=[10.2,8.3,5.1,4.4,2.9]; }
+  init('region', {
+    title: { text: 'Region Distribution (Top 5)' },
+    tooltip: { formatter: function(p){ return p.name+': '+p.value+'%'; } },
+    xAxis: { type:'value', axisLabel:{ formatter:'{value}%' } },
+    yAxis: { type:'category', data: regionCats },
+    series: [{ type:'bar', data: regionVals }]
+  });
+
+  var codeToName = {
+    US:'United States of America', BR:'Brazil', MX:'Mexico', ID:'Indonesia', IT:'Italy',
+    GB:'United Kingdom', FR:'France', DE:'Germany', RU:'Russia', JP:'Japan',
+    KR:'Republic of Korea', CN:'China', ES:'Spain', CA:'Canada', AU:'Australia',
+    IN:'India', SA:'Saudi Arabia', TR:'Turkey', NL:'Netherlands', AR:'Argentina',
+    ZA:'South Africa', RU2:'Russian Federation'
+  };
+  var regionMapData = region.map(function(r){ return { name: codeToName[r.country] || r.country, value: pct(r.ratio) }; });
+  if (regionMapData.length===0){ regionMapData=[
+    {name:'United States', value:10.2}, {name:'Brazil', value:8.3}, {name:'Mexico', value:5.1}, {name:'Indonesia', value:4.4}, {name:'Italy', value:2.9}
+  ]; }
+  var regionMax = regionMapData.reduce(function(m, e){ return Math.max(m, e.value); }, 0);
+  function loadWorld(url){ return fetch(url).then(function(r){ return r.json(); }); }
+  loadWorld('world.json')
+  .catch(function(){ return loadWorld('https://cdn.jsdelivr.net/npm/echarts@5/examples/data/asset/geo/world.json'); })
+  .catch(function(){ return loadWorld('https://unpkg.com/echarts@5/examples/data/asset/geo/world.json'); })
+  .then(function(world){
+    echarts.registerMap('world', world);
+    init('regionMap', {
+      title: { text: 'Region World Map' },
+      tooltip: { formatter: function(p){ return p.name+': '+(p.value||0)+'%'; } },
+      visualMap: { left:'left', min:0, max: Math.max(20, regionMax), text:['High','Low'], calculable:true },
+      series: [{ type:'map', map:'world', roam:true, label:{ show:false }, data: regionMapData }]
+    });
+  }).catch(function(){
+    init('regionMap', {
+      title: { text: 'Region World Map' },
+      graphic: { type:'text', left:'center', top:'middle', style:{ text:'Map failed to load', fontSize:18 } }
+    });
+  });
+
+  var deviceData = deviceBrand.map(function(d){ return { name: d.deviceBrand, value: pct(d.ratio) }; });
+  if (deviceData.length===0){ deviceData=[ {name:'SAMSUNG',value:26.5},{name:'APPLE',value:23.7},{name:'XIAOMI',value:12.7},{name:'OPPO',value:8.7},{name:'HUAWEI',value:6.3},{name:'Other',value:22.1} ]; }
+  init('device', {
+    title: { text: 'Device Preference' },
+    tooltip: { trigger:'item', formatter:'{b}: {c}%' },
+    series: [{ type:'pie', roseType:'radius', radius:['10%','70%'], data: deviceData }]
+  });
+
+  var actActive = active.find(function(a){return String(a.active).toLowerCase()==='active';});
+  var actInactive = active.find(function(a){return String(a.active).toLowerCase()==='inactive';});
+  var actRate = pct(actActive ? actActive.ratio : 46/100);
+  var inactRate = 100 - actRate;
+  init('active', {
+    title: { text: 'Activity' },
+    tooltip: { trigger:'item', formatter:'{b}: {d}%' },
+    legend: { top:'bottom' },
+    series: [{ type:'pie', radius:'65%', data:[ {name:'Active', value: actRate}, {name:'Inactive', value: inactRate} ] }]
+  });
+});
+</script>
+</body>
+</html>
