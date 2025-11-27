@@ -31,26 +31,31 @@
             margin: 0 auto;
         }
 
-        /* --- Row Layout & Tree Structure --- */
-        #query-rows {
+        /* --- Tree Structure --- */
+        .query-group-container {
             position: relative;
-            /* Vertical line for the tree structure */
             border-left: 2px dashed var(--border); 
             margin-left: 20px;
             padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-bottom: 0; 
         }
 
-        .query-row {
-            display: flex;
-            gap: 12px;
-            align-items: flex-start; 
-            margin-bottom: 16px;
+        /* Root Container Overrides */
+        #root-builder > .query-group-container {
+            margin-left: 0;
+            /* border-left: none;  Optional: Remove root border if desired, but keeping it provides consistency */
+            padding-left: 20px;
+        }
+
+        .tree-item {
             position: relative;
-            background: transparent;
         }
 
         /* The "L" connector line */
-        .query-row::before {
+        .tree-item::before {
             content: '';
             position: absolute;
             left: -22px; 
@@ -58,6 +63,38 @@
             width: 20px;
             height: 2px;
             border-bottom: 2px dashed var(--border);
+        }
+
+        .query-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start; 
+            background: transparent;
+        }
+
+        .group-row {
+            background: rgba(0,0,0,0.015);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .group-header {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .group-label {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-sub);
+            background: #e4e4e7;
+            padding: 4px 12px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         /* --- Inputs & Selects --- */
@@ -98,6 +135,21 @@
         }
         .w-field { width: 160px; flex-shrink: 0; font-weight: 500; }
         .w-operator { width: 90px; flex-shrink: 0; text-align: center; }
+        
+        /* Logic Placeholder */
+        .logic-wrapper {
+            width: 80px;
+            flex-shrink: 0;
+        }
+        /* .tree-item.is-first .logic-wrapper {
+            display: none;
+        } */
+        .tree-item.query-row.is-first > .logic-wrapper {
+            display: none;
+        }
+        .tree-item.group-row.is-first > .group-header > .logic-wrapper {
+            display: none;
+        }
         
         /* --- TAG INPUT AREA --- */
         .multi-input-wrapper {
@@ -213,25 +265,28 @@
 
         /* --- ACTIONS --- */
         .btn-area {
-            margin-left: 42px; 
-            margin-top: 20px;
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
         }
 
         .btn-add {
             background: var(--primary);
             color: white;
             border: none;
-            padding: 10px 24px;
+            padding: 8px 16px;
             border-radius: var(--radius-sm); 
             cursor: pointer;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
             transition: background 0.2s;
         }
         .btn-add:hover { background: var(--primary-hover); }
+        .btn-add.secondary { background: #71717a; }
+        .btn-add.secondary:hover { background: #52525b; }
 
         .btn-del {
             background: transparent; border: none; 
@@ -242,28 +297,12 @@
         }
         .btn-del:hover { color: #ef4444; }
 
-        /* Placeholder Logic for First Row */
-        .w-logic-placeholder {
-            width: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 10px;
-        }
-
     </style>
 </head>
 <body>
 
     <div class="component-wrapper">
-        <div id="query-rows"></div>
-        
-        <div class="btn-area">
-            <button class="btn-add" onclick="addRow()">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                Add Condition
-            </button>
-        </div>
+        <div id="root-builder"></div>
     </div>
 
 <script>
@@ -299,64 +338,187 @@
         { key: 'content', type: 'text', label: 'Content' }
     ];
 
-    let rowCount = 0;
+    let uniqueIdCounter = 0;
+    function getUniqueId() { return 'uid-' + (uniqueIdCounter++); }
 
     window.onload = function() {
-        addRow();
+        const root = document.getElementById('root-builder');
+        // Root container: allowConditions = false
+        const mainContainer = createGroupContainer(false);
+        mainContainer.id = 'root-group-container';
+        root.appendChild(mainContainer);
+
+        // Level 1: Initial Group (Since we can't add rows directly)
+        const groupRow = addGroup(mainContainer);
+        const subContainer = groupRow.querySelector('.query-group-container');
+        
+        // Level 2: Conditions inside the first group
+        addRow(subContainer);
+        
+        // Level 2: Another Nested Group
+        const nestedGroup = addGroup(subContainer);
+        const nestedContainer = nestedGroup.querySelector('.query-group-container');
+        
+        // Level 3: Conditions inside nested group
+        addRow(nestedContainer);
+        addRow(nestedContainer);
     };
 
-    function addRow() {
-        rowCount++;
-        const container = document.getElementById('query-rows');
-        const rowId = `row-${rowCount}`;
-        const isFirst = container.children.length === 0;
+    function createGroupContainer(allowConditions = true) {
+        const container = document.createElement('div');
+        container.className = 'query-group-container';
+        
+        const conditionsWrapper = document.createElement('div');
+        conditionsWrapper.className = 'conditions-wrapper';
+        conditionsWrapper.style.display = 'flex';
+        conditionsWrapper.style.flexDirection = 'column';
+        conditionsWrapper.style.gap = '16px';
+        container.appendChild(conditionsWrapper);
 
+        const btnArea = document.createElement('div');
+        btnArea.className = 'btn-area';
+        
+        let conditionBtnHtml = '';
+        if (allowConditions) {
+            conditionBtnHtml = `
+            <button class="btn-add" onclick="onAddRow(this)">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Condition
+            </button>`;
+        }
+
+        btnArea.innerHTML = `
+            ${conditionBtnHtml}
+            <button class="btn-add secondary" onclick="onAddGroup(this)">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                Group
+            </button>
+        `;
+        container.appendChild(btnArea);
+        return container;
+    }
+
+    function onAddRow(btn) {
+        const container = btn.closest('.query-group-container');
+        addRow(container);
+    }
+
+    function onAddGroup(btn) {
+        const container = btn.closest('.query-group-container');
+        addGroup(container);
+    }
+
+    function addRow(container) {
+        const rowId = getUniqueId();
         const row = document.createElement('div');
-        row.className = 'query-row';
+        row.className = 'query-row tree-item';
         row.id = rowId;
-
-        // Logic Selector - Empty placeholder for first row
-        let logicHtml = isFirst 
-            ? `<div class="w-logic-placeholder"></div>` 
-            : `<select class="w-logic on-change-trigger"><option value="AND">AND</option><option value="OR">OR</option><option value="NOT">NOT</option></select>`;
-
-        // Field Selector
-        let fieldOpts = schema.map(f => `<option value="${f.key}">${f.label}</option>`).join('');
-
+        row.dataset.type = 'condition';
+        
         row.innerHTML = `
-            ${logicHtml}
-            <select class="w-field on-change-trigger" onchange="renderInput('${rowId}')">${fieldOpts}</select>
+            <div class="logic-wrapper">
+                <select class="w-logic on-change-trigger" onchange="updateOutput()">
+                    <option value="AND">AND</option>
+                    <option value="OR">OR</option>
+                    <option value="NOT">NOT</option>
+                </select>
+            </div>
+            <select class="w-field on-change-trigger" onchange="renderInput('${rowId}')"></select>
             <div id="input-area-${rowId}" style="display:contents"></div>
-            <button class="btn-del" onclick="removeRow('${rowId}')" title="Remove">
+            <button class="btn-del" onclick="removeItem(this)" title="Remove">
                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
         `;
-
-        container.appendChild(row);
+        
+        const fieldSelect = row.querySelector('.w-field');
+        fieldSelect.innerHTML = schema.map(f => `<option value="${f.key}">${f.label}</option>`).join('');
+        
+        insertItem(container, row);
         renderInput(rowId);
         updateOutput();
-        
-        row.querySelectorAll('.on-change-trigger').forEach(el => el.addEventListener('change', updateOutput));
+        return row;
     }
 
-    function removeRow(id) {
-        const row = document.getElementById(id);
-        row.remove();
+    function addGroup(container) {
+        const groupId = getUniqueId();
+        const row = document.createElement('div');
+        row.className = 'group-row tree-item';
+        row.id = groupId;
+        row.dataset.type = 'group';
+
+        row.innerHTML = `
+            <div class="group-header">
+                <div class="logic-wrapper">
+                    <select class="w-logic on-change-trigger" onchange="updateOutput()">
+                        <option value="AND">AND</option>
+                        <option value="OR">OR</option>
+                        <option value="NOT">NOT</option>
+                    </select>
+                </div>
+
+                <button class="btn-del" onclick="removeItem(this)" title="Remove Group">
+                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        `;
         
-        // UI cleanup: Ensure first child looks like a root
-        const container = document.getElementById('query-rows');
-        if(container.children.length > 0) {
-             const firstRow = container.children[0];
-             const firstLogic = firstRow.querySelector('.w-logic');
-             if(firstLogic) {
-                 // Replace selector with empty placeholder
-                 const placeholder = document.createElement('div');
-                 placeholder.className = 'w-logic-placeholder';
-                 placeholder.innerText = ''; // No text
-                 firstRow.replaceChild(placeholder, firstLogic);
-             }
-        }
+        const nestedContainer = createGroupContainer();
+        row.appendChild(nestedContainer);
+        
+        insertItem(container, row);
         updateOutput();
+        return row;
+    }
+
+    function insertItem(container, item) {
+        const wrapper = container.querySelector('.conditions-wrapper');
+        if (wrapper) {
+            const itemType = item.dataset.type;
+            if (itemType === 'condition') {
+                // Find the first group to insert before
+                const firstGroup = Array.from(wrapper.children).find(child => child.dataset.type === 'group');
+                if (firstGroup) {
+                    wrapper.insertBefore(item, firstGroup);
+                } else {
+                    wrapper.appendChild(item);
+                }
+            } else {
+                // Groups always go to the end
+                wrapper.appendChild(item);
+            }
+        } else {
+            // Fallback for old structure if needed, though we should be using the wrapper
+            let btnArea = null;
+            for (let i = 0; i < container.children.length; i++) {
+                if (container.children[i].classList.contains('btn-area')) {
+                    btnArea = container.children[i];
+                    break;
+                }
+            }
+            if (btnArea) {
+                container.insertBefore(item, btnArea);
+            } else {
+                container.appendChild(item);
+            }
+        }
+        updateLogicConnectors(container);
+    }
+
+    function removeItem(btn) {
+        const item = btn.closest('.tree-item');
+        const container = item.closest('.query-group-container');
+        item.remove();
+        updateLogicConnectors(container);
+        updateOutput();
+    }
+
+    function updateLogicConnectors(container) {
+        const wrapper = container.querySelector('.conditions-wrapper') || container;
+        const items = Array.from(wrapper.children).filter(c => c.classList.contains('tree-item'));
+        items.forEach((item, index) => {
+            if(index === 0) item.classList.add('is-first');
+            else item.classList.remove('is-first');
+        });
     }
 
     function renderInput(rowId) {
@@ -410,6 +572,18 @@
             area.appendChild(wrapper);
 
             if (config.type === 'enum') {
+                // Force OR logic for dropdowns, show the toggle but hide AND option
+                const andRadio = logicSwitch.querySelector(`#${radioName}-and`);
+                const orRadio = logicSwitch.querySelector(`#${radioName}-or`);
+                
+                if (orRadio) orRadio.checked = true;
+                if (andRadio) {
+                    andRadio.disabled = true;
+                    // Hide the AND label
+                    const andLabel = logicSwitch.querySelector(`label[for="${radioName}-and"]`);
+                    if (andLabel) andLabel.style.display = 'none';
+                }
+
                 ghostInput.readOnly = true; 
                 ghostInput.placeholder = "Select options";
                 ghostInput.style.cursor = "pointer";
@@ -508,40 +682,53 @@
     }
 
     function updateOutput() {
-        const rows = document.querySelectorAll('.query-row');
-        const data = [];
-        rows.forEach((row, index) => {
-            const fieldKey = row.querySelector('.w-field').value;
-            const config = schema.find(c => c.key === fieldKey);
-            let rowLogic = null;
-            
-            const logicEl = row.querySelector('.w-logic');
-            if (logicEl) rowLogic = logicEl.value;
-
-            let entry = {
-                logic: rowLogic,
-                field: fieldKey,
-                type: config.type
-            };
-
-            if (config.type === 'long' || config.type === 'float') {
-                entry.operator = row.querySelector('.w-operator').value;
-                const valInput = row.querySelector('input[type="number"]');
-                entry.value = valInput ? valInput.value : '';
-            } else {
-                const tags = Array.from(row.querySelectorAll('.tag')).map(t => t.dataset.val);
-                entry.value = tags;
-                const checkedRadio = row.querySelector('input[type="radio"]:checked');
-                if(checkedRadio) {
-                    const innerLogic = checkedRadio.value;
-                    entry.inner_logic = innerLogic;
-                    const proxEl = row.querySelector('.proximity-input');
-                    if (proxEl && innerLogic === 'AND') entry.proximity = proxEl.value;
-                }
-            }
-            data.push(entry);
-        });
+        const root = document.getElementById('root-group-container');
+        const data = parseContainer(root);
         console.log("Query Data:", data);
+    }
+
+    function parseContainer(container) {
+        if (!container) return [];
+        const items = Array.from(container.children).filter(c => c.classList.contains('tree-item'));
+        return items.map(item => {
+            const type = item.dataset.type;
+            const logicEl = item.querySelector('.w-logic');
+            const logic = (logicEl && getComputedStyle(logicEl).visibility !== 'hidden' && !item.classList.contains('is-first')) ? logicEl.value : null;
+            
+            if (type === 'group') {
+                const subContainer = item.querySelector('.query-group-container');
+                return {
+                    logic: logic,
+                    type: 'group',
+                    children: parseContainer(subContainer)
+                };
+            } else {
+                const fieldKey = item.querySelector('.w-field').value;
+                const config = schema.find(c => c.key === fieldKey);
+                
+                let entry = {
+                    logic: logic,
+                    field: fieldKey,
+                    type: config.type
+                };
+                
+                if (config.type === 'long' || config.type === 'float') {
+                    entry.operator = item.querySelector('.w-operator').value;
+                    const valInput = item.querySelector('input[type="number"]');
+                    entry.value = valInput ? valInput.value : '';
+                } else {
+                    const tags = Array.from(item.querySelectorAll('.tag')).map(t => t.dataset.val);
+                    entry.value = tags;
+                    const checkedRadio = item.querySelector('input[type="radio"]:checked');
+                    if(checkedRadio) {
+                        entry.inner_logic = checkedRadio.value;
+                        const proxEl = item.querySelector('.proximity-input');
+                        if (proxEl && checkedRadio.value === 'AND') entry.proximity = proxEl.value;
+                    }
+                }
+                return entry;
+            }
+        });
     }
 </script>
 
