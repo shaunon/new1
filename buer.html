@@ -644,19 +644,38 @@
                     }
                 });
 
+                const proxWrapper = document.createElement('div');
+                proxWrapper.className = 'proximity-wrapper';
+                proxWrapper.style.display = 'none';
+                proxWrapper.style.alignItems = 'center';
+                proxWrapper.style.gap = '8px';
+
                 const proxInput = document.createElement('input');
                 proxInput.type = 'number';
                 proxInput.className = 'std-input proximity-input';
-                proxInput.placeholder = 'Prox.';
+                proxInput.placeholder = 'Dist';
                 proxInput.min = '1';
-                proxInput.style.width = '80px';
+                proxInput.style.width = '60px';
                 proxInput.addEventListener('input', updateOutput);
-                wrapper.appendChild(proxInput);
+                
+                const proxToggle = document.createElement('div');
+                proxToggle.className = 'logic-toggle proximity-type-toggle';
+                const proxName = `prox-type-${rowId}`;
+                proxToggle.innerHTML = `
+                    <input type="radio" id="${proxName}-near" name="${proxName}" value="near" checked onchange="updateOutput()">
+                    <label for="${proxName}-near">near</label>
+                    <input type="radio" id="${proxName}-w" name="${proxName}" value="w" onchange="updateOutput()">
+                    <label for="${proxName}-w">w</label>
+                `;
+
+                proxWrapper.appendChild(proxInput);
+                proxWrapper.appendChild(proxToggle);
+                wrapper.appendChild(proxWrapper);
 
                 const andRadio = logicSwitch.querySelector(`#${radioName}-and`);
                 const orRadio = logicSwitch.querySelector(`#${radioName}-or`);
                 const toggleProximity = () => {
-                    proxInput.style.display = andRadio.checked ? 'block' : 'none';
+                    proxWrapper.style.display = andRadio.checked ? 'flex' : 'none';
                 };
                 toggleProximity();
                 andRadio.addEventListener('change', toggleProximity);
@@ -723,7 +742,11 @@
                     if(checkedRadio) {
                         entry.inner_logic = checkedRadio.value;
                         const proxEl = item.querySelector('.proximity-input');
-                        if (proxEl && checkedRadio.value === 'AND') entry.proximity = proxEl.value;
+                        const proxTypeChecked = item.querySelector('.proximity-type-toggle input:checked');
+                        if (proxEl && checkedRadio.value === 'AND') {
+                            entry.proximity = proxEl.value;
+                            entry.proximityType = proxTypeChecked ? proxTypeChecked.value : 'near';
+                        }
                     }
                 }
                 return entry;
