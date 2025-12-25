@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Role Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-black: #000000;
+            --secondary-gray: #f4f4f4;
+            --text-muted: #666666;
+            --border-radius-pill: 50px;
+            --border-radius-card: 16px;
+            --nav-width: 240px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--primary-black);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Main Navigation (Leftmost) */
+        .main-nav {
+            width: var(--nav-width);
+            background-color: #1a1a1a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .nav-header {
+            padding: 24px;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #aaaaaa;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            color: #ffffff;
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+
+        .top-nav {
+            height: 64px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 32px;
+        }
+
+        .content-body {
+            padding: 24px 32px;
+            overflow-y: auto;
+        }
+
+        /* Card & Table */
+        .card-container {
+            background: #ffffff;
+            border-radius: var(--border-radius-card);
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid #eaeaea;
+        }
+
+        .table-custom th {
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding: 16px 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table-custom td {
+            vertical-align: middle;
+            font-size: 14px;
+            padding: 16px 8px;
+            border-bottom: 1px solid #f9f9f9;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Offcanvas (Right Drawer) */
+        .offcanvas {
+            border-radius: 20px 0 0 20px;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.08);
+        }
+        
+        .offcanvas-header {
+            padding: 24px;
+        }
+        
+        .offcanvas-body {
+            padding: 24px;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--primary-black);
+            color: #ffffff;
+            border-radius: var(--border-radius-pill);
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+        }
+
+        .badge-pill {
+            border-radius: 50px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .bg-light-blue { background-color: #e7f5ff; color: #1971c2; }
+        .bg-light-gray { background-color: #f8f9fa; color: #495057; }
+        
+        /* Permission Matrix Styles */
+        .permission-group {
+            margin-bottom: 24px;
+            border: 1px solid #eaeaea;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .permission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .permission-header:hover {
+            background-color: #e9ecef;
+        }
+        
+        .permission-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .permission-level-2 {
+            margin-bottom: 16px;
+        }
+        
+        .permission-level-2-header {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+            background-color: #f1f3f5;
+            padding: 6px 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .permission-level-3 {
+            margin-left: 12px;
+            margin-bottom: 12px;
+            border-left: 2px solid #e9ecef;
+            padding-left: 16px;
+        }
+        
+        .permission-level-3-header {
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .permission-level-4 {
+            margin-left: 8px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+        }
+        
+        .permission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <div class="nav-header">
+            <i class="bi bi-exclude"></i> BIZ
+        </div>
+        <div class="nav-links">
+            <a href="admin-accounts.html" class="nav-item">
+                <i class="bi bi-person-badge"></i> Admin Accounts
+            </a>
+            <a href="app-accounts.html" class="nav-item">
+                <i class="bi bi-box-seam"></i> App Accounts
+            </a>
+            <a href="app-roles.html" class="nav-item active">
+                <i class="bi bi-shield-check"></i> App Roles
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-nav">
+            <div class="d-flex align-items-center gap-3">
+                <!-- Notification -->
+                <div class="dropdown">
+                    <a href="#" class="text-dark position-relative" data-bs-toggle="dropdown">
+                    </a>
+                </div>
+                <div class="user-avatar bg-dark text-white">AD</div>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <!-- Header -->
+            <div class="d-flex justify-content-between mb-4">
+                <div>
+                    <h4 class="fw-bold mb-1">Application Roles</h4>
+                    <p class="text-muted small mb-0">Manage roles and their permissions within the application.</p>
+                </div>
+                <button class="btn btn-primary-custom" type="button" data-bs-toggle="offcanvas" data-bs-target="#roleDrawer">
+                    <i class="bi bi-plus-lg me-1"></i> Create Role
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div class="card-container">
+                <table class="table table-custom table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Role Name</th>
+                            <th>Description</th>
+                            <th>Users Assigned</th>
+                            <th>Created At</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-shield-lock text-primary"></i>
+                                    <span class="fw-bold text-dark">Super Admin</span>
+                                </div>
+                            </td>
+                            <td>Full access to all resources and settings.</td>
+                            <td><span class="badge-pill bg-light-gray">2 Users</span></td>
+                            <td>2024-01-01 10:00:00</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit Permissions" data-bs-toggle="offcanvas" data-bs-target="#roleDrawer"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-person-check text-success"></i>
+                                    <span class="fw-bold text-dark">Content Manager</span>
+                                </div>
+                            </td>
+                            <td>Can manage content but cannot change system settings.</td>
+                            <td><span class="badge-pill bg-light-gray">15 Users</span></td>
+                            <td>2024-01-10 14:30:00</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit Permissions"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                         <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-eye text-info"></i>
+                                    <span class="fw-bold text-dark">Viewer</span>
+                                </div>
+                            </td>
+                            <td>Read-only access to specific modules.</td>
+                            <td><span class="badge-pill bg-light-gray">48 Users</span></td>
+                            <td>2024-01-15 09:15:00</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit Permissions"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Role Drawer (Right Side) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="roleDrawer" style="width: 600px;">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title fw-bold">Role Configuration</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form>
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">Role Name</label>
+                    <input type="text" class="form-control" placeholder="e.g. Content Manager">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">Description</label>
+                    <textarea class="form-control" rows="2" placeholder="Describe the role..."></textarea>
+                </div>
+
+                <!-- Data Permissions -->
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">Data Field Permissions</label>
+                    <div class="card p-3 bg-light border-0">
+                        <!-- Post Data Fields -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="small fw-bold text-dark">Post Data Fields</label>
+                                <div class="form-check form-check-inline m-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllPost" onchange="toggleAll(this, '.post-field-checkbox')">
+                                    <label class="form-check-label small text-muted" for="selectAllPost">Select All</label>
+                                </div>
+                            </div>
+                            <div class="permission-grid bg-white p-2 border rounded">
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Publish time</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Video Duration</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Likes</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Shares</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Comments</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Engagements</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Sentiment</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Post Type</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Language</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Category</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Tag</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Business Video Tips</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Brand</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Brand Type</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Fans</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Country</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">Platform</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">title</label></div>
+                                <div class="form-check"><input class="form-check-input post-field-checkbox" type="checkbox"><label class="form-check-label small">content</label></div>
+                            </div>
+                        </div>
+
+                        <!-- Creator Data Fields -->
+                        <div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="small fw-bold text-dark">Creator Data Fields</label>
+                                <div class="form-check form-check-inline m-0">
+                                    <input class="form-check-input" type="checkbox" id="selectAllCreator" onchange="toggleAll(this, '.creator-field-checkbox')">
+                                    <label class="form-check-label small text-muted" for="selectAllCreator">Select All</label>
+                                </div>
+                            </div>
+                            <div class="permission-grid bg-white p-2 border rounded">
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">Country/Region</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">Followers</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">KBI</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">Likes</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">Post Count</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">Post Count 30d</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">Engagement Rate 30d</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">Brand</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">Views Avg 30d</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">Like Avg 30d</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">id</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">short_id</label></div>
+                                <div class="form-check"><input class="form-check-input creator-field-checkbox" type="checkbox"><label class="form-check-label small">pio</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quota Settings -->
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">Quota Configuration</label>
+                    <div class="card p-3 bg-light border-0">
+                        <!-- Export Limits -->
+                        <div class="mb-3">
+                            <label class="small fw-bold text-dark mb-2">Export Limits</label>
+                            <div id="exportLimitContainer">
+                                 <div class="row g-2 align-items-end mb-2">
+                                      <div class="col-4">
+                                          <label class="small text-muted" style="font-size: 11px;">Period</label>
+                                          <select class="form-select form-select-sm">
+                                              <option>Daily</option>
+                                              <option>Weekly</option>
+                                              <option>Monthly</option>
+                                          </select>
+                                      </div>
+                                      <div class="col-4">
+                                          <label class="small text-muted" style="font-size: 11px;">Type</label>
+                                          <select class="form-select form-select-sm">
+                                              <option>Max Times</option>
+                                              <option>Max Quantity</option>
+                                          </select>
+                                      </div>
+                                      <div class="col-4">
+                                          <label class="small text-muted" style="font-size: 11px;">Quota</label>
+                                          <input type="number" class="form-control form-control-sm" placeholder="e.g. 500">
+                                      </div>
+                                  </div>
+                             </div>
+                         </div>
+                        
+                        <!-- Plan Limits -->
+                        <div>
+                            <label class="small fw-bold text-dark mb-2">Resource Limits</label>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                     <label class="small text-muted" style="font-size: 11px;">Max Plan Creations</label>
+                                     <input type="number" class="form-control form-control-sm" placeholder="e.g. 5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-2">
+                    <label class="form-label small fw-bold text-muted">Functional Permissions</label>
+                </div>
+
+                <div class="accordion" id="permissionsAccordion">
+                    
+                    <!-- Quick Search -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#quickSearch">
+                            <span>Quick Search</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="quickSearch" class="collapse show" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="permission-grid">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post Query</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Creator Query</label></div>
+                                </div>
+                                
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Trending</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Country filter</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Hot List</label></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Posts Analysis -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#postsAnalysis">
+                            <span>Posts Analysis</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="postsAnalysis" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="permission-grid mb-3">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post Query</label></div>
+                                </div>
+
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Post Filtering</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Publish time</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Video Duration</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Likes</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Shares</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Comments</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Engagements</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Sentiment</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post Type</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Language</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Category</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Tag</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Business Video Tips</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Brand</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Brand Type</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Fans</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Country</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">My saved search</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Post Insight</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Top Hashtags</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Brand</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">BGM</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post Category</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform Publish/action</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Publish time</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Video Duration</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Top Creators</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Top Mentions</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Top Creator Countries</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Chart export</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Post List</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Export</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post Details</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Creator Details</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Add report</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Columns Setting</label></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Creators Analysis -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#creatorsAnalysis">
+                            <span>Creators Analysis</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="creatorsAnalysis" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="permission-grid mb-3">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Creator Query</label></div>
+                                </div>
+
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Creator Filtering</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Fans</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post Count</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Views avg</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Likes avg</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Engagement Rate</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">My saved search</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Creator List</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-level-3">
+                                        <div class="permission-level-3-header">
+                                            <span>Creator Details</span>
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                        <div class="permission-level-4">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post list</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Brand</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Account Matrix</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post Insight</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Fan Portraits</label></div>
+                                        </div>
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Report</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Add report</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Columns Setting</label></div>
+                                    </div>
+                                </div>
+
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Creator Insight</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Creator Category</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform Distribution</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Top Creator Countries</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Brand</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Fans</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Report</label></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- TKFlash -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#tkFlash">
+                            <span>TKFlash</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="tkFlash" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Post Search</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">TikTok</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Youtube</label></div>
+                                    </div>
+                                </div>
+                                <div class="permission-grid">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Text Search</label></div>
+                                    <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Image Search</label></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Magic Search -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#magicSearch">
+                            <span>Magic Search</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="magicSearch" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Post Filtering</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Publish time</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Video Duration</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Likes</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Shares</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Comments</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Engagements</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Sentiment</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post Type</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Language</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Category</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Tag</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Business Video Tips</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Brand</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Brand Type</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Fans</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Country</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Industry</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Confidence Score</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">My saved search</label></div>
+                                    </div>
+                                </div>
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Plan Create</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">General</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Advance</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Plan Share</label></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- My Tracked -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#myTracked">
+                            <span>My Tracked</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="myTracked" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Post Insight</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    
+                                    <div class="permission-level-3">
+                                        <div class="permission-level-3-header">
+                                            <span>Overview</span>
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                        <div class="permission-level-4">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">All</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Sentiment</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Hashtag</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Country</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Language</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Gender</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">BGM Type</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">BGM Tone</label></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="permission-level-3">
+                                        <div class="permission-level-3-header">
+                                            <span>Video Duration</span>
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                        <div class="permission-level-4">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">All</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Summary</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Hashtag</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Country</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Language</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Gender</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">BGM Type</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">BGM Tone</label></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="permission-level-3">
+                                        <div class="permission-level-3-header">
+                                            <span>Post Category</span>
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                        <div class="permission-level-4">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">All</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Sentiment</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Hashtag</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Country</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Language</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Gender</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">BGM Type</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">BGM Tone</label></div>
+                                        </div>
+                                    </div>
+                                    
+                                     <div class="permission-level-3">
+                                        <div class="permission-level-3-header">
+                                            <span>Brand Listening</span>
+                                            <input class="form-check-input" type="checkbox">
+                                        </div>
+                                        <div class="permission-level-4">
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Brand Data Analysis</label></div>
+                                            <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Themes Analysis</label></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="permission-grid ps-3">
+                                         <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Chart export</label></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Post List</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Export</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Post Details</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Creator Details</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Create event</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Create alert</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Columns Setting</label></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Plan Comparison -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#planComparison">
+                            <span>Plan Comparison</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="planComparison" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Post filter</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Publish time</label></div>
+                                    </div>
+                                </div>
+                                <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>Plan Comparison</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">All</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Platform</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Sentiment</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Hashtag</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Country</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Language</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Gender</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">BGM Type</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">BGM Tone</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Chart export</label></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Trending -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#trending">
+                            <span>Trending</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="trending" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Tiktok</label></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Report And Alert -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#reportAlert">
+                            <span>Report And Alert</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="reportAlert" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Report List</label></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Event Management -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#eventManagement">
+                            <span>Event Management</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="eventManagement" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Event Management</label></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User Management -->
+                    <div class="permission-group">
+                        <div class="permission-header" data-bs-toggle="collapse" data-bs-target="#userManagement">
+                            <span>User Management</span>
+                            <div class="form-check" onclick="event.stopPropagation()">
+                                <input class="form-check-input" type="checkbox">
+                            </div>
+                        </div>
+                        <div id="userManagement" class="collapse" data-bs-parent="#permissionsAccordion">
+                            <div class="permission-body">
+                                 <div class="permission-level-2">
+                                    <div class="permission-level-2-header">
+                                        <span>User Management</span>
+                                        <input class="form-check-input" type="checkbox">
+                                    </div>
+                                    <div class="permission-grid ps-3">
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">plan limit</label></div>
+                                        <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">export limit</label></div>
+                                    </div>
+                                </div>
+                                 <div class="permission-grid">
+                                    <div class="form-check"><input class="form-check-input" type="checkbox"><label class="form-check-label small">Role Management</label></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <div class="mt-5 d-flex gap-2 justify-content-end">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="offcanvas">Cancel</button>
+                    <button type="button" class="btn btn-dark px-4">Save Role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle All Checkboxes
+        function toggleAll(source, targetSelector) {
+            const checkboxes = document.querySelectorAll(targetSelector);
+            checkboxes.forEach(cb => {
+                cb.checked = source.checked;
+            });
+        }
+    </script>
+</body>
+</html>

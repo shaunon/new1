@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Account Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-black: #000000;
+            --secondary-gray: #f4f4f4;
+            --text-muted: #666666;
+            --border-radius-pill: 50px;
+            --border-radius-card: 16px;
+            --nav-width: 240px;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: var(--primary-black);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Main Navigation (Leftmost) */
+        .main-nav {
+            width: var(--nav-width);
+            background-color: #1a1a1a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .nav-header {
+            padding: 24px;
+            font-size: 18px;
+            font-weight: 700;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: #aaaaaa;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            color: #ffffff;
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            color: #ffffff;
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        /* Secondary Sidebar (Org Tree) */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            z-index: 10;
+            position: relative;
+        }
+
+        .sidebar::after {
+            content: "";
+            position: absolute;
+            right: 0;
+            top: 64px; /* Align with top-nav bottom border */
+            bottom: 0;
+            width: 1px;
+            background-color: #eaeaea;
+        }
+
+        .sidebar-header {
+            padding: 24px 24px 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .org-tree {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 16px 16px 16px 16px;
+        }
+
+        .tree-item {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            position: relative;
+        }
+
+        .tree-item:hover, .tree-item.active {
+            background-color: var(--secondary-gray);
+            color: var(--primary-black);
+        }
+        
+        .tree-item.active {
+            font-weight: 600;
+        }
+
+        .tree-children {
+            margin-left: 20px;
+            padding-left: 8px;
+            border-left: 1px solid #eee;
+            display: none;
+        }
+        
+        .tree-children.expanded {
+            display: block;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+
+        .top-nav {
+            height: 64px;
+            background-color: #ffffff;
+            border-bottom: 1px solid #eaeaea;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 32px;
+        }
+
+        .content-body {
+            padding: 24px 32px;
+            overflow-y: auto;
+        }
+
+        /* Card & Table */
+        .card-container {
+            background: #ffffff;
+            border-radius: var(--border-radius-card);
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            border: 1px solid #eaeaea;
+        }
+
+        .table-custom th {
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding: 16px 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table-custom td {
+            vertical-align: middle;
+            font-size: 14px;
+            padding: 16px 8px;
+            border-bottom: 1px solid #f9f9f9;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Offcanvas (Right Drawer) */
+        .offcanvas {
+            border-radius: 20px 0 0 20px;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.08);
+        }
+        
+        .offcanvas-header {
+            padding: 24px;
+        }
+        
+        .offcanvas-body {
+            padding: 24px;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--primary-black);
+            color: #ffffff;
+            border-radius: var(--border-radius-pill);
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+        }
+
+        .badge-pill {
+            border-radius: 50px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .bg-light-blue { background-color: #e7f5ff; color: #1971c2; }
+        .bg-light-purple { background-color: #f3f0ff; color: #845ef7; }
+        .bg-light-gray { background-color: #f8f9fa; color: #495057; }
+    </style>
+</head>
+<body>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <div class="nav-header">
+            <i class="bi bi-exclude"></i> BIZ
+        </div>
+        <div class="nav-links">
+            <a href="admin-accounts.html" class="nav-item">
+                <i class="bi bi-person-badge"></i> Admin Accounts
+            </a>
+            <a href="app-accounts.html" class="nav-item active">
+                <i class="bi bi-box-seam"></i> App Accounts
+            </a>
+            <a href="app-roles.html" class="nav-item">
+                <i class="bi bi-shield-check"></i> App Roles
+            </a>
+        </div>
+    </nav>
+
+    <!-- Secondary Sidebar (Org Tree - Read Only) -->
+    <div class="sidebar">
+        <div style="height: 64px; border-bottom: 1px solid #eaeaea; flex-shrink: 0;"></div>
+        <div class="sidebar-header">
+            <div class="sidebar-title">Organization</div>
+            <!-- No Add Button here for App Accounts -->
+        </div>
+        <div class="org-tree">
+            <!-- L'Oréal Group -->
+            <div class="mb-2 fw-bold px-2 small text-uppercase text-muted" style="font-size: 11px; letter-spacing: 1px;">L'Oréal Group</div>
+            <div class="tree-item active" onclick="filterByOrg('GLOBAL')">
+                <i class="bi bi-globe"></i>
+                <span>GLOBAL</span>
+            </div>
+            <div class="tree-children expanded" style="display:block;">
+                <!-- ZONE -->
+                <div class="tree-item" onclick="filterByOrg('North America')">
+                    <i class="bi bi-chevron-down" onclick="event.stopPropagation(); toggleTree(this.parentElement)"></i>
+                    <span>North America</span>
+                </div>
+                <div class="tree-children expanded">
+                    <!-- SUBZONE -->
+                    <div class="tree-item" onclick="filterByOrg('USA')">
+                        <i class="bi bi-chevron-down" onclick="event.stopPropagation(); toggleTree(this.parentElement)"></i>
+                        <span>USA</span>
+                    </div>
+                    <div class="tree-children expanded">
+                        <!-- MARKET -->
+                        <div class="tree-item" onclick="filterByOrg('New York')">
+                            <i class="bi bi-dot"></i>
+                            <span>New York</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nike Inc. -->
+            <div class="mb-2 mt-4 fw-bold px-2 small text-uppercase text-muted" style="font-size: 11px; letter-spacing: 1px;">Nike Inc.</div>
+             <div class="tree-item" onclick="filterByOrg('Nike GLOBAL')">
+                <i class="bi bi-globe"></i>
+                <span>GLOBAL</span>
+            </div>
+             <div class="tree-children expanded" style="display:block;">
+                <!-- ZONE -->
+                <div class="tree-item" onclick="filterByOrg('Greater China')">
+                    <i class="bi bi-dot"></i>
+                    <span>Greater China</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-nav">
+            <div class="d-flex align-items-center gap-3">
+                <div class="user-avatar bg-dark text-white">AD</div>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <!-- Filters -->
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                    <!-- Search -->
+                    <div class="position-relative" style="width: 280px;">
+                        <i class="bi bi-search position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%);"></i>
+                        <input type="text" class="form-control ps-5 bg-white border-1" style="border-radius: 8px; height: 40px; border-color: #dee2e6;" placeholder="Search accounts...">
+                    </div>
+                    
+                    <!-- Status Filter -->
+                    <select class="form-select border-1" style="width: auto; border-radius: 8px; height: 40px; border-color: #dee2e6;">
+                        <option selected>All Status</option>
+                        <option>Active</option>
+                        <option>Inactive</option>
+                    </select>
+
+                    <!-- Created Date -->
+                    <div class="position-relative" style="width: 200px;">
+                        <i class="bi bi-calendar-event position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%); z-index: 5;"></i>
+                        <input type="text" class="form-control ps-5 border-1" style="border-radius: 8px; height: 40px; border-color: #dee2e6;" placeholder="Created Date & Time" onfocus="(this.type='datetime-local')" onblur="(this.type='text')">
+                    </div>
+
+                    <!-- Expiry Date -->
+                    <div class="position-relative" style="width: 200px;">
+                        <i class="bi bi-calendar-x position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%); z-index: 5;"></i>
+                        <input type="text" class="form-control ps-5 border-1" style="border-radius: 8px; height: 40px; border-color: #dee2e6;" placeholder="Expiry Date & Time" onfocus="(this.type='datetime-local')" onblur="(this.type='text')">
+                    </div>
+                </div>
+                <button class="btn btn-primary-custom" type="button" data-bs-toggle="offcanvas" data-bs-target="#appAccountDrawer">
+                    <i class="bi bi-plus-lg me-1"></i> Add App Account
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div class="card-container">
+                <table class="table table-custom table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th width="40"><input type="checkbox" class="form-check-input"></th>
+                            <th>User</th>
+                            <th>Company</th>
+                            <th>Department</th>
+                            <th>App Permissions</th>
+                            <th>Phone</th>
+                            <th>Created At</th>
+                            <th>Expired At</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="user-avatar bg-light-purple">MW</div>
+                                    <div>
+                                        <div class="fw-bold text-dark">Mike West</div>
+                                        <div class="text-muted small">mike@app.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>AppSolute Ltd.</td>
+                            <td><span class="badge-pill bg-light-gray">Tech Dept</span></td>
+                            <td>
+                                <span class="badge-pill bg-light-blue">Read</span>
+                                <span class="badge-pill bg-light-blue">Write</span>
+                            </td>
+                            <td>+1 555 000 1111</td>
+                            <td>2024-03-01 10:00:00</td>
+                            <td>2025-03-01 23:59:59</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit" onclick="editAppAccount('Mike West', 'mike@app.com')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox" class="form-check-input"></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="user-avatar bg-secondary text-white">LJ</div>
+                                    <div>
+                                        <div class="fw-bold text-dark">Lisa Jones</div>
+                                        <div class="text-muted small">lisa@app.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>Creative Co.</td>
+                            <td><span class="badge-pill bg-light-gray">HR Dept</span></td>
+                            <td>
+                                <span class="badge-pill bg-light-blue">Read Only</span>
+                            </td>
+                            <td>+1 555 222 3333</td>
+                            <td>2024-03-05 15:45:00</td>
+                            <td>2025-03-05 23:59:59</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit" onclick="editAppAccount('Lisa Jones', 'lisa@app.com')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Account Drawer (Right Side) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="appAccountDrawer" style="width: 500px;">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title fw-bold" id="appAccountDrawerTitle">Create App Account</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="appAccountForm">
+                <div class="mb-4 text-center">
+                    <div class="d-inline-block position-relative">
+                        <div class="user-avatar bg-secondary text-white" id="drawerAvatar" style="width: 80px; height: 80px; font-size: 24px;">?</div>
+                        <button class="btn btn-sm btn-dark position-absolute bottom-0 end-0 rounded-circle" style="width:30px;height:30px;padding:0;"><i class="bi bi-camera"></i></button>
+                    </div>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Nickname</label>
+                        <input type="text" class="form-control" placeholder="Mike West">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Phone</label>
+                        <input type="text" class="form-control" placeholder="+1 555 ...">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Email</label>
+                        <input type="email" class="form-control" placeholder="mike@app.com">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" placeholder="••••••••">
+                            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)"><i class="bi bi-eye"></i></button>
+                        </div>
+                    </div>
+                     <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">Company Name</label>
+                        <input type="text" class="form-control" placeholder="AppSolute Ltd.">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Department</label>
+                        <select class="form-select">
+                            <option>Tech Dept</option>
+                            <option>HR Dept</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">Inherit From Account</label>
+                        <div class="position-relative">
+                            <div class="input-group input-group-sm mb-2">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search small text-muted"></i></span>
+                                <input type="text" class="form-control border-start-0" id="inheritSearch" placeholder="Search accounts..." onfocus="showInheritDropdown()" onkeyup="filterInheritOptions()">
+                            </div>
+                            <div id="inheritDropdown" class="list-group position-absolute w-100 shadow-sm d-none" style="z-index: 1000; max-height: 150px; overflow-y: auto;">
+                                <button type="button" class="list-group-item list-group-item-action small py-2" onclick="selectInherit('None', '')">None</button>
+                                <button type="button" class="list-group-item list-group-item-action small py-2" onclick="selectInherit('Mike West', 'mike@app.com')">Mike West (mike@app.com)</button>
+                                <button type="button" class="list-group-item list-group-item-action small py-2" onclick="selectInherit('Lisa Jones', 'lisa@app.com')">Lisa Jones (lisa@app.com)</button>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-4 mt-2 px-1">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="roles" id="inheritRoles" checked style="width: 14px; height: 14px;">
+                                <label class="form-check-label small text-muted" for="inheritRoles">Roles</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="quota" id="inheritQuota" checked style="width: 14px; height: 14px;">
+                                <label class="form-check-label small text-muted" for="inheritQuota">Quota</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="plan" id="inheritPlan" checked style="width: 14px; height: 14px;">
+                                <label class="form-check-label small text-muted" for="inheritPlan">Plan</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- App Permissions Section -->
+                    <div class="col-12 mt-4">
+                        <label class="form-label small fw-bold text-muted d-block mb-3">App Permissions</label>
+                        <div id="appPermissionContainer">
+                            <div class="app-permission-row p-3 bg-light rounded border mb-3">
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-5">
+                                        <label class="small text-muted" style="font-size: 11px;">Application</label>
+                                        <select class="form-select form-select-sm" onchange="updateRoles(this)">
+                                            <option value="">Select App</option>
+                                            <option value="tarsight">Tarsight</option>
+                                            <option value="nova">Nova</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="small text-muted" style="font-size: 11px;">Role</label>
+                                        <select class="form-select form-select-sm role-select">
+                                            <option value="">Select Role</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-1">
+                                        <button type="button" class="btn btn-sm btn-link text-danger p-0 mb-1" onclick="this.closest('.app-permission-row').remove()"><i class="bi bi-dash-circle"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-link text-primary p-0" style="font-size: 12px;" onclick="addAppPermission()">
+                            <i class="bi bi-plus-circle me-1"></i>Add App Permission
+                        </button>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold text-muted">Expiration Time</label>
+                        <input type="date" class="form-control">
+                    </div>
+                </div>
+                
+                <div class="mt-5 d-flex gap-2 justify-content-end">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="offcanvas">Cancel</button>
+                    <button type="button" class="btn btn-dark px-4">Save Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle Tree
+        function toggleTree(element) {
+            const children = element.nextElementSibling;
+            if (children && children.classList.contains('tree-children')) {
+                const isExpanded = children.style.display === 'block';
+                children.style.display = isExpanded ? 'none' : 'block';
+                element.querySelector('.bi-chevron-down').style.transform = isExpanded ? 'rotate(-90deg)' : 'rotate(0deg)';
+            }
+        }
+        
+        // Mock Org Filter
+        function filterByOrg(orgName) {
+            document.querySelectorAll('.tree-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const target = event.currentTarget;
+            if(target) target.classList.add('active');
+            console.log("Filtering by org:", orgName);
+        }
+
+        function togglePassword(btn) {
+            const input = btn.parentElement.querySelector('input');
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('bi-eye', 'bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('bi-eye-slash', 'bi-eye');
+            }
+        }
+
+        const appAccountDrawer = new bootstrap.Offcanvas(document.getElementById('appAccountDrawer'));
+        
+        function editAppAccount(name, email) {
+            document.getElementById('appAccountDrawerTitle').textContent = 'Edit App Account';
+            document.querySelector('#appAccountDrawer input[placeholder="Mike West"]').value = name;
+            document.querySelector('#appAccountDrawer input[placeholder="mike@app.com"]').value = email;
+            appAccountDrawer.show();
+        }
+
+        function addAppPermission() {
+            const container = document.getElementById('appPermissionContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'app-permission-row p-3 bg-light rounded border mb-3';
+            newRow.innerHTML = `
+                <div class="row g-2 align-items-end">
+                    <div class="col-5">
+                        <label class="small text-muted" style="font-size: 11px;">Application</label>
+                        <select class="form-select form-select-sm" onchange="updateRoles(this)">
+                            <option value="">Select App</option>
+                            <option value="tarsight">Tarsight</option>
+                            <option value="nova">Nova</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-muted" style="font-size: 11px;">Role</label>
+                        <select class="form-select form-select-sm role-select">
+                            <option value="">Select Role</option>
+                        </select>
+                    </div>
+                    <div class="col-1">
+                        <button type="button" class="btn btn-sm btn-link text-danger p-0 mb-1" onclick="this.closest('.app-permission-row').remove()"><i class="bi bi-dash-circle"></i></button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function updateRoles(appSelect) {
+            const roleSelect = appSelect.closest('.row').querySelector('.role-select');
+            const app = appSelect.value;
+            
+            // Mock roles based on app
+            let roles = [];
+            if (app === 'tarsight') roles = ['Analyst', 'Viewer', 'Admin'];
+            else if (app === 'nova') roles = ['Creator', 'Manager'];
+
+            roleSelect.innerHTML = '<option value="">Select Role</option>' + 
+                roles.map(r => `<option value="${r.toLowerCase()}">${r}</option>`).join('');
+        }
+
+        // Inheritance Search Logic
+        function showInheritDropdown() {
+            document.getElementById('inheritDropdown').classList.remove('d-none');
+        }
+
+        function filterInheritOptions() {
+            const input = document.getElementById('inheritSearch');
+            const filter = input.value.toLowerCase();
+            const dropdown = document.getElementById('inheritDropdown');
+            const buttons = dropdown.getElementsByTagName('button');
+
+            for (let i = 0; i < buttons.length; i++) {
+                const txtValue = buttons[i].textContent || buttons[i].innerText;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    buttons[i].style.display = "";
+                } else {
+                    buttons[i].style.display = "none";
+                }
+            }
+        }
+
+        function selectInherit(name, email) {
+            const input = document.getElementById('inheritSearch');
+            input.value = name === 'None' ? 'None' : `${name} (${email})`;
+            document.getElementById('inheritDropdown').classList.add('d-none');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('inheritDropdown');
+            const searchInput = document.getElementById('inheritSearch');
+            if (!searchInput.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.add('d-none');
+            }
+        });
+
+        // Reset App Account Drawer for "Add App Account"
+        document.querySelector('[data-bs-target="#appAccountDrawer"]').addEventListener('click', function() {
+            document.getElementById('appAccountDrawerTitle').textContent = 'Create App Account';
+            document.getElementById('appAccountForm').reset();
+            document.getElementById('appPermissionContainer').innerHTML = ''; // Clear permissions
+            addAppPermission(); // Add one empty row
+            document.getElementById('inheritSearch').value = ''; // Clear inherit search
+        });
+    </script>
+</body>
+</html>
