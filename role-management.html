@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Version Management</title>
+    <title>Role Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -286,10 +286,10 @@
             <a href="app-accounts.html" class="nav-item">
                 <i class="bi bi-box-seam"></i> App Accounts
             </a>
-            <a href="app-roles.html" class="nav-item active">
+            <a href="app-roles.html" class="nav-item">
                 <i class="bi bi-shield-check"></i> App Versions
             </a>
-            <a href="role-management.html" class="nav-item">
+            <a href="role-management.html" class="nav-item active">
                 <i class="bi bi-person-badge-fill"></i> Role Management
             </a>
         </div>
@@ -312,11 +312,11 @@
             <!-- Header -->
             <div class="d-flex justify-content-between mb-4">
                 <div>
-                    <h4 class="fw-bold mb-1">Application Versions</h4>
-                    <p class="text-muted small mb-0">Manage versions and their permissions within the application.</p>
+                    <h4 class="fw-bold mb-1">Role Management</h4>
+                    <p class="text-muted small mb-0">View all roles created by users across companies.</p>
                 </div>
-                <button class="btn btn-primary-custom" type="button" data-bs-toggle="offcanvas" data-bs-target="#roleDrawer">
-                    <i class="bi bi-plus-lg me-1"></i> Create Version
+                <button class="btn btn-primary-custom" type="button" onclick="openRoleDrawer('create')">
+                    <i class="bi bi-plus-lg me-1"></i> Create Role
                 </button>
             </div>
 
@@ -331,9 +331,11 @@
                 <table class="table table-custom table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Version Name</th>
+                            <th>Role Name</th>
+                            <th>Company</th>
                             <th>Description</th>
-                            <th>Companies Assigned</th>
+                            <th>Created By</th>
+                            <th>Users Assigned</th>
                             <th>Created At</th>
                             <th class="text-end">Actions</th>
                         </tr>
@@ -342,46 +344,52 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-shield-lock text-primary"></i>
-                                    <span class="fw-bold text-dark">Enterprise</span>
+                                    <i class="bi bi-person-badge text-primary"></i>
+                                    <span class="fw-bold text-dark">Marketing Manager</span>
                                 </div>
                             </td>
-                            <td>Full access to all resources and settings.</td>
-                            <td><span class="badge-pill bg-light-gray">2 Companies</span></td>
-                            <td>2024-01-01 10:00:00</td>
+                            <td>L'Oréal Group</td>
+                            <td>Access to marketing reports and analytics.</td>
+                            <td>John Doe</td>
+                            <td><span class="badge-pill bg-light-gray">5 Users</span></td>
+                            <td>2024-02-01 09:00:00</td>
                             <td class="text-end">
-                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit Permissions" data-bs-toggle="offcanvas" data-bs-target="#roleDrawer"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit" onclick="openRoleDrawer('edit')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete" onclick="confirmDelete()"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-person-check text-success"></i>
-                                    <span class="fw-bold text-dark">Professional</span>
+                                    <i class="bi bi-person-badge text-success"></i>
+                                    <span class="fw-bold text-dark">Content Creator</span>
                                 </div>
                             </td>
-                            <td>Advanced features for professional users.</td>
-                            <td><span class="badge-pill bg-light-gray">15 Companies</span></td>
-                            <td>2024-01-10 14:30:00</td>
+                            <td>Nike Inc.</td>
+                            <td>Can create and edit content posts.</td>
+                            <td>Alice Smith</td>
+                            <td><span class="badge-pill bg-light-gray">12 Users</span></td>
+                            <td>2024-02-05 11:30:00</td>
                             <td class="text-end">
-                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit Permissions"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit" onclick="openRoleDrawer('edit')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete" onclick="confirmDelete()"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
                          <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-eye text-info"></i>
-                                    <span class="fw-bold text-dark">Starter</span>
+                                    <i class="bi bi-person-badge text-info"></i>
+                                    <span class="fw-bold text-dark">Analyst</span>
                                 </div>
                             </td>
-                            <td>Basic access to essential features.</td>
-                            <td><span class="badge-pill bg-light-gray">48 Companies</span></td>
-                            <td>2024-01-15 09:15:00</td>
+                            <td>Adidas</td>
+                            <td>Read-only access to data dashboards.</td>
+                            <td>Bob Brown</td>
+                            <td><span class="badge-pill bg-light-gray">3 Users</span></td>
+                            <td>2024-02-10 15:45:00</td>
                             <td class="text-end">
-                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit Permissions"><i class="bi bi-pencil"></i></button>
-                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit" onclick="openRoleDrawer('edit')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-danger p-0" title="Delete" onclick="confirmDelete()"><i class="bi bi-trash"></i></button>
                             </td>
                         </tr>
                     </tbody>
@@ -390,21 +398,30 @@
         </div>
     </div>
 
-    <!-- Version Drawer (Right Side) -->
+    <!-- Role Drawer (Right Side) -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="roleDrawer" style="width: 600px;">
         <div class="offcanvas-header border-bottom">
-            <h5 class="offcanvas-title fw-bold">Version Configuration</h5>
+            <h5 class="offcanvas-title fw-bold" id="roleDrawerTitle">Role Configuration</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-            <form>
+            <form id="roleForm">
                 <div class="mb-4">
-                    <label class="form-label small fw-bold text-muted">Version Name</label>
-                    <input type="text" class="form-control" placeholder="e.g. Enterprise">
+                    <label class="form-label small fw-bold text-muted">Role Name</label>
+                    <input type="text" class="form-control" id="roleName" placeholder="e.g. Marketing Manager">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-muted">Company</label>
+                    <select class="form-select" id="roleCompany">
+                        <option selected>Select Company...</option>
+                        <option value="1">L'Oréal Group</option>
+                        <option value="2">Nike Inc.</option>
+                        <option value="3">Adidas</option>
+                    </select>
                 </div>
                 <div class="mb-4">
                     <label class="form-label small fw-bold text-muted">Description</label>
-                    <textarea class="form-control" rows="2" placeholder="Describe the version..."></textarea>
+                    <textarea class="form-control" id="roleDescription" rows="2" placeholder="Describe the role..."></textarea>
                 </div>
 
                 <!-- Data Permissions -->
@@ -1005,7 +1022,7 @@
 
                 <div class="mt-5 d-flex gap-2 justify-content-end">
                     <button type="button" class="btn btn-light" data-bs-dismiss="offcanvas">Cancel</button>
-                    <button type="button" class="btn btn-dark px-4">Save Version</button>
+                    <button type="button" class="btn btn-dark px-4">Save Role</button>
                 </div>
             </form>
         </div>
@@ -1032,6 +1049,36 @@
             checkboxes.forEach(cb => {
                 cb.checked = source.checked;
             });
+        }
+
+        function openRoleDrawer(mode) {
+            const drawerTitle = document.getElementById('roleDrawerTitle');
+            const roleNameInput = document.getElementById('roleName');
+            const roleCompanySelect = document.getElementById('roleCompany');
+            const roleDescInput = document.getElementById('roleDescription');
+            
+            if (mode === 'create') {
+                drawerTitle.textContent = 'Create Role';
+                roleNameInput.value = '';
+                roleCompanySelect.selectedIndex = 0;
+                roleDescInput.value = '';
+            } else if (mode === 'edit') {
+                drawerTitle.textContent = 'Edit Role';
+                // Simulate fetching data
+                roleNameInput.value = 'Marketing Manager';
+                roleCompanySelect.value = '1'; // L'Oréal Group
+                roleDescInput.value = 'Access to marketing reports and analytics.';
+            }
+            
+            const bsOffcanvas = new bootstrap.Offcanvas(document.getElementById('roleDrawer'));
+            bsOffcanvas.show();
+        }
+
+        function confirmDelete() {
+            if (confirm('Are you sure you want to delete this role? This action cannot be undone.')) {
+                // Simulate deletion
+                alert('Role deleted successfully.');
+            }
         }
     </script>
 </body>
