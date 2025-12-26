@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Account Management</title>
+    <title>Admin Account Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -74,6 +74,7 @@
 
         .nav-item.active {
             color: #ffffff;
+            background-color: var(--primary-black); /* Or a highlight color */
             background-color: rgba(255,255,255,0.2);
         }
 
@@ -148,6 +149,16 @@
         
         .tree-children.expanded {
             display: block;
+        }
+
+        .tree-actions {
+            margin-left: auto;
+            display: none;
+            gap: 8px;
+        }
+
+        .tree-item:hover .tree-actions {
+            display: flex;
         }
 
         /* Main Content */
@@ -234,17 +245,15 @@
             font-weight: 500;
             border: none;
         }
-
-        .badge-pill {
-            border-radius: 50px;
-            padding: 4px 10px;
-            font-size: 11px;
-            font-weight: 600;
-        }
         
-        .bg-light-blue { background-color: #e7f5ff; color: #1971c2; }
-        .bg-light-purple { background-color: #f3f0ff; color: #845ef7; }
-        .bg-light-gray { background-color: #f8f9fa; color: #495057; }
+        .btn-outline-custom {
+            border: 1px solid #ddd;
+            color: var(--primary-black);
+            border-radius: var(--border-radius-pill);
+            padding: 6px 16px;
+            font-size: 13px;
+            background: #fff;
+        }
 
         /* Toast / Alert Style */
         .toast-container {
@@ -270,6 +279,17 @@
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+
+        .badge-pill {
+            border-radius: 50px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .bg-light-blue { background-color: #e7f5ff; color: #1971c2; }
+        .bg-light-green { background-color: #ebfbee; color: #2b8a3e; }
+        .bg-light-gray { background-color: #f8f9fa; color: #495057; }
     </style>
 </head>
 <body>
@@ -280,67 +300,84 @@
             <i class="bi bi-exclude"></i> BIZ
         </div>
         <div class="nav-links">
-            <a href="admin-accounts.html" class="nav-item">
+            <a href="client-admin-accounts.html" class="nav-item active">
                 <i class="bi bi-person-badge"></i> Admin Accounts
             </a>
-            <a href="app-accounts.html" class="nav-item active">
+            <a href="client-app-accounts.html" class="nav-item">
                 <i class="bi bi-box-seam"></i> App Accounts
             </a>
-            <a href="app-roles.html" class="nav-item">
-                <i class="bi bi-shield-check"></i> App Versions
+            <a href="client-role-management.html" class="nav-item">
+                <i class="bi bi-shield-check"></i> Role Management
             </a>
         </div>
     </nav>
 
-    <!-- Secondary Sidebar (Org Tree - Read Only) -->
+    <!-- Secondary Sidebar (Org Tree) -->
     <div class="sidebar">
         <div style="height: 64px; border-bottom: 1px solid #eaeaea; flex-shrink: 0;"></div>
         <div class="sidebar-header">
             <div class="sidebar-title">Organization</div>
-            <!-- No Add Button here for App Accounts -->
+            <!-- <button class="btn btn-sm btn-link text-dark p-0" onclick="openOrgDrawer('create', '', 0, 'Tenant')">
+                <i class="bi bi-plus-lg"></i>
+            </button> -->
         </div>
         <div class="org-tree">
             <!-- L'Oréal Group -->
-            <div class="mb-2 fw-bold px-2 small text-uppercase text-muted" style="font-size: 11px; letter-spacing: 1px;">L'Oréal Group</div>
-            <div class="tree-item active" onclick="filterByOrg('GLOBAL')">
-                <i class="bi bi-globe"></i>
-                <span>GLOBAL</span>
+            <div class="tree-item fw-bold" onclick="filterByOrg('L\'Oréal Group')">
+                <i class="bi bi-building"></i>
+                <span>L'Oréal Group</span>
+                <div class="tree-actions">
+                    <!-- <i class="bi bi-pencil-square" onclick="event.stopPropagation(); openOrgDrawer('edit', 'L\'Oréal Group', 0, 'Tenant')"></i> -->
+                    <i class="bi bi-plus-circle text-success" title="Add Organization" onclick="event.stopPropagation(); openOrgDrawer('create', '', 0, 'Organization')"></i>
+                </div>
             </div>
             <div class="tree-children expanded" style="display:block;">
+                <div class="tree-item active" onclick="filterByOrg('GLOBAL')">
+                    <i class="bi bi-globe"></i>
+                    <span>GLOBAL</span>
+                    <div class="tree-actions">
+                        <i class="bi bi-pencil-square" onclick="event.stopPropagation(); openOrgDrawer('edit', 'GLOBAL', 0, 'Organization')"></i>
+                        <i class="bi bi-plus-circle text-success" title="Add Zone" onclick="event.stopPropagation(); openOrgDrawer('create', '', 0, 'Zone')"></i>
+                    </div>
+                </div>
+                <div class="tree-children expanded" style="display:block;">
                 <!-- ZONE -->
                 <div class="tree-item" onclick="filterByOrg('North America')">
                     <i class="bi bi-chevron-down" onclick="event.stopPropagation(); toggleTree(this.parentElement)"></i>
                     <span>North America</span>
+                    <div class="tree-actions">
+                        <i class="bi bi-pencil-square" onclick="event.stopPropagation(); openOrgDrawer('edit', 'North America', 5, 'Zone')"></i>
+                        <i class="bi bi-plus-circle text-success" title="Add Subzone" onclick="event.stopPropagation(); openOrgDrawer('create', '', 0, 'Subzone')"></i>
+                        <i class="bi bi-trash text-danger" onclick="event.stopPropagation(); deleteOrg('North America', 5)"></i>
+                    </div>
                 </div>
                 <div class="tree-children expanded">
                     <!-- SUBZONE -->
                     <div class="tree-item" onclick="filterByOrg('USA')">
                         <i class="bi bi-chevron-down" onclick="event.stopPropagation(); toggleTree(this.parentElement)"></i>
                         <span>USA</span>
+                        <div class="tree-actions">
+                            <i class="bi bi-pencil-square" onclick="event.stopPropagation(); openOrgDrawer('edit', 'USA', 2, 'Subzone')"></i>
+                            <i class="bi bi-plus-circle text-success" title="Add Market" onclick="event.stopPropagation(); openOrgDrawer('create', '', 0, 'Market')"></i>
+                            <i class="bi bi-trash text-danger" onclick="event.stopPropagation(); deleteOrg('USA', 2)"></i>
+                        </div>
                     </div>
                     <div class="tree-children expanded">
                         <!-- MARKET -->
                         <div class="tree-item" onclick="filterByOrg('New York')">
                             <i class="bi bi-dot"></i>
                             <span>New York</span>
+                             <div class="tree-actions">
+                                <i class="bi bi-pencil-square" onclick="event.stopPropagation(); openOrgDrawer('edit', 'New York', 0, 'Market')"></i>
+                                <i class="bi bi-trash text-danger" onclick="event.stopPropagation(); deleteOrg('New York', 0)"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            </div>
 
-            <!-- Nike Inc. -->
-            <div class="mb-2 mt-4 fw-bold px-2 small text-uppercase text-muted" style="font-size: 11px; letter-spacing: 1px;">Nike Inc.</div>
-             <div class="tree-item" onclick="filterByOrg('Nike GLOBAL')">
-                <i class="bi bi-globe"></i>
-                <span>GLOBAL</span>
-            </div>
-             <div class="tree-children expanded" style="display:block;">
-                <!-- ZONE -->
-                <div class="tree-item" onclick="filterByOrg('Greater China')">
-                    <i class="bi bi-dot"></i>
-                    <span>Greater China</span>
-                </div>
-            </div>
+
         </div>
     </div>
 
@@ -384,8 +421,8 @@
                         <input type="text" class="form-control ps-5 border-1" style="border-radius: 8px; height: 40px; border-color: #dee2e6;" placeholder="Expiry Date & Time" onfocus="(this.type='datetime-local')" onblur="(this.type='text')">
                     </div>
                 </div>
-                <button class="btn btn-primary-custom" type="button" data-bs-toggle="offcanvas" data-bs-target="#appAccountDrawer">
-                    <i class="bi bi-plus-lg me-1"></i> Add App Account
+                <button class="btn btn-primary-custom" type="button" data-bs-toggle="offcanvas" data-bs-target="#accountDrawer">
+                    <i class="bi bi-plus-lg me-1"></i> Add Admin
                 </button>
             </div>
 
@@ -396,7 +433,7 @@
                         <tr>
                             <th width="40"><input type="checkbox" class="form-check-input"></th>
                             <th>User</th>
-                            <th>Company</th>
+                            <!-- <th>Company</th> -->
                             <th>Department</th>
                             <th>Phone</th>
                             <th>Created At</th>
@@ -410,21 +447,22 @@
                             <td><input type="checkbox" class="form-check-input"></td>
                             <td>
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="user-avatar bg-light-purple">MW</div>
+                                    <div class="user-avatar bg-light-blue">JD</div>
                                     <div>
-                                        <div class="fw-bold text-dark">Mike West</div>
-                                        <div class="text-muted small">mike@app.com</div>
+                                        <div class="fw-bold text-dark">John Doe</div>
+                                        <div class="text-muted small">john@company.com</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>AppSolute Ltd.</td>
-                            <td><span class="badge-pill bg-light-gray">Tech Dept</span></td>
-                            <td>+1 555 000 1111</td>
-                            <td>2024-03-01 10:00:00</td>
-                            <td>2025-03-01 23:59:59</td>
+                            <!-- <td>TechCorp Inc.</td> -->
+                            <td><span class="badge-pill bg-light-gray">Backend Team</span></td>
+                            <td>+1 234 567 8900</td>
+                            <td>2024-01-15 09:30:00</td>
+                            <td>2025-01-15 23:59:59</td>
                             <td><span class="badge rounded-pill bg-success">Active</span></td>
                             <td class="text-end text-nowrap">
-                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit" onclick="editAppAccount('Mike West', 'mike@app.com')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Simulate Login"><i class="bi bi-box-arrow-in-right"></i></button>
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit" data-bs-toggle="offcanvas" data-bs-target="#accountDrawer" onclick="editAccount('John Doe', 'john@company.com')"><i class="bi bi-pencil"></i></button>
                                 <button class="btn btn-sm btn-link text-warning p-0 me-2" title="Ban Account" onclick="toggleUserBan(this)"><i class="bi bi-slash-circle"></i></button>
                                 <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
                             </td>
@@ -433,21 +471,22 @@
                             <td><input type="checkbox" class="form-check-input"></td>
                             <td>
                                 <div class="d-flex align-items-center gap-3">
-                                    <div class="user-avatar bg-secondary text-white">LJ</div>
+                                    <div class="user-avatar bg-light-green">AS</div>
                                     <div>
-                                        <div class="fw-bold text-dark">Lisa Jones</div>
-                                        <div class="text-muted small">lisa@app.com</div>
+                                        <div class="fw-bold text-dark">Alice Smith</div>
+                                        <div class="text-muted small">alice@company.com</div>
                                     </div>
                                 </div>
                             </td>
-                            <td>Creative Co.</td>
+                            <!-- <td>TechCorp Inc.</td> -->
                             <td><span class="badge-pill bg-light-gray">HR Dept</span></td>
-                            <td>+1 555 222 3333</td>
-                            <td>2024-03-05 15:45:00</td>
-                            <td>2025-03-05 23:59:59</td>
+                            <td>+1 987 654 3210</td>
+                            <td>2024-02-10 14:15:22</td>
+                            <td>2025-02-10 23:59:59</td>
                             <td><span class="badge rounded-pill bg-danger">Banned</span></td>
                             <td class="text-end text-nowrap">
-                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit" onclick="editAppAccount('Lisa Jones', 'lisa@app.com')"><i class="bi bi-pencil"></i></button>
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Simulate Login"><i class="bi bi-box-arrow-in-right"></i></button>
+                                <button class="btn btn-sm btn-link text-dark p-0 me-2" title="Edit" data-bs-toggle="offcanvas" data-bs-target="#accountDrawer" onclick="editAccount('Alice Smith', 'alice@company.com')"><i class="bi bi-pencil"></i></button>
                                 <button class="btn btn-sm btn-link text-success p-0 me-2" title="Unban Account" onclick="toggleUserBan(this)"><i class="bi bi-check-circle"></i></button>
                                 <button class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
                             </td>
@@ -458,17 +497,17 @@
         </div>
     </div>
 
-    <!-- App Account Drawer (Right Side) -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="appAccountDrawer" style="width: 500px;">
+    <!-- Account Drawer (Right Side) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="accountDrawer" style="width: 500px;">
         <div class="offcanvas-header border-bottom">
-            <h5 class="offcanvas-title fw-bold" id="appAccountDrawerTitle">Create App Account</h5>
+            <h5 class="offcanvas-title fw-bold" id="accountDrawerTitle">Create/Edit Admin Account</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-            <form id="appAccountForm">
+            <form id="accountForm">
                 <div class="mb-4 text-center">
                     <div class="d-inline-block position-relative">
-                        <div class="user-avatar bg-secondary text-white" id="drawerAvatar" style="width: 80px; height: 80px; font-size: 24px;">?</div>
+                        <div class="user-avatar bg-secondary text-white" style="width: 80px; height: 80px; font-size: 24px;">JD</div>
                         <button class="btn btn-sm btn-dark position-absolute bottom-0 end-0 rounded-circle" style="width:30px;height:30px;padding:0;"><i class="bi bi-camera"></i></button>
                     </div>
                 </div>
@@ -476,15 +515,15 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Nickname</label>
-                        <input type="text" class="form-control" placeholder="Mike West">
+                        <input type="text" class="form-control" placeholder="John Doe">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Phone</label>
-                        <input type="text" class="form-control" placeholder="+1 555 ...">
+                        <input type="text" class="form-control" placeholder="+1 234 567">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Email</label>
-                        <input type="email" class="form-control" placeholder="mike@app.com">
+                        <input type="email" class="form-control" placeholder="john@example.com">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Password</label>
@@ -493,10 +532,14 @@
                             <button class="btn btn-outline-secondary" type="button" onclick="togglePassword(this)"><i class="bi bi-eye"></i></button>
                         </div>
                     </div>
-                     <div class="col-12">
+                     <!-- <div class="col-12">
                         <label class="form-label small fw-bold text-muted">Company Name</label>
-                        <input type="text" class="form-control" placeholder="AppSolute Ltd.">
-                    </div>
+                        <select class="form-select">
+                            <option selected>Select Company</option>
+                            <option value="1">L'Oréal Group</option>
+                            <option value="2">Nike Inc.</option>
+                        </select>
+                    </div> -->
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Department</label>
                         <select class="form-select">
@@ -504,64 +547,15 @@
                             <option>HR Dept</option>
                         </select>
                     </div>
-                    <div class="col-12">
-                        <label class="form-label small fw-bold text-muted">Inherit From Account</label>
-                        <div class="position-relative">
-                            <div class="input-group input-group-sm mb-2">
-                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search small text-muted"></i></span>
-                                <input type="text" class="form-control border-start-0" id="inheritSearch" placeholder="Search accounts..." onfocus="showInheritDropdown()" onkeyup="filterInheritOptions()">
-                            </div>
-                            <div id="inheritDropdown" class="list-group position-absolute w-100 shadow-sm d-none" style="z-index: 1000; max-height: 150px; overflow-y: auto;">
-                                <button type="button" class="list-group-item list-group-item-action small py-2" onclick="selectInherit('None', '')">None</button>
-                                <button type="button" class="list-group-item list-group-item-action small py-2" onclick="selectInherit('Mike West', 'mike@app.com')">Mike West (mike@app.com)</button>
-                                <button type="button" class="list-group-item list-group-item-action small py-2" onclick="selectInherit('Lisa Jones', 'lisa@app.com')">Lisa Jones (lisa@app.com)</button>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-4 mt-2 px-1">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="roles" id="inheritRoles" checked style="width: 14px; height: 14px;">
-                                <label class="form-check-label small text-muted" for="inheritRoles">Roles</label>
-                            </div>
+                    <!-- <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Role</label>
+                        <select class="form-select">
+                            <option>Super Admin</option>
+                            <option>Manager</option>
+                        </select>
+                    </div> -->
 
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="plan" id="inheritPlan" checked style="width: 14px; height: 14px;">
-                                <label class="form-check-label small text-muted" for="inheritPlan">Plan</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- App Permissions Section -->
-                    <div class="col-12 mt-4">
-                        <label class="form-label small fw-bold text-muted d-block mb-3">App Permissions</label>
-                        <div id="appPermissionContainer">
-                            <div class="app-permission-row p-3 bg-light rounded border mb-3">
-                                <div class="row g-2 align-items-end">
-                                    <div class="col-5">
-                                        <label class="small text-muted" style="font-size: 11px;">Application</label>
-                                        <select class="form-select form-select-sm" onchange="updateRoles(this)">
-                                            <option value="">Select App</option>
-                                            <option value="tarsight">Tarsight</option>
-                                            <option value="nova">Nova</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="small text-muted" style="font-size: 11px;">Role</label>
-                                        <select class="form-select form-select-sm role-select">
-                                            <option value="">Select Role</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-1">
-                                        <button type="button" class="btn btn-sm btn-link text-danger p-0 mb-1" onclick="this.closest('.app-permission-row').remove()"><i class="bi bi-dash-circle"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-link text-primary p-0" style="font-size: 12px;" onclick="addAppPermission()">
-                            <i class="bi bi-plus-circle me-1"></i>Add App Permission
-                        </button>
-                    </div>
-
-                    <div class="col-md-12">
+                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Expiration Time</label>
                         <input type="date" class="form-control">
                     </div>
@@ -575,6 +569,67 @@
         </div>
     </div>
 
+    <!-- Org Drawer (Right Side) -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="orgDrawer" style="width: 500px;">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title fw-bold" id="orgDrawerTitle">Organization</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="orgForm">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label small fw-bold text-muted">Organization Name</label>
+                        <input type="text" class="form-control" id="orgNameInput" placeholder="Enter name">
+                    </div>
+
+                    <!-- Root Organization Only Fields -->
+                    <div id="rootOrgFields" class="row g-3 m-0 p-0">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label small fw-bold text-muted mb-0">App Configurations</label>
+                                <button type="button" class="btn btn-sm btn-outline-dark" onclick="addAppRow()" style="font-size: 11px; padding: 2px 8px;">
+                                    <i class="bi bi-plus-lg me-1"></i>Add App
+                                </button>
+                            </div>
+                            <div id="appRowsContainer">
+                                <!-- Dynamic App Rows will be added here -->
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Account Limit</label>
+                            <input type="number" class="form-control" id="orgLimitInput" placeholder="100">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Expiry Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="orgExpiryDateInput">
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" role="switch" id="orgStatusInput" checked>
+                                <label class="form-check-label small fw-bold text-muted" for="orgStatusInput">Enabled Status</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="deleteWarning" class="alert alert-warning small d-flex align-items-center d-none mt-4">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Cannot delete organization if it contains employees.
+                </div>
+
+                <div class="mt-5 d-flex gap-2 justify-content-end">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="offcanvas">Cancel</button>
+                    <button type="button" id="deleteOrgBtn" class="btn btn-danger d-none">Delete</button>
+                    <button type="button" id="saveOrgBtn" class="btn btn-dark">Save Organization</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Toggle Tree
@@ -583,10 +638,18 @@
             if (children && children.classList.contains('tree-children')) {
                 const isExpanded = children.style.display === 'block';
                 children.style.display = isExpanded ? 'none' : 'block';
-                element.querySelector('.bi-chevron-down').style.transform = isExpanded ? 'rotate(-90deg)' : 'rotate(0deg)';
+                
+                const icon = element.querySelector('.bi-chevron-down, .bi-chevron-right');
+                if (icon) {
+                    if (isExpanded) {
+                        icon.classList.replace('bi-chevron-down', 'bi-chevron-right');
+                    } else {
+                        icon.classList.replace('bi-chevron-right', 'bi-chevron-down');
+                    }
+                }
             }
         }
-        
+
         // Mock Org Filter
         function filterByOrg(orgName) {
             document.querySelectorAll('.tree-item').forEach(item => {
@@ -594,6 +657,7 @@
             });
             const target = event.currentTarget;
             if(target) target.classList.add('active');
+            
             console.log("Filtering by org:", orgName);
         }
 
@@ -609,100 +673,149 @@
             }
         }
 
-        const appAccountDrawer = new bootstrap.Offcanvas(document.getElementById('appAccountDrawer'));
+        // Account Drawer
+        const accountDrawer = new bootstrap.Offcanvas(document.getElementById('accountDrawer'));
         
-        function editAppAccount(name, email) {
-            document.getElementById('appAccountDrawerTitle').textContent = 'Edit App Account';
-            document.querySelector('#appAccountDrawer input[placeholder="Mike West"]').value = name;
-            document.querySelector('#appAccountDrawer input[placeholder="mike@app.com"]').value = email;
-            appAccountDrawer.show();
+        function editAccount(name, email) {
+            document.getElementById('accountDrawerTitle').textContent = 'Edit Admin Account';
+            // Mock data population
+            document.querySelector('#accountDrawer input[placeholder="John Doe"]').value = name;
+            document.querySelector('#accountDrawer input[placeholder="john@example.com"]').value = email;
+            accountDrawer.show();
         }
 
-        function addAppPermission() {
-            const container = document.getElementById('appPermissionContainer');
-            const newRow = document.createElement('div');
-            newRow.className = 'app-permission-row p-3 bg-light rounded border mb-3';
-            newRow.innerHTML = `
-                <div class="row g-2 align-items-end">
-                    <div class="col-5">
-                        <label class="small text-muted" style="font-size: 11px;">Application</label>
-                        <select class="form-select form-select-sm" onchange="updateRoles(this)">
-                            <option value="">Select App</option>
-                            <option value="tarsight">Tarsight</option>
-                            <option value="nova">Nova</option>
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="small text-muted" style="font-size: 11px;">Role</label>
-                        <select class="form-select form-select-sm role-select">
-                            <option value="">Select Role</option>
-                        </select>
-                    </div>
-                    <div class="col-1">
-                        <button type="button" class="btn btn-sm btn-link text-danger p-0 mb-1" onclick="this.closest('.app-permission-row').remove()"><i class="bi bi-dash-circle"></i></button>
-                    </div>
+        // Reset Account Drawer for "Add Admin"
+        document.querySelector('[data-bs-target="#accountDrawer"]').addEventListener('click', function() {
+            document.getElementById('accountDrawerTitle').textContent = 'Create Admin Account';
+            document.getElementById('accountForm').reset();
+        });
+
+        // Org Drawer
+        const orgDrawer = new bootstrap.Offcanvas(document.getElementById('orgDrawer'));
+        
+        const appVersions = {
+            'streamiq': ['Basic', 'Pro', 'Enterprise'],
+            'analytics_pro': ['Standard', 'Advanced', 'Premium'],
+            'content_hub': ['Starter', 'Business', 'Platform']
+        };
+
+        function addAppRow(selectedApp = 'streamiq', selectedVersion = '') {
+            const container = document.getElementById('appRowsContainer');
+            const rowId = 'app-row-' + Date.now();
+            const row = document.createElement('div');
+            row.className = 'row g-2 mb-2 align-items-end app-config-row';
+            row.id = rowId;
+            
+            const appOptions = Object.keys(appVersions).map(app => 
+                `<option value="${app}" ${app === selectedApp ? 'selected' : ''}>${app.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}</option>`
+            ).join('');
+
+            row.innerHTML = `
+                <div class="col-5">
+                    <label class="form-label mb-1" style="font-size: 11px;">App</label>
+                    <select class="form-select form-select-sm" onchange="updateRowVersions('${rowId}')">
+                        ${appOptions}
+                    </select>
+                </div>
+                <div class="col-5">
+                    <label class="form-label mb-1" style="font-size: 11px;">Version</label>
+                    <select class="form-select form-select-sm version-select">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                <div class="col-2 text-end">
+                    <button type="button" class="btn btn-sm btn-link text-danger p-0 mb-1" onclick="removeAppRow('${rowId}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </div>
             `;
-            container.appendChild(newRow);
-        }
-
-        function updateRoles(appSelect) {
-            const roleSelect = appSelect.closest('.row').querySelector('.role-select');
-            const app = appSelect.value;
             
-            // Mock roles based on app
-            let roles = [];
-            if (app === 'tarsight') roles = ['Analyst', 'Viewer', 'Admin'];
-            else if (app === 'nova') roles = ['Creator', 'Manager'];
-
-            roleSelect.innerHTML = '<option value="">Select Role</option>' + 
-                roles.map(r => `<option value="${r.toLowerCase()}">${r}</option>`).join('');
+            container.appendChild(row);
+            updateRowVersions(rowId, selectedVersion);
         }
 
-        // Inheritance Search Logic
-        function showInheritDropdown() {
-            document.getElementById('inheritDropdown').classList.remove('d-none');
+        function removeAppRow(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) row.remove();
         }
 
-        function filterInheritOptions() {
-            const input = document.getElementById('inheritSearch');
-            const filter = input.value.toLowerCase();
-            const dropdown = document.getElementById('inheritDropdown');
-            const buttons = dropdown.getElementsByTagName('button');
+        function updateRowVersions(rowId, selectedVersion = '') {
+            const row = document.getElementById(rowId);
+            const app = row.querySelector('select').value;
+            const versionSelect = row.querySelector('.version-select');
+            const versions = appVersions[app] || [];
+            
+            versionSelect.innerHTML = versions.map(v => {
+                const val = v.toLowerCase();
+                return `<option value="${val}" ${val === selectedVersion.toLowerCase() ? 'selected' : ''}>${v} Version</option>`;
+            }).join('');
+        }
 
-            for (let i = 0; i < buttons.length; i++) {
-                const txtValue = buttons[i].textContent || buttons[i].innerText;
-                if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                    buttons[i].style.display = "";
+        function openOrgDrawer(mode, name = '', employeeCount = 0, level = 'Organization') {
+            document.getElementById('orgDrawerTitle').textContent = mode === 'create' ? `Create ${level}` : `Edit ${level}`;
+            document.getElementById('orgForm').reset();
+            document.getElementById('orgNameInput').value = name;
+            
+            // Clear and initialize app rows
+            document.getElementById('appRowsContainer').innerHTML = '';
+            
+            const deleteWarning = document.getElementById('deleteWarning');
+            const deleteBtn = document.getElementById('deleteOrgBtn');
+            const saveBtn = document.getElementById('saveOrgBtn');
+            const rootFields = document.getElementById('rootOrgFields');
+
+            // Show root fields only for 'Tenant' level
+            if (level === 'Tenant') {
+                rootFields.classList.remove('d-none');
+            } else {
+                rootFields.classList.add('d-none');
+            }
+
+            if (mode === 'delete') {
+                document.getElementById('orgDrawerTitle').textContent = `Delete ${level}`;
+                saveBtn.classList.add('d-none');
+                if (employeeCount > 0) {
+                    deleteWarning.classList.remove('d-none');
+                    deleteBtn.classList.add('d-none');
                 } else {
-                    buttons[i].style.display = "none";
+                    deleteWarning.classList.add('d-none');
+                    deleteBtn.classList.remove('d-none');
+                }
+            } else {
+                saveBtn.classList.remove('d-none');
+                deleteWarning.classList.add('d-none');
+                deleteBtn.classList.add('d-none');
+                
+                // For demo: populate some defaults if creating
+                if (mode === 'create') {
+                    addAppRow(); // Add one default app row
+                    document.getElementById('orgLimitInput').value = 100;
+                    document.getElementById('orgStatusInput').checked = true;
+                    
+                    // Set default expiry (today + 1 year, at 23:59:59)
+                    const now = new Date();
+                    const nextYear = new Date(now.setFullYear(now.getFullYear() + 1));
+                    nextYear.setHours(23, 59, 59, 0);
+                    
+                    const year = nextYear.getFullYear();
+                    const month = String(nextYear.getMonth() + 1).padStart(2, '0');
+                    const day = String(nextYear.getDate()).padStart(2, '0');
+                    const hours = String(nextYear.getHours()).padStart(2, '0');
+                    const minutes = String(nextYear.getMinutes()).padStart(2, '0');
+                    
+                    document.getElementById('orgExpiryDateInput').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                } else {
+                    // If editing, add existing apps (mock data for now)
+                    addAppRow('streamiq', 'pro');
                 }
             }
+            
+            orgDrawer.show();
         }
 
-        function selectInherit(name, email) {
-            const input = document.getElementById('inheritSearch');
-            input.value = name === 'None' ? 'None' : `${name} (${email})`;
-            document.getElementById('inheritDropdown').classList.add('d-none');
+        function deleteOrg(name, employeeCount) {
+            openOrgDrawer('delete', name, employeeCount);
         }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('inheritDropdown');
-            const searchInput = document.getElementById('inheritSearch');
-            if (!searchInput.contains(event.target) && !dropdown.contains(event.target)) {
-                dropdown.classList.add('d-none');
-            }
-        });
-
-        // Reset App Account Drawer for "Add App Account"
-        document.querySelector('[data-bs-target="#appAccountDrawer"]').addEventListener('click', function() {
-            document.getElementById('appAccountDrawerTitle').textContent = 'Create App Account';
-            document.getElementById('appAccountForm').reset();
-            document.getElementById('appPermissionContainer').innerHTML = ''; // Clear permissions
-            addAppPermission(); // Add one empty row
-            document.getElementById('inheritSearch').value = ''; // Clear inherit search
-        });
 
         // Toast Helper
         function showToast(message, type = 'success') {
@@ -720,10 +833,22 @@
             }, 3000);
         }
 
+        // Save Org Handler
+        document.getElementById('saveOrgBtn').addEventListener('click', function() {
+            const name = document.getElementById('orgNameInput').value;
+            if (!name) {
+                showToast('Please enter organization name', 'error');
+                return;
+            }
+            
+            showToast(`Organization "${name}" saved successfully!`);
+            orgDrawer.hide();
+        });
+
         // Toggle User Ban
         function toggleUserBan(btn) {
             const row = btn.closest('tr');
-            const statusCell = row.cells[7]; // Status is the 8th column (index 7)
+            const statusCell = row.cells[8]; // Status is the 9th column (index 8)
             const statusBadge = statusCell.querySelector('.badge');
             const isBanned = statusBadge.classList.contains('bg-danger');
 

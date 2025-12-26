@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Version Management</title>
+    <title>Role Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -255,14 +255,14 @@
             <i class="bi bi-exclude"></i> BIZ
         </div>
         <div class="nav-links">
-            <a href="admin-accounts.html" class="nav-item">
+            <a href="client-admin-accounts.html" class="nav-item">
                 <i class="bi bi-person-badge"></i> Admin Accounts
             </a>
-            <a href="app-accounts.html" class="nav-item">
+            <a href="client-app-accounts.html" class="nav-item">
                 <i class="bi bi-box-seam"></i> App Accounts
             </a>
-            <a href="app-roles.html" class="nav-item active">
-                <i class="bi bi-shield-check"></i> App Versions
+            <a href="client-role-management.html" class="nav-item active">
+                <i class="bi bi-shield-check"></i> Role Management
             </a>
         </div>
     </nav>
@@ -284,11 +284,11 @@
             <!-- Header -->
             <div class="d-flex justify-content-between mb-4">
                 <div>
-                    <h4 class="fw-bold mb-1">Application Versions</h4>
-                    <p class="text-muted small mb-0">Manage versions and their permissions within the application.</p>
+                    <h4 class="fw-bold mb-1">Role Management</h4>
+                    <p class="text-muted small mb-0">Manage roles and their permissions within the application.</p>
                 </div>
                 <button class="btn btn-primary-custom" type="button" data-bs-toggle="offcanvas" data-bs-target="#roleDrawer">
-                    <i class="bi bi-plus-lg me-1"></i> Create Version
+                    <i class="bi bi-plus-lg me-1"></i> Create Role
                 </button>
             </div>
 
@@ -297,7 +297,7 @@
                 <table class="table table-custom table-hover mb-0">
                     <thead>
                         <tr>
-                            <th>Version Name</th>
+                            <th>Role Name</th>
                             <th>Description</th>
                             <th>Users Assigned</th>
                             <th>Created At</th>
@@ -356,21 +356,21 @@
         </div>
     </div>
 
-    <!-- Version Drawer (Right Side) -->
+    <!-- Role Drawer (Right Side) -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="roleDrawer" style="width: 600px;">
         <div class="offcanvas-header border-bottom">
-            <h5 class="offcanvas-title fw-bold">Version Configuration</h5>
+            <h5 class="offcanvas-title fw-bold">Role Configuration</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <form>
                 <div class="mb-4">
-                    <label class="form-label small fw-bold text-muted">Version Name</label>
-                    <input type="text" class="form-control" placeholder="e.g. Enterprise">
+                    <label class="form-label small fw-bold text-muted">Role Name</label>
+                    <input type="text" class="form-control" placeholder="e.g. Manager">
                 </div>
                 <div class="mb-4">
                     <label class="form-label small fw-bold text-muted">Description</label>
-                    <textarea class="form-control" rows="2" placeholder="Describe the version..."></textarea>
+                    <textarea class="form-control" rows="2" placeholder="Describe the role..."></textarea>
                 </div>
 
                 <!-- Data Permissions -->
