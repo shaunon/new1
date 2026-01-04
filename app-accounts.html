@@ -398,7 +398,6 @@
                             <th>User</th>
                             <th>Company</th>
                             <th>Department</th>
-                            <th>Phone</th>
                             <th>Created At</th>
                             <th>Expired At</th>
                             <th>Status</th>
@@ -413,13 +412,12 @@
                                     <div class="user-avatar bg-light-purple">MW</div>
                                     <div>
                                         <div class="fw-bold text-dark">Mike West</div>
-                                        <div class="text-muted small">mike@app.com</div>
+                                        <div class="text-muted small">m***@app.com</div>
                                     </div>
                                 </div>
                             </td>
                             <td>AppSolute Ltd.</td>
                             <td><span class="badge-pill bg-light-gray">Tech Dept</span></td>
-                            <td>+1 555 000 1111</td>
                             <td>2024-03-01 10:00:00</td>
                             <td>2025-03-01 23:59:59</td>
                             <td><span class="badge rounded-pill bg-success">Active</span></td>
@@ -436,13 +434,12 @@
                                     <div class="user-avatar bg-secondary text-white">LJ</div>
                                     <div>
                                         <div class="fw-bold text-dark">Lisa Jones</div>
-                                        <div class="text-muted small">lisa@app.com</div>
+                                        <div class="text-muted small">l***@app.com</div>
                                     </div>
                                 </div>
                             </td>
                             <td>Creative Co.</td>
                             <td><span class="badge-pill bg-light-gray">HR Dept</span></td>
-                            <td>+1 555 222 3333</td>
                             <td>2024-03-05 15:45:00</td>
                             <td>2025-03-05 23:59:59</td>
                             <td><span class="badge rounded-pill bg-danger">Banned</span></td>
@@ -473,14 +470,11 @@
                     </div>
                 </div>
                 
+                <h6 class="fw-bold mb-3">Basic Information</h6>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Nickname</label>
                         <input type="text" class="form-control" placeholder="Mike West">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold text-muted">Phone</label>
-                        <input type="text" class="form-control" placeholder="+1 555 ...">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-bold text-muted">Email</label>
@@ -504,66 +498,24 @@
                             <option>HR Dept</option>
                         </select>
                     </div>
-                    <div class="col-12">
-                        <label class="form-label small fw-bold text-muted">Inherit From Account</label>
-                        <div class="position-relative">
-                            <div class="input-group input-group-sm mb-2">
-                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search small text-muted"></i></span>
-                                <input type="text" class="form-control border-start-0" id="inheritSearch" placeholder="Search accounts..." onfocus="showInheritDropdown()" onkeyup="filterInheritOptions()">
-                            </div>
-                            <div id="inheritDropdown" class="list-group position-absolute w-100 shadow-sm d-none" style="z-index: 1000; max-height: 150px; overflow-y: auto;">
-                                <button type="button" class="list-group-item list-group-item-action small py-2" onclick="selectInherit('None', '')">None</button>
-                                <button type="button" class="list-group-item list-group-item-action small py-2" onclick="selectInherit('Mike West', 'mike@app.com')">Mike West (mike@app.com)</button>
-                                <button type="button" class="list-group-item list-group-item-action small py-2" onclick="selectInherit('Lisa Jones', 'lisa@app.com')">Lisa Jones (lisa@app.com)</button>
-                            </div>
-                        </div>
-                        <div class="d-flex gap-4 mt-2 px-1">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="roles" id="inheritRoles" checked style="width: 14px; height: 14px;">
-                                <label class="form-check-label small text-muted" for="inheritRoles">Roles</label>
-                            </div>
-
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="plan" id="inheritPlan" checked style="width: 14px; height: 14px;">
-                                <label class="form-check-label small text-muted" for="inheritPlan">Plan</label>
-                            </div>
-                        </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold text-muted">Expiration Time</label>
+                        <input type="date" class="form-control">
                     </div>
+                </div>
 
-                    <!-- App Permissions Section -->
-                    <div class="col-12 mt-4">
-                        <label class="form-label small fw-bold text-muted d-block mb-3">App Permissions</label>
+                <hr class="my-4">
+
+                <h6 class="fw-bold mb-3">Permissions</h6>
+                <div class="row g-3">
+                    <!-- App Permissions & Inheritance Section -->
+                    <div class="col-12">
                         <div id="appPermissionContainer">
-                            <div class="app-permission-row p-3 bg-light rounded border mb-3">
-                                <div class="row g-2 align-items-end">
-                                    <div class="col-5">
-                                        <label class="small text-muted" style="font-size: 11px;">Application</label>
-                                        <select class="form-select form-select-sm" onchange="updateRoles(this)">
-                                            <option value="">Select App</option>
-                                            <option value="tarsight">Tarsight</option>
-                                            <option value="nova">Nova</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-6">
-                                        <label class="small text-muted" style="font-size: 11px;">Role</label>
-                                        <select class="form-select form-select-sm role-select">
-                                            <option value="">Select Role</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-1">
-                                        <button type="button" class="btn btn-sm btn-link text-danger p-0 mb-1" onclick="this.closest('.app-permission-row').remove()"><i class="bi bi-dash-circle"></i></button>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Rows will be added here by JS -->
                         </div>
                         <button type="button" class="btn btn-sm btn-link text-primary p-0" style="font-size: 12px;" onclick="addAppPermission()">
                             <i class="bi bi-plus-circle me-1"></i>Add App Permission
                         </button>
-                    </div>
-
-                    <div class="col-md-12">
-                        <label class="form-label small fw-bold text-muted">Expiration Time</label>
-                        <input type="date" class="form-control">
                     </div>
                 </div>
                 
@@ -621,29 +573,169 @@
         function addAppPermission() {
             const container = document.getElementById('appPermissionContainer');
             const newRow = document.createElement('div');
-            newRow.className = 'app-permission-row p-3 bg-light rounded border mb-3';
+            newRow.className = 'app-permission-row p-3 bg-light rounded border mb-3 position-relative';
             newRow.innerHTML = `
+                <button type="button" class="btn btn-sm btn-link text-danger position-absolute top-0 end-0 m-2" onclick="this.closest('.app-permission-row').remove()"><i class="bi bi-trash"></i></button>
                 <div class="row g-2 align-items-end">
                     <div class="col-5">
                         <label class="small text-muted" style="font-size: 11px;">Application</label>
-                        <select class="form-select form-select-sm" onchange="updateRoles(this)">
+                        <select class="form-select form-select-sm app-select" onchange="handleAppChange(this)">
                             <option value="">Select App</option>
                             <option value="tarsight">Tarsight</option>
                             <option value="nova">Nova</option>
                         </select>
                     </div>
-                    <div class="col-6">
+                    <div class="col-7 role-col">
                         <label class="small text-muted" style="font-size: 11px;">Role</label>
                         <select class="form-select form-select-sm role-select">
                             <option value="">Select Role</option>
                         </select>
                     </div>
-                    <div class="col-1">
-                        <button type="button" class="btn btn-sm btn-link text-danger p-0 mb-1" onclick="this.closest('.app-permission-row').remove()"><i class="bi bi-dash-circle"></i></button>
+                    <div class="col-12 extra-field-col" style="display: none;">
+                    </div>
+                    <div class="col-12 mt-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small text-muted mb-0" style="font-size: 11px;">Inherit from:</label>
+                            <div class="dropdown flex-grow-1 position-relative">
+                                <input type="text" class="form-control form-control-sm border-0 bg-transparent p-0 text-primary fw-semibold inherit-input" 
+                                       placeholder="None" 
+                                       onclick="showInheritDropdown(this)" 
+                                       oninput="filterInheritDropdown(this)"
+                                       style="font-size: 11px; cursor: pointer;">
+                                <div class="dropdown-menu w-100 shadow-sm inherit-dropdown-menu" style="font-size: 11px; max-height: 200px; overflow-y: auto;">
+                                    <button class="dropdown-item" type="button" onclick="selectInherit(this, '', 'None')">None</button>
+                                    <button class="dropdown-item" type="button" onclick="selectInherit(this, '1', 'Mike West (mike@app.com)')">Mike West (mike@app.com)</button>
+                                    <button class="dropdown-item" type="button" onclick="selectInherit(this, '2', 'Lisa Jones (lisa@app.com)')">Lisa Jones (lisa@app.com)</button>
+                                    <button class="dropdown-item" type="button" onclick="selectInherit(this, '3', 'David Miller (david@app.com)')">David Miller (david@app.com)</button>
+                                    <button class="dropdown-item" type="button" onclick="selectInherit(this, '4', 'Sarah Chen (sarah@app.com)')">Sarah Chen (sarah@app.com)</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
             container.appendChild(newRow);
+        }
+
+        function showInheritDropdown(input) {
+            const menu = input.nextElementSibling;
+            menu.classList.add('show');
+            
+            // Close when clicking outside
+            const closeHandler = (e) => {
+                if (!input.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.remove('show');
+                    document.removeEventListener('click', closeHandler);
+                }
+            };
+            setTimeout(() => document.addEventListener('click', closeHandler), 10);
+        }
+
+        function filterInheritDropdown(input) {
+            const menu = input.nextElementSibling;
+            const filter = input.value.toLowerCase();
+            const items = menu.querySelectorAll('.dropdown-item');
+            
+            menu.classList.add('show');
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(filter)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function selectInherit(btn, value, text) {
+            const menu = btn.closest('.dropdown-menu');
+            const input = menu.previousElementSibling;
+            const row = btn.closest('.app-permission-row');
+            
+            input.value = text;
+            input.dataset.value = value;
+            menu.classList.remove('show');
+            
+            updateExtraFields(row);
+        }
+
+        function handleAppChange(appSelect) {
+            updateRoles(appSelect);
+            const row = appSelect.closest('.app-permission-row');
+            updateExtraFields(row);
+        }
+
+        function updateExtraFields(row) {
+            const appSelect = row.querySelector('.app-select');
+            const app = appSelect.value;
+            const inheritInput = row.querySelector('.inherit-input');
+            const isInheriting = inheritInput.dataset.value && inheritInput.dataset.value !== "";
+            const extraCol = row.querySelector('.extra-field-col');
+            const roleCol = row.querySelector('.role-col');
+            
+            if (isInheriting) {
+                // Convert Role to multi-select checkboxes
+                let roles = [];
+                if (app === 'tarsight') roles = ['Analyst', 'Viewer', 'Admin'];
+                else if (app === 'nova') roles = ['Creator', 'Manager'];
+
+                roleCol.innerHTML = `
+                    <label class="small text-muted d-block" style="font-size: 11px;">Roles (Multiple)</label>
+                    <div class="d-flex flex-wrap gap-2 mt-1">
+                        ${roles.map(r => `
+                            <div class="form-check m-0">
+                                <input class="form-check-input" type="checkbox" value="${r.toLowerCase()}" id="role_${r}_${Math.random().toString(36).substr(2, 5)}">
+                                <label class="form-check-label small" style="font-size: 11px;" for="role_${r}">${r}</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                roleCol.className = 'col-12 role-col mt-2';
+
+                if (app === 'tarsight') {
+                    extraCol.style.display = 'block';
+                    extraCol.className = 'col-12 extra-field-col mt-2';
+                    extraCol.innerHTML = `
+                        <label class="small text-muted d-block" style="font-size: 11px;">Plans (Multiple)</label>
+                        <div class="d-flex flex-wrap gap-2 mt-1">
+                            ${['Enterprise', 'Professional', 'Starter'].map(p => `
+                                <div class="form-check m-0">
+                                    <input class="form-check-input" type="checkbox" value="${p.toLowerCase()}" id="plan_${p}_${Math.random().toString(36).substr(2, 5)}">
+                                    <label class="form-check-label small" style="font-size: 11px;" for="plan_${p}">${p}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else if (app === 'nova') {
+                    extraCol.style.display = 'block';
+                    extraCol.className = 'col-12 extra-field-col mt-2';
+                    extraCol.innerHTML = `
+                        <label class="small text-muted d-block" style="font-size: 11px;">Campaigns (Multiple)</label>
+                        <div class="d-flex flex-wrap gap-2 mt-1">
+                            ${['Campaign A', 'Campaign B', 'Campaign C'].map(c => `
+                                <div class="form-check m-0">
+                                    <input class="form-check-input" type="checkbox" value="${c.toLowerCase().replace(' ', '_')}" id="camp_${c}_${Math.random().toString(36).substr(2, 5)}">
+                                    <label class="form-check-label small" style="font-size: 11px;" for="camp_${c}">${c}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    extraCol.style.display = 'none';
+                    roleCol.className = 'col-7 role-col';
+                }
+            } else {
+                extraCol.style.display = 'none';
+                roleCol.className = 'col-7 role-col';
+                // Restore single select role
+                roleCol.innerHTML = `
+                    <label class="small text-muted" style="font-size: 11px;">Role</label>
+                    <select class="form-select form-select-sm role-select">
+                        <option value="">Select Role</option>
+                    </select>
+                `;
+                updateRoles(appSelect);
+            }
         }
 
         function updateRoles(appSelect) {
@@ -659,49 +751,12 @@
                 roles.map(r => `<option value="${r.toLowerCase()}">${r}</option>`).join('');
         }
 
-        // Inheritance Search Logic
-        function showInheritDropdown() {
-            document.getElementById('inheritDropdown').classList.remove('d-none');
-        }
-
-        function filterInheritOptions() {
-            const input = document.getElementById('inheritSearch');
-            const filter = input.value.toLowerCase();
-            const dropdown = document.getElementById('inheritDropdown');
-            const buttons = dropdown.getElementsByTagName('button');
-
-            for (let i = 0; i < buttons.length; i++) {
-                const txtValue = buttons[i].textContent || buttons[i].innerText;
-                if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                    buttons[i].style.display = "";
-                } else {
-                    buttons[i].style.display = "none";
-                }
-            }
-        }
-
-        function selectInherit(name, email) {
-            const input = document.getElementById('inheritSearch');
-            input.value = name === 'None' ? 'None' : `${name} (${email})`;
-            document.getElementById('inheritDropdown').classList.add('d-none');
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('inheritDropdown');
-            const searchInput = document.getElementById('inheritSearch');
-            if (!searchInput.contains(event.target) && !dropdown.contains(event.target)) {
-                dropdown.classList.add('d-none');
-            }
-        });
-
         // Reset App Account Drawer for "Add App Account"
         document.querySelector('[data-bs-target="#appAccountDrawer"]').addEventListener('click', function() {
             document.getElementById('appAccountDrawerTitle').textContent = 'Create App Account';
             document.getElementById('appAccountForm').reset();
             document.getElementById('appPermissionContainer').innerHTML = ''; // Clear permissions
             addAppPermission(); // Add one empty row
-            document.getElementById('inheritSearch').value = ''; // Clear inherit search
         });
 
         // Toast Helper
