@@ -181,6 +181,85 @@
             font-size: 13px;
             margin-left: 8px;
         }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: none;
+            margin-bottom: 30px;
+        }
+
+        .scheme-section {
+            margin-bottom: 24px;
+        }
+
+        .scheme-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+        }
+
+        .scheme-section-title.scheme-a { color: #56B4E9; }
+        .scheme-section-title.scheme-b { color: #A594E9; }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .metric-change {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            color: #10b981;
+        }
+
+        .metric-change.negative {
+            color: #ef4444;
+        }
+
+        .metric-change.neutral {
+            color: #888;
+        }
+
+        .change-icon {
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -191,6 +270,7 @@
     <div class="dimension-selector">
         <label for="dimensionSelect">Data Dimension:</label>
         <select id="dimensionSelect" onchange="updateDimension()">
+            <option value="overview">Overview</option>
             <option value="platform">Platform</option>
             <option value="category">Post Category</option>
             <option value="publishTime">Publish Time</option>
@@ -203,8 +283,89 @@
         </select>
     </div>
 
+    <!-- Dashboard Cards (Overview only) -->
+    <div id="dashboardCards" class="dashboard-cards">
+        <!-- Scheme A Cards -->
+        <div class="scheme-section">
+            <h3 class="scheme-section-title scheme-a">Scheme A</h3>
+            <div class="cards-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Posts</div>
+                    <div class="metric-value" id="schemeA-posts">-</div>
+                    <div class="metric-change" id="schemeA-posts-change">
+                        <span class="change-icon">●</span>
+                        <span>-%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Engagement</div>
+                    <div class="metric-value" id="schemeA-engagement">-</div>
+                    <div class="metric-change" id="schemeA-engagement-change">
+                        <span class="change-icon">●</span>
+                        <span>-%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Views</div>
+                    <div class="metric-value" id="schemeA-views">-</div>
+                    <div class="metric-change" id="schemeA-views-change">
+                        <span class="change-icon">●</span>
+                        <span>-%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Engagement Rate</div>
+                    <div class="metric-value" id="schemeA-rate">-</div>
+                    <div class="metric-change" id="schemeA-rate-change">
+                        <span class="change-icon">●</span>
+                        <span>-%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheme B Cards -->
+        <div class="scheme-section">
+            <h3 class="scheme-section-title scheme-b">Scheme B</h3>
+            <div class="cards-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Posts</div>
+                    <div class="metric-value" id="schemeB-posts">-</div>
+                    <div class="metric-change" id="schemeB-posts-change">
+                        <span class="change-icon">●</span>
+                        <span>-%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Engagement</div>
+                    <div class="metric-value" id="schemeB-engagement">-</div>
+                    <div class="metric-change" id="schemeB-engagement-change">
+                        <span class="change-icon">●</span>
+                        <span>-%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Views</div>
+                    <div class="metric-value" id="schemeB-views">-</div>
+                    <div class="metric-change" id="schemeB-views-change">
+                        <span class="change-icon">●</span>
+                        <span>-%</span>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Engagement Rate</div>
+                    <div class="metric-value" id="schemeB-rate">-</div>
+                    <div class="metric-change" id="schemeB-rate-change">
+                        <span class="change-icon">●</span>
+                        <span>-%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Chart 1 Section -->
-    <div class="chart-section">
+    <div id="chart1Section" class="chart-section">
         <div class="section-header">
             <h2 class="section-title">Scheme Comparison Analysis</h2>
             <div class="controls">
@@ -302,6 +463,7 @@
     
     // Dimension configurations
     const DIMENSIONS = {
+        overview: ['Overall'],
         platform: ['TikTok', 'Instagram', 'YouTube'],
         category: ['Tutorial', 'Review', 'Entertainment', 'Education', 'Vlog'],
         publishTime: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'],
@@ -313,7 +475,7 @@
         bgmTone: ['Upbeat', 'Calm', 'Energetic', 'Melancholic', 'Neutral']
     };
     
-    let currentDimension = 'platform';
+    let currentDimension = 'overview';
 
     // Mock Data Generation
     const mockData = {
@@ -379,7 +541,7 @@
     const detailedPublishTimeData = generateDetailedPublishTimeData();
     
     // Set initial data
-    mockData.current = allDimensionData['platform'];
+    mockData.current = allDimensionData['overview'];
 
     // Generate Trend Data for all dimensions
     const generateTrendDataForDimension = (dimension, values) => {
@@ -456,17 +618,92 @@
     });
     
     // Set initial trend data
-    mockData.trends = allDimensionTrends['platform'];
+    mockData.trends = allDimensionTrends['overview'];
 
     // --- Chart Initialization ---
     const chart1 = echarts.init(document.getElementById('chart1'));
     const chart2 = echarts.init(document.getElementById('chart2'));
+
+    // --- Dashboard Cards Update Function ---
+    function updateDashboardCards() {
+        if (currentDimension !== 'overview') return;
+        
+        // Get latest month data
+        const latestData = mockData.trends;
+        
+        ['Scheme A', 'Scheme B'].forEach(scheme => {
+            const schemeData = latestData.find(item => item.scheme === scheme);
+            if (!schemeData) return;
+            
+            const schemeId = scheme === 'Scheme A' ? 'schemeA' : 'schemeB';
+            
+            // Get latest values (last index)
+            const lastIdx = schemeData.data.posts.length - 1;
+            const prevIdx = lastIdx - 1;
+            
+            // Posts
+            const posts = schemeData.data.posts[lastIdx];
+            const postsPrev = schemeData.data.posts[prevIdx];
+            const postsChange = ((posts - postsPrev) / postsPrev * 100).toFixed(1);
+            document.getElementById(`${schemeId}-posts`).textContent = posts.toLocaleString();
+            updateChangeElement(`${schemeId}-posts-change`, postsChange);
+            
+            // Engagement
+            const engagement = schemeData.data.engagement[lastIdx];
+            const engagementPrev = schemeData.data.engagement[prevIdx];
+            const engagementChange = ((engagement - engagementPrev) / engagementPrev * 100).toFixed(1);
+            document.getElementById(`${schemeId}-engagement`).textContent = engagement.toLocaleString();
+            updateChangeElement(`${schemeId}-engagement-change`, engagementChange);
+            
+            // Views
+            const views = schemeData.data.views[lastIdx];
+            const viewsPrev = schemeData.data.views[prevIdx];
+            const viewsChange = ((views - viewsPrev) / viewsPrev * 100).toFixed(1);
+            document.getElementById(`${schemeId}-views`).textContent = views.toLocaleString();
+            updateChangeElement(`${schemeId}-views-change`, viewsChange);
+            
+            // Rate
+            const rate = parseFloat(schemeData.data.rate[lastIdx]);
+            const ratePrev = parseFloat(schemeData.data.rate[prevIdx]);
+            const rateChange = ((rate - ratePrev) / ratePrev * 100).toFixed(1);
+            document.getElementById(`${schemeId}-rate`).textContent = rate.toFixed(2) + '%';
+            updateChangeElement(`${schemeId}-rate-change`, rateChange);
+        });
+    }
+    
+    function updateChangeElement(elementId, changeValue) {
+        const element = document.getElementById(elementId);
+        const change = parseFloat(changeValue);
+        const icon = change > 0 ? '▲' : change < 0 ? '▼' : '●';
+        const className = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral';
+        const prefix = change > 0 ? '+' : '';
+        
+        element.className = `metric-change ${className}`;
+        element.innerHTML = `<span class="change-icon">${icon}</span><span>${prefix}${changeValue}% MoM</span>`;
+    }
 
     // --- Dimension Update Function ---
     function updateDimension() {
         currentDimension = document.getElementById('dimensionSelect').value;
         mockData.current = allDimensionData[currentDimension];
         mockData.trends = allDimensionTrends[currentDimension];
+        
+        // Show/hide Dashboard Cards based on dimension
+        const dashboardCards = document.getElementById('dashboardCards');
+        if (currentDimension === 'overview') {
+            dashboardCards.style.display = 'block';
+            updateDashboardCards();
+        } else {
+            dashboardCards.style.display = 'none';
+        }
+        
+        // Show/hide Chart 1 Section based on dimension
+        const chart1Section = document.getElementById('chart1Section');
+        if (currentDimension === 'overview') {
+            chart1Section.style.display = 'none';
+        } else {
+            chart1Section.style.display = 'block';
+        }
         
         // Show/hide day filter based on dimension
         const dayFilterSelect = document.getElementById('dayFilterSelect');
@@ -819,6 +1056,7 @@
     function renderTable() {
         // Update dimension column header
         const dimensionNames = {
+            overview: 'Overview',
             platform: 'Platform',
             category: 'Post Category',
             publishTime: 'Publish Time',
@@ -919,6 +1157,7 @@
 
     function exportTable() {
         const dimensionNames = {
+            overview: 'Overview',
             platform: 'Platform',
             category: 'Post Category',
             publishTime: 'Publish Time',
@@ -953,6 +1192,13 @@
     });
 
     // Initial Render
+    // Show/hide sections based on initial dimension
+    if (currentDimension === 'overview') {
+        document.getElementById('chart1Section').style.display = 'none';
+        document.getElementById('dashboardCards').style.display = 'block';
+        updateDashboardCards();
+    }
+    
     updateChart1();
     updateChart2();
     renderTable();
