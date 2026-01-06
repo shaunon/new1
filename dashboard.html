@@ -462,18 +462,83 @@
     const DATES = ['2023-08-01', '2023-09-01', '2023-10-01', '2023-11-01', '2023-12-01', '2024-01-01', '2024-02-01', '2024-03-01'];
     
     // Dimension configurations
+    // For some dimensions, Scheme A and Scheme B have different values
     const DIMENSIONS = {
-        overview: ['Overall'],
-        platform: ['TikTok', 'Instagram', 'YouTube'],
-        category: ['Tutorial', 'Review', 'Entertainment', 'Education', 'Vlog'],
-        publishTime: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'],
-        duration: ['0-30s', '30s-1min', '1-3min', '3-5min', '5min+'],
-        hashtags: ['#viral', '#trending', '#fyp', '#fashion', '#tech'],
-        language: ['English', 'Spanish', 'Chinese', 'Japanese', 'Korean'],
-        countries: ['USA', 'UK', 'China', 'Japan', 'Germany'],
-        bgmType: ['Pop', 'Rock', 'Electronic', 'Classical', 'Hip-Hop'],
-        bgmTone: ['Upbeat', 'Calm', 'Energetic', 'Melancholic', 'Neutral']
+        overview: {
+            common: true,
+            values: ['Overall']
+        },
+        platform: {
+            common: true,
+            values: ['TikTok', 'Instagram', 'YouTube']
+        },
+        category: {
+            common: true,
+            values: ['Tutorial', 'Review', 'Entertainment', 'Education', 'Vlog']
+        },
+        publishTime: {
+            common: true,
+            values: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00']
+        },
+        duration: {
+            common: true,
+            values: ['0-30s', '30s-1min', '1-3min', '3-5min', '5min+']
+        },
+        hashtags: {
+            common: false,
+            schemeA: ['#viral', '#trending', '#fyp', '#fashion', '#tech'],
+            schemeB: ['#style', '#beauty', '#music', '#dance', '#food']
+        },
+        language: {
+            common: false,
+            schemeA: ['English', 'Spanish', 'Chinese', 'Japanese', 'Korean'],
+            schemeB: ['French', 'German', 'Portuguese', 'Arabic', 'Hindi']
+        },
+        countries: {
+            common: false,
+            schemeA: ['USA', 'UK', 'Canada', 'Australia', 'India'],
+            schemeB: ['China', 'Japan', 'Germany', 'Brazil', 'France']
+        },
+        bgmType: {
+            common: true,
+            values: ['Pop', 'Rock', 'Electronic', 'Classical', 'Hip-Hop']
+        },
+        bgmTone: {
+            common: true,
+            values: ['Upbeat', 'Calm', 'Energetic', 'Melancholic', 'Neutral']
+        }
     };
+    
+    // Helper function to get values for a dimension
+    function getDimensionValues(dimension) {
+        const config = DIMENSIONS[dimension];
+        if (config.common) {
+            return config.values;
+        } else {
+            // Return interleaved values for comparison (A1, B1, A2, B2, ...)
+            const result = [];
+            const maxLength = Math.max(config.schemeA.length, config.schemeB.length);
+            for (let i = 0; i < maxLength; i++) {
+                if (i < config.schemeA.length) {
+                    result.push({ value: config.schemeA[i], scheme: 'Scheme A' });
+                }
+                if (i < config.schemeB.length) {
+                    result.push({ value: config.schemeB[i], scheme: 'Scheme B' });
+                }
+            }
+            return result;
+        }
+    }
+    
+    // Helper function to get values for a specific scheme
+    function getSchemeValues(dimension, scheme) {
+        const config = DIMENSIONS[dimension];
+        if (config.common) {
+            return config.values;
+        } else {
+            return scheme === 'Scheme A' ? config.schemeA : config.schemeB;
+        }
+    }
     
     let currentDimension = 'overview';
 
@@ -484,9 +549,10 @@
     };
 
     // Generate data for all dimensions
-    const generateDataForDimension = (dimension, values) => {
+    const generateDataForDimension = (dimension) => {
         const data = [];
         ['Scheme A', 'Scheme B'].forEach(scheme => {
+            const values = getSchemeValues(dimension, scheme);
             values.forEach(value => {
                 data.push({
                     scheme: scheme,
@@ -511,7 +577,7 @@
         const data = [];
         ['Scheme A', 'Scheme B'].forEach(scheme => {
             DATES.forEach(dateStr => {
-                DIMENSIONS.publishTime.forEach(time => {
+                DIMENSIONS.publishTime.values.forEach(time => {
                     const date = new Date(dateStr);
                     data.push({
                         scheme: scheme,
@@ -534,7 +600,7 @@
     // Store data for all dimensions
     const allDimensionData = {};
     Object.keys(DIMENSIONS).forEach(dim => {
-        allDimensionData[dim] = generateDataForDimension(dim, DIMENSIONS[dim]);
+        allDimensionData[dim] = generateDataForDimension(dim);
     });
     
     // Store detailed publishTime data for filtering
@@ -544,11 +610,13 @@
     mockData.current = allDimensionData['overview'];
 
     // Generate Trend Data for all dimensions
-    const generateTrendDataForDimension = (dimension, values) => {
+    const generateTrendDataForDimension = (dimension) => {
         const trends = [];
+        const config = DIMENSIONS[dimension];
+        
         // Special handling for publishTime: create combined x-axis of DATE x TIME
         if (dimension === 'publishTime') {
-            const times = values; // e.g., ['00:00', ...]
+            const times = config.values; // e.g., ['00:00', ...]
             const combinedCount = DATES.length * times.length;
 
             // For publishTime we only need two series: Scheme A and Scheme B.
@@ -585,6 +653,7 @@
 
         // Default behaviour for other dimensions: one series per dimension value, across DATES
         ['Scheme A', 'Scheme B'].forEach(scheme => {
+            const values = getSchemeValues(dimension, scheme);
             values.forEach(value => {
                 const series = {
                     name: `${scheme} - ${value}`,
@@ -614,7 +683,7 @@
     // Store trend data for all dimensions
     const allDimensionTrends = {};
     Object.keys(DIMENSIONS).forEach(dim => {
-        allDimensionTrends[dim] = generateTrendDataForDimension(dim, DIMENSIONS[dim]);
+        allDimensionTrends[dim] = generateTrendDataForDimension(dim);
     });
     
     // Set initial trend data
@@ -724,7 +793,8 @@
         const metric = document.getElementById('metricSelect1').value;
         const metricLabel = document.getElementById('metricSelect1').options[document.getElementById('metricSelect1').selectedIndex].text;
         const dayFilter = document.getElementById('dayFilterSelect').value;
-        const dimensionValues = DIMENSIONS[currentDimension];
+        const dimensionValues = getDimensionValues(currentDimension);
+        const isCommonDimension = DIMENSIONS[currentDimension].common;
         
         // For publishTime with day filter, aggregate data
         let dataSource = mockData.current;
@@ -733,7 +803,7 @@
             const aggregated = [];
             
             ['Scheme A', 'Scheme B'].forEach(scheme => {
-                DIMENSIONS.publishTime.forEach(time => {
+                DIMENSIONS.publishTime.values.forEach(time => {
                     // Filter by day and aggregate
                     const filtered = detailedPublishTimeData.filter(d => 
                         d.scheme === scheme && 
@@ -762,43 +832,117 @@
             dataSource = aggregated;
         }
 
-        // Generate colors for current dimension values (use scheme colors for all values)
-        const generateColors = (values) => {
-            const colors = {};
-            values.forEach((val) => {
-                colors[val] = { A: COLORS.A, B: COLORS.B };
-            });
-            return colors;
-        };
-        
-        const dimensionColors = generateColors(dimensionValues);
-
         const seriesList = [];
         const legendData = [];
+        
+        // Prepare x-axis labels
+        let xAxisLabels;
+        if (isCommonDimension) {
+            xAxisLabels = dimensionValues;
+        } else {
+            // For interleaved dimensions, show value labels
+            xAxisLabels = dimensionValues.map(item => item.value);
+        }
 
-        // Create bar series for each scheme-dimension combination
-        ['Scheme A', 'Scheme B'].forEach(scheme => {
-            dimensionValues.forEach(dimValue => {
-                const schemeLetter = scheme === 'Scheme A' ? 'A' : 'B';
-                const color = dimensionColors[dimValue][schemeLetter];
-                const legendName = `${scheme} - ${dimValue}`;
-                legendData.push(legendName);
+        if (isCommonDimension) {
+            // Original logic for common dimensions
+            const generateColors = (values) => {
+                const colors = {};
+                values.forEach((val) => {
+                    colors[val] = { A: COLORS.A, B: COLORS.B };
+                });
+                return colors;
+            };
+            
+            const dimensionColors = generateColors(dimensionValues);
 
-                // Bar series
-                const barData = dimensionValues.map(v => {
-                    if (v === dimValue) {
-                        const item = dataSource.find(d => d.scheme === scheme && d.value === v);
-                        return item ? item[metric] : 0;
-                    }
-                    return null;
+            // Create bar series for each scheme-dimension combination
+            ['Scheme A', 'Scheme B'].forEach(scheme => {
+                const schemeValues = getSchemeValues(currentDimension, scheme);
+                schemeValues.forEach(dimValue => {
+                    const schemeLetter = scheme === 'Scheme A' ? 'A' : 'B';
+                    const color = dimensionColors[dimValue][schemeLetter];
+                    const legendName = `${scheme} - ${dimValue}`;
+                    legendData.push(legendName);
+
+                    // Bar series
+                    const barData = dimensionValues.map(v => {
+                        if (v === dimValue) {
+                            const item = dataSource.find(d => d.scheme === scheme && d.value === v);
+                            return item ? item[metric] : 0;
+                        }
+                        return null;
+                    });
+
+                    seriesList.push({
+                        name: legendName,
+                        type: 'bar',
+                        data: barData,
+                        itemStyle: { 
+                            color: color,
+                            borderRadius: [4, 4, 0, 0]
+                        },
+                        barMaxWidth: 35,
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(0, 0, 0, 0.3)'
+                            }
+                        }
+                    });
                 });
 
+                // Create ONE line series per Scheme that connects dimension values for this scheme
+                const rateDataForScheme = [];
+                dimensionValues.forEach(dimValue => {
+                    const item = dataSource.find(d => d.scheme === scheme && d.value === dimValue);
+                    rateDataForScheme.push(item ? parseFloat(item.rate) : null);
+                });
+
+                const schemeColor = scheme === 'Scheme A' ? COLORS.A : COLORS.B;
+                const rateLegendName = `${scheme} (Rate)`;
+                legendData.push(rateLegendName);
+
+                seriesList.push({
+                    name: rateLegendName,
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: rateDataForScheme,
+                    itemStyle: {
+                        color: schemeColor
+                    },
+                    lineStyle: { 
+                        type: 'solid',
+                        width: 2.5,
+                        color: schemeColor
+                    },
+                    symbol: 'circle',
+                    symbolSize: 8,
+                    smooth: false,
+                    showSymbol: true,
+                    z: 10
+                });
+            });
+        } else {
+            // New logic for interleaved dimensions (hashtags, language, countries)
+            // Create one bar series per x-axis position
+            dimensionValues.forEach((item, index) => {
+                const scheme = item.scheme;
+                const value = item.value;
+                const schemeColor = scheme === 'Scheme A' ? COLORS.A : COLORS.B;
+                const legendName = `${scheme} - ${value}`;
+                legendData.push(legendName);
+                
+                const dataItem = dataSource.find(d => d.scheme === scheme && d.value === value);
+                const barData = new Array(dimensionValues.length).fill(null);
+                barData[index] = dataItem ? dataItem[metric] : 0;
+                
                 seriesList.push({
                     name: legendName,
                     type: 'bar',
                     data: barData,
                     itemStyle: { 
-                        color: color,
+                        color: schemeColor,
                         borderRadius: [4, 4, 0, 0]
                     },
                     barMaxWidth: 35,
@@ -810,37 +954,43 @@
                     }
                 });
             });
-
-            // Create ONE line series per Scheme that connects all dimension values
-            const rateDataForScheme = [];
-            dimensionValues.forEach(dimValue => {
-                const item = dataSource.find(d => d.scheme === scheme && d.value === dimValue);
-                rateDataForScheme.push(item ? item.rate : 0);
+            
+            // Create line series for engagement rate
+            ['Scheme A', 'Scheme B'].forEach(scheme => {
+                const schemeColor = scheme === 'Scheme A' ? COLORS.A : COLORS.B;
+                const rateLegendName = `${scheme} (Rate)`;
+                legendData.push(rateLegendName);
+                
+                const rateData = dimensionValues.map(item => {
+                    if (item.scheme === scheme) {
+                        const dataItem = dataSource.find(d => d.scheme === scheme && d.value === item.value);
+                        return dataItem ? parseFloat(dataItem.rate) : null;
+                    }
+                    return null;
+                });
+                
+                seriesList.push({
+                    name: rateLegendName,
+                    type: 'line',
+                    yAxisIndex: 1,
+                    data: rateData,
+                    itemStyle: {
+                        color: schemeColor
+                    },
+                    lineStyle: { 
+                        type: 'solid',
+                        width: 3,
+                        color: schemeColor
+                    },
+                    symbol: 'circle',
+                    symbolSize: 10,
+                    smooth: false,
+                    showSymbol: true,
+                    connectNulls: true,
+                    z: 100
+                });
             });
-
-            const schemeColor = scheme === 'Scheme A' ? COLORS.A : COLORS.B;
-
-            seriesList.push({
-                name: `${scheme} (Rate)`,
-                type: 'line',
-                yAxisIndex: 1,
-                data: rateDataForScheme,
-                itemStyle: {
-                    color: schemeColor
-                },
-                lineStyle: { 
-                    type: 'solid',
-                    width: 2.5,
-                    color: schemeColor
-                },
-                symbol: 'circle',
-                symbolSize: 8,
-                smooth: false,
-                showSymbol: true,
-                z: 10
-            });
-            // Do not add Rate lines to legend
-        });
+        }
 
         const option = {
             tooltip: {
@@ -880,7 +1030,7 @@
             },
             xAxis: {
                 type: 'category',
-                data: dimensionValues,
+                data: xAxisLabels,
                 axisLine: {
                     lineStyle: {
                         color: '#e0e0e0'
@@ -889,7 +1039,7 @@
                 axisLabel: {
                     color: '#666',
                     fontSize: 12,
-                    rotate: dimensionValues.length > 5 ? 15 : 0
+                    rotate: xAxisLabels.length > 5 ? 15 : 0
                 }
             },
             yAxis: [
@@ -951,40 +1101,127 @@
     // --- Chart 2 Logic (Trend Line) ---
     function updateChart2() {
         const metric = document.getElementById('metricSelect2').value;
+        const isCommonDimension = DIMENSIONS[currentDimension].common;
         
         // Build x-axis: for publishTime use combined DATE + TIME entries, otherwise use DATES
         const xAxisData = currentDimension === 'publishTime'
-            ? DATES.flatMap(d => DIMENSIONS.publishTime.map(t => `${d} ${t}`))
+            ? DATES.flatMap(d => DIMENSIONS.publishTime.values.map(t => `${d} ${t}`))
             : DATES;
 
-        // For publishTime, only show the 2 main scheme series (Scheme A and Scheme B)
-        const filteredTrends = currentDimension === 'publishTime'
-            ? mockData.trends.filter(item => item.name === 'Scheme A' || item.name === 'Scheme B')
-            : mockData.trends;
-
-        const seriesList = filteredTrends.map(item => {
-            const isSchemeA = item.scheme === 'Scheme A';
-            return {
-                name: item.name,
-                type: 'line',
-                data: item.data[metric],
-                itemStyle: {
-                    color: isSchemeA ? COLORS.A : COLORS.B
-                },
-                lineStyle: {
-                    width: 2.5
-                },
-                symbol: isSchemeA ? 'circle' : 'rect',
-                symbolSize: 6,
-                smooth: true,
-                emphasis: {
-                    lineStyle: {
-                        width: 3.5
+        let seriesList;
+        
+        // For non-common dimensions or publishTime, aggregate to show only 2 scheme lines
+        if (!isCommonDimension || currentDimension === 'publishTime') {
+            // For publishTime, filter the pre-aggregated series
+            // For other non-common dimensions, aggregate all values per scheme
+            const filteredTrends = currentDimension === 'publishTime'
+                ? mockData.trends.filter(item => item.name === 'Scheme A' || item.name === 'Scheme B')
+                : mockData.trends;
+                
+            if (!isCommonDimension && currentDimension !== 'publishTime') {
+                // Aggregate data by scheme for non-common dimensions
+                const aggregatedData = {};
+                ['Scheme A', 'Scheme B'].forEach(scheme => {
+                    aggregatedData[scheme] = {
+                        posts: new Array(DATES.length).fill(0),
+                        engagement: new Array(DATES.length).fill(0),
+                        views: new Array(DATES.length).fill(0),
+                        rate: new Array(DATES.length).fill(0),
+                        count: new Array(DATES.length).fill(0)
+                    };
+                });
+                
+                filteredTrends.forEach(item => {
+                    for (let i = 0; i < DATES.length; i++) {
+                        aggregatedData[item.scheme].posts[i] += item.data.posts[i];
+                        aggregatedData[item.scheme].engagement[i] += item.data.engagement[i];
+                        aggregatedData[item.scheme].views[i] += item.data.views[i];
+                        aggregatedData[item.scheme].rate[i] += parseFloat(item.data.rate[i]);
+                        aggregatedData[item.scheme].count[i]++;
+                    }
+                });
+                
+                // Create series from aggregated data
+                seriesList = ['Scheme A', 'Scheme B'].map(scheme => {
+                    const isSchemeA = scheme === 'Scheme A';
+                    // Average the rate, sum the others
+                    const rateData = aggregatedData[scheme].rate.map((sum, i) => 
+                        aggregatedData[scheme].count[i] > 0 ? (sum / aggregatedData[scheme].count[i]).toFixed(2) : 0
+                    );
+                    
+                    return {
+                        name: scheme,
+                        type: 'line',
+                        data: metric === 'rate' ? rateData : aggregatedData[scheme][metric],
+                        itemStyle: {
+                            color: isSchemeA ? COLORS.A : COLORS.B
+                        },
+                        lineStyle: {
+                            width: 2.5
+                        },
+                        symbol: isSchemeA ? 'circle' : 'rect',
+                        symbolSize: 6,
+                        smooth: true,
+                        emphasis: {
+                            lineStyle: {
+                                width: 3.5
+                            },
+                            scale: true
+                        }
+                    };
+                });
+            } else {
+                // Use filtered trends for publishTime
+                seriesList = filteredTrends.map(item => {
+                    const isSchemeA = item.scheme === 'Scheme A';
+                    return {
+                        name: item.name,
+                        type: 'line',
+                        data: item.data[metric],
+                        itemStyle: {
+                            color: isSchemeA ? COLORS.A : COLORS.B
+                        },
+                        lineStyle: {
+                            width: 2.5
+                        },
+                        symbol: isSchemeA ? 'circle' : 'rect',
+                        symbolSize: 6,
+                        smooth: true,
+                        emphasis: {
+                            lineStyle: {
+                                width: 3.5
+                            },
+                            scale: true
+                        }
+                    };
+                });
+            }
+        } else {
+            // Original behavior for common dimensions
+            seriesList = mockData.trends.map(item => {
+                const isSchemeA = item.scheme === 'Scheme A';
+                return {
+                    name: item.name,
+                    type: 'line',
+                    data: item.data[metric],
+                    itemStyle: {
+                        color: isSchemeA ? COLORS.A : COLORS.B
                     },
-                    scale: true
-                }
-            };
-        });
+                    lineStyle: {
+                        width: 2.5
+                    },
+                    symbol: isSchemeA ? 'circle' : 'rect',
+                    symbolSize: 6,
+                    smooth: true,
+                    emphasis: {
+                        lineStyle: {
+                            width: 3.5
+                        },
+                        scale: true
+                    }
+                };
+            });
+        }
 
         const option = {
             tooltip: { 
@@ -1072,8 +1309,23 @@
         const tbody = document.querySelector('#dataTable tbody');
         tbody.innerHTML = '';
 
-        // Sort by Scheme then dimension value
-        const sortedData = [...mockData.current].sort((a, b) => a.scheme.localeCompare(b.scheme) || a.value.localeCompare(b.value));
+        const isCommonDimension = DIMENSIONS[currentDimension].common;
+        let sortedData;
+        
+        if (isCommonDimension) {
+            // Sort by Scheme then dimension value for common dimensions
+            sortedData = [...mockData.current].sort((a, b) => a.scheme.localeCompare(b.scheme) || a.value.localeCompare(b.value));
+        } else {
+            // For non-common dimensions, interleave Scheme A and Scheme B values
+            const schemeAData = mockData.current.filter(d => d.scheme === 'Scheme A');
+            const schemeBData = mockData.current.filter(d => d.scheme === 'Scheme B');
+            sortedData = [];
+            const maxLength = Math.max(schemeAData.length, schemeBData.length);
+            for (let i = 0; i < maxLength; i++) {
+                if (i < schemeAData.length) sortedData.push(schemeAData[i]);
+                if (i < schemeBData.length) sortedData.push(schemeBData[i]);
+            }
+        }
 
         const formatGrowth = (val) => {
             const num = parseFloat(val);
@@ -1082,63 +1334,92 @@
             return `<span class="${colorClass}">${arrow} ${Math.abs(num)}%</span>`;
         };
 
-        // Calculate rowspan for Scheme column
-        const schemeGroups = [];
-        let currentScheme = null;
-        let count = 0;
-        
-        sortedData.forEach((row, index) => {
-            if (row.scheme !== currentScheme) {
-                if (currentScheme !== null) {
+        if (isCommonDimension) {
+            // Calculate rowspan for Scheme column for common dimensions
+            const schemeGroups = [];
+            let currentScheme = null;
+            let count = 0;
+            
+            sortedData.forEach((row, index) => {
+                if (row.scheme !== currentScheme) {
+                    if (currentScheme !== null) {
+                        schemeGroups.push({ scheme: currentScheme, count: count });
+                    }
+                    currentScheme = row.scheme;
+                    count = 1;
+                } else {
+                    count++;
+                }
+                if (index === sortedData.length - 1) {
                     schemeGroups.push({ scheme: currentScheme, count: count });
                 }
-                currentScheme = row.scheme;
-                count = 1;
-            } else {
-                count++;
-            }
-            if (index === sortedData.length - 1) {
-                schemeGroups.push({ scheme: currentScheme, count: count });
-            }
-        });
+            });
 
-        let schemeIndex = 0;
-        let rowInGroup = 0;
+            let schemeIndex = 0;
+            let rowInGroup = 0;
 
-        sortedData.forEach((row, index) => {
-            const tr = document.createElement('tr');
-            const schemeClass = row.scheme === 'Scheme A' ? 'scheme-a-text' : 'scheme-b-text';
-            
-            // Add Scheme cell only on first row of each group
-            if (rowInGroup === 0) {
+            sortedData.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                const schemeClass = row.scheme === 'Scheme A' ? 'scheme-a-text' : 'scheme-b-text';
+                
+                // Add Scheme cell only on first row of each group
+                if (rowInGroup === 0) {
+                    const schemeTd = document.createElement('td');
+                    schemeTd.className = schemeClass;
+                    schemeTd.textContent = row.scheme;
+                    schemeTd.rowSpan = schemeGroups[schemeIndex].count;
+                    tr.appendChild(schemeTd);
+                }
+                
+                // Other cells
+                tr.innerHTML += `
+                    <td>${row.value}</td>
+                    <td>${row.posts.toLocaleString()}</td>
+                    <td>${formatGrowth(row.posts_growth)}</td>
+                    <td>${row.engagement.toLocaleString()}</td>
+                    <td>${formatGrowth(row.engagement_growth)}</td>
+                    <td>${row.views.toLocaleString()}</td>
+                    <td>${formatGrowth(row.views_growth)}</td>
+                    <td>${row.rate}%</td>
+                    <td>${formatGrowth(row.rate_growth)}</td>
+                `;
+                
+                tbody.appendChild(tr);
+                
+                rowInGroup++;
+                if (rowInGroup >= schemeGroups[schemeIndex].count) {
+                    schemeIndex++;
+                    rowInGroup = 0;
+                }
+            });
+        } else {
+            // For non-common dimensions, display each row with scheme column (no rowspan)
+            sortedData.forEach((row) => {
+                const tr = document.createElement('tr');
+                const schemeClass = row.scheme === 'Scheme A' ? 'scheme-a-text' : 'scheme-b-text';
+                
+                // Always add Scheme cell for each row
                 const schemeTd = document.createElement('td');
                 schemeTd.className = schemeClass;
                 schemeTd.textContent = row.scheme;
-                schemeTd.rowSpan = schemeGroups[schemeIndex].count;
                 tr.appendChild(schemeTd);
-            }
-            
-            // Other cells
-            tr.innerHTML += `
-                <td>${row.value}</td>
-                <td>${row.posts.toLocaleString()}</td>
-                <td>${formatGrowth(row.posts_growth)}</td>
-                <td>${row.engagement.toLocaleString()}</td>
-                <td>${formatGrowth(row.engagement_growth)}</td>
-                <td>${row.views.toLocaleString()}</td>
-                <td>${formatGrowth(row.views_growth)}</td>
-                <td>${row.rate}%</td>
-                <td>${formatGrowth(row.rate_growth)}</td>
-            `;
-            
-            tbody.appendChild(tr);
-            
-            rowInGroup++;
-            if (rowInGroup >= schemeGroups[schemeIndex].count) {
-                schemeIndex++;
-                rowInGroup = 0;
-            }
-        });
+                
+                // Other cells
+                tr.innerHTML += `
+                    <td>${row.value}</td>
+                    <td>${row.posts.toLocaleString()}</td>
+                    <td>${formatGrowth(row.posts_growth)}</td>
+                    <td>${row.engagement.toLocaleString()}</td>
+                    <td>${formatGrowth(row.engagement_growth)}</td>
+                    <td>${row.views.toLocaleString()}</td>
+                    <td>${formatGrowth(row.views_growth)}</td>
+                    <td>${row.rate}%</td>
+                    <td>${formatGrowth(row.rate_growth)}</td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
     }
 
     // --- Export Functions ---
