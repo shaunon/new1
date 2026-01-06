@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheme Analysis Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .chart-section {
+            margin-bottom: 30px;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .controls label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        select {
+            padding: 8px 32px 8px 12px;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            min-width: 140px;
+        }
+
+        select:hover {
+            border-color: #2196F3;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .btn-export {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+            background-color: #1a1a1a;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-export:hover {
+            background-color: #333;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-export:active {
+            transform: translateY(0);
+        }
+
+        .btn-export svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .dimension-selector {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .dimension-selector label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            white-space: nowrap;
+        }
+
+        .dimension-selector select {
+            min-width: 180px;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 450px;
+            border-radius: 8px;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        th {
+            background-color: #fafafa;
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .scheme-a-text { color: #56B4E9; font-weight: 600; }
+        .scheme-b-text { color: #A594E9; font-weight: 600; }
+        
+        .growth-positive { color: #10b981; font-weight: 500; }
+        .growth-negative { color: #ef4444; font-weight: 500; }
+
+        .info-text {
+            color: #888;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- Dimension Selector -->
+    <div class="dimension-selector">
+        <label for="dimensionSelect">Data Dimension:</label>
+        <select id="dimensionSelect" onchange="updateDimension()">
+            <option value="platform">Platform</option>
+            <option value="category">Post Category</option>
+            <option value="publishTime">Publish Time</option>
+            <option value="duration">Video Duration</option>
+            <option value="hashtags">Top Hashtags</option>
+            <option value="language">Language</option>
+            <option value="countries">Countries</option>
+            <option value="bgmType">BGM Type</option>
+            <option value="bgmTone">BGM Tone</option>
+        </select>
+    </div>
+
+    <!-- Chart 1 Section -->
+    <div class="chart-section">
+        <div class="section-header">
+            <h2 class="section-title">Scheme Comparison Analysis</h2>
+            <div class="controls">
+                <select id="dayFilterSelect" onchange="updateChart1(); updateChart2();" style="display: none;">
+                    <option value="all">All</option>
+                    <option value="1">Monday</option>
+                    <option value="2">Tuesday</option>
+                    <option value="3">Wednesday</option>
+                    <option value="4">Thursday</option>
+                    <option value="5">Friday</option>
+                    <option value="6">Saturday</option>
+                    <option value="0">Sunday</option>
+                </select>
+                <select id="metricSelect1" onchange="updateChart1()">
+                    <option value="posts">Posts</option>
+                    <option value="engagement">Engagement</option>
+                    <option value="views">Views</option>
+                </select>
+                <span class="info-text">(Line shows Engagement Rate)</span>
+                <button class="btn-export" onclick="exportChart(1)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Export
+                </button>
+            </div>
+        </div>
+        <div id="chart1" class="chart-container"></div>
+    </div>
+
+    <!-- Chart 2 Section -->
+    <div class="chart-section">
+        <div class="section-header">
+            <h2 class="section-title">Time Series Analysis</h2>
+            <div class="controls">
+                <select id="metricSelect2" onchange="updateChart2()">
+                    <option value="posts">Posts</option>
+                    <option value="engagement">Engagement</option>
+                    <option value="views">Views</option>
+                    <option value="rate">Engagement Rate</option>
+                </select>
+                <button class="btn-export" onclick="exportChart(2)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Export
+                </button>
+            </div>
+        </div>
+        <div id="chart2" class="chart-container"></div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="chart-section">
+        <div class="section-header">
+            <h2 class="section-title">Detailed Data & Growth (MoM)</h2>
+            <button class="btn-export" onclick="exportTable()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+                Export CSV
+            </button>
+        </div>
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <th>Scheme</th>
+                    <th id="dimensionColumnHeader">Platform</th>
+                    <th>Posts</th>
+                    <th>Posts Growth</th>
+                    <th>Engagement</th>
+                    <th>Engagement Growth</th>
+                    <th>Views</th>
+                    <th>Views Growth</th>
+                    <th>Engagement Rate</th>
+                    <th>Rate Growth</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows generated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script>
+    // --- Configuration & Data ---
+    const COLORS = {
+        A: '#56B4E9', // Scheme A (requested)
+        B: '#A594E9'  // Scheme B (requested)
+    };
+
+    const DATES = ['2023-08-01', '2023-09-01', '2023-10-01', '2023-11-01', '2023-12-01', '2024-01-01', '2024-02-01', '2024-03-01'];
+    
+    // Dimension configurations
+    const DIMENSIONS = {
+        platform: ['TikTok', 'Instagram', 'YouTube'],
+        category: ['Tutorial', 'Review', 'Entertainment', 'Education', 'Vlog'],
+        publishTime: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'],
+        duration: ['0-30s', '30s-1min', '1-3min', '3-5min', '5min+'],
+        hashtags: ['#viral', '#trending', '#fyp', '#fashion', '#tech'],
+        language: ['English', 'Spanish', 'Chinese', 'Japanese', 'Korean'],
+        countries: ['USA', 'UK', 'China', 'Japan', 'Germany'],
+        bgmType: ['Pop', 'Rock', 'Electronic', 'Classical', 'Hip-Hop'],
+        bgmTone: ['Upbeat', 'Calm', 'Energetic', 'Melancholic', 'Neutral']
+    };
+    
+    let currentDimension = 'platform';
+
+    // Mock Data Generation
+    const mockData = {
+        current: [], // Snapshot for Bar Chart & Table
+        trends: []   // Time series for Line Chart
+    };
+
+    // Generate data for all dimensions
+    const generateDataForDimension = (dimension, values) => {
+        const data = [];
+        ['Scheme A', 'Scheme B'].forEach(scheme => {
+            values.forEach(value => {
+                data.push({
+                    scheme: scheme,
+                    dimension: dimension,
+                    value: value,
+                    posts: Math.floor(Math.random() * 50) + 10,
+                    posts_growth: (Math.random() * 40 - 10).toFixed(2),
+                    engagement: Math.floor(Math.random() * 50000) + 1000,
+                    engagement_growth: (Math.random() * 40 - 10).toFixed(2),
+                    views: Math.floor(Math.random() * 1000000) + 50000,
+                    views_growth: (Math.random() * 40 - 10).toFixed(2),
+                    rate: (Math.random() * 5 + 1).toFixed(2),
+                    rate_growth: (Math.random() * 20 - 5).toFixed(2)
+                });
+            });
+        });
+        return data;
+    };
+    
+    // Generate detailed date+time data for publishTime dimension
+    const generateDetailedPublishTimeData = () => {
+        const data = [];
+        ['Scheme A', 'Scheme B'].forEach(scheme => {
+            DATES.forEach(dateStr => {
+                DIMENSIONS.publishTime.forEach(time => {
+                    const date = new Date(dateStr);
+                    data.push({
+                        scheme: scheme,
+                        dimension: 'publishTime',
+                        date: dateStr,
+                        dayOfWeek: date.getDay(),
+                        time: time,
+                        value: time,
+                        posts: Math.floor(Math.random() * 50) + 10,
+                        engagement: Math.floor(Math.random() * 50000) + 1000,
+                        views: Math.floor(Math.random() * 1000000) + 50000,
+                        rate: (Math.random() * 5 + 1).toFixed(2)
+                    });
+                });
+            });
+        });
+        return data;
+    };
+    
+    // Store data for all dimensions
+    const allDimensionData = {};
+    Object.keys(DIMENSIONS).forEach(dim => {
+        allDimensionData[dim] = generateDataForDimension(dim, DIMENSIONS[dim]);
+    });
+    
+    // Store detailed publishTime data for filtering
+    const detailedPublishTimeData = generateDetailedPublishTimeData();
+    
+    // Set initial data
+    mockData.current = allDimensionData['platform'];
+
+    // Generate Trend Data for all dimensions
+    const generateTrendDataForDimension = (dimension, values) => {
+        const trends = [];
+        // Special handling for publishTime: create combined x-axis of DATE x TIME
+        if (dimension === 'publishTime') {
+            const times = values; // e.g., ['00:00', ...]
+            const combinedCount = DATES.length * times.length;
+
+            // For publishTime we only need two series: Scheme A and Scheme B.
+            // The x-axis already contains every datetime slot, so per-time series are unnecessary.
+            ['Scheme A', 'Scheme B'].forEach(scheme => {
+                const postsArr = [];
+                const engArr = [];
+                const viewsArr = [];
+                const rateArr = [];
+
+                for (let i = 0; i < combinedCount; i++) {
+                    postsArr.push(Math.floor(Math.random() * 200) + 50);
+                    engArr.push(Math.floor(Math.random() * 200000) + 5000);
+                    viewsArr.push(Math.floor(Math.random() * 4000000) + 200000);
+                    rateArr.push((Math.random() * 5 + 1).toFixed(2));
+                }
+
+                trends.push({
+                    name: scheme,
+                    scheme: scheme,
+                    dimension: dimension,
+                    value: '',
+                    data: {
+                        posts: postsArr,
+                        engagement: engArr,
+                        views: viewsArr,
+                        rate: rateArr
+                    }
+                });
+            });
+
+            return trends;
+        }
+
+        // Default behaviour for other dimensions: one series per dimension value, across DATES
+        ['Scheme A', 'Scheme B'].forEach(scheme => {
+            values.forEach(value => {
+                const series = {
+                    name: `${scheme} - ${value}`,
+                    scheme: scheme,
+                    dimension: dimension,
+                    value: value,
+                    data: {
+                        posts: [],
+                        engagement: [],
+                        views: [],
+                        rate: []
+                    }
+                };
+
+                for (let i = 0; i < DATES.length; i++) {
+                    series.data.posts.push(Math.floor(Math.random() * 50) + 10);
+                    series.data.engagement.push(Math.floor(Math.random() * 50000) + 1000);
+                    series.data.views.push(Math.floor(Math.random() * 1000000) + 50000);
+                    series.data.rate.push((Math.random() * 5 + 1).toFixed(2));
+                }
+                trends.push(series);
+            });
+        });
+        return trends;
+    };
+    
+    // Store trend data for all dimensions
+    const allDimensionTrends = {};
+    Object.keys(DIMENSIONS).forEach(dim => {
+        allDimensionTrends[dim] = generateTrendDataForDimension(dim, DIMENSIONS[dim]);
+    });
+    
+    // Set initial trend data
+    mockData.trends = allDimensionTrends['platform'];
+
+    // --- Chart Initialization ---
+    const chart1 = echarts.init(document.getElementById('chart1'));
+    const chart2 = echarts.init(document.getElementById('chart2'));
+
+    // --- Dimension Update Function ---
+    function updateDimension() {
+        currentDimension = document.getElementById('dimensionSelect').value;
+        mockData.current = allDimensionData[currentDimension];
+        mockData.trends = allDimensionTrends[currentDimension];
+        
+        // Show/hide day filter based on dimension
+        const dayFilterSelect = document.getElementById('dayFilterSelect');
+        if (currentDimension === 'publishTime') {
+            dayFilterSelect.style.display = 'block';
+            dayFilterSelect.value = 'all'; // Reset to all
+        } else {
+            dayFilterSelect.style.display = 'none';
+        }
+        
+        updateChart1();
+        updateChart2();
+        renderTable();
+    }
+
+    // --- Chart 1 Logic (Bar + Line) ---
+    function updateChart1() {
+        const metric = document.getElementById('metricSelect1').value;
+        const metricLabel = document.getElementById('metricSelect1').options[document.getElementById('metricSelect1').selectedIndex].text;
+        const dayFilter = document.getElementById('dayFilterSelect').value;
+        const dimensionValues = DIMENSIONS[currentDimension];
+        
+        // For publishTime with day filter, aggregate data
+        let dataSource = mockData.current;
+        if (currentDimension === 'publishTime' && dayFilter !== 'all') {
+            const targetDay = parseInt(dayFilter);
+            const aggregated = [];
+            
+            ['Scheme A', 'Scheme B'].forEach(scheme => {
+                DIMENSIONS.publishTime.forEach(time => {
+                    // Filter by day and aggregate
+                    const filtered = detailedPublishTimeData.filter(d => 
+                        d.scheme === scheme && 
+                        d.time === time && 
+                        d.dayOfWeek === targetDay
+                    );
+                    
+                    if (filtered.length > 0) {
+                        const avgPosts = filtered.reduce((sum, d) => sum + d.posts, 0) / filtered.length;
+                        const avgEngagement = filtered.reduce((sum, d) => sum + d.engagement, 0) / filtered.length;
+                        const avgViews = filtered.reduce((sum, d) => sum + d.views, 0) / filtered.length;
+                        const avgRate = filtered.reduce((sum, d) => sum + parseFloat(d.rate), 0) / filtered.length;
+                        
+                        aggregated.push({
+                            scheme: scheme,
+                            dimension: 'publishTime',
+                            value: time,
+                            posts: Math.round(avgPosts),
+                            engagement: Math.round(avgEngagement),
+                            views: Math.round(avgViews),
+                            rate: avgRate.toFixed(2)
+                        });
+                    }
+                });
+            });
+            dataSource = aggregated;
+        }
+
+        // Generate colors for current dimension values (use scheme colors for all values)
+        const generateColors = (values) => {
+            const colors = {};
+            values.forEach((val) => {
+                colors[val] = { A: COLORS.A, B: COLORS.B };
+            });
+            return colors;
+        };
+        
+        const dimensionColors = generateColors(dimensionValues);
+
+        const seriesList = [];
+        const legendData = [];
+
+        // Create bar series for each scheme-dimension combination
+        ['Scheme A', 'Scheme B'].forEach(scheme => {
+            dimensionValues.forEach(dimValue => {
+                const schemeLetter = scheme === 'Scheme A' ? 'A' : 'B';
+                const color = dimensionColors[dimValue][schemeLetter];
+                const legendName = `${scheme} - ${dimValue}`;
+                legendData.push(legendName);
+
+                // Bar series
+                const barData = dimensionValues.map(v => {
+                    if (v === dimValue) {
+                        const item = dataSource.find(d => d.scheme === scheme && d.value === v);
+                        return item ? item[metric] : 0;
+                    }
+                    return null;
+                });
+
+                seriesList.push({
+                    name: legendName,
+                    type: 'bar',
+                    data: barData,
+                    itemStyle: { 
+                        color: color,
+                        borderRadius: [4, 4, 0, 0]
+                    },
+                    barMaxWidth: 35,
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.3)'
+                        }
+                    }
+                });
+            });
+
+            // Create ONE line series per Scheme that connects all dimension values
+            const rateDataForScheme = [];
+            dimensionValues.forEach(dimValue => {
+                const item = dataSource.find(d => d.scheme === scheme && d.value === dimValue);
+                rateDataForScheme.push(item ? item.rate : 0);
+            });
+
+            const schemeColor = scheme === 'Scheme A' ? COLORS.A : COLORS.B;
+
+            seriesList.push({
+                name: `${scheme} (Rate)`,
+                type: 'line',
+                yAxisIndex: 1,
+                data: rateDataForScheme,
+                itemStyle: {
+                    color: schemeColor
+                },
+                lineStyle: { 
+                    type: 'solid',
+                    width: 2.5,
+                    color: schemeColor
+                },
+                symbol: 'circle',
+                symbolSize: 8,
+                smooth: false,
+                showSymbol: true,
+                z: 10
+            });
+            // Do not add Rate lines to legend
+        });
+
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: { 
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
+                },
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderColor: '#e0e0e0',
+                borderWidth: 1,
+                textStyle: {
+                    color: '#333',
+                    fontSize: 13
+                },
+                padding: [10, 15]
+            },
+            legend: {
+                data: legendData,
+                bottom: 10,
+                textStyle: {
+                    fontSize: 12,
+                    color: '#666'
+                },
+                itemWidth: 25,
+                itemHeight: 14,
+                type: 'scroll'
+            },
+            grid: {
+                left: '3%',
+                right: '5%',
+                bottom: '80px',
+                top: '40px',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: dimensionValues,
+                axisLine: {
+                    lineStyle: {
+                        color: '#e0e0e0'
+                    }
+                },
+                axisLabel: {
+                    color: '#666',
+                    fontSize: 12,
+                    rotate: dimensionValues.length > 5 ? 15 : 0
+                }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: metricLabel,
+                    position: 'left',
+                    nameTextStyle: {
+                        color: '#666',
+                        fontSize: 12,
+                        padding: [0, 0, 0, 0]
+                    },
+                    axisLine: { 
+                        show: true,
+                        lineStyle: {
+                            color: '#e0e0e0'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#666',
+                        fontSize: 11
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#f0f0f0'
+                        }
+                    }
+                },
+                {
+                    type: 'value',
+                    name: 'Engagement Rate (%)',
+                    position: 'right',
+                    nameTextStyle: {
+                        color: '#666',
+                        fontSize: 12
+                    },
+                    axisLine: { 
+                        show: true,
+                        lineStyle: {
+                            color: '#e0e0e0'
+                        }
+                    },
+                    axisLabel: { 
+                        formatter: '{value}%',
+                        color: '#666',
+                        fontSize: 11
+                    },
+                    splitLine: {
+                        show: false
+                    }
+                }
+            ],
+            series: seriesList
+        };
+
+        chart1.setOption(option, true);
+    }
+
+    // --- Chart 2 Logic (Trend Line) ---
+    function updateChart2() {
+        const metric = document.getElementById('metricSelect2').value;
+        
+        // Build x-axis: for publishTime use combined DATE + TIME entries, otherwise use DATES
+        const xAxisData = currentDimension === 'publishTime'
+            ? DATES.flatMap(d => DIMENSIONS.publishTime.map(t => `${d} ${t}`))
+            : DATES;
+
+        // For publishTime, only show the 2 main scheme series (Scheme A and Scheme B)
+        const filteredTrends = currentDimension === 'publishTime'
+            ? mockData.trends.filter(item => item.name === 'Scheme A' || item.name === 'Scheme B')
+            : mockData.trends;
+
+        const seriesList = filteredTrends.map(item => {
+            const isSchemeA = item.scheme === 'Scheme A';
+            return {
+                name: item.name,
+                type: 'line',
+                data: item.data[metric],
+                itemStyle: {
+                    color: isSchemeA ? COLORS.A : COLORS.B
+                },
+                lineStyle: {
+                    width: 2.5
+                },
+                symbol: isSchemeA ? 'circle' : 'rect',
+                symbolSize: 6,
+                smooth: true,
+                emphasis: {
+                    lineStyle: {
+                        width: 3.5
+                    },
+                    scale: true
+                }
+            };
+        });
+
+        const option = {
+            tooltip: { 
+                trigger: 'axis',
+                backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                borderColor: '#e0e0e0',
+                borderWidth: 1,
+                textStyle: {
+                    color: '#333',
+                    fontSize: 13
+                },
+                padding: [10, 15]
+            },
+            legend: {
+                type: 'scroll',
+                bottom: 0,
+                textStyle: {
+                    fontSize: 12,
+                    color: '#666'
+                },
+                itemWidth: 25,
+                itemHeight: 14
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '60px',
+                top: '40px',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: xAxisData,
+                axisLine: {
+                    lineStyle: {
+                        color: '#e0e0e0'
+                    }
+                },
+                axisLabel: {
+                    color: '#666',
+                    fontSize: 12
+                }
+            },
+            yAxis: {
+                type: 'value',
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: '#e0e0e0'
+                    }
+                },
+                axisLabel: {
+                    color: '#666',
+                    fontSize: 11
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#f0f0f0'
+                    }
+                }
+            },
+            series: seriesList
+        };
+
+        chart2.setOption(option, true);
+    }
+
+    // --- Table Logic ---
+    function renderTable() {
+        // Update dimension column header
+        const dimensionNames = {
+            platform: 'Platform',
+            category: 'Post Category',
+            publishTime: 'Publish Time',
+            duration: 'Video Duration',
+            hashtags: 'Top Hashtags',
+            language: 'Language',
+            countries: 'Countries',
+            bgmType: 'BGM Type',
+            bgmTone: 'BGM Tone'
+        };
+        document.getElementById('dimensionColumnHeader').textContent = dimensionNames[currentDimension];
+        
+        const tbody = document.querySelector('#dataTable tbody');
+        tbody.innerHTML = '';
+
+        // Sort by Scheme then dimension value
+        const sortedData = [...mockData.current].sort((a, b) => a.scheme.localeCompare(b.scheme) || a.value.localeCompare(b.value));
+
+        const formatGrowth = (val) => {
+            const num = parseFloat(val);
+            const colorClass = num >= 0 ? 'growth-positive' : 'growth-negative';
+            const arrow = num >= 0 ? '↑' : '↓';
+            return `<span class="${colorClass}">${arrow} ${Math.abs(num)}%</span>`;
+        };
+
+        // Calculate rowspan for Scheme column
+        const schemeGroups = [];
+        let currentScheme = null;
+        let count = 0;
+        
+        sortedData.forEach((row, index) => {
+            if (row.scheme !== currentScheme) {
+                if (currentScheme !== null) {
+                    schemeGroups.push({ scheme: currentScheme, count: count });
+                }
+                currentScheme = row.scheme;
+                count = 1;
+            } else {
+                count++;
+            }
+            if (index === sortedData.length - 1) {
+                schemeGroups.push({ scheme: currentScheme, count: count });
+            }
+        });
+
+        let schemeIndex = 0;
+        let rowInGroup = 0;
+
+        sortedData.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            const schemeClass = row.scheme === 'Scheme A' ? 'scheme-a-text' : 'scheme-b-text';
+            
+            // Add Scheme cell only on first row of each group
+            if (rowInGroup === 0) {
+                const schemeTd = document.createElement('td');
+                schemeTd.className = schemeClass;
+                schemeTd.textContent = row.scheme;
+                schemeTd.rowSpan = schemeGroups[schemeIndex].count;
+                tr.appendChild(schemeTd);
+            }
+            
+            // Other cells
+            tr.innerHTML += `
+                <td>${row.value}</td>
+                <td>${row.posts.toLocaleString()}</td>
+                <td>${formatGrowth(row.posts_growth)}</td>
+                <td>${row.engagement.toLocaleString()}</td>
+                <td>${formatGrowth(row.engagement_growth)}</td>
+                <td>${row.views.toLocaleString()}</td>
+                <td>${formatGrowth(row.views_growth)}</td>
+                <td>${row.rate}%</td>
+                <td>${formatGrowth(row.rate_growth)}</td>
+            `;
+            
+            tbody.appendChild(tr);
+            
+            rowInGroup++;
+            if (rowInGroup >= schemeGroups[schemeIndex].count) {
+                schemeIndex++;
+                rowInGroup = 0;
+            }
+        });
+    }
+
+    // --- Export Functions ---
+    function exportChart(chartNum) {
+        const chart = chartNum === 1 ? chart1 : chart2;
+        const url = chart.getDataURL({
+            type: 'png',
+            pixelRatio: 2,
+            backgroundColor: '#fff'
+        });
+        const link = document.createElement('a');
+        link.download = `chart_${chartNum}_${Date.now()}.png`;
+        link.href = url;
+        link.click();
+    }
+
+    function exportTable() {
+        const dimensionNames = {
+            platform: 'Platform',
+            category: 'Post Category',
+            publishTime: 'Publish Time',
+            duration: 'Video Duration',
+            hashtags: 'Top Hashtags',
+            language: 'Language',
+            countries: 'Countries',
+            bgmType: 'BGM Type',
+            bgmTone: 'BGM Tone'
+        };
+        const dimensionName = dimensionNames[currentDimension];
+        
+        let csv = `Scheme,${dimensionName},Posts,Posts Growth,Engagement,Engagement Growth,Views,Views Growth,Engagement Rate,Rate Growth\n`;
+        
+        mockData.current.forEach(row => {
+            csv += `${row.scheme},${row.value},${row.posts},${row.posts_growth}%,${row.engagement},${row.engagement_growth}%,${row.views},${row.views_growth}%,${row.rate}%,${row.rate_growth}%\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `data_export_${Date.now()}.csv`;
+        link.href = url;
+        link.click();
+        window.URL.revokeObjectURL(url);
+    }
+
+    // --- Initialization ---
+    window.addEventListener('resize', () => {
+        chart1.resize();
+        chart2.resize();
+    });
+
+    // Initial Render
+    updateChart1();
+    updateChart2();
+    renderTable();
+
+</script>
+
+</body>
+</html>
