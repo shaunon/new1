@@ -280,6 +280,7 @@
             <option value="countries">Countries</option>
             <option value="bgmType">BGM Type</option>
             <option value="bgmTone">BGM Tone</option>
+            <option value="sentiment">Sentiment</option>
         </select>
     </div>
 
@@ -506,6 +507,10 @@
         bgmTone: {
             common: true,
             values: ['Upbeat', 'Calm', 'Energetic', 'Melancholic', 'Neutral']
+        },
+        sentiment: {
+            common: true,
+            values: ['Positive', 'Negative', 'Neutral']
         }
     };
     
@@ -1302,7 +1307,8 @@
             language: 'Language',
             countries: 'Countries',
             bgmType: 'BGM Type',
-            bgmTone: 'BGM Tone'
+            bgmTone: 'BGM Tone',
+            sentiment: 'Sentiment'
         };
         document.getElementById('dimensionColumnHeader').textContent = dimensionNames[currentDimension];
         
@@ -1447,7 +1453,8 @@
             language: 'Language',
             countries: 'Countries',
             bgmType: 'BGM Type',
-            bgmTone: 'BGM Tone'
+            bgmTone: 'BGM Tone',
+            sentiment: 'Sentiment'
         };
         const dimensionName = dimensionNames[currentDimension];
         
