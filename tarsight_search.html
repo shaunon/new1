@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarsight Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+        .platform-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white border-b px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2 text-sm text-gray-500">
+                <i data-lucide="menu" class="w-4 h-4"></i>
+                <span>Market Insights</span>
+                <span>/</span>
+                <span class="text-gray-900 font-medium">Tarsight</span>
+            </div>
+        </header>
+
+        <main class="p-6">
+            <div class="flex justify-between items-start mb-6">
+                <h1 class="text-2xl font-bold">Tarsight</h1>
+                <div class="flex space-x-2">
+                    <!-- Social Icons Mock -->
+                    <div class="platform-icon"><img src="https://www.tiktok.com/favicon.ico" class="w-5 h-5" alt="TikTok"></div>
+                    <div class="platform-icon"><img src="https://www.instagram.com/static/images/ico/favicon.ico/36b30c144a6a.ico" class="w-5 h-5" alt="Instagram"></div>
+                    <div class="platform-icon"><img src="https://www.youtube.com/favicon.ico" class="w-5 h-5" alt="YouTube"></div>
+                    <div class="platform-icon"><img src="https://www.facebook.com/favicon.ico" class="w-5 h-5" alt="Facebook"></div>
+                    <div class="platform-icon"><img src="https://twitter.com/favicon.ico" class="w-5 h-5" alt="X"></div>
+                    <div class="platform-icon"><img src="https://www.reddit.com/favicon.ico" class="w-5 h-5" alt="Reddit"></div>
+                </div>
+            </div>
+
+            <!-- Search Bar Area -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border mb-6">
+                <div class="flex items-center space-x-4 mb-4 max-w-3xl">
+                    <!-- Dropdown -->
+                    <div class="relative inline-block text-left" id="search-type-dropdown">
+                        <button type="button" class="inline-flex items-center justify-between w-40 rounded-full border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none" id="dropdown-button">
+                            <span id="selected-search-type">Post Search</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 ml-2"></i>
+                        </button>
+                        <div id="dropdown-menu" class="hidden absolute left-0 z-10 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                            <div class="py-1">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="switchSearchType('Post Search')">Post Search</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" onclick="switchSearchType('Comment Search')">Comment Search</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="flex-1 relative">
+                        <input type="text" class="w-full pl-4 pr-24 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-sm" placeholder="Search by keyword, hashtag, or topic...">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center space-x-2 text-gray-400">
+                            <!-- Search Fields Filter (New) -->
+                            <div class="relative group search-action-post" id="search-fields-filter">
+                                <i data-lucide="filter" class="w-4 h-4 cursor-pointer hover:text-gray-600"></i>
+                                <!-- Hover Dropdown -->
+                                <div class="hidden group-hover:block absolute left-0 top-full mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 p-3 z-50">
+                                    <div class="text-xs font-bold text-gray-400 uppercase mb-2">Search Fields</div>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" checked class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5">
+                                            <span class="text-sm text-gray-700">Content</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" checked class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5">
+                                            <span class="text-sm text-gray-700">Title</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5">
+                                            <span class="text-sm text-gray-700">ASR</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" class="rounded text-blue-600 focus:ring-blue-500 w-3.5 h-3.5">
+                                            <span class="text-sm text-gray-700">OCR</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <i data-lucide="map-pin" class="w-4 h-4 cursor-pointer hover:text-gray-600 search-action-post"></i>
+                            <i data-lucide="calendar" class="w-4 h-4 cursor-pointer hover:text-gray-600"></i>
+                            <i data-lucide="sparkles" class="w-4 h-4 cursor-pointer hover:text-blue-600 search-action-post" id="beauty-icon-toggle" title="is beauty"></i>
+                            <i data-lucide="smile" class="w-4 h-4 cursor-pointer hover:text-gray-600 search-action-post"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-4 text-xs">
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-gray-600 uppercase">Platform</span>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="px-2 py-1 bg-gray-100 rounded-md flex items-center">Facebook <i data-lucide="x" class="w-3 h-3 ml-1 cursor-pointer"></i></span>
+                            <span class="px-2 py-1 bg-gray-100 rounded-md flex items-center">Instagram <i data-lucide="x" class="w-3 h-3 ml-1 cursor-pointer"></i></span>
+                            <span class="px-2 py-1 bg-gray-100 rounded-md flex items-center">TikTok <i data-lucide="x" class="w-3 h-3 ml-1 cursor-pointer"></i></span>
+                            <span class="px-2 py-1 bg-gray-100 rounded-md flex items-center">YouTube <i data-lucide="x" class="w-3 h-3 ml-1 cursor-pointer"></i></span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-gray-600 uppercase">Date Posted</span>
+                        <span class="text-gray-700">2026-01-27 ~ 2026-02-02</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center mt-6 border-t pt-4">
+                    <div class="text-sm text-blue-600 font-medium">
+                        <span id="results-count">236.90K</span> results found
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="px-6 py-2 border rounded-full text-sm font-medium hover:bg-gray-50">Clear</button>
+                        <button class="px-6 py-2 bg-black text-white rounded-full text-sm font-medium hover:bg-gray-800">Show Result</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs and Actions -->
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex bg-gray-100 p-1 rounded-lg">
+                    <button id="post-list-tab" class="px-4 py-1.5 rounded-md text-sm font-medium bg-white shadow-sm flex items-center">
+                        <i data-lucide="align-left" class="w-4 h-4 mr-2"></i>
+                        <span id="tab-label">Post List</span>
+                    </button>
+                    <button id="insights-tab" class="px-4 py-1.5 rounded-md text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center ml-1">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 mr-2"></i>
+                        Insights
+                    </button>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-1.5 border rounded-full text-sm font-medium flex items-center hover:bg-gray-50">
+                        <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                        Export
+                    </button>
+                    <button class="px-4 py-1.5 border rounded-full text-sm font-medium flex items-center hover:bg-gray-50">
+                        <i data-lucide="settings" class="w-4 h-4 mr-2"></i>
+                        Column Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <table class="w-full text-left text-sm" id="data-table">
+                    <thead class="bg-gray-50 border-b">
+                        <tr id="table-header">
+                            <!-- Header content will be injected by JS -->
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Body content will be injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Dropdown toggle
+        const dropdownButton = document.getElementById('dropdown-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        dropdownButton.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('hidden');
+        });
+
+        // Beauty icon toggle
+        const beautyIcon = document.getElementById('beauty-icon-toggle');
+        let isBeautyActive = false;
+        beautyIcon.addEventListener('click', () => {
+            isBeautyActive = !isBeautyActive;
+            if (isBeautyActive) {
+                beautyIcon.classList.remove('text-gray-400');
+                beautyIcon.classList.add('text-blue-600');
+            } else {
+                beautyIcon.classList.remove('text-blue-600');
+                beautyIcon.classList.add('text-gray-400');
+            }
+        });
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', (e) => {
+            if (!dropdownButton.contains(e.target)) {
+                dropdownMenu.classList.add('hidden');
+            }
+        });
+
+        // Data switching logic
+        let currentType = 'Post Search';
+        let commentSortConfig = { field: null, order: 'desc' };
+        
+        const postData = [
+            {
+                id: 1,
+                thumbnail: 'https://picsum.photos/seed/post1/100/150',
+                title: 'Paradise Season 2 | Official Trailer | Hulu',
+                author: 'Hulu',
+                tags: ['#ParadiseHuluSTART', '#disney', '#paradise'],
+                date: '29 Jan 2026 00:59',
+                views: '23M',
+                engagement: '4.54K',
+                sentiment: 'Neutral',
+                likes: '4.54K',
+                shares: '-',
+                comments: '-',
+                duration: '138s'
+            },
+            {
+                id: 2,
+                thumbnail: 'https://picsum.photos/seed/post2/100/150',
+                title: 'DTF St. Louis | Official Trailer | HBO Max',
+                author: 'HBO Max',
+                tags: ['#DTFStLouis'],
+                date: '29 Jan 2026 02:00',
+                views: '12M',
+                engagement: '9.80K',
+                sentiment: 'Neutral',
+                likes: '9.80K',
+                shares: '-',
+                comments: '-',
+                duration: '155s'
+            }
+        ];
+
+        const commentData = [
+            {
+                unique_id: "youtube_UgxA2jtbSAHuA6AzKl54AaABAg",
+                content: "Those fly-like goggles are not just weird they also don’t look comfortable to wear at all.",
+                platform: "youtube",
+                user_info: {
+                    short_id: "580kim-m6e",
+                    avatar: "https://yt3.ggpht.com/b2hLrLwSbMO-v-B4ptUEZmehqdncChQGb_HT1twjprrTIDNw_7EyT2LSqVi4m_4DDkIvPpL3yO0=s88-c-k-c0x00ffffff-no-rj",
+                    url: "https://www.youtube.com/@580kim-m6e"
+                },
+                post_publish_time: "2026-01-06 10:00:00",
+                post_stats: {
+                    like_count: "10"
+                },
+                url: "https://www.youtube.com/watch?v=mwG2Zjjr760&lc=UgxA2jtbSAHuA6AzKl54AaABAg",
+                origin: {
+                    nickname: "Max Tech",
+                    avatar: "https://yt3.ggpht.com/ytc/AIdro_myEKwPp7n1o7Gt1vd1X3pPoioDaF9xNSKcvQibs1SEyTc=s176-c-k-c0x00ffffff-no-rj",
+                    url: "https://www.youtube.com/watch?v=mwG2Zjjr760",
+                    post_publish_time: "2025-12-04 22:01:26"
+                }
+            },
+            {
+                unique_id: "tiktok_731234567890",
+                content: "The transitions in this video are absolutely insane! How do you do that?",
+                platform: "tiktok",
+                user_info: {
+                    short_id: "creative_mind",
+                    avatar: "https://i.pravatar.cc/150?u=creative",
+                    url: "https://www.tiktok.com/@creative_mind"
+                },
+                post_publish_time: "2026-01-28 15:30:00",
+                post_stats: {
+                    like_count: "1.2K"
+                },
+                url: "https://www.tiktok.com/@creative_mind/video/123456",
+                origin: {
+                    nickname: "Zach King",
+                    avatar: "https://i.pravatar.cc/150?u=zach",
+                    url: "https://www.tiktok.com/@zachking",
+                    post_publish_time: "2026-01-27 12:00:00"
+                }
+            },
+            {
+                unique_id: "instagram_987654321",
+                content: "This product changed my life, definitely worth every penny.",
+                platform: "instagram",
+                user_info: {
+                    short_id: "lifestyle_guru",
+                    avatar: "https://i.pravatar.cc/150?u=guru",
+                    url: "https://www.instagram.com/lifestyle_guru"
+                },
+                post_publish_time: "2026-02-01 09:15:00",
+                post_stats: {
+                    like_count: "450"
+                },
+                url: "https://www.instagram.com/p/B8jK9Lmn/",
+                origin: {
+                    nickname: "Apple",
+                    avatar: "https://www.apple.com/favicon.ico",
+                    url: "https://www.instagram.com/apple",
+                    post_publish_time: "2026-01-30 18:00:00"
+                }
+            },
+            {
+                unique_id: "youtube_v_12345",
+                content: "Can you do a comparison with the previous model next time?",
+                platform: "youtube",
+                user_info: {
+                    short_id: "tech_reviewer_pro",
+                    avatar: "https://i.pravatar.cc/150?u=tech",
+                    url: "https://www.youtube.com/@techreviewer"
+                },
+                post_publish_time: "2026-02-02 20:45:00",
+                post_stats: {
+                    like_count: "89"
+                },
+                url: "https://www.youtube.com/watch?v=xyz123&lc=abc",
+                origin: {
+                    nickname: "Marques Brownlee",
+                    avatar: "https://i.pravatar.cc/150?u=mkbhd",
+                    url: "https://www.youtube.com/@mkbhd",
+                    post_publish_time: "2026-02-01 14:30:00"
+                }
+            }
+        ];
+
+        function switchSearchType(type) {
+            currentType = type;
+            document.getElementById('selected-search-type').innerText = type;
+            document.getElementById('tab-label').innerText = type === 'Post Search' ? 'Post List' : 'Comment List';
+            document.getElementById('results-count').innerText = type === 'Post Search' ? '236.90K' : '1.24M';
+            
+            // Toggle Insights tab
+            const insightsTab = document.getElementById('insights-tab');
+            if (type === 'Post Search') {
+                insightsTab.classList.remove('hidden');
+            } else {
+                insightsTab.classList.add('hidden');
+            }
+
+            // Toggle search input icons
+            const postIcons = document.querySelectorAll('.search-action-post');
+            postIcons.forEach(icon => {
+                if (type === 'Post Search') {
+                    icon.classList.remove('hidden');
+                } else {
+                    icon.classList.add('hidden');
+                }
+            });
+
+            renderTable();
+            dropdownMenu.classList.add('hidden');
+        }
+
+        function sortComments(field) {
+            if (commentSortConfig.field === field) {
+                commentSortConfig.order = commentSortConfig.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                commentSortConfig.field = field;
+                commentSortConfig.order = 'desc';
+            }
+
+            commentData.sort((a, b) => {
+                let valA, valB;
+                if (field === 'likes') {
+                    // Simple parse for 1.2K style
+                    const parseLikes = (s) => {
+                        if (typeof s !== 'string') return s;
+                        if (s.endsWith('K')) return parseFloat(s) * 1000;
+                        return parseFloat(s);
+                    };
+                    valA = parseLikes(a.post_stats.like_count);
+                    valB = parseLikes(b.post_stats.like_count);
+                } else if (field === 'commentDate') {
+                    valA = new Date(a.post_publish_time);
+                    valB = new Date(b.post_publish_time);
+                } else if (field === 'postDate') {
+                    valA = new Date(a.origin.post_publish_time);
+                    valB = new Date(b.origin.post_publish_time);
+                }
+
+                if (commentSortConfig.order === 'asc') {
+                    return valA > valB ? 1 : -1;
+                } else {
+                    return valA < valB ? 1 : -1;
+                }
+            });
+
+            renderTable();
+        }
+
+        function renderTable() {
+            const header = document.getElementById('table-header');
+            const body = document.getElementById('table-body');
+            
+            if (currentType === 'Post Search') {
+                header.innerHTML = `
+                    <th class="px-4 py-3 font-medium text-gray-500"><input type="checkbox" class="rounded"></th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Post</th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Date Posted</th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Views</th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Engagement</th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Sentiment</th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Likes</th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Shares</th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Comments</th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Duration</th>
+                `;
+                
+                body.innerHTML = postData.map(post => `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-4"><input type="checkbox" class="rounded"></td>
+                        <td class="px-4 py-4">
+                            <div class="flex space-x-3">
+                                <img src="${post.thumbnail}" class="w-16 h-20 object-cover rounded-md shadow-sm">
+                                <div class="max-w-xs">
+                                    <div class="font-semibold text-gray-900 line-clamp-2">${post.title}</div>
+                                    <div class="text-xs text-blue-600 mt-1">By ${post.author}</div>
+                                    <div class="flex flex-wrap gap-1 mt-2">
+                                        ${post.tags.map(tag => `<span class="px-1.5 py-0.5 bg-pink-100 text-pink-600 text-[10px] rounded">${tag}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 text-gray-600">${post.date}</td>
+                        <td class="px-4 py-4 text-gray-600">${post.views}</td>
+                        <td class="px-4 py-4 text-gray-600">${post.engagement}</td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
+                                <span class="w-2 h-2 rounded-full bg-orange-400 mr-1.5"></span>
+                                ${post.sentiment}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4 text-gray-600">${post.likes}</td>
+                        <td class="px-4 py-4 text-gray-600">${post.shares}</td>
+                        <td class="px-4 py-4 text-gray-600">${post.comments}</td>
+                        <td class="px-4 py-4 text-gray-600">${post.duration}</td>
+                    </tr>
+                `).join('');
+            } else {
+                header.innerHTML = `
+                    <th class="px-4 py-3 font-medium text-gray-500"><input type="checkbox" class="rounded"></th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Comment</th>
+                    <th class="px-4 py-3 font-medium text-gray-500">Original Creator</th>
+                    <th class="px-4 py-3 font-medium text-gray-500 cursor-pointer hover:text-gray-700 group" onclick="sortComments('likes')">
+                        <div class="flex items-center">
+                            Likes
+                            <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5 ml-1 text-gray-300 group-hover:text-gray-500"></i>
+                        </div>
+                    </th>
+                    <th class="px-4 py-3 font-medium text-gray-500 cursor-pointer hover:text-gray-700 group" onclick="sortComments('commentDate')">
+                        <div class="flex items-center">
+                            Comment Date
+                            <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5 ml-1 text-gray-300 group-hover:text-gray-500"></i>
+                        </div>
+                    </th>
+                    <th class="px-4 py-3 font-medium text-gray-500 cursor-pointer hover:text-gray-700 group" onclick="sortComments('postDate')">
+                        <div class="flex items-center">
+                            Post Date
+                            <i data-lucide="chevrons-up-down" class="w-3.5 h-3.5 ml-1 text-gray-300 group-hover:text-gray-500"></i>
+                        </div>
+                    </th>
+                    <th class="px-4 py-3 font-medium text-gray-500 text-right">Action</th>
+                `;
+                
+                body.innerHTML = commentData.map(comment => {
+                    const platformLogos = {
+                        'youtube': 'https://www.youtube.com/favicon.ico',
+                        'tiktok': 'https://www.tiktok.com/favicon.ico',
+                        'instagram': 'https://www.instagram.com/static/images/ico/favicon.ico/36b30c144a6a.ico'
+                    };
+                    const logoUrl = platformLogos[comment.platform.toLowerCase()] || '';
+
+                    return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-4"><input type="checkbox" class="rounded"></td>
+                        <td class="px-4 py-4">
+                            <div class="flex space-x-3 items-start">
+                                <img src="${comment.user_info.avatar}" class="w-8 h-8 rounded-full border">
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <div class="font-semibold text-gray-900">@${comment.user_info.short_id}</div>
+                                        ${logoUrl ? `<img src="${logoUrl}" class="w-3.5 h-3.5">` : ''}
+                                    </div>
+                                    <div class="text-gray-600 mt-1 max-w-md text-sm">${comment.content}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="flex items-center space-x-2">
+                                <img src="${comment.origin.avatar}" class="w-6 h-6 rounded-full border">
+                                <span class="text-xs font-medium text-gray-700">${comment.origin.nickname}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 text-gray-600 font-medium">
+                            <div class="flex items-center">
+                                <i data-lucide="thumbs-up" class="w-3 h-3 mr-1 text-gray-400"></i>
+                                ${comment.post_stats.like_count || '0'}
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 text-gray-500 text-xs">${comment.post_publish_time}</td>
+                        <td class="px-4 py-4 text-gray-500 text-xs">${comment.origin.post_publish_time}</td>
+                        <td class="px-4 py-4 text-right">
+                            <a href="${comment.url}" target="_blank" class="inline-flex items-center px-3 py-1 border border-blue-600 text-blue-600 rounded-full text-xs font-medium hover:bg-blue-50 transition-colors">
+                                Jump to Original
+                                <i data-lucide="external-link" class="w-3 h-3 ml-1.5"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `}).join('');
+                lucide.createIcons(); // Re-initialize icons for new rows
+            }
+        }
+
+        // Initial render
+        renderTable();
+    </script>
+</body>
+</html>
